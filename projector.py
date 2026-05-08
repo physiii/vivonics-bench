@@ -30,7 +30,7 @@ class Projector:
 
         self._pygame = pygame
 
-        for driver in ("KMSDRM", "kms", "fbcon", "dummy"):
+        for driver in ("KMSDRM", "kms", "fbcon", "wayland", "x11", "dummy"):
             os.environ["SDL_VIDEODRIVER"] = driver
             try:
                 pygame.display.quit()
