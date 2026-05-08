@@ -93,7 +93,6 @@ async def lifespan(app: FastAPI):
     capture = Capture(CaptureConfig())
     projector = Projector(ProjectorConfig())
     sensors = SensorSuite()
-    projector.open()
     yield
     if projector is not None:
         projector.close()
@@ -157,6 +156,8 @@ def run_linearity(req: StartRequest | None = None):
 
     def worker():
         try:
+            projector.open()
+
             def emit(event: dict[str, Any]) -> None:
                 bench_state.emit(_with_sensor_snapshot(event))
 
@@ -171,6 +172,9 @@ def run_linearity(req: StartRequest | None = None):
         except Exception as e:
             bench_state.state = RunState.failed
             bench_state.emit({"type": "error", "message": str(e)})
+        finally:
+            if projector is not None:
+                projector.close()
 
     threading.Thread(target=worker, daemon=True).start()
     return {"status": "started", "phase": "linearity"}
@@ -195,6 +199,8 @@ def run_photocycle(req: StartRequest | None = None):
 
     def worker():
         try:
+            projector.open()
+
             def emit(event: dict[str, Any]) -> None:
                 bench_state.emit(_with_sensor_snapshot(event))
 
@@ -235,6 +241,9 @@ def run_photocycle(req: StartRequest | None = None):
         except Exception as e:
             bench_state.state = RunState.failed
             bench_state.emit({"type": "error", "message": str(e)})
+        finally:
+            if projector is not None:
+                projector.close()
 
     threading.Thread(target=worker, daemon=True).start()
     return {"status": "started", "phase": "photocycle"}
