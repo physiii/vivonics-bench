@@ -20,8 +20,8 @@ scripts/deploy_remote.sh andy@192.168.1.174 /home/andy/vivonics/pi
 ```
 
 The deploy script rsyncs this repo into the target path, installs Python
-dependencies with `pip --user`, installs/restarts the user systemd service,
-and prints the service status plus `/status` response.
+dependencies in a repo-local `.venv`, installs/restarts the user systemd
+service, and prints the service status plus `/status` response.
 
 ## Manual Pi install
 
@@ -29,7 +29,6 @@ On the Pi:
 
 ```bash
 cd /home/andy/vivonics/pi
-python3 -m pip install --user -r requirements.txt
 sudo raspi-config nonint do_i2c 0
 ./install.sh
 curl http://127.0.0.1:8090/status

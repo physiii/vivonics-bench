@@ -3,10 +3,17 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SERVICE_DIR="${HOME}/.config/systemd/user"
+VENV_DIR="${VIVONICS_BENCH_VENV:-${SCRIPT_DIR}/.venv}"
+PYTHON_BIN="${VENV_DIR}/bin/python"
 
 echo "Installing Vivonics bench service..."
 
-pip install --user -r "${SCRIPT_DIR}/requirements.txt"
+if [[ ! -x "${PYTHON_BIN}" ]]; then
+  python3 -m venv "${VENV_DIR}"
+fi
+
+"${PYTHON_BIN}" -m pip install --upgrade pip
+"${PYTHON_BIN}" -m pip install -r "${SCRIPT_DIR}/requirements.txt"
 
 mkdir -p "${SERVICE_DIR}"
 
@@ -18,7 +25,7 @@ After=network.target c1-mediamtx.service c1-camera-rtsp.service
 [Service]
 Type=simple
 WorkingDirectory=${SCRIPT_DIR}
-ExecStart=$(which python3) -m uvicorn bench_service:app --host 0.0.0.0 --port 8090
+ExecStart=${PYTHON_BIN} -m uvicorn bench_service:app --host 0.0.0.0 --port 8090
 Restart=on-failure
 RestartSec=5
 Environment=SDL_VIDEODRIVER=kms
@@ -35,4 +42,4 @@ echo "Service installed and started."
 echo "Check status: systemctl --user status vivonics-bench"
 echo "View logs:    journalctl --user -u vivonics-bench -f"
 echo "I2C sensors:  sudo raspi-config nonint do_i2c 0 && i2cdetect -y 1"
-echo "Sensor check: python3 ${SCRIPT_DIR}/x1_measurement.py sensor-check"
+echo "Sensor check: ${PYTHON_BIN} ${SCRIPT_DIR}/x1_measurement.py sensor-check"

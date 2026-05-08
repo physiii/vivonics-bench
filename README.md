@@ -24,9 +24,12 @@ The Pi owns the tight first-loop instrumentation:
 
 ```bash
 cd /home/andy/vivonics/pi
-python3 -m pip install --user -r requirements.txt
+./install.sh
 sudo raspi-config nonint do_i2c 0
 ```
+
+`install.sh` creates a repo-local `.venv` so Raspberry Pi OS PEP 668 system
+Python protection does not block dependency installation.
 
 Check I2C sensor visibility:
 
