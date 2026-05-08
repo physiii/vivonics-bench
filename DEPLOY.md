@@ -1,0 +1,48 @@
+# Vivonics Pi Bench Deployment
+
+The Pi bench repo is designed to run as the `pi/` submodule inside the parent
+Vivonics checkout, and also as a standalone repo while developing on the Pi.
+
+## Current bench target
+
+- Host: `raspberrypi.local`
+- Current resolved IPv4: `192.168.1.174`
+- User used by local scripts: `andy`
+- Service port: `8090`
+- Expected path in the parent Vivonics checkout: `/home/andy/vivonics/pi`
+
+## Deploy from this workstation
+
+From this repo:
+
+```bash
+scripts/deploy_remote.sh andy@192.168.1.174 /home/andy/vivonics/pi
+```
+
+The deploy script rsyncs this repo into the target path, installs Python
+dependencies with `pip --user`, installs/restarts the user systemd service,
+and prints the service status plus `/status` response.
+
+## Manual Pi install
+
+On the Pi:
+
+```bash
+cd /home/andy/vivonics/pi
+python3 -m pip install --user -r requirements.txt
+sudo raspi-config nonint do_i2c 0
+./install.sh
+curl http://127.0.0.1:8090/status
+curl http://127.0.0.1:8090/sensors
+```
+
+`sudo raspi-config nonint do_i2c 0` is intentionally not run by the deploy
+script because it may require an operator password and should only be changed
+when the Pi wiring is in a known state.
+
+## Claim boundary
+
+This repo only owns C1/X1 bench instrumentation: HDMI projector frames, IMX477
+capture, auxiliary I2C sensor snapshots, and smoke-test measurement scripts.
+It does not make evidence-grade bacteriorhodopsin, purple-membrane, or
+weight-plane claims by itself.
