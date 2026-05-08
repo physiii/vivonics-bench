@@ -33,6 +33,7 @@ sudo raspi-config nonint do_i2c 0
 ./install.sh
 curl http://127.0.0.1:8090/status
 curl http://127.0.0.1:8090/sensors
+/usr/sbin/i2cdetect -y 1
 ```
 
 `sudo raspi-config nonint do_i2c 0` is intentionally not run by the deploy

@@ -34,7 +34,7 @@ Python protection does not block dependency installation.
 Check I2C sensor visibility:
 
 ```bash
-i2cdetect -y 1
+/usr/sbin/i2cdetect -y 1
 python3 x1_measurement.py sensor-check
 ```
 

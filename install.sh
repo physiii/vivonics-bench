@@ -41,5 +41,5 @@ systemctl --user start vivonics-bench.service
 echo "Service installed and started."
 echo "Check status: systemctl --user status vivonics-bench"
 echo "View logs:    journalctl --user -u vivonics-bench -f"
-echo "I2C sensors:  sudo raspi-config nonint do_i2c 0 && i2cdetect -y 1"
+echo "I2C sensors:  sudo raspi-config nonint do_i2c 0 && /usr/sbin/i2cdetect -y 1"
 echo "Sensor check: ${PYTHON_BIN} ${SCRIPT_DIR}/x1_measurement.py sensor-check"
