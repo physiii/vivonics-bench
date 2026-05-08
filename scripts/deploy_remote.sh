@@ -11,6 +11,7 @@ echo "Deploying Vivonics Pi bench to ${REMOTE_HOST}:${REMOTE_DIR}"
 ssh "${REMOTE_HOST}" "mkdir -p '${REMOTE_DIR}'"
 
 rsync -az --delete \
+  --exclude '.git' \
   --exclude '.git/' \
   --exclude '__pycache__/' \
   --exclude '.pytest_cache/' \
