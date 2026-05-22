@@ -1,7 +1,8 @@
 """Camera capture via rpicam-still or ffmpeg single-frame grab.
 
 Grabs frames from the IMX477 on the Pi, extracts center 512x512 ROI,
-handles dark subtraction and frame averaging.
+handles dark subtraction, frame averaging, and hot-pixel masking for
+optimized bR response measurement.
 """
 from __future__ import annotations
 
@@ -9,6 +10,7 @@ import subprocess
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -31,6 +33,21 @@ class CaptureConfig:
     dark_frame_count: int = 8
     use_rtsp_grab: bool = True
     rtsp_url: str = "rtsp://127.0.0.1:8554/cam"
+    shutter_us: int = 1000
+    gain: float = 1.0
+    awb_gains: str = "1.5,1.0"
+
+
+@dataclass
+class SpotMask:
+    """Binary mask identifying the laser-illuminated pixels in the ROI."""
+    mask: np.ndarray
+    centroid_x: float
+    centroid_y: float
+    rms_radius: float
+    pixel_count: int
+    lo_threshold: float
+    hi_threshold: float
 
 
 class Capture:
@@ -38,6 +55,7 @@ class Capture:
         self.config = config or CaptureConfig()
         self.config.output_dir.mkdir(parents=True, exist_ok=True)
         self._dark_ref: np.ndarray | None = None
+        self._spot_mask: SpotMask | None = None
 
     def grab_frame(self, label: str = "") -> tuple[np.ndarray, Path]:
         ts = int(time.time() * 1000)
@@ -78,6 +96,37 @@ class Capture:
             return frame.astype(np.float64)
         return np.clip(frame.astype(np.float64) - self._dark_ref, 0.0, None)
 
+    def calibrate_spot_mask(
+        self, frame: np.ndarray, lo: float = 10.0, hi: float = 240.0,
+    ) -> SpotMask:
+        """Build a mask from the illuminated, unsaturated pixels in the red channel."""
+        red = frame[:, :, 0] if frame.ndim == 3 else frame
+        red = red.astype(np.float64)
+        mask = (red > lo) & (red < hi)
+        count = int(mask.sum())
+
+        if count < 10:
+            cx, cy, rms = 0.0, 0.0, 0.0
+        else:
+            yy, xx = np.mgrid[: red.shape[0], : red.shape[1]]
+            weights = np.where(mask, red, 0.0)
+            total_w = weights.sum()
+            cx = float((xx * weights).sum() / total_w)
+            cy = float((yy * weights).sum() / total_w)
+            r2 = (xx - cx) ** 2 + (yy - cy) ** 2
+            rms = float(np.sqrt((r2 * weights).sum() / total_w))
+
+        self._spot_mask = SpotMask(
+            mask=mask,
+            centroid_x=cx,
+            centroid_y=cy,
+            rms_radius=rms,
+            pixel_count=count,
+            lo_threshold=lo,
+            hi_threshold=hi,
+        )
+        return self._spot_mask
+
     def red_channel_mean(self, frame: np.ndarray) -> float:
         if frame.ndim == 3:
             red = frame[:, :, 0]
@@ -85,20 +134,60 @@ class Capture:
             red = frame
         return float(np.mean(red))
 
+    def red_masked_mean(self, frame: np.ndarray) -> float:
+        """Mean of red channel using only the spot-mask pixels."""
+        if self._spot_mask is None or self._spot_mask.pixel_count < 10:
+            return self.red_channel_mean(frame)
+        red = frame[:, :, 0] if frame.ndim == 3 else frame
+        red = red.astype(np.float64)
+        return float(np.mean(red[self._spot_mask.mask]))
+
+    def red_analysis(self, frame: np.ndarray) -> dict[str, Any]:
+        """Full analysis of red channel: full-ROI and masked metrics."""
+        red = frame[:, :, 0] if frame.ndim == 3 else frame
+        red = red.astype(np.float64)
+        result: dict[str, Any] = {
+            "full_mean": float(np.mean(red)),
+            "full_std": float(np.std(red)),
+            "full_max": float(np.max(red)),
+            "full_min": float(np.min(red)),
+        }
+        if self._spot_mask is not None and self._spot_mask.pixel_count >= 10:
+            masked = red[self._spot_mask.mask]
+            result.update({
+                "masked_mean": float(np.mean(masked)),
+                "masked_std": float(np.std(masked)),
+                "masked_max": float(np.max(masked)),
+                "masked_min": float(np.min(masked)),
+                "masked_pixels": self._spot_mask.pixel_count,
+                "centroid_x": self._spot_mask.centroid_x,
+                "centroid_y": self._spot_mask.centroid_y,
+                "rms_radius": self._spot_mask.rms_radius,
+            })
+        return result
+
+    @property
+    def spot_mask(self) -> SpotMask | None:
+        return self._spot_mask
+
     def _grab_via_rpicam(self, path: Path) -> None:
-        subprocess.run(
-            [
-                "rpicam-still",
-                "--immediate",
-                "--width", str(FRAME_W),
-                "--height", str(FRAME_H),
-                "--output", str(path),
-                "--encoding", "png",
-                "--nopreview",
-            ],
-            check=True,
-            capture_output=True,
-        )
+        cmd = [
+            "rpicam-still",
+            "--immediate",
+            "--width", str(FRAME_W),
+            "--height", str(FRAME_H),
+            "--output", str(path),
+            "--encoding", "png",
+            "--nopreview",
+            "--denoise", "off",
+        ]
+        if self.config.shutter_us > 0:
+            cmd.extend(["--shutter", str(self.config.shutter_us)])
+        if self.config.gain > 0:
+            cmd.extend(["--gain", str(self.config.gain)])
+        if self.config.awb_gains and self.config.awb_gains != "auto":
+            cmd.extend(["--awbgains", self.config.awb_gains])
+        subprocess.run(cmd, check=True, capture_output=True)
 
     def _grab_via_ffmpeg(self, path: Path) -> None:
         subprocess.run(

@@ -36,6 +36,21 @@ curl http://127.0.0.1:8090/sensors
 /usr/sbin/i2cdetect -y 1
 ```
 
+The bench service installed by `install.sh` defaults to:
+
+```text
+VIVONICS_LIGHT_DRIVER=both
+VIVONICS_RED_LASER_GPIO=22
+VIVONICS_GREEN_LASER_GPIO=27
+VIVONICS_LASER_ACTIVE_HIGH=0
+```
+
+That maps red laser enable to physical pin `15` and green laser enable to
+physical pin `13`. The laser control is active-low by default: `Off` drives the
+GPIO pins high, and an active channel is pulled low. Treat the GPIO pins as
+logic outputs into transistor or MOSFET switches; do not sink laser current
+directly through the Pi.
+
 `sudo raspi-config nonint do_i2c 0` is intentionally not run by the deploy
 script because it may require an operator password and should only be changed
 when the Pi wiring is in a known state.

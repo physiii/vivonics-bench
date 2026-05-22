@@ -28,7 +28,13 @@ WorkingDirectory=${SCRIPT_DIR}
 ExecStart=${PYTHON_BIN} -m uvicorn bench_service:app --host 0.0.0.0 --port 8090
 Restart=on-failure
 RestartSec=5
+TimeoutStopSec=5
+KillMode=mixed
 Environment=SDL_VIDEODRIVER=kms
+Environment=VIVONICS_LIGHT_DRIVER=${VIVONICS_LIGHT_DRIVER:-both}
+Environment=VIVONICS_RED_LASER_GPIO=${VIVONICS_RED_LASER_GPIO:-23}
+Environment=VIVONICS_GREEN_LASER_GPIO=${VIVONICS_GREEN_LASER_GPIO:-24}
+Environment=VIVONICS_LASER_ACTIVE_HIGH=${VIVONICS_LASER_ACTIVE_HIGH:-1}
 
 [Install]
 WantedBy=default.target
@@ -36,7 +42,7 @@ EOF
 
 systemctl --user daemon-reload
 systemctl --user enable vivonics-bench.service
-systemctl --user start vivonics-bench.service
+systemctl --user restart vivonics-bench.service
 
 echo "Service installed and started."
 echo "Check status: systemctl --user status vivonics-bench"

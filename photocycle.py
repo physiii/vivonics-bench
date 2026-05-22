@@ -20,7 +20,7 @@ from projector import Projector
 
 @dataclass
 class PhotocycleConfig:
-    red_levels: tuple[int, ...] = (0, 32, 64, 96, 128, 160, 192)
+    red_levels: tuple[int, ...] = (96, 128, 160, 192)
     green_codes: tuple[int, ...] = (0, 16, 32, 64, 96, 128, 160, 192, 224, 255)
     read_delays_s: tuple[float, ...] = (0.0, 0.5, 1.0, 2.0, 5.0, 10.0)
     green_exposure_s: float = 1.0

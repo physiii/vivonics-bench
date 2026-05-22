@@ -6,6 +6,8 @@ runs photocycle measurement protocols, and streams metrics via SSE.
 from __future__ import annotations
 
 import asyncio
+import os
+import subprocess
 import threading
 import time
 from contextlib import asynccontextmanager
@@ -13,10 +15,11 @@ from enum import Enum
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from capture import Capture, CaptureConfig
 from photocycle import (
@@ -29,14 +32,34 @@ from photocycle import (
 from projector import Projector, ProjectorConfig
 from sensors import SensorSuite
 
+CAMERA_RTSP_SCRIPT = os.environ.get(
+    "VIVONICS_CAMERA_RTSP_SCRIPT",
+    os.path.expanduser("~/camera_test/rtsp.sh"),
+)
+
 
 class RunState(str, Enum):
     idle = "idle"
     running_linearity = "running_linearity"
     running_photocycle = "running_photocycle"
+    running_pulse = "running_pulse"
     completed = "completed"
     failed = "failed"
     aborted = "aborted"
+
+
+class LightMode(str, Enum):
+    off = "off"
+    red = "red"
+    green = "green"
+    both = "both"
+
+
+CAMERA_RTSP_SERVICE = os.environ.get("VIVONICS_CAMERA_RTSP_SERVICE", "c1-camera-rtsp")
+CAMERA_OVERRIDE_DIR = Path(os.environ.get(
+    "VIVONICS_CAMERA_OVERRIDE_DIR",
+    os.path.expanduser("~/.config/systemd/user/c1-camera-rtsp.service.d"),
+))
 
 
 class BenchState:
@@ -45,6 +68,11 @@ class BenchState:
         self.events: list[dict[str, Any]] = []
         self.linearity_result: LinearityResult | None = None
         self.photocycle_result: PhotocycleResult | None = None
+        self.light_mode: LightMode = LightMode.off
+        self.red_level = 0
+        self.green_level = 0
+        self.pulse_config: dict[str, Any] | None = None
+        self.camera_mode: str = "experiment"
         self._abort_flag = False
         self._lock = threading.Lock()
         self._event_queues: list[asyncio.Queue[dict[str, Any] | None]] = []
@@ -73,11 +101,64 @@ class BenchState:
     def should_abort(self) -> bool:
         return self._abort_flag
 
+    def is_running(self) -> bool:
+        return self.state in {
+            RunState.running_linearity,
+            RunState.running_photocycle,
+            RunState.running_pulse,
+        }
+
+    def set_light_levels(self, red_level: int = 0, green_level: int = 0) -> None:
+        red_level = max(0, min(255, int(red_level)))
+        green_level = max(0, min(255, int(green_level)))
+        if red_level > 0 and green_level > 0:
+            mode = LightMode.both
+        elif red_level > 0:
+            mode = LightMode.red
+        elif green_level > 0:
+            mode = LightMode.green
+        else:
+            mode = LightMode.off
+        with self._lock:
+            self.light_mode = mode
+            self.red_level = red_level
+            self.green_level = green_level
+
+    def set_light(self, mode: LightMode, red_level: int = 0, green_level: int = 0) -> None:
+        if mode == LightMode.off:
+            self.set_light_levels(0, 0)
+        elif mode == LightMode.red:
+            self.set_light_levels(red_level, 0)
+        elif mode == LightMode.green:
+            self.set_light_levels(0, green_level)
+        elif mode == LightMode.both:
+            self.set_light_levels(red_level, green_level)
+
+    def light_snapshot(self) -> dict[str, Any]:
+        with self._lock:
+            return {
+                "mode": self.light_mode.value,
+                "red_level": self.red_level,
+                "green_level": self.green_level,
+            }
+
+    def set_pulse_config(self, config: dict[str, Any]) -> dict[str, Any]:
+        with self._lock:
+            self.pulse_config = dict(config)
+            return dict(self.pulse_config)
+
+    def pulse_config_snapshot(self) -> dict[str, Any] | None:
+        with self._lock:
+            if self.pulse_config is None:
+                return None
+            return dict(self.pulse_config)
+
     def reset(self) -> None:
         self.state = RunState.idle
         self.events.clear()
         self.linearity_result = None
         self.photocycle_result = None
+        self.pulse_config = None
         self._abort_flag = False
 
 
@@ -85,6 +166,7 @@ bench_state = BenchState()
 capture: Capture | None = None
 projector: Projector | None = None
 sensors: SensorSuite | None = None
+hardware_lock = threading.Lock()
 
 
 @asynccontextmanager
@@ -113,6 +195,337 @@ class StartRequest(BaseModel):
     settle_time_s: float = 0.5
 
 
+class PulseRequest(BaseModel):
+    red_duration_s: float = Field(1.0, ge=0.01, le=60.0)
+    green_duration_s: float = Field(0.1, ge=0.01, le=10.0)
+    green_duration_schedule_s: list[float] | None = None
+    red_level: int = Field(255, ge=0, le=255)
+    green_level: int = Field(255, ge=0, le=255)
+    loop: bool = False
+    capture_frames: bool = True
+
+
+class PulseControlRequest(BaseModel):
+    red_duration_s: float | None = Field(None, ge=0.01, le=60.0)
+    green_duration_s: float | None = Field(None, ge=0.01, le=10.0)
+    green_duration_schedule_s: list[float] | None = None
+    red_level: int | None = Field(None, ge=0, le=255)
+    green_level: int | None = Field(None, ge=0, le=255)
+
+
+class LightRequest(BaseModel):
+    mode: LightMode | None = None
+    red_level: int | None = Field(None, ge=0, le=255)
+    green_level: int | None = Field(None, ge=0, le=255)
+
+
+class CameraModeRequest(BaseModel):
+    mode: str = Field(..., pattern=r"^(normal|experiment)$")
+
+
+class CameraSettingsRequest(BaseModel):
+    shutter_us: int = Field(2000, ge=100, le=200000)
+    gain: float = Field(1.0, ge=1.0, le=16.0)
+    awb_red: float = Field(1.0, ge=0.1, le=10.0)
+    awb_blue: float = Field(1.0, ge=0.1, le=10.0)
+
+
+class CalibrateRequest(BaseModel):
+    lo_threshold: float = Field(10.0, ge=1.0, le=200.0)
+    hi_threshold: float = Field(240.0, ge=50.0, le=254.0)
+    avg_frames: int = Field(8, ge=1, le=32)
+
+
+class MultiplyRequest(BaseModel):
+    a: float = Field(..., ge=0.0, le=10.0)
+    b: float = Field(..., ge=0.0, le=10.0)
+    green_settle_s: float = Field(0.3, ge=0.05, le=5.0)
+    read_settle_s: float = Field(0.5, ge=0.1, le=10.0)
+    recovery_s: float = Field(10.0, ge=0.0, le=120.0)
+    avg_frames: int = Field(8, ge=1, le=32)
+    repetitions: int = Field(5, ge=1, le=20)
+
+
+@app.get("/camera/mode")
+def get_camera_mode():
+    return {"mode": bench_state.camera_mode}
+
+
+@app.post("/camera/mode")
+def set_camera_mode(req: CameraModeRequest):
+    if req.mode == bench_state.camera_mode:
+        return {"status": "ok", "mode": req.mode, "changed": False}
+
+    result = _apply_camera_mode(req.mode)
+    bench_state.camera_mode = req.mode
+    return result
+
+
+@app.get("/camera/settings")
+def get_camera_settings():
+    return _read_current_camera_settings()
+
+
+@app.post("/camera/settings")
+def set_camera_settings(req: CameraSettingsRequest):
+    override_dir = CAMERA_OVERRIDE_DIR
+    override_file = override_dir / "camera-mode.conf"
+    override_dir.mkdir(parents=True, exist_ok=True)
+    awb = f"{req.awb_red},{req.awb_blue}"
+    override_file.write_text(
+        "[Service]\n"
+        f"Environment=VIVONICS_CAMERA_SHUTTER_US={req.shutter_us}\n"
+        f"Environment=VIVONICS_CAMERA_GAIN={req.gain}\n"
+        f"Environment=VIVONICS_CAMERA_AWB_GAINS={awb}\n"
+    )
+    subprocess.run(["systemctl", "--user", "daemon-reload"], check=True, timeout=10)
+    subprocess.run(
+        ["systemctl", "--user", "restart", CAMERA_RTSP_SERVICE],
+        check=True,
+        timeout=15,
+    )
+    if capture is not None:
+        capture.config.shutter_us = req.shutter_us
+        capture.config.gain = req.gain
+        capture.config.awb_gains = awb
+    time.sleep(1.5)
+    return {
+        "status": "ok",
+        "shutter_us": req.shutter_us,
+        "gain": req.gain,
+        "awb_gains": awb,
+    }
+
+
+@app.post("/snapshot")
+def take_snapshot():
+    if capture is None:
+        raise HTTPException(503, "Hardware not initialized")
+    with hardware_lock:
+        frame, path = capture.grab_frame("snapshot")
+        frame_ds = capture.subtract_dark(frame)
+        analysis = capture.red_analysis(frame_ds)
+        analysis["frame_path"] = str(path)
+        analysis["has_spot_mask"] = capture.spot_mask is not None
+        if capture.spot_mask is not None:
+            analysis["spot_pixels"] = capture.spot_mask.pixel_count
+        return analysis
+
+
+@app.post("/calibrate")
+def calibrate_spot(req: CalibrateRequest | None = None):
+    if capture is None or projector is None:
+        raise HTTPException(503, "Hardware not initialized")
+    req = req or CalibrateRequest()
+
+    with hardware_lock:
+        _enter_still_mode()
+        projector.open()
+        try:
+            projector.off()
+            time.sleep(0.5)
+            capture.capture_dark_reference()
+
+            projector.show_red(255)
+            time.sleep(0.5)
+
+            frame, path = capture.grab_averaged(req.avg_frames, "calibrate_red")
+            frame_ds = capture.subtract_dark(frame)
+
+            spot = capture.calibrate_spot_mask(
+                frame_ds, lo=req.lo_threshold, hi=req.hi_threshold,
+            )
+
+            analysis = capture.red_analysis(frame_ds)
+            analysis["frame_path"] = str(path)
+            analysis["calibration"] = {
+                "pixel_count": spot.pixel_count,
+                "centroid_x": round(spot.centroid_x, 1),
+                "centroid_y": round(spot.centroid_y, 1),
+                "rms_radius": round(spot.rms_radius, 1),
+                "lo_threshold": spot.lo_threshold,
+                "hi_threshold": spot.hi_threshold,
+            }
+
+            one_pct_full = analysis["full_mean"] * 0.01
+            one_pct_masked = analysis.get("masked_mean", 0.0) * 0.01
+            analysis["sensitivity"] = {
+                "full_roi_1pct_delta": round(one_pct_full, 4),
+                "masked_1pct_delta": round(one_pct_masked, 4),
+                "improvement_factor": round(
+                    one_pct_masked / one_pct_full, 1
+                ) if one_pct_full > 0 else 0.0,
+            }
+
+            return analysis
+        finally:
+            projector.off()
+            projector.close()
+            _exit_still_mode()
+
+
+@app.post("/multiply")
+def run_multiply(req: MultiplyRequest):
+    """Analog multiplication via bR: green_level ∝ A, green_duration ∝ B.
+
+    The measured red transmission change encodes A × B.
+    """
+    if capture is None or projector is None:
+        raise HTTPException(503, "Hardware not initialized")
+    if bench_state.is_running():
+        raise HTTPException(409, "Experiment already running")
+    if capture.spot_mask is None:
+        raise HTTPException(
+            400, "No spot mask — run POST /calibrate first"
+        )
+
+    # Map inputs to green dose: level ∝ A (0-255), duration ∝ B (0-2s)
+    green_level = max(1, min(255, int(req.a * 25.5)))
+    green_duration_s = max(0.05, req.b * 0.2)
+
+    with hardware_lock:
+        _enter_still_mode()
+        projector.open()
+        try:
+            deltas_masked: list[float] = []
+            deltas_full: list[float] = []
+            baselines: list[float] = []
+
+            for rep in range(req.repetitions):
+                # Recovery: red-only hold for bR relaxation
+                projector.show_red(255)
+                time.sleep(req.recovery_s if rep == 0 else max(5.0, req.recovery_s / 2))
+
+                # Baseline
+                time.sleep(req.read_settle_s)
+                baseline_frame, _ = capture.grab_averaged(
+                    req.avg_frames, f"mul_base_r{rep}",
+                )
+                baseline_ds = capture.subtract_dark(baseline_frame)
+                b_masked = capture.red_masked_mean(baseline_ds)
+                b_full = capture.red_channel_mean(baseline_ds)
+
+                # Green write
+                projector.show_color(0, green_level, 0, settle=False)
+                time.sleep(green_duration_s)
+
+                # Red read
+                projector.show_red(255)
+                time.sleep(req.green_settle_s)
+                post_frame, _ = capture.grab_averaged(
+                    req.avg_frames, f"mul_post_r{rep}",
+                )
+                post_ds = capture.subtract_dark(post_frame)
+                p_masked = capture.red_masked_mean(post_ds)
+                p_full = capture.red_channel_mean(post_ds)
+
+                dm = 100.0 * (p_masked - b_masked) / b_masked if b_masked > 0 else 0.0
+                df = 100.0 * (p_full - b_full) / b_full if b_full > 0 else 0.0
+                deltas_masked.append(dm)
+                deltas_full.append(df)
+                baselines.append(b_masked)
+
+            median_masked = float(np.median(deltas_masked))
+            median_full = float(np.median(deltas_full))
+            std_masked = float(np.std(deltas_masked)) if len(deltas_masked) > 1 else 0.0
+
+            return {
+                "a": req.a,
+                "b": req.b,
+                "product": round(req.a * req.b, 4),
+                "green_level": green_level,
+                "green_duration_s": round(green_duration_s, 3),
+                "recovery_s": req.recovery_s,
+                "repetitions": req.repetitions,
+                "median_delta_pct_masked": round(median_masked, 4),
+                "median_delta_pct_full": round(median_full, 4),
+                "std_delta_pct": round(std_masked, 4),
+                "all_deltas_masked": [round(d, 4) for d in deltas_masked],
+                "median_baseline": round(float(np.median(baselines)), 3),
+                "measured_response": round(median_masked, 4),
+                "spot_pixels": capture.spot_mask.pixel_count if capture.spot_mask else 0,
+            }
+        finally:
+            projector.off()
+            projector.close()
+            _exit_still_mode()
+
+
+def _read_current_camera_settings() -> dict[str, Any]:
+    result: dict[str, Any] = {"mode": bench_state.camera_mode}
+    override_file = CAMERA_OVERRIDE_DIR / "camera-mode.conf"
+    if override_file.exists():
+        for line in override_file.read_text().splitlines():
+            if "VIVONICS_CAMERA_SHUTTER_US=" in line:
+                result["shutter_us"] = int(line.split("=", 2)[-1])
+            elif "VIVONICS_CAMERA_GAIN=" in line:
+                result["gain"] = float(line.split("=", 2)[-1])
+            elif "VIVONICS_CAMERA_AWB_GAINS=" in line:
+                result["awb_gains"] = line.split("=", 2)[-1]
+    try:
+        ps = subprocess.run(
+            ["pgrep", "-a", "rpicam"], capture_output=True, text=True, timeout=5,
+        )
+        if ps.stdout:
+            result["active_cmdline"] = ps.stdout.strip().split("\n")[0]
+    except Exception:
+        pass
+    return result
+
+
+def _enter_still_mode() -> None:
+    """Stop RTSP stream so rpicam-still can access the camera directly."""
+    if capture is not None:
+        capture.config.use_rtsp_grab = False
+    try:
+        subprocess.run(
+            ["systemctl", "--user", "stop", CAMERA_RTSP_SERVICE],
+            check=True, timeout=10,
+        )
+    except subprocess.SubprocessError:
+        pass
+    time.sleep(0.5)
+
+
+def _exit_still_mode() -> None:
+    """Restart the RTSP stream after measurement."""
+    if capture is not None:
+        capture.config.use_rtsp_grab = True
+    try:
+        subprocess.run(
+            ["systemctl", "--user", "start", CAMERA_RTSP_SERVICE],
+            check=True, timeout=15,
+        )
+    except subprocess.SubprocessError:
+        pass
+
+
+def _apply_camera_mode(mode: str) -> dict[str, Any]:
+    override_dir = CAMERA_OVERRIDE_DIR
+    override_file = override_dir / "camera-mode.conf"
+
+    if mode == "normal":
+        override_dir.mkdir(parents=True, exist_ok=True)
+        override_file.write_text(
+            "[Service]\n"
+            "Environment=VIVONICS_CAMERA_SHUTTER_US=0\n"
+            "Environment=VIVONICS_CAMERA_GAIN=0\n"
+            "Environment=VIVONICS_CAMERA_AWB_GAINS=auto\n"
+        )
+    else:
+        if override_file.exists():
+            override_file.unlink()
+
+    subprocess.run(["systemctl", "--user", "daemon-reload"], check=True, timeout=10)
+    subprocess.run(
+        ["systemctl", "--user", "restart", CAMERA_RTSP_SERVICE],
+        check=True,
+        timeout=15,
+    )
+
+    return {"status": "ok", "mode": mode, "method": "service_restart"}
+
+
 @app.get("/status")
 def get_status():
     return {
@@ -129,6 +542,19 @@ def get_status():
             else None
         ),
         "projector_driver": projector.driver_name if projector else None,
+        "light_driver_config": (
+            {
+                "driver": projector.config.light_driver,
+                "red_laser_gpio": projector.config.red_laser_gpio,
+                "green_laser_gpio": projector.config.green_laser_gpio,
+                "laser_active_high": projector.config.laser_active_high,
+            }
+            if projector
+            else None
+        ),
+        "manual_light": bench_state.light_snapshot(),
+        "pulse_config": bench_state.pulse_config_snapshot(),
+        "camera_mode": bench_state.camera_mode,
         "sensors": sensors.availability() if sensors else None,
     }
 
@@ -142,13 +568,14 @@ def read_sensors():
 
 @app.post("/run/linearity")
 def run_linearity(req: StartRequest | None = None):
-    if bench_state.state in (RunState.running_linearity, RunState.running_photocycle):
+    if bench_state.is_running():
         raise HTTPException(409, "Experiment already running")
     if capture is None or projector is None:
         raise HTTPException(503, "Hardware not initialized")
 
     bench_state.reset()
     bench_state.state = RunState.running_linearity
+    bench_state.set_light(LightMode.off)
 
     config = PhotocycleConfig()
     if req and req.settle_time_s != 0.5:
@@ -156,16 +583,17 @@ def run_linearity(req: StartRequest | None = None):
 
     def worker():
         try:
-            projector.open()
+            with hardware_lock:
+                projector.open()
 
-            def emit(event: dict[str, Any]) -> None:
-                bench_state.emit(_with_sensor_snapshot(event))
+                def emit(event: dict[str, Any]) -> None:
+                    bench_state.emit(_with_sensor_snapshot(event))
 
-            result = run_linearity_check(
-                capture, projector, config,
-                emit=emit,
-                abort=bench_state.should_abort,
-            )
+                result = run_linearity_check(
+                    capture, projector, config,
+                    emit=emit,
+                    abort=bench_state.should_abort,
+                )
             bench_state.linearity_result = result
             bench_state.state = RunState.completed
             emit({"type": "run_complete", "phase": 1, "passed": result.passed})
@@ -175,6 +603,7 @@ def run_linearity(req: StartRequest | None = None):
         finally:
             if projector is not None:
                 projector.close()
+            bench_state.set_light(LightMode.off)
 
     threading.Thread(target=worker, daemon=True).start()
     return {"status": "started", "phase": "linearity"}
@@ -182,13 +611,14 @@ def run_linearity(req: StartRequest | None = None):
 
 @app.post("/run/photocycle")
 def run_photocycle(req: StartRequest | None = None):
-    if bench_state.state in (RunState.running_linearity, RunState.running_photocycle):
+    if bench_state.is_running():
         raise HTTPException(409, "Experiment already running")
     if capture is None or projector is None:
         raise HTTPException(503, "Hardware not initialized")
 
     bench_state.reset()
     bench_state.state = RunState.running_photocycle
+    bench_state.set_light(LightMode.off)
 
     config = PhotocycleConfig(
         green_exposure_s=req.green_exposure_s if req else 1.0,
@@ -199,54 +629,255 @@ def run_photocycle(req: StartRequest | None = None):
 
     def worker():
         try:
-            projector.open()
+            with hardware_lock:
+                projector.open()
 
-            def emit(event: dict[str, Any]) -> None:
-                bench_state.emit(_with_sensor_snapshot(event))
+                def emit(event: dict[str, Any]) -> None:
+                    bench_state.emit(_with_sensor_snapshot(event))
 
-            lin_result = run_linearity_check(
-                capture, projector, config,
-                emit=emit,
-                abort=bench_state.should_abort,
-            )
-            bench_state.linearity_result = lin_result
+                lin_result = run_linearity_check(
+                    capture, projector, config,
+                    emit=emit,
+                    abort=bench_state.should_abort,
+                )
+                bench_state.linearity_result = lin_result
 
-            if not lin_result.passed:
-                bench_state.state = RunState.failed
-                emit({"type": "error", "message": "Linearity check failed"})
-                return
+                if not lin_result.passed:
+                    bench_state.state = RunState.failed
+                    emit({"type": "error", "message": "Linearity check failed"})
+                    return
 
-            if bench_state.should_abort():
-                bench_state.state = RunState.aborted
-                return
+                if bench_state.should_abort():
+                    bench_state.state = RunState.aborted
+                    return
 
-            read_level = lin_result.chosen_read_level
-            idx = lin_result.red_codes.index(read_level)
-            blank_ref = lin_result.blank_means[idx]
+                read_level = lin_result.chosen_read_level
+                idx = lin_result.red_codes.index(read_level)
+                blank_ref = lin_result.blank_means[idx]
 
-            pc_result = run_green_write_sweep(
-                capture, projector, config,
-                read_level=read_level,
-                blank_reference=blank_ref,
-                emit=emit,
-                abort=bench_state.should_abort,
-            )
-            bench_state.photocycle_result = pc_result
-            bench_state.state = RunState.completed
-            emit({
-                "type": "run_complete",
-                "phase": 2,
-                "passed": pc_result.passed,
-            })
+                pc_result = run_green_write_sweep(
+                    capture, projector, config,
+                    read_level=read_level,
+                    blank_reference=blank_ref,
+                    emit=emit,
+                    abort=bench_state.should_abort,
+                )
+                bench_state.photocycle_result = pc_result
+                bench_state.state = RunState.completed
+                emit({
+                    "type": "run_complete",
+                    "phase": 2,
+                    "passed": pc_result.passed,
+                })
         except Exception as e:
             bench_state.state = RunState.failed
             bench_state.emit({"type": "error", "message": str(e)})
         finally:
             if projector is not None:
                 projector.close()
+            bench_state.set_light(LightMode.off)
 
     threading.Thread(target=worker, daemon=True).start()
     return {"status": "started", "phase": "photocycle"}
+
+
+@app.post("/run/pulse")
+def run_pulse(req: PulseRequest | None = None):
+    if bench_state.is_running():
+        raise HTTPException(409, "Experiment already running")
+    if capture is None or projector is None:
+        raise HTTPException(503, "Hardware not initialized")
+
+    req = req or PulseRequest()
+    pulse_config = _pulse_config_from_request(req)
+    bench_state.reset()
+    bench_state.state = RunState.running_pulse
+    bench_state.set_light(LightMode.off)
+    bench_state.set_pulse_config(pulse_config)
+
+    def worker():
+        try:
+            with hardware_lock:
+                projector.open()
+
+                def emit(event: dict[str, Any]) -> None:
+                    bench_state.emit(_with_sensor_snapshot(event))
+
+                initial_config = bench_state.pulse_config_snapshot() or pulse_config
+                emit({
+                    "type": "phase_start",
+                    "phase": "pulse",
+                    "name": "Red Hold / Green Flash",
+                    "red_duration_s": initial_config["red_duration_s"],
+                    "green_duration_s": initial_config["green_duration_s"],
+                    "green_duration_schedule_s": initial_config["green_duration_schedule_s"],
+                    "green_duration_schedule_ms": [round(d * 1000, 1) for d in initial_config["green_duration_schedule_s"]],
+                    "red_level": initial_config["red_level"],
+                    "green_level": initial_config["green_level"],
+                    "loop": initial_config["loop"],
+                    "capture_frames": initial_config["capture_frames"],
+                })
+
+                iteration = 0
+                while True:
+                    iteration += 1
+                    cycle_config = bench_state.pulse_config_snapshot() or pulse_config
+                    green_duration_schedule = cycle_config["green_duration_schedule_s"]
+                    green_duration_s = green_duration_schedule[(iteration - 1) % len(green_duration_schedule)]
+                    green_duration_ms = round(green_duration_s * 1000, 1)
+                    emit({
+                        "type": "pulse_iteration",
+                        "iteration": iteration,
+                        "green_duration_s": green_duration_s,
+                        "green_duration_ms": green_duration_ms,
+                        "red_duration_s": cycle_config["red_duration_s"],
+                        "red_level": cycle_config["red_level"],
+                        "green_level": cycle_config["green_level"],
+                        "green_duration_schedule_ms": [round(d * 1000, 1) for d in green_duration_schedule],
+                    })
+
+                    _show_light(LightMode.red, cycle_config["red_level"], 0)
+                    emit(_light_event(
+                        "red",
+                        cycle_config["red_level"],
+                        0,
+                        "pre_green_hold",
+                        iteration,
+                        {"green_duration_s": green_duration_s, "green_duration_ms": green_duration_ms},
+                    ))
+                    _sleep_abortable(cycle_config["red_duration_s"])
+                    if bench_state.should_abort():
+                        bench_state.state = RunState.aborted
+                        emit({"type": "aborted", "iteration": iteration})
+                        return
+
+                    if cycle_config["capture_frames"]:
+                        frame, path = capture.grab_frame(f"pulse_{iteration:04d}_pre_green_red")
+                        emit({
+                            "type": "roi_intensity",
+                            "label": "pre_green_red",
+                            "iteration": iteration,
+                            "green_duration_s": green_duration_s,
+                            "green_duration_ms": green_duration_ms,
+                            "frame_path": str(path),
+                            **_roi_intensity(frame),
+                        })
+
+                    green_phase_config = bench_state.pulse_config_snapshot() or cycle_config
+                    green_level = green_phase_config["green_level"]
+                    _show_light(LightMode.green, 0, green_level)
+                    emit(_light_event(
+                        "green",
+                        0,
+                        green_level,
+                        "green_flash",
+                        iteration,
+                        {"green_duration_s": green_duration_s, "green_duration_ms": green_duration_ms},
+                    ))
+                    _sleep_abortable(green_duration_s)
+                    if bench_state.should_abort():
+                        bench_state.state = RunState.aborted
+                        emit({"type": "aborted", "iteration": iteration})
+                        return
+
+                    post_read_config = bench_state.pulse_config_snapshot() or cycle_config
+                    red_level = post_read_config["red_level"]
+                    _show_light(LightMode.red, red_level, 0)
+                    emit(_light_event(
+                        "red",
+                        red_level,
+                        0,
+                        "post_green_read",
+                        iteration,
+                        {"green_duration_s": green_duration_s, "green_duration_ms": green_duration_ms},
+                    ))
+
+                    if post_read_config["capture_frames"]:
+                        frame, path = capture.grab_frame(f"pulse_{iteration:04d}_post_green_red")
+                        emit({
+                            "type": "roi_intensity",
+                            "label": "post_green_red",
+                            "iteration": iteration,
+                            "green_duration_s": green_duration_s,
+                            "green_duration_ms": green_duration_ms,
+                            "frame_path": str(path),
+                            **_roi_intensity(frame),
+                        })
+
+                    if not cycle_config["loop"]:
+                        break
+
+            bench_state.state = RunState.completed
+            emit({"type": "run_complete", "phase": "pulse", "passed": True})
+        except Exception as e:
+            bench_state.state = RunState.failed
+            bench_state.emit({"type": "error", "message": str(e)})
+        finally:
+            if projector is not None:
+                try:
+                    _show_light(LightMode.off)
+                except Exception as e:
+                    bench_state.emit({"type": "error", "message": f"Failed to turn pulse lights off: {e}"})
+                    bench_state.set_light(LightMode.off)
+                projector.close()
+
+    threading.Thread(target=worker, daemon=True).start()
+    return {"status": "started", "phase": "pulse"}
+
+
+@app.post("/run/pulse/config")
+def update_pulse_config(req: PulseControlRequest):
+    if bench_state.state != RunState.running_pulse:
+        raise HTTPException(409, "Pulse run is not active")
+
+    current = bench_state.pulse_config_snapshot()
+    if current is None:
+        raise HTTPException(409, "Pulse run has no active config")
+
+    updated = _updated_pulse_config(current, req)
+    bench_state.set_pulse_config(updated)
+    event = {
+        "type": "pulse_config_updated",
+        "red_duration_s": updated["red_duration_s"],
+        "green_duration_s": updated["green_duration_s"],
+        "green_duration_schedule_s": updated["green_duration_schedule_s"],
+        "green_duration_schedule_ms": [round(d * 1000, 1) for d in updated["green_duration_schedule_s"]],
+        "red_level": updated["red_level"],
+        "green_level": updated["green_level"],
+    }
+    bench_state.emit(event)
+    return {"status": "ok", "pulse_config": event}
+
+
+@app.post("/light")
+def set_light(req: LightRequest):
+    if bench_state.is_running():
+        raise HTTPException(409, "Experiment already running")
+    if projector is None:
+        raise HTTPException(503, "Hardware not initialized")
+
+    with hardware_lock:
+        projector.open()
+        if req.mode == LightMode.off:
+            _show_light_levels(0, 0)
+        elif req.mode == LightMode.red:
+            _show_light_levels(req.red_level if req.red_level is not None else 255, 0)
+        elif req.mode == LightMode.green:
+            _show_light_levels(0, req.green_level if req.green_level is not None else 255)
+        elif req.mode == LightMode.both:
+            _show_light_levels(
+                req.red_level if req.red_level is not None else 255,
+                req.green_level if req.green_level is not None else 255,
+            )
+        else:
+            _show_light_levels(req.red_level or 0, req.green_level or 0)
+
+    event = {
+        "type": "manual_light",
+        **bench_state.light_snapshot(),
+    }
+    bench_state.emit(event)
+    return {"status": "ok", "light": bench_state.light_snapshot()}
 
 
 @app.post("/stop")
@@ -313,6 +944,139 @@ def _with_sensor_snapshot(event: dict[str, Any]) -> dict[str, Any]:
     event = dict(event)
     event["aux_sensors"] = sensors.read_all()
     return event
+
+
+def _show_light(mode: LightMode, red_level: int = 0, green_level: int = 0) -> None:
+    if projector is None:
+        raise RuntimeError("Projector not initialized")
+
+    if mode == LightMode.off:
+        _show_light_levels(0, 0)
+    elif mode == LightMode.red:
+        _show_light_levels(red_level, 0)
+    elif mode == LightMode.green:
+        _show_light_levels(0, green_level)
+    elif mode == LightMode.both:
+        _show_light_levels(red_level, green_level)
+
+
+def _show_light_levels(red_level: int = 0, green_level: int = 0) -> None:
+    if projector is None:
+        raise RuntimeError("Projector not initialized")
+    projector.show_color(red_level, green_level, 0, settle=False)
+    bench_state.set_light_levels(red_level, green_level)
+
+
+def _light_event(
+    mode: str,
+    red_level: int,
+    green_level: int,
+    phase: str,
+    iteration: int | None = None,
+    extra: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    event = {
+        "type": "light_state",
+        "mode": mode,
+        "red_level": red_level,
+        "green_level": green_level,
+        "phase": phase,
+    }
+    if iteration is not None:
+        event["iteration"] = iteration
+    if extra:
+        event.update(extra)
+    return event
+
+
+def _validated_green_duration_schedule(req: PulseRequest) -> list[float]:
+    return _validate_green_duration_schedule(req.green_duration_schedule_s or [req.green_duration_s])
+
+
+def _pulse_config_from_request(req: PulseRequest) -> dict[str, Any]:
+    return {
+        "red_duration_s": float(req.red_duration_s),
+        "green_duration_s": float(req.green_duration_s),
+        "green_duration_schedule_s": _validated_green_duration_schedule(req),
+        "red_level": int(req.red_level),
+        "green_level": int(req.green_level),
+        "loop": bool(req.loop),
+        "capture_frames": bool(req.capture_frames),
+    }
+
+
+def _updated_pulse_config(current: dict[str, Any], req: PulseControlRequest) -> dict[str, Any]:
+    updated = dict(current)
+    fields_set = req.model_fields_set
+
+    if "red_duration_s" in fields_set and req.red_duration_s is not None:
+        updated["red_duration_s"] = float(req.red_duration_s)
+    if "green_duration_s" in fields_set and req.green_duration_s is not None:
+        updated["green_duration_s"] = float(req.green_duration_s)
+    if "red_level" in fields_set and req.red_level is not None:
+        updated["red_level"] = int(req.red_level)
+    if "green_level" in fields_set and req.green_level is not None:
+        updated["green_level"] = int(req.green_level)
+
+    if "green_duration_schedule_s" in fields_set:
+        durations = req.green_duration_schedule_s
+        if durations:
+            updated["green_duration_schedule_s"] = _validate_green_duration_schedule(durations)
+        else:
+            updated["green_duration_schedule_s"] = [float(updated["green_duration_s"])]
+    elif "green_duration_s" in fields_set and len(updated.get("green_duration_schedule_s", [])) <= 1:
+        updated["green_duration_schedule_s"] = [float(updated["green_duration_s"])]
+
+    return updated
+
+
+def _validate_green_duration_schedule(durations: list[float]) -> list[float]:
+    if len(durations) > 256:
+        raise HTTPException(422, "green_duration_schedule_s may contain at most 256 durations")
+
+    normalized: list[float] = []
+    for duration in durations:
+        value = float(duration)
+        if value < 0.01 or value > 10.0:
+            raise HTTPException(422, "green durations must be between 0.01s and 10.0s")
+        normalized.append(value)
+    return normalized
+
+
+def _sleep_abortable(seconds: float) -> None:
+    deadline = time.monotonic() + seconds
+    while time.monotonic() < deadline:
+        if bench_state.should_abort():
+            return
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            return
+        time.sleep(min(0.01, remaining))
+
+
+def _roi_intensity(frame: np.ndarray) -> dict[str, Any]:
+    arr = np.asarray(frame)
+    if arr.ndim == 2:
+        red = green = blue = arr
+    else:
+        red = arr[:, :, 0]
+        green = arr[:, :, 1]
+        blue = arr[:, :, 2]
+
+    pixel_count = int(arr.shape[0] * arr.shape[1])
+    red_sum = int(np.sum(red, dtype=np.float64))
+    green_sum = int(np.sum(green, dtype=np.float64))
+    blue_sum = int(np.sum(blue, dtype=np.float64))
+
+    return {
+        "pixel_count": pixel_count,
+        "red_sum": red_sum,
+        "green_sum": green_sum,
+        "blue_sum": blue_sum,
+        "red_mean": round(red_sum / pixel_count, 2) if pixel_count else 0.0,
+        "green_mean": round(green_sum / pixel_count, 2) if pixel_count else 0.0,
+        "blue_mean": round(blue_sum / pixel_count, 2) if pixel_count else 0.0,
+    }
 
 
 if __name__ == "__main__":
