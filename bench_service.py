@@ -207,6 +207,7 @@ class PulseRequest(BaseModel):
     green_level: int = Field(255, ge=0, le=255)
     loop: bool = False
     capture_frames: bool = True
+    raw_measure: bool = False
 
 
 class PulseControlRequest(BaseModel):
@@ -513,8 +514,6 @@ def _light_driver_includes_gpio(value: str) -> bool:
 def _force_lasers_off() -> None:
     """Best-effort physical GPIO-off for abort and startup cleanup paths."""
     config = projector.config if projector is not None else ProjectorConfig()
-    if not _light_driver_includes_gpio(config.light_driver):
-        return
 
     import pigpio
 
@@ -606,7 +605,7 @@ def run_linearity(req: StartRequest | None = None):
         raise HTTPException(503, "Hardware not initialized")
 
     bench_state.reset()
-    bench_state.state = RunState.running_linearity
+    bench_state.state = RunState.running_pulse_linearity
     bench_state.set_light(LightMode.off)
 
     config = PhotocycleConfig()
@@ -649,7 +648,7 @@ def run_photocycle(req: StartRequest | None = None):
         raise HTTPException(503, "Hardware not initialized")
 
     bench_state.reset()
-    bench_state.state = RunState.running_photocycle
+    bench_state.state = RunState.running_pulse_photocycle
     bench_state.set_light(LightMode.off)
 
     config = PhotocycleConfig(
@@ -728,6 +727,7 @@ def run_pulse(req: PulseRequest | None = None):
     bench_state.set_pulse_config(pulse_config)
 
     def worker():
+        raw_measurer = None
         try:
             with hardware_lock:
                 projector.open()
@@ -736,6 +736,32 @@ def run_pulse(req: PulseRequest | None = None):
                     bench_state.emit(_with_sensor_snapshot(event))
 
                 initial_config = bench_state.pulse_config_snapshot() or pulse_config
+                use_raw = initial_config.get("raw_measure", False)
+
+                # If raw_measure requested, start the raw 10-bit measurement path
+                if use_raw:
+                    try:
+                        from raw_measure import RawPulseMeasurer
+                        raw_measurer = RawPulseMeasurer(
+                            red_pin=projector.config.red_laser_gpio,
+                            green_pin=projector.config.green_laser_gpio,
+                        )
+                        cal = raw_measurer.start()
+                        emit({
+                            "type": "info",
+                            "message": (
+                                f"Raw 10-bit measurement active: "
+                                f"{cal.mask_pixels} mask px, "
+                                f"{cal.fps:.1f} fps, "
+                                f"baseline SNR={cal.baseline_mean / cal.baseline_std:.0f}:1"
+                                if cal.baseline_std > 0
+                                else f"Raw 10-bit: {cal.mask_pixels} px, {cal.fps:.1f} fps"
+                            ),
+                        })
+                    except Exception as e:
+                        emit({"type": "info", "message": f"Raw measure init failed, using 8-bit fallback: {e}"})
+                        raw_measurer = None
+
                 emit({
                     "type": "phase_start",
                     "phase": "pulse",
@@ -748,11 +774,20 @@ def run_pulse(req: PulseRequest | None = None):
                     "green_level": initial_config["green_level"],
                     "loop": initial_config["loop"],
                     "capture_frames": initial_config["capture_frames"],
+                    "raw_measure": use_raw,
+                    "raw_calibration": ({
+                        "mask_pixels": raw_measurer.calibration.mask_pixels,
+                        "fps": round(raw_measurer.calibration.fps, 1),
+                        "baseline_mean": round(raw_measurer.calibration.baseline_mean, 3),
+                        "baseline_std": round(raw_measurer.calibration.baseline_std, 4),
+                    } if raw_measurer and raw_measurer.calibration.ready else None),
                 })
 
+                cycle_times: list[float] = []
                 iteration = 0
                 while True:
                     iteration += 1
+                    _cycle_start = time.time()
                     cycle_config = bench_state.pulse_config_snapshot() or pulse_config
                     green_duration_schedule = cycle_config["green_duration_schedule_s"]
                     green_duration_s = green_duration_schedule[(iteration - 1) % len(green_duration_schedule)]
@@ -777,14 +812,18 @@ def run_pulse(req: PulseRequest | None = None):
                         iteration,
                         {"green_duration_s": green_duration_s, "green_duration_ms": green_duration_ms},
                     ))
-                    _sleep_abortable(cycle_config["red_duration_s"])
+                    _red_hold = 0.012 if (raw_measurer is not None and raw_measurer.is_started) else cycle_config["red_duration_s"]
+                    _sleep_abortable(_red_hold)
                     if bench_state.should_abort():
                         bench_state.state = RunState.aborted
                         emit({"type": "aborted", "iteration": iteration})
                         return
 
                     pre_green_roi: dict[str, Any] | None = None
-                    if cycle_config["capture_frames"]:
+                    raw_baseline_vals: list[float] | None = None
+                    if raw_measurer is not None and raw_measurer.is_started:
+                        raw_baseline_vals = raw_measurer.measure_baseline(n_frames=2)
+                    if cycle_config["capture_frames"] and raw_baseline_vals is None:
                         frame, path = capture.grab_frame(f"pulse_{iteration:04d}_pre_green_red")
                         pre_green_roi = _roi_intensity(frame)
                         emit({
@@ -808,7 +847,8 @@ def run_pulse(req: PulseRequest | None = None):
                         iteration,
                         {"green_duration_s": green_duration_s, "green_duration_ms": green_duration_ms},
                     ))
-                    _sleep_abortable(green_duration_s)
+                    _green_hold = 0.012 if (raw_measurer is not None and raw_measurer.is_started) else green_duration_s
+                    _sleep_abortable(_green_hold)
                     if bench_state.should_abort():
                         bench_state.state = RunState.aborted
                         emit({"type": "aborted", "iteration": iteration})
@@ -826,7 +866,36 @@ def run_pulse(req: PulseRequest | None = None):
                         {"green_duration_s": green_duration_s, "green_duration_ms": green_duration_ms},
                     ))
 
-                    if post_read_config["capture_frames"]:
+                    _sleep_abortable(0.012)  # hold for frame flush after green->red
+                    # Raw 10-bit measurement (preferred path)
+                    if raw_measurer is not None and raw_measurer.is_started and raw_baseline_vals is not None:
+                        raw_result = raw_measurer.measure_response(
+                            n_frames=2,
+                            baseline_values=raw_baseline_vals,
+                        )
+                        expected_product = cycle_config["red_level"] * green_level
+                        emit({
+                            "type": "multiply_result",
+                            "iteration": iteration,
+                            "red_level": cycle_config["red_level"],
+                            "green_level": green_level,
+                            "green_duration_ms": green_duration_ms,
+                            "expected_product": expected_product,
+                            "pre_red_mean": raw_result.pre_red_mean,
+                            "post_red_mean": raw_result.post_red_mean,
+                            "delta_red": raw_result.delta_red,
+                            "delta_red_norm": raw_result.delta_red_norm,
+                            "source": "raw10",
+                            "raw_snr": raw_result.raw_snr,
+                            "raw_bits": raw_result.raw_bits,
+                            "mask_pixels": raw_measurer.calibration.mask_pixels,
+                            "baseline_frames": raw_result.baseline_frames,
+                            "response_frames": raw_result.response_frames,
+                            "peak_delta": raw_result.peak_delta,
+                        })
+
+                    # 8-bit fallback path (capture_frames)
+                    elif post_read_config["capture_frames"]:
                         frame, path = capture.grab_frame(f"pulse_{iteration:04d}_post_green_red")
                         post_green_roi = _roi_intensity(frame)
                         emit({
@@ -856,8 +925,22 @@ def run_pulse(req: PulseRequest | None = None):
                                 "post_red_mean": round(post_red, 4),
                                 "delta_red": round(delta_red, 4),
                                 "delta_red_norm": round(delta_red_norm, 6),
+                                "source": "8bit",
                             })
 
+                    _cycle_ms = (time.time() - _cycle_start) * 1000
+                    cycle_times.append(_cycle_ms)
+                    _recent = cycle_times[-20:]
+                    _avg_ms = sum(_recent) / len(_recent)
+                    _sps = 1000.0 / _avg_ms if _avg_ms > 0 else 0
+                    emit({
+                        "type": "cycle_timing",
+                        "iteration": iteration,
+                        "cycle_ms": round(_cycle_ms, 1),
+                        "avg_cycle_ms": round(_avg_ms, 1),
+                        "samples_per_sec": round(_sps, 2),
+                        "total_samples": iteration,
+                    })
                     if not cycle_config["loop"]:
                         break
 
@@ -867,6 +950,16 @@ def run_pulse(req: PulseRequest | None = None):
             bench_state.state = RunState.failed
             bench_state.emit({"type": "error", "message": str(e)})
         finally:
+            if raw_measurer is not None:
+                try:
+                    raw_measurer.stop()
+                except Exception as e:
+                    bench_state.emit({"type": "error", "message": f"Failed to stop raw measurer: {e}"})
+                try:
+                    _apply_camera_mode("normal")
+                    bench_state.camera_mode = "normal"
+                except Exception as e:
+                    bench_state.emit({"type": "error", "message": f"Failed to restart RTSP after raw measure: {e}"})
             if projector is not None:
                 try:
                     _show_light(LightMode.off)
@@ -978,6 +1071,261 @@ def stop_run():
         "errors": errors,
     }
 
+
+
+
+@app.post("/run/burst-read")
+def run_burst_read(n_frames: int = 500, red_level: int = 200):
+    """Read-only burst mode - no write cycle, max camera fps."""
+    if bench_state.is_running():
+        return {"status": "error", "message": "Another run is active"}
+
+    bench_state.state = RunState.running_pulse
+    bench_state.events.clear()
+
+    def emit(event):
+        bench_state.emit(event)
+
+    def worker():
+        try:
+            from raw_measure import RawPulseMeasurer
+            import numpy as np
+            measurer = RawPulseMeasurer()
+            cal = measurer.start()
+            emit({"type": "info", "message": f"Burst read: {cal.mask_pixels} mask px, {cal.fps:.1f} fps"})
+
+            measurer.set_light(red_level=red_level, green_level=0)
+            import time
+            time.sleep(0.2)
+
+            cycle_times = []
+            readings = []
+            t_start = time.monotonic()
+
+            for i in range(n_frames):
+                if bench_state.should_abort():
+                    break
+                t0 = time.monotonic()
+                val = measurer.read_red()
+                dt_ms = (time.monotonic() - t0) * 1000
+                cycle_times.append(dt_ms)
+                readings.append(val)
+
+                if (i + 1) % 50 == 0 or i == n_frames - 1:
+                    recent = cycle_times[-50:]
+                    avg_ms = sum(recent) / len(recent)
+                    fps_now = 1000 / avg_ms if avg_ms > 0 else 0
+                    vals = np.array(readings[-50:])
+                    elapsed = time.monotonic() - t_start
+                    emit({
+                        "type": "cycle_timing",
+                        "iteration": i + 1,
+                        "cycle_ms": round(dt_ms, 2),
+                        "avg_cycle_ms": round(avg_ms, 2),
+                        "samples_per_sec": round(fps_now, 1),
+                        "total_samples": i + 1,
+                    })
+                    emit({
+                        "type": "burst_read",
+                        "iteration": i + 1,
+                        "total": n_frames,
+                        "fps": round(fps_now, 1),
+                        "ms_per_frame": round(avg_ms, 2),
+                        "mean": round(float(vals.mean()), 4),
+                        "std": round(float(vals.std()), 4),
+                        "snr": round(float(vals.mean() / vals.std()), 1) if vals.std() > 0 else 0,
+                        "bits": round(float(np.log2(vals.mean() / vals.std())), 2) if vals.std() > 0 else 0,
+                        "elapsed_s": round(elapsed, 2),
+                        "effective_pixel_sps": round(fps_now * cal.mask_pixels, 0),
+                    })
+
+            all_vals = np.array(readings)
+            elapsed = time.monotonic() - t_start
+            overall_fps = len(readings) / elapsed
+            emit({
+                "type": "burst_complete",
+                "total_frames": len(readings),
+                "elapsed_s": round(elapsed, 2),
+                "overall_fps": round(overall_fps, 1),
+                "mean": round(float(all_vals.mean()), 4),
+                "std": round(float(all_vals.std()), 4),
+                "snr": round(float(all_vals.mean() / all_vals.std()), 1) if all_vals.std() > 0 else 0,
+                "bits": round(float(np.log2(all_vals.mean() / all_vals.std())), 2) if all_vals.std() > 0 else 0,
+                "mask_pixels": cal.mask_pixels,
+                "effective_pixel_sps": round(overall_fps * cal.mask_pixels, 0),
+            })
+            bench_state.state = RunState.completed
+            emit({"type": "run_complete", "phase": "burst_read", "passed": True})
+        except Exception as e:
+            bench_state.state = RunState.failed
+            emit({"type": "error", "message": str(e)})
+        finally:
+            try:
+                measurer.stop()
+            except Exception:
+                pass
+
+    threading.Thread(target=worker, daemon=True).start()
+    return {"status": "started", "phase": "burst_read", "n_frames": n_frames}
+
+
+
+@app.post("/run/turbo-cycle")
+def run_turbo_cycle(
+    n_cycles: int = 1000,
+    red_level: int = 255,
+    green_level: int = 255,
+    green_flash_ms: float = 2.0,
+    hold_ms: float = 9.0,
+    reads_per_write: int = 1,
+):
+    """Turbo write-read cycling with stored baseline for max throughput."""
+    if bench_state.is_running():
+        return {"status": "error", "message": "Another run is active"}
+
+    bench_state.state = RunState.running_pulse
+    bench_state.events.clear()
+    bench_state._abort_flag = False
+
+    def emit(event):
+        bench_state.emit(event)
+
+    def worker():
+        try:
+            import time
+            import numpy as np
+            from raw_measure import RawPulseMeasurer
+
+            measurer = RawPulseMeasurer()
+            cal = measurer.start()
+            emit({"type": "info", "message": f"Turbo: {cal.mask_pixels} px, {cal.fps:.1f} fps, target {n_cycles} cycles"})
+
+            measurer.set_light(red_level=red_level, green_level=0)
+            time.sleep(0.1)
+            baseline_readings = [measurer.read_red() for _ in range(20)]
+            stored_baseline = float(np.mean(baseline_readings))
+            baseline_noise = float(np.std(baseline_readings))
+            emit({"type": "info", "message": f"Baseline: {stored_baseline:.2f} +/- {baseline_noise:.4f}"})
+
+            cycle_times = []
+            all_deltas = []
+            all_snrs = []
+            total_reads = 0
+            t_start = time.monotonic()
+            green_s = green_flash_ms / 1000.0
+            hold_s = hold_ms / 1000.0
+
+            for cycle in range(n_cycles):
+                if bench_state.should_abort():
+                    break
+
+                t_cycle_start = time.monotonic()
+                measurer.set_light(red_level=0, green_level=green_level)
+                time.sleep(green_s)
+                measurer.set_light(red_level=red_level, green_level=0)
+                time.sleep(hold_s)
+
+                deltas_this_cycle = []
+                for read_idx in range(reads_per_write):
+                    val = measurer.read_red()
+                    delta = val - stored_baseline
+                    deltas_this_cycle.append(delta)
+                    total_reads += 1
+
+                cycle_ms = (time.monotonic() - t_cycle_start) * 1000
+                cycle_times.append(cycle_ms)
+                best_delta = max(deltas_this_cycle, key=abs)
+                snr = abs(best_delta) / baseline_noise if baseline_noise > 0 else 0
+                bits = float(np.log2(snr)) if snr > 1 else 0
+                all_deltas.append(best_delta)
+                all_snrs.append(snr)
+
+                if (cycle + 1) % 10 == 0 or cycle == 0 or cycle == n_cycles - 1:
+                    recent = cycle_times[-20:]
+                    avg_ms = sum(recent) / len(recent)
+                    cycles_per_sec = 1000 / avg_ms if avg_ms > 0 else 0
+                    reads_per_sec = cycles_per_sec * reads_per_write
+                    pixel_sps = reads_per_sec * cal.mask_pixels
+                    elapsed = time.monotonic() - t_start
+                    good_snrs = [s for s in all_snrs if s > 3]
+                    n_good = len(good_snrs)
+                    median_snr = float(np.median(good_snrs)) if n_good > 0 else 0
+                    avg_bits = float(np.log2(median_snr * np.sqrt(n_good))) if n_good > 0 and median_snr * np.sqrt(n_good) > 1 else 0
+
+                    emit({
+                        "type": "cycle_timing",
+                        "iteration": cycle + 1,
+                        "cycle_ms": round(cycle_ms, 1),
+                        "avg_cycle_ms": round(avg_ms, 1),
+                        "samples_per_sec": round(reads_per_sec, 1),
+                        "total_samples": total_reads,
+                    })
+                    emit({
+                        "type": "multiply_result",
+                        "iteration": cycle + 1,
+                        "red_level": red_level,
+                        "green_level": green_level,
+                        "green_duration_ms": green_flash_ms,
+                        "expected_product": red_level * green_level,
+                        "pre_red_mean": round(stored_baseline, 4),
+                        "post_red_mean": round(val, 4),
+                        "delta_red": round(best_delta, 4),
+                        "delta_red_norm": round(best_delta / stored_baseline, 6) if stored_baseline > 0 else 0,
+                        "source": "turbo",
+                        "raw_snr": round(snr, 1),
+                        "raw_bits": round(bits, 2),
+                        "mask_pixels": cal.mask_pixels,
+                        "baseline_frames": 0,
+                        "response_frames": reads_per_write,
+                        "peak_delta": round(best_delta, 4),
+                    })
+
+                    if (cycle + 1) % 50 == 0 or cycle == n_cycles - 1:
+                        emit({
+                            "type": "throughput_log",
+                            "cycle": cycle + 1,
+                            "total_cycles": n_cycles,
+                            "elapsed_s": round(elapsed, 2),
+                            "cycles_per_sec": round(cycles_per_sec, 1),
+                            "reads_per_sec": round(reads_per_sec, 1),
+                            "pixel_samples_per_sec": round(pixel_sps, 0),
+                            "camera_fps_ceiling": round(cal.fps, 1),
+                            "at_camera_ceiling": cycles_per_sec >= cal.fps * 0.9,
+                            "median_single_shot_bits": round(float(np.log2(median_snr)) if median_snr > 1 else 0, 1),
+                            "accumulated_precision_bits": round(avg_bits, 1),
+                            "good_shots_pct": round(100 * n_good / (cycle + 1), 0),
+                            "target_1000_sps": reads_per_sec >= 1000,
+                        })
+
+            elapsed = time.monotonic() - t_start
+            overall_cps = len(cycle_times) / elapsed if elapsed > 0 else 0
+            overall_rps = total_reads / elapsed if elapsed > 0 else 0
+            good_snrs = [s for s in all_snrs if s > 3]
+            emit({
+                "type": "turbo_complete",
+                "total_cycles": len(cycle_times),
+                "total_reads": total_reads,
+                "elapsed_s": round(elapsed, 2),
+                "cycles_per_sec": round(overall_cps, 1),
+                "reads_per_sec": round(overall_rps, 1),
+                "pixel_samples_per_sec": round(overall_rps * cal.mask_pixels, 0),
+                "median_snr": round(float(np.median(good_snrs)) if good_snrs else 0, 1),
+                "good_shots_pct": round(100 * len(good_snrs) / len(all_snrs), 0) if all_snrs else 0,
+            })
+            bench_state.state = RunState.completed
+            emit({"type": "run_complete", "phase": "turbo_cycle", "passed": True})
+        except Exception as e:
+            bench_state.state = RunState.failed
+            emit({"type": "error", "message": str(e)})
+        finally:
+            try:
+                measurer.set_light(red_level=0, green_level=0)
+                measurer.stop()
+            except Exception:
+                pass
+
+    threading.Thread(target=worker, daemon=True).start()
+    return {"status": "started", "phase": "turbo_cycle", "n_cycles": n_cycles, "reads_per_write": reads_per_write}
 
 @app.get("/stream")
 async def stream_events():
@@ -1094,6 +1442,7 @@ def _pulse_config_from_request(req: PulseRequest) -> dict[str, Any]:
         "green_level": int(req.green_level),
         "loop": bool(req.loop),
         "capture_frames": bool(req.capture_frames),
+        "raw_measure": bool(req.raw_measure),
     }
 
 
