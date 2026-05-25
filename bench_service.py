@@ -72,7 +72,7 @@ class BenchState:
         self.red_level = 0
         self.green_level = 0
         self.pulse_config: dict[str, Any] | None = None
-        self.camera_mode: str = "experiment"
+        self.camera_mode: str = "normal"
         self._abort_flag = False
         self._lock = threading.Lock()
         self._event_queues: list[asyncio.Queue[dict[str, Any] | None]] = []
@@ -746,6 +746,7 @@ def run_pulse(req: PulseRequest | None = None):
                             green_pin=projector.config.green_laser_gpio,
                         )
                         cal = raw_measurer.start()
+                        bench_state.camera_mode = "experiment"
                         emit({
                             "type": "info",
                             "message": (
@@ -1086,11 +1087,13 @@ def run_burst_read(n_frames: int = 500, red_level: int = 200):
         bench_state.emit(event)
 
     def worker():
+        measurer = None
         try:
             from raw_measure import RawPulseMeasurer
             import numpy as np
             measurer = RawPulseMeasurer()
             cal = measurer.start()
+            bench_state.camera_mode = "experiment"
             emit({"type": "info", "message": f"Burst read: {cal.mask_pixels} mask px, {cal.fps:.1f} fps"})
 
             measurer.set_light(red_level=red_level, green_level=0)
@@ -1159,10 +1162,12 @@ def run_burst_read(n_frames: int = 500, red_level: int = 200):
             bench_state.state = RunState.failed
             emit({"type": "error", "message": str(e)})
         finally:
-            try:
-                measurer.stop()
-            except Exception:
-                pass
+            if measurer is not None:
+                try:
+                    measurer.stop()
+                except Exception:
+                    pass
+            bench_state.camera_mode = "normal"
 
     threading.Thread(target=worker, daemon=True).start()
     return {"status": "started", "phase": "burst_read", "n_frames": n_frames}
@@ -1190,6 +1195,7 @@ def run_turbo_cycle(
         bench_state.emit(event)
 
     def worker():
+        measurer = None
         try:
             import time
             import numpy as np
@@ -1197,6 +1203,7 @@ def run_turbo_cycle(
 
             measurer = RawPulseMeasurer()
             cal = measurer.start()
+            bench_state.camera_mode = "experiment"
             emit({"type": "info", "message": f"Turbo: {cal.mask_pixels} px, {cal.fps:.1f} fps, target {n_cycles} cycles"})
 
             measurer.set_light(red_level=red_level, green_level=0)
@@ -1317,11 +1324,13 @@ def run_turbo_cycle(
             bench_state.state = RunState.failed
             emit({"type": "error", "message": str(e)})
         finally:
-            try:
-                measurer.set_light(red_level=0, green_level=0)
-                measurer.stop()
-            except Exception:
-                pass
+            if measurer is not None:
+                try:
+                    measurer.set_light(red_level=0, green_level=0)
+                    measurer.stop()
+                except Exception:
+                    pass
+            bench_state.camera_mode = "normal"
 
     threading.Thread(target=worker, daemon=True).start()
     return {"status": "started", "phase": "turbo_cycle", "n_cycles": n_cycles, "reads_per_write": reads_per_write}
