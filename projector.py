@@ -40,19 +40,26 @@ class Projector:
         drivers: list[str] = []
 
         if "gpio" in modes:
-            self._laser = LaserGPIOController(
+            laser = LaserGPIOController(
                 LaserGPIOConfig(
                     red_pin=self.config.red_laser_gpio,
                     green_pin=self.config.green_laser_gpio,
                     active_high=self.config.laser_active_high,
                 )
             )
-            self._laser.open()
+            laser.open()
+            self._laser = laser
             drivers.append(self._laser.driver_name)
 
         if "hdmi" in modes:
-            self._open_pygame_display()
-            drivers.append(self._driver)
+            try:
+                self._open_pygame_display()
+                drivers.append(self._driver)
+            except Exception:
+                if drivers:
+                    pass
+                else:
+                    raise
 
         if not drivers:
             raise RuntimeError("No light driver configured")

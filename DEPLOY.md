@@ -6,7 +6,7 @@ Vivonics checkout, and also as a standalone repo while developing on the Pi.
 ## Current bench target
 
 - Host: `raspberrypi.local`
-- Current resolved IPv4: `192.168.1.174`
+- Current IPv4s observed on the Pi: `192.168.1.174`, `192.168.1.176`
 - User used by local scripts: `andy`
 - Service port: `8090`
 - Expected path in the parent Vivonics checkout: `/home/andy/vivonics/pi`
@@ -16,7 +16,7 @@ Vivonics checkout, and also as a standalone repo while developing on the Pi.
 From this repo:
 
 ```bash
-scripts/deploy_remote.sh andy@192.168.1.174 /home/andy/vivonics/pi
+scripts/deploy_remote.sh andy@raspberrypi.local /home/andy/vivonics/pi
 ```
 
 The deploy script rsyncs this repo into the target path, installs Python
@@ -40,14 +40,14 @@ The bench service installed by `install.sh` defaults to:
 
 ```text
 VIVONICS_LIGHT_DRIVER=both
-VIVONICS_RED_LASER_GPIO=22
-VIVONICS_GREEN_LASER_GPIO=27
-VIVONICS_LASER_ACTIVE_HIGH=0
+VIVONICS_RED_LASER_GPIO=23
+VIVONICS_GREEN_LASER_GPIO=24
+VIVONICS_LASER_ACTIVE_HIGH=1
 ```
 
-That maps red laser enable to physical pin `15` and green laser enable to
-physical pin `13`. The laser control is active-low by default: `Off` drives the
-GPIO pins high, and an active channel is pulled low. Treat the GPIO pins as
+That maps red laser enable to physical pin `16` and green laser enable to
+physical pin `18`. The laser control is active-high by default: `Off` drives the
+GPIO pins low, and an active channel is driven high. Treat the GPIO pins as
 logic outputs into transistor or MOSFET switches; do not sink laser current
 directly through the Pi.
 

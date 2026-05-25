@@ -54,8 +54,8 @@ Use these Raspberry Pi BCM pins:
 
 | Channel | BCM GPIO | Physical pin |
 | --- | ---: | ---: |
-| Red laser enable | `GPIO22` | `15` |
-| Green laser enable | `GPIO27` | `13` |
+| Red laser enable | `GPIO23` | `16` |
+| Green laser enable | `GPIO24` | `18` |
 
 Do not power or ground a laser module directly through a Pi GPIO pin. Use each
 GPIO as a logic signal into a low-side MOSFET or transistor switch, with the
@@ -64,12 +64,12 @@ negative goes to the MOSFET drain / transistor collector; source / emitter goes
 to ground. Keep the laser module's own current limiting or driver in place.
 
 The user service defaults to `VIVONICS_LIGHT_DRIVER=both`, so HDMI frames and
-GPIO laser outputs are updated together. The GPIO path is active-low by default:
-`Off` drives the pins high; red or green on pulls the selected channel low. It
-uses `1 kHz` PWM, mapping protocol levels `0..255` to `0..100%` active duty
+GPIO laser outputs are updated together. The GPIO path is active-high by default:
+`Off` drives the pins low; red or green on drives the selected channel high. It
+uses `10 kHz` PWM, mapping protocol levels `0..255` to `0..100%` active duty
 cycle. Override the driver with `hdmi`, `gpio`, or `both`; override pins with
 `VIVONICS_RED_LASER_GPIO` and `VIVONICS_GREEN_LASER_GPIO`. Set
-`VIVONICS_LASER_ACTIVE_HIGH=1` only for active-high driver hardware.
+`VIVONICS_LASER_ACTIVE_HIGH=0` only for active-low driver hardware.
 
 Run a file-backed red linearity check:
 

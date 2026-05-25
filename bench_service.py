@@ -175,6 +175,10 @@ async def lifespan(app: FastAPI):
     capture = Capture(CaptureConfig())
     projector = Projector(ProjectorConfig())
     sensors = SensorSuite()
+    try:
+        _force_lasers_off()
+    except Exception as e:
+        bench_state.emit({"type": "error", "message": f"Failed to force lasers off at startup: {e}"})
     yield
     if projector is not None:
         projector.close()
@@ -500,6 +504,34 @@ def _exit_still_mode() -> None:
         pass
 
 
+def _light_driver_includes_gpio(value: str) -> bool:
+    modes = {part.strip().lower() for part in value.replace("+", ",").split(",")}
+    modes.discard("")
+    return "gpio" in modes or "both" in modes
+
+
+def _force_lasers_off() -> None:
+    """Best-effort physical GPIO-off for abort and startup cleanup paths."""
+    config = projector.config if projector is not None else ProjectorConfig()
+    if not _light_driver_includes_gpio(config.light_driver):
+        return
+
+    import pigpio
+
+    pi = pigpio.pi()
+    if not pi.connected:
+        raise RuntimeError("Cannot connect to pigpiod")
+
+    try:
+        off_duty = 0 if config.laser_active_high else 255
+        for pin in (config.red_laser_gpio, config.green_laser_gpio):
+            pi.set_mode(pin, pigpio.OUTPUT)
+            pi.set_PWM_frequency(pin, 10000)
+            pi.set_PWM_dutycycle(pin, off_duty)
+    finally:
+        pi.stop()
+
+
 def _apply_camera_mode(mode: str) -> dict[str, Any]:
     override_dir = CAMERA_OVERRIDE_DIR
     override_file = override_dir / "camera-mode.conf"
@@ -751,8 +783,10 @@ def run_pulse(req: PulseRequest | None = None):
                         emit({"type": "aborted", "iteration": iteration})
                         return
 
+                    pre_green_roi: dict[str, Any] | None = None
                     if cycle_config["capture_frames"]:
                         frame, path = capture.grab_frame(f"pulse_{iteration:04d}_pre_green_red")
+                        pre_green_roi = _roi_intensity(frame)
                         emit({
                             "type": "roi_intensity",
                             "label": "pre_green_red",
@@ -760,7 +794,7 @@ def run_pulse(req: PulseRequest | None = None):
                             "green_duration_s": green_duration_s,
                             "green_duration_ms": green_duration_ms,
                             "frame_path": str(path),
-                            **_roi_intensity(frame),
+                            **pre_green_roi,
                         })
 
                     green_phase_config = bench_state.pulse_config_snapshot() or cycle_config
@@ -794,6 +828,7 @@ def run_pulse(req: PulseRequest | None = None):
 
                     if post_read_config["capture_frames"]:
                         frame, path = capture.grab_frame(f"pulse_{iteration:04d}_post_green_red")
+                        post_green_roi = _roi_intensity(frame)
                         emit({
                             "type": "roi_intensity",
                             "label": "post_green_red",
@@ -801,8 +836,27 @@ def run_pulse(req: PulseRequest | None = None):
                             "green_duration_s": green_duration_s,
                             "green_duration_ms": green_duration_ms,
                             "frame_path": str(path),
-                            **_roi_intensity(frame),
+                            **post_green_roi,
                         })
+
+                        if pre_green_roi is not None:
+                            pre_red = pre_green_roi["red_mean"]
+                            post_red = post_green_roi["red_mean"]
+                            delta_red = post_red - pre_red
+                            delta_red_norm = delta_red / pre_red if pre_red > 0 else 0.0
+                            expected_product = cycle_config["red_level"] * green_level
+                            emit({
+                                "type": "multiply_result",
+                                "iteration": iteration,
+                                "red_level": cycle_config["red_level"],
+                                "green_level": green_level,
+                                "green_duration_ms": green_duration_ms,
+                                "expected_product": expected_product,
+                                "pre_red_mean": round(pre_red, 4),
+                                "post_red_mean": round(post_red, 4),
+                                "delta_red": round(delta_red, 4),
+                                "delta_red_norm": round(delta_red_norm, 6),
+                            })
 
                     if not cycle_config["loop"]:
                         break
@@ -872,6 +926,9 @@ def set_light(req: LightRequest):
         else:
             _show_light_levels(req.red_level or 0, req.green_level or 0)
 
+    if bench_state.state in {RunState.aborted, RunState.completed, RunState.failed}:
+        bench_state.state = RunState.idle
+
     event = {
         "type": "manual_light",
         **bench_state.light_snapshot(),
@@ -882,9 +939,44 @@ def set_light(req: LightRequest):
 
 @app.post("/stop")
 def stop_run():
+    was_running = bench_state.is_running()
     bench_state.request_abort()
-    bench_state.state = RunState.aborted
-    return {"status": "abort_requested"}
+    errors: list[str] = []
+
+    acquired = hardware_lock.acquire(blocking=False)
+    try:
+        if acquired:
+            try:
+                if projector is not None and projector.is_open:
+                    _show_light(LightMode.off)
+                else:
+                    _force_lasers_off()
+            except Exception as e:
+                errors.append(str(e))
+        else:
+            try:
+                _force_lasers_off()
+            except Exception as e:
+                errors.append(str(e))
+    finally:
+        if acquired:
+            hardware_lock.release()
+
+    bench_state.set_light(LightMode.off)
+    bench_state.state = RunState.aborted if was_running else RunState.idle
+    event = {
+        "type": "manual_light",
+        **bench_state.light_snapshot(),
+        "phase": "stop",
+    }
+    if errors:
+        event["errors"] = errors
+    bench_state.emit(event)
+    return {
+        "status": "abort_requested" if was_running else "idle",
+        "light": bench_state.light_snapshot(),
+        "errors": errors,
+    }
 
 
 @app.get("/stream")
