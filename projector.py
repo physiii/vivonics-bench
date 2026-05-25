@@ -1,7 +1,4 @@
-"""Projector light control via GPIO lasers on the Vivonics Pi bench.
-
-Controls red (GPIO 23) and green (GPIO 24) laser modules through pigpio PWM.
-"""
+"""Projector light control via GPIO lasers on the Vivonics Pi bench."""
 from __future__ import annotations
 
 import os

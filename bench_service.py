@@ -514,21 +514,20 @@ def _light_driver_includes_gpio(value: str) -> bool:
 def _force_lasers_off() -> None:
     """Best-effort physical GPIO-off for abort and startup cleanup paths."""
     config = projector.config if projector is not None else ProjectorConfig()
+    from laser_gpio import LaserGPIOConfig, LaserGPIOController
 
-    import pigpio
-
-    pi = pigpio.pi()
-    if not pi.connected:
-        raise RuntimeError("Cannot connect to pigpiod")
-
+    controller = LaserGPIOController(
+        LaserGPIOConfig(
+            red_pin=config.red_laser_gpio,
+            green_pin=config.green_laser_gpio,
+            active_high=config.laser_active_high,
+        )
+    )
     try:
-        off_duty = 0 if config.laser_active_high else 255
-        for pin in (config.red_laser_gpio, config.green_laser_gpio):
-            pi.set_mode(pin, pigpio.OUTPUT)
-            pi.set_PWM_frequency(pin, 10000)
-            pi.set_PWM_dutycycle(pin, off_duty)
+        controller.open()
+        controller.off()
     finally:
-        pi.stop()
+        controller.close()
 
 
 def _apply_camera_mode(mode: str) -> dict[str, Any]:
