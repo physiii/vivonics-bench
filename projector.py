@@ -13,6 +13,7 @@ class ProjectorConfig:
     red_laser_gpio: int = int(os.environ.get("VIVONICS_RED_LASER_GPIO", "23"))
     green_laser_gpio: int = int(os.environ.get("VIVONICS_GREEN_LASER_GPIO", "24"))
     laser_active_high: bool = os.environ.get("VIVONICS_LASER_ACTIVE_HIGH", "1") == "1"
+    laser_pwm_hz: int = int(os.environ.get("VIVONICS_LASER_PWM_HZ", "10000"))
     light_driver: str = "gpio"
 
 
@@ -29,6 +30,7 @@ class Projector:
                 red_pin=self.config.red_laser_gpio,
                 green_pin=self.config.green_laser_gpio,
                 active_high=self.config.laser_active_high,
+                pwm_frequency_hz=self.config.laser_pwm_hz,
             )
         )
         laser.open()

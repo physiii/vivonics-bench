@@ -180,6 +180,8 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         bench_state.emit({"type": "error", "message": f"Failed to force lasers off at startup: {e}"})
     yield
+    if sensors is not None:
+        sensors.close()
     if projector is not None:
         projector.close()
 
@@ -222,6 +224,17 @@ class LightRequest(BaseModel):
     mode: LightMode | None = None
     red_level: int | None = Field(None, ge=0, le=255)
     green_level: int | None = Field(None, ge=0, le=255)
+
+
+class AdcPulseCaptureRequest(BaseModel):
+    pre_ms: int = Field(100, ge=1, le=5000)
+    write_ms: int = Field(20, ge=1, le=5000)
+    read_ms: int = Field(200, ge=1, le=10000)
+    settle_ms: int = Field(20, ge=0, le=5000)
+    red_level: int = Field(50, ge=0, le=255)
+    green_level: int = Field(50, ge=0, le=255)
+    red_during_write: bool = True
+    max_samples: int = Field(5000, ge=1, le=20000)
 
 
 class CameraModeRequest(BaseModel):
@@ -578,6 +591,7 @@ def get_status():
                 "red_laser_gpio": projector.config.red_laser_gpio,
                 "green_laser_gpio": projector.config.green_laser_gpio,
                 "laser_active_high": projector.config.laser_active_high,
+                "laser_pwm_hz": projector.config.laser_pwm_hz,
             }
             if projector
             else None
@@ -594,6 +608,72 @@ def read_sensors():
     if sensors is None:
         raise HTTPException(503, "Sensors not initialized")
     return sensors.read_all()
+
+
+@app.post("/adc/pulse-capture")
+def capture_adc_pulse(req: AdcPulseCaptureRequest):
+    if sensors is None or projector is None:
+        raise HTTPException(503, "Hardware not initialized")
+    if bench_state.is_running():
+        raise HTTPException(409, "Experiment already running")
+
+    total_ms = req.pre_ms + req.write_ms + req.read_ms
+    samples: list[dict[str, Any]] = []
+    from ad7606 import to_signed_16
+
+    def command_for(elapsed_ms: float) -> tuple[str, int, int]:
+        if elapsed_ms < req.pre_ms:
+            return "baseline", req.red_level, 0
+        if elapsed_ms < req.pre_ms + req.write_ms:
+            return "write", req.red_level if req.red_during_write else 0, req.green_level
+        return "read", req.red_level, 0
+
+    with hardware_lock:
+        projector.open()
+        current_command: tuple[str, int, int] | None = None
+        try:
+            projector.show_color(req.red_level, 0, 0, settle=False)
+            bench_state.set_light_levels(req.red_level, 0)
+            if req.settle_ms > 0:
+                time.sleep(req.settle_ms / 1000.0)
+            start = time.perf_counter()
+            while len(samples) < req.max_samples:
+                elapsed_ms = (time.perf_counter() - start) * 1000.0
+                if elapsed_ms >= total_ms:
+                    break
+                command = command_for(elapsed_ms)
+                if command != current_command:
+                    _, red, green = command
+                    projector.show_color(red, green, 0, settle=False)
+                    bench_state.set_light_levels(red, green)
+                    current_command = command
+                values = sensors.read_ad7606_frame()
+                phase, red, green = current_command
+                sample: dict[str, Any] = {
+                    "t_ms": elapsed_ms,
+                    "phase": phase,
+                    "red_level": red,
+                    "green_level": green,
+                }
+                for index, value in enumerate(values, start=1):
+                    sample[f"ch{index}"] = float(value)
+                    sample[f"ch{index}_signed"] = float(to_signed_16(value))
+                samples.append(sample)
+        finally:
+            projector.off()
+            projector.close()
+            bench_state.set_light_levels(0, 0)
+
+    duration_ms = samples[-1]["t_ms"] - samples[0]["t_ms"] if len(samples) > 1 else 0.0
+    sample_hz = (len(samples) - 1) * 1000.0 / duration_ms if duration_ms > 0 else 0.0
+    return {
+        "status": "ok",
+        "sample_count": len(samples),
+        "sample_hz": sample_hz,
+        "duration_ms": duration_ms,
+        "protocol": req.model_dump(),
+        "samples": samples,
+    }
 
 
 @app.post("/run/linearity")
@@ -1038,15 +1118,12 @@ def stop_run():
 
     acquired = hardware_lock.acquire(blocking=False)
     try:
-        if acquired:
+        if projector is not None and projector.is_open:
             try:
-                if projector is not None and projector.is_open:
-                    _show_light(LightMode.off)
-                else:
-                    _force_lasers_off()
+                _show_light(LightMode.off)
             except Exception as e:
                 errors.append(str(e))
-        else:
+        elif acquired:
             try:
                 _force_lasers_off()
             except Exception as e:

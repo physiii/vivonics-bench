@@ -1,6 +1,7 @@
 """GPIO laser output control for the Vivonics Pi bench."""
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 
 
@@ -9,7 +10,7 @@ class LaserGPIOConfig:
     red_pin: int = 23
     green_pin: int = 24
     active_high: bool = True
-    pwm_frequency_hz: int = 10000
+    pwm_frequency_hz: int = int(os.environ.get("VIVONICS_LASER_PWM_HZ", "10000"))
 
 
 class LaserGPIOController:
