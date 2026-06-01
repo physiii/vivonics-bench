@@ -1,39 +1,35 @@
 #!/usr/bin/env python3
-"""Generate reactor_tia.kicad_sch + reactor_tia_bom_jlcpcb.csv (OPA380 reactor TIA).
+"""Generate reactor_tia.kicad_sch + reactor_tia_bom_jlcpcb.csv.
 
-Hand-laid-out, readable schematic: left-to-right signal flow
-  D1 photodiode -> U1 TIA (R_f||C_f feedback over the top) -> R-R-C-C
-  Sallen-Key anti-alias (U2) -> J1 output.  Bias divider bottom-left.
-Real wires + power symbols (+5V / GND) + a few net labels (VBIAS, V_TIA, V_FILT).
+Reactor TIA front-end: **two independent channels, one op-amp each** (BPW34 ->
+OPA380AID transimpedance amp, TIA only -- no 2nd-stage filter).  Use CH2 as a
+matched ratiometric reference PD (laser drift cancel) or a 2nd optical plane.
+Anti-aliasing is handed to the AD7606 oversampling instead of an analog
+Sallen-Key stage (see REACTOR_TIA_DESIGN.md sec.7 / sec.10 v1).
 
-Conventions copied from the office board (access-controller): KiCad
-(version 20230121)(generator eeschema); custom fields `Part Number` (MPN) and
-`LCSC`; JLCPCB BOM = Comment,Designator,Footprint,LCSC (quoted, grouped).
+Shared across both channels: one VBIAS divider (matched bias), the +5 V/GND
+rails, decoupling, and the output/power headers.  Each channel connects to the
+shared nets purely by net-label name (VBIAS / +5V / GND), so the blocks are
+self-contained.
 
-Design: 2x OPA380AID single (LCSC C201677 - the OPA2380 dual is not stocked at
-JLCPCB). VBIAS from a +5V divider (no precision ref needed: ratiometric read).
-R_f=10M. Filter R2=R3=68k, C2=2.2n, C3=1n -> fc ~1.57 kHz. D1 (BPW34, THT) and
-J1/J2 (headers) are hand-add, excluded from the SMT BOM.
-
-Value strings are concise (= BOM Comment); full spec lives in Part Number+LCSC.
-ASCII text only (KiCad stroke-font export mangles em-dash / micro / approx).
-Tap points are polyline vertices (endpoint-to-endpoint connects; mid-wire T's do
-not net-connect, so 3-way taps also get an explicit junction). Re-run:
-  python3 gen_reactor_tia_sch.py    (atomic write; verify with kicad-cli netlist)
+Layout: CH1 top, CH2 bottom (48 mm apart); divider + decoupling along the bottom;
+J1 (CH1/CH2/GND/+5V) and J2 (power) on the right.  Same symbol lib, footprints,
+and office BOM conventions as the rest of the bench (KiCad (version 20230121)
+(generator eeschema); custom fields `Part Number` (MPN) and `LCSC`).
 Schematic Y is DOWN; lib symbols are Y-UP: lib pin (lx,ly) on a part at (px,py)
-lands at schematic (px+lx, py-ly).
+lands at schematic (px+lx, py-ly).  Re-run:  python3 gen_reactor_tia_sch.py
 """
 from __future__ import annotations
 import os
 
-ROOT = "a1b2c3d4-0000-4000-8000-000000000001"
+ROOT = "a1b2c3d4-2c00-4000-8000-000000000001"
 _ctr = [0]
 USE_POWER_SYMBOLS = True
 
 
 def uid():
     _ctr[0] += 1
-    return f"a1b2c3d4-0000-4000-8000-{_ctr[0]:012d}"
+    return f"a1b2c3d4-2c00-4000-8000-{_ctr[0]:012d}"
 
 
 # pins: num -> (lx, ly, angle, name, etype, length)   [angle = tip->body, lib Y-up]
@@ -78,27 +74,28 @@ FP_PD = "OptoDevice:Vishay_BPW34"
 FP_H4 = "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
 FP_H2 = "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
 
+OX, DX = 88, 60                 # op-amp x, photodiode x (both channels)
+CHANNELS = [(1, 84), (2, 132)]  # (index, op-amp centre y);  48 mm apart
+
 # ref -> (sym, value, footprint, mpn, lcsc, x, y)
-PARTS = {
- "D1": ("PD", "BPW34", FP_PD, "BPW34", "C85128", 60, 103),
- "U1": ("OPA_N", "OPA380AID", FP_SO8, "OPA380AID", "C201677", 88, 100),
- "R1": ("R_H", "10M", FP_R, "0603WAF1005T5E", "C57129", 90, 80),
- "C1": ("C_H", "10pF C0G", FP_603, "CC0603JRNPO9BN100", "C168544", 90, 84),
- "R2": ("R_H", "68k", FP_R, "0603WAF6802T5E", "C36871", 118, 102.54),
- "R3": ("R_H", "68k", FP_R, "0603WAF6802T5E", "C36871", 140, 102.54),
- "C2": ("C_V", "2.2nF C0G", FP_603, "CC0603JRNPO9BN222", "C108194", 130, 96),
- "C3": ("C_V", "1nF C0G", FP_603, "CC0603JRNPO9BN102", "C57112", 150, 109),
- "U2": ("OPA_N", "OPA380AID", FP_SO8, "OPA380AID", "C201677", 165, 100),
- "R4": ("R_V", "100k", FP_R, "0603WAF1003T5E", "C25803", 50, 124),
- "R5": ("R_V", "10k", FP_R, "0603WAF1002T5E", "C25804", 50, 138),
- "R6": ("R_H", "10k", FP_R, "0603WAF1002T5E", "C25804", 62, 127.81),
- "C4": ("C_V", "10uF", FP_805, "CL21A106KAYNNNE", "C15850", 72, 133),
- "C5": ("C_V", "100nF", FP_402, "CL05B104KO5NNNC", "C1525", 106, 120),
- "C6": ("C_V", "1uF", FP_402, "CL05A105KA5NQNC", "C52923", 122, 120),
- "C7": ("C_V", "100nF", FP_402, "CL05B104KO5NNNC", "C1525", 138, 120),
- "J1": ("CONN4", "Conn_01x04", FP_H4, "", "", 200, 103),
- "J2": ("CONN2", "Conn_01x02", FP_H2, "", "", 200, 140),
-}
+PARTS: dict = {}
+for _n, _OY in CHANNELS:        # per-channel TIA block
+    PARTS[f"D{_n}"] = ("PD", "BPW34", FP_PD, "BPW34", "C85128", DX, _OY + 3)
+    PARTS[f"U{_n}"] = ("OPA_N", "OPA380AID", FP_SO8, "OPA380AID", "C201677", OX, _OY)
+    PARTS[f"R{_n}"] = ("R_H", "10M", FP_R, "0603WAF1005T5E", "C57129", OX + 2, _OY - 24)
+    PARTS[f"C{_n}"] = ("C_H", "10pF C0G", FP_603, "CC0603JRNPO9BN100", "C168544", OX + 2, _OY - 16)
+PARTS.update({           # shared: VBIAS divider, decoupling, headers
+ "R3": ("R_V", "100k", FP_R, "0603WAF1003T5E", "C25803", 50, 159),
+ "R4": ("R_V", "10k", FP_R, "0603WAF1002T5E", "C25804", 50, 173),
+ "R5": ("R_H", "10k", FP_R, "0603WAF1002T5E", "C25804", 62, 162.81),
+ "C3": ("C_V", "10uF", FP_805, "CL21A106KAYNNNE", "C15850", 80, 168),
+ "C4": ("C_V", "100nF", FP_402, "CL05B104KO5NNNC", "C1525", 110, 168),
+ "C5": ("C_V", "100nF", FP_402, "CL05B104KO5NNNC", "C1525", 126, 168),
+ "C6": ("C_V", "10uF", FP_805, "CL21A106KAYNNNE", "C15850", 142, 168),
+ "C7": ("C_V", "1uF", FP_402, "CL05A105KA5NQNC", "C52923", 158, 168),
+ "J1": ("CONN4", "Conn_01x04", FP_H4, "", "", 190, 100),
+ "J2": ("CONN2", "Conn_01x02", FP_H2, "", "", 190, 150),
+})
 HAND = {"PD", "CONN4", "CONN2"}
 
 
@@ -108,82 +105,64 @@ def pin(ref, num):
     return (x + lx, y - ly)
 
 
-POWER = [
- ("+5V", 88, 89), ("+5V", 165, 89), ("+5V", 106, 114), ("+5V", 122, 114), ("+5V", 138, 114), ("+5V", 50, 117),
- ("GND", 60, 110.5), ("GND", 88, 111), ("GND", 165, 111), ("GND", 50, 145.5), ("GND", 72, 139),
- ("GND", 150, 115), ("GND", 106, 126), ("GND", 122, 126), ("GND", 138, 126),
+POWER, WIRES, JUNCTIONS, LABELS = [], [], [], []
+
+for _n, _OY in CHANNELS:                       # ----- per-channel wiring -----
+    LR, RR = OX - 7.62, OX + 10                 # left rail (-IN x = 80.38), right rail (98)
+    CfY, RfY = _OY - 16, _OY - 24               # feedback tap heights
+    POWER += [("+5V", OX, _OY - 11), ("GND", OX, _OY + 11), ("GND", DX, _OY + 10.5)]
+    WIRES += [
+        [(DX, _OY - 0.81), (DX, _OY - 2.54), (LR, _OY - 2.54)],   # D cathode -> -IN
+        [(DX, _OY + 6.81), (DX, _OY + 10.5)],                     # D anode -> GND (zero bias)
+        [(LR, _OY - 2.54), (LR, CfY), (LR, RfY)],                 # left feedback rail
+        [pin(f"R{_n}", "1"), (LR, RfY)], [pin(f"R{_n}", "2"), (RR, RfY)],
+        [pin(f"C{_n}", "1"), (LR, CfY)], [pin(f"C{_n}", "2"), (RR, CfY)],
+        [(RR, _OY), (RR, CfY), (RR, RfY)],                        # right feedback rail
+        [pin(f"U{_n}", "6"), (RR, _OY)], [(RR, _OY), (RR + 10, _OY)],  # out + tap
+        [pin(f"U{_n}", "3"), (OX - 14, _OY + 2.54)],              # +IN stub (VBIAS by name)
+        [pin(f"U{_n}", "7"), (OX, _OY - 11)], [pin(f"U{_n}", "4"), (OX, _OY + 11)],
+    ]
+    JUNCTIONS += [(LR, _OY - 2.54), (LR, CfY), (RR, CfY), (RR, _OY)]
+    LABELS += [(f"V_CH{_n}", RR + 6, _OY, "left"), ("VBIAS", OX - 9, _OY + 2.54, "right")]
+
+POWER += [("+5V", 50, 152), ("GND", 50, 180.5), ("GND", 80, 174)]     # divider rails
+WIRES += [                                                            # ----- VBIAS divider -----
+ [pin("R3", "1"), (50, 152)], [pin("R3", "2"), pin("R4", "1")],
+ [pin("R5", "1"), (50, 162.81)], [pin("R4", "2"), (50, 180.5)],
+ [pin("R5", "2"), (80, 162.81), pin("C3", "1")], [pin("C3", "2"), (80, 174)],
 ]
+JUNCTIONS += [(50, 162.81)]
+LABELS += [("VBIAS", 74, 162.81, "left")]
 
-WIRES = [
- # --- TIA ---
- [pin("D1", "2"), (60, 110.5)],
- [pin("D1", "1"), (60, 97.46), pin("U1", "2")],
- [(80.38, 97.46), (80.38, 84), (80.38, 80)],
- [pin("R1", "1"), (80.38, 80)],
- [pin("C1", "1"), (80.38, 84)],
- [pin("R1", "2"), (98, 80)],
- [pin("C1", "2"), (98, 84)],
- [(98, 100), (98, 84), (98, 80)],
- [pin("U1", "6"), (98, 100)],
- [pin("U1", "3"), (74, 102.54)],
- [pin("U1", "7"), (88, 89)],
- [pin("U1", "4"), (88, 111)],
- # --- TIA out -> filter ---
- [(98, 100), (108, 100), (108, 102.54), pin("R2", "1")],
- [pin("R2", "2"), (130, 102.54), pin("R3", "1")],
- [(130, 102.54), pin("C2", "2")],
- [pin("C2", "1"), (130, 90)],
- [pin("R3", "2"), (150, 102.54), pin("U2", "3")],
- [(150, 102.54), pin("C3", "1")],
- [pin("C3", "2"), (150, 115)],
- [pin("U2", "2"), (157.38, 90)],
- [(130, 90), (157.38, 90), (176, 90), (176, 100), pin("U2", "6")],
- [pin("U2", "7"), (165, 89)],
- [pin("U2", "4"), (165, 111)],
- [(176, 100), (185, 100)],
- # --- output connector ---
- [pin("J1", "1"), (189, 99.19)],
- [pin("J1", "2"), (189, 101.73)],
- [pin("J1", "3"), (189, 104.27)],
- [pin("J1", "4"), (189, 106.81)],
- # --- bias divider ---
- [pin("R4", "1"), (50, 117)],
- [pin("R4", "2"), pin("R5", "1")],
- [pin("R6", "1"), (50, 127.81)],
- [pin("R5", "2"), (50, 145.5)],
- [pin("R6", "2"), (72, 127.81), pin("C4", "1")],
- [pin("C4", "2"), (72, 139)],
- # --- decoupling ---
- [pin("C5", "1"), (106, 114)], [pin("C5", "2"), (106, 126)],
- [pin("C6", "1"), (122, 114)], [pin("C6", "2"), (122, 126)],
- [pin("C7", "1"), (138, 114)], [pin("C7", "2"), (138, 126)],
- # --- power input ---
- [pin("J2", "1"), (189, 138.73)],
- [pin("J2", "2"), (189, 141.27)],
+for _x in (110, 126, 142, 158):                                       # ----- decoupling -----
+    POWER += [("+5V", _x, 162), ("GND", _x, 174)]
+WIRES += [[pin(c, "1"), (PARTS[c][5], 162)] for c in ("C4", "C5", "C6", "C7")]
+WIRES += [[pin(c, "2"), (PARTS[c][5], 174)] for c in ("C4", "C5", "C6", "C7")]
+
+WIRES += [                                                            # ----- headers -----
+ [pin("J1", "1"), (179, 96.19)], [pin("J1", "2"), (179, 98.73)],
+ [pin("J1", "3"), (179, 101.27)], [pin("J1", "4"), (179, 103.81)],
+ [pin("J2", "1"), (179, 148.73)], [pin("J2", "2"), (179, 151.27)],
 ]
-
-JUNCTIONS = [(80.38, 97.46), (80.38, 84), (98, 100), (98, 84),
-             (130, 102.54), (150, 102.54), (157.38, 90), (176, 100), (50, 127.81)]
-
-LABELS = [
- ("VBIAS", 74, 102.54, "right"), ("VBIAS", 66, 127.81, "left"),
- ("V_TIA", 104, 100, "left"), ("V_TIA", 189, 99.19, "left"),
- ("V_FILT", 185, 100, "left"), ("V_FILT", 189, 101.73, "left"),
- ("GND", 189, 104.27, "left"), ("+5V", 189, 106.81, "left"),
- ("+5V", 189, 138.73, "left"), ("GND", 189, 141.27, "left"),
+LABELS += [
+ ("V_CH1", 179, 96.19, "left"), ("V_CH2", 179, 98.73, "left"),
+ ("GND", 179, 101.27, "left"), ("+5V", 179, 103.81, "left"),
+ ("+5V", 179, 148.73, "left"), ("GND", 179, 151.27, "left"),
 ]
 if not USE_POWER_SYMBOLS:
     for kind, x, y in POWER:
         LABELS.append((kind, x, y, "left"))
     POWER = []
 
-TEXTS = [  # ASCII only
- ("Reactor TIA  -  bacteriorhodopsin M-state red read", 48, 60, 3.0),
- ("TIA  (size R_f for ~3 V red pedestal)", 70, 70, 1.8),
- ("anti-alias  fc ~1.57 kHz", 150, 78, 1.8),
- ("VBIAS divider  (0.45 V)", 40, 114, 1.8),
- ("decoupling", 116, 110, 1.8),
- ("D1 / J1 / J2 = hand-add (THT)", 186, 124, 1.6),
+TEXTS = [  # ASCII only (KiCad stroke-font export mangles em-dash / micro / approx)
+ ("Reactor TIA  -  2 channels, one op-amp each  (BPW34 -> OPA380 TIA)", 40, 34, 2.6),
+ ("One op-amp per channel = TIA only, no 2nd-stage filter.  R_f -> ~3 V pedestal;  C_f -> ~1.6 kHz pole.", 42, 44, 1.6),
+ ("Anti-alias handled by AD7606 oversampling.  CH2 = matched: ratiometric reference PD (drift cancel) or a 2nd plane.", 42, 49, 1.6),
+ ("Channel 1", 26, 86, 2.2),
+ ("Channel 2", 26, 134, 2.2),
+ ("VBIAS divider  (0.45 V)  -  shared by both channels", 40, 190, 1.8),
+ ("decoupling  (100 nF / amp + 10 uF + 1 uF bulk)", 104, 156, 1.6),
+ ("D1, D2 / J1 / J2 = hand-add (THT)", 168, 132, 1.6),
 ]
 
 
@@ -253,8 +232,8 @@ def emit_power(kind, x, y, n):
 
 def build_sch():
     P = ["(kicad_sch", "  (version 20230121)", "  (generator eeschema)", f"  (uuid {ROOT})",
-         '  (paper "A3")', "  (title_block", '    (title "Reactor TIA - 2x OPA380AID")',
-         '    (date "2026-05-31")', '    (rev "v2")', '    (company "Vivonics")', "  )", "  (lib_symbols"]
+         '  (paper "A3")', "  (title_block", '    (title "Reactor TIA - 2 channels x 1 OPA380AID")',
+         '    (date "2026-06-01")', '    (rev "v1")', '    (company "Vivonics")', "  )", "  (lib_symbols"]
     for name in SYM:
         P.append(sym_def(name))
     P.append("  )")
