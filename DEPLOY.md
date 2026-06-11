@@ -40,16 +40,18 @@ The bench service installed by `install.sh` defaults to:
 
 ```text
 VIVONICS_LIGHT_DRIVER=both
-VIVONICS_RED_LASER_GPIO=23
+VIVONICS_RED_LASER_GPIO=15
 VIVONICS_GREEN_LASER_GPIO=24
+VIVONICS_INFRARED_LASER_GPIO=23
+VIVONICS_BLUE_LASER_GPIO=14
 VIVONICS_LASER_ACTIVE_HIGH=1
 ```
 
-That maps red laser enable to physical pin `16` and green laser enable to
-physical pin `18`. The laser control is active-high by default: `Off` drives the
-GPIO pins low, and an active channel is driven high. Treat the GPIO pins as
-logic outputs into transistor or MOSFET switches; do not sink laser current
-directly through the Pi.
+That maps red laser enable to physical pin `10`, green to physical pin `18`,
+infrared to physical pin `16`, and blue to physical pin `8`. The laser control
+is active-high by default: `Off` drives the GPIO pins low, and an active channel
+is driven high. Treat the GPIO pins as logic outputs into transistor or MOSFET
+switches; do not sink laser current directly through the Pi.
 
 `sudo raspi-config nonint do_i2c 0` is intentionally not run by the deploy
 script because it may require an operator password and should only be changed

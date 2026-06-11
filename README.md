@@ -54,7 +54,7 @@ Use these Raspberry Pi BCM pins:
 
 | Channel | BCM GPIO | Physical pin |
 | --- | ---: | ---: |
-| Red laser enable | `GPIO23` | `16` |
+| Red laser enable | `GPIO15` | `10` |
 | Green laser enable | `GPIO24` | `18` |
 
 Do not power or ground a laser module directly through a Pi GPIO pin. Use each
@@ -79,12 +79,14 @@ through an AD7606 module. It was brought up on `2026-05-25` on the second
 reactor plane: `BUSY` began responding only after `CVA` and `CVB` were tied
 together to the Pi conversion strobe.
 
-Confirmed laser pins stay the same as the camera bench:
+Current reactor laser pins:
 
 | Function | Raspberry Pi pin |
 | --- | --- |
-| Red laser 2N7000 gate | `GPIO23`, physical pin `16` |
+| Red laser 2N7000 gate | `GPIO15`, physical pin `10` |
 | Second write laser 2N7000 gate (`green` in the service; may be blue in the reactor) | `GPIO24`, physical pin `18` |
+| Infrared laser 2N7000 gate | `GPIO23`, physical pin `16` |
+| Blue laser 2N7000 gate | `GPIO14`, physical pin `8` |
 | 2N7000 sources / laser supply negative / ADC ground | Pi `GND`, common ground |
 
 Observed AD7606 module digital header, top-to-bottom as shown by the board
@@ -118,11 +120,11 @@ Pin 1 is upper-left when looking down at the GPIO header.
   1  3V3  -> AD7606 VIO           2  5V   -> AD7606 +5V
   3  GPIO2   unused               4  5V   optional +5V
   5  GPIO3   unused               6  GND  -> AD7606 GND/common
-  7  GPIO4   -> AD7606 CVA+CVB    8  GPIO14 unused
-  9  GND     common              10  GPIO15 unused
+  7  GPIO4   -> AD7606 CVA+CVB    8  GPIO14 -> blue 2N7000 gate
+  9  GND     common              10  GPIO15 -> red 2N7000 gate
  11  GPIO17  <- AD7606 DB0       12  GPIO18 <- AD7606 DB1
  13  GPIO27  <- AD7606 DB2       14  GND
- 15  GPIO22  <- AD7606 DB3       16  GPIO23 -> red 2N7000 gate
+ 15  GPIO22  <- AD7606 DB3       16  GPIO23 -> infrared 2N7000 gate
  17  3V3     optional VIO        18  GPIO24 -> green 2N7000 gate
  19  GPIO10  <- AD7606 DB4       20  GND
  21  GPIO9   <- AD7606 DB5       22  GPIO25 <- AD7606 DB6

@@ -7,15 +7,22 @@ matched ratiometric reference PD (laser drift cancel) or a 2nd optical plane.
 Anti-aliasing is handed to the AD7606 oversampling instead of an analog
 Sallen-Key stage (see REACTOR_TIA_DESIGN.md sec.7 / sec.10 v1).
 
+Laser control: four active-high 2N7000 low-side switches for green, red,
+infrared, and blue laser modules.  The laser modules stay current-limited
+externally; this board only switches their low side and shares ground with the
+Pi/ADC.  Each GPIO has a 330R series gate resistor and each MOSFET gate has a
+100k pulldown.
+
 Shared across both channels: one VBIAS divider (matched bias), the +5 V/GND
 rails, decoupling, and the output/power headers.  Each channel connects to the
 shared nets purely by net-label name (VBIAS / +5V / GND), so the blocks are
 self-contained.
 
 Layout: CH1 top, CH2 bottom (48 mm apart); divider + decoupling along the bottom;
-J1 (CH1/CH2/GND/+5V) and J2 (power) on the right.  Same symbol lib, footprints,
-and office BOM conventions as the rest of the bench (KiCad (version 20230121)
-(generator eeschema); custom fields `Part Number` (MPN) and `LCSC`).
+J1/J2 carry TIA output/power, and J3/J4/J5 carry laser control/output/power on
+the right.  Same symbol lib, footprints, and office BOM conventions as the rest
+of the bench (KiCad (version 20230121) (generator eeschema); custom fields
+`Part Number` (MPN) and `LCSC`).
 Schematic Y is DOWN; lib symbols are Y-UP: lib pin (lx,ly) on a part at (px,py)
 lands at schematic (px+lx, py-ly).  Re-run:  python3 gen_reactor_tia_sch.py
 """
@@ -57,13 +64,27 @@ SYM = {
            "glyph": [[(-2.54, 5.08), (2.54, 5.08), (2.54, -5.08), (-2.54, -5.08), (-2.54, 5.08)]], "texts": []},
  "CONN2": {"pins": {"1": (-5.08, 1.27, 0, "1", "passive", 2.54), "2": (-5.08, -1.27, 0, "2", "passive", 2.54)},
            "glyph": [[(-2.54, 2.54), (2.54, 2.54), (2.54, -2.54), (-2.54, -2.54), (-2.54, 2.54)]], "texts": []},
+ "CONN5": {"pins": {"1": (-5.08, 5.08, 0, "1", "passive", 2.54), "2": (-5.08, 2.54, 0, "2", "passive", 2.54),
+                    "3": (-5.08, 0, 0, "3", "passive", 2.54), "4": (-5.08, -2.54, 0, "4", "passive", 2.54),
+                    "5": (-5.08, -5.08, 0, "5", "passive", 2.54)},
+           "glyph": [[(-2.54, 6.35), (2.54, 6.35), (2.54, -6.35), (-2.54, -6.35), (-2.54, 6.35)]], "texts": []},
+ "CONN8": {"pins": {"1": (-5.08, 8.89, 0, "1", "passive", 2.54), "2": (-5.08, 6.35, 0, "2", "passive", 2.54),
+                    "3": (-5.08, 3.81, 0, "3", "passive", 2.54), "4": (-5.08, 1.27, 0, "4", "passive", 2.54),
+                    "5": (-5.08, -1.27, 0, "5", "passive", 2.54), "6": (-5.08, -3.81, 0, "6", "passive", 2.54),
+                    "7": (-5.08, -6.35, 0, "7", "passive", 2.54), "8": (-5.08, -8.89, 0, "8", "passive", 2.54)},
+           "glyph": [[(-2.54, 10.16), (2.54, 10.16), (2.54, -10.16), (-2.54, -10.16), (-2.54, 10.16)]], "texts": []},
+ "MOS_N": {"pins": {"3": (0, 5.08, 270, "D", "passive", 1.27), "2": (-5.08, 0, 0, "G", "input", 1.27),
+                    "1": (0, -5.08, 90, "S", "passive", 1.27)},
+           "glyph": [[(-2.54, 2.54), (-2.54, -2.54)], [(0, 2.54), (0, -2.54)],
+                     [(-2.54, 0), (-0.635, 0)], [(0, 3.81), (0, 2.54)], [(0, -2.54), (0, -3.81)],
+                     [(-0.762, -1.27), (0, -2.032), (0.762, -1.27)]], "texts": []},
  "+5V": {"power": True, "pins": {"1": (0, 0, 90, "+5V", "power_in", 0)},
          "glyph": [[(0, 0), (0, 2.54)], [(-1.27, 1.524), (0, 2.54), (1.27, 1.524)]], "texts": []},
  "GND": {"power": True, "pins": {"1": (0, 0, 270, "GND", "power_in", 0)},
          "glyph": [[(0, 0), (0, -2.032)], [(-2.032, -2.032), (2.032, -2.032)],
                    [(-1.27, -2.794), (1.27, -2.794)], [(-0.508, -3.556), (0.508, -3.556)]], "texts": []},
 }
-REFLET = {"R_H": "R", "R_V": "R", "C_H": "C", "C_V": "C", "PD": "D", "OPA_N": "U", "CONN4": "J", "CONN2": "J"}
+REFLET = {"R_H": "R", "R_V": "R", "C_H": "C", "C_V": "C", "PD": "D", "OPA_N": "U", "CONN4": "J", "CONN5": "J", "CONN8": "J", "CONN2": "J", "MOS_N": "Q"}
 
 FP_R = "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 FP_603 = "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
@@ -71,11 +92,21 @@ FP_402 = "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder"
 FP_805 = "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 FP_SO8 = "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
 FP_PD = "OptoDevice:Vishay_BPW34"
+FP_Q_TO92 = "Package_TO_SOT_THT:TO-92_Inline"
 FP_H4 = "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical"
+FP_H5 = "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical"
+FP_H8 = "Connector_PinHeader_2.54mm:PinHeader_1x08_P2.54mm_Vertical"
 FP_H2 = "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
 
 OX, DX = 88, 60                 # op-amp x, photodiode x (both channels)
 CHANNELS = [(1, 84), (2, 132)]  # (index, op-amp centre y);  48 mm apart
+DRIVER_CHANNELS = [
+    # color, gpio net, laser low-side net, q ref, series R, pulldown R, schematic y
+    ("GREEN", "GPIO24_GREEN", "GREEN_LASER_N", "Q1", "R6", "R10", 72),
+    ("RED", "GPIO15_RED", "RED_LASER_N", "Q2", "R7", "R11", 96),
+    ("INFRARED", "GPIO23_INFRARED", "INFRARED_LASER_N", "Q3", "R8", "R12", 120),
+    ("BLUE", "GPIO14_BLUE", "BLUE_LASER_N", "Q4", "R9", "R13", 144),
+]
 
 # ref -> (sym, value, footprint, mpn, lcsc, x, y)
 PARTS: dict = {}
@@ -95,8 +126,15 @@ PARTS.update({           # shared: VBIAS divider, decoupling, headers
  "C7": ("C_V", "1uF", FP_402, "CL05A105KA5NQNC", "C52923", 158, 168),
  "J1": ("CONN4", "Conn_01x04", FP_H4, "", "", 190, 100),
  "J2": ("CONN2", "Conn_01x02", FP_H2, "", "", 190, 150),
+ "J3": ("CONN5", "Pi GPIO control", FP_H5, "", "", 356, 70),
+ "J4": ("CONN8", "Laser outputs", FP_H8, "", "", 356, 118),
+ "J5": ("CONN2", "Laser power", FP_H2, "", "", 356, 156),
 })
-HAND = {"PD", "CONN4", "CONN2"}
+for _color, _gpio, _laser, _q, _series, _pulldown, _y in DRIVER_CHANNELS:
+    PARTS[_q] = ("MOS_N", "2N7000", FP_Q_TO92, "2N7000", "", 272, _y)
+    PARTS[_series] = ("R_H", "330R", FP_R, "0603WAF3300T5E", "C23138", 242, _y)
+    PARTS[_pulldown] = ("R_V", "100k", FP_R, "0603WAF1003T5E", "C25803", 252, _y + 3.81)
+HAND = {"PD", "CONN4", "CONN5", "CONN8", "CONN2", "MOS_N"}
 
 
 def pin(ref, num):
@@ -149,6 +187,41 @@ LABELS += [
  ("GND", 179, 101.27, "left"), ("+5V", 179, 103.81, "left"),
  ("+5V", 179, 148.73, "left"), ("GND", 179, 151.27, "left"),
 ]
+
+for _color, _gpio, _laser, _q, _series, _pulldown, _y in DRIVER_CHANNELS:       # ----- 2N7000 laser drivers -----
+    gate_x = PARTS[_pulldown][5]
+    q_x = PARTS[_q][5]
+    gpio_x = pin(_series, "1")[0] - 4
+    POWER += [("GND", gate_x, _y + 12), ("GND", q_x, _y + 10)]
+    WIRES += [
+        [(gpio_x, _y), pin(_series, "1")],                                      # GPIO label -> series gate resistor
+        [pin(_series, "2"), (gate_x, _y), pin(_pulldown, "1"), pin(_q, "2")],    # series R -> MOSFET gate
+        [pin(_pulldown, "2"), (gate_x, _y + 12)],                                # gate pulldown -> GND
+        [pin(_q, "1"), (q_x, _y + 10)],                                          # source -> GND
+        [pin(_q, "3"), (q_x, _y - 8), (q_x + 18, _y - 8)],                       # drain -> laser low side
+    ]
+    JUNCTIONS += [(gate_x, _y)]
+    LABELS += [(_gpio, gpio_x, _y, "right"), (_laser, q_x + 18, _y - 8, "left")]
+
+_j3_labels = ["GPIO24_GREEN", "GPIO15_RED", "GPIO23_INFRARED", "GPIO14_BLUE", "GND"]
+for _idx, _label in enumerate(_j3_labels, start=1):
+    _p = pin("J3", str(_idx))
+    WIRES.append([_p, (_p[0] - 6, _p[1])])
+    LABELS.append((_label, _p[0] - 6, _p[1], "right"))
+
+_j4_labels = [
+    "LASER+", "GREEN_LASER_N",
+    "LASER+", "RED_LASER_N",
+    "LASER+", "INFRARED_LASER_N",
+    "LASER+", "BLUE_LASER_N",
+]
+for _idx, _label in enumerate(_j4_labels, start=1):
+    _p = pin("J4", str(_idx))
+    WIRES.append([_p, (_p[0] - 6, _p[1])])
+    LABELS.append((_label, _p[0] - 6, _p[1], "right"))
+
+WIRES += [[pin("J5", "1"), (345, 154.73)], [pin("J5", "2"), (345, 157.27)]]
+LABELS += [("LASER+", 345, 154.73, "right"), ("GND", 345, 157.27, "right")]
 if not USE_POWER_SYMBOLS:
     for kind, x, y in POWER:
         LABELS.append((kind, x, y, "left"))
@@ -162,7 +235,11 @@ TEXTS = [  # ASCII only (KiCad stroke-font export mangles em-dash / micro / appr
  ("Channel 2", 26, 134, 2.2),
  ("VBIAS divider  (0.45 V)  -  shared by both channels", 40, 190, 1.8),
  ("decoupling  (100 nF / amp + 10 uF + 1 uF bulk)", 104, 156, 1.6),
- ("D1, D2 / J1 / J2 = hand-add (THT)", 168, 132, 1.6),
+ ("4x 2N7000 low-side laser drivers  -  green/red/infrared/blue", 226, 28, 1.8),
+ ("Each GPIO path: input -> 330R series gate resistor -> 2N7000 gate, with 100k pulldown at the gate.", 226, 34, 1.25),
+ ("J3 = Pi GPIO control.  J4 = laser module outputs.  J5 = current-limited laser supply + common ground.", 226, 39, 1.25),
+ ("Do not route laser switching return through the TIA summing-node area; star back to common ground.", 226, 44, 1.25),
+ ("D1, D2 / Q1-Q4 / J1-J5 = hand-add (THT)", 168, 132, 1.6),
 ]
 
 
@@ -175,7 +252,7 @@ def sym_def(name):
     out = [f'  (symbol "viv:{name}"']
     if s.get("power"):
         out.append("    (power)")
-    if name not in ("CONN4", "CONN2"):
+    if name not in ("CONN4", "CONN5", "CONN8", "CONN2"):
         out.append("    (pin_numbers hide)")
     out += ["    (pin_names (offset 1.016) hide)",
             f"    (in_bom {'no' if s.get('power') else 'yes'}) (on_board yes)",
@@ -232,8 +309,8 @@ def emit_power(kind, x, y, n):
 
 def build_sch():
     P = ["(kicad_sch", "  (version 20230121)", "  (generator eeschema)", f"  (uuid {ROOT})",
-         '  (paper "A3")', "  (title_block", '    (title "Reactor TIA - 2 channels x 1 OPA380AID")',
-         '    (date "2026-06-01")', '    (rev "v1")', '    (company "Vivonics")', "  )", "  (lib_symbols"]
+         '  (paper "A3")', "  (title_block", '    (title "Reactor TIA + 4-channel 2N7000 laser driver")',
+         '    (date "2026-06-06")', '    (rev "v3")', '    (company "Vivonics")', "  )", "  (lib_symbols"]
     for name in SYM:
         P.append(sym_def(name))
     P.append("  )")

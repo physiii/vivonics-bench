@@ -53,6 +53,9 @@ class LightMode(str, Enum):
     red = "red"
     green = "green"
     both = "both"
+    infrared = "infrared"
+    blue = "blue"
+    multi = "multi"
 
 
 CAMERA_RTSP_SERVICE = os.environ.get("VIVONICS_CAMERA_RTSP_SERVICE", "c1-camera-rtsp")
@@ -71,6 +74,8 @@ class BenchState:
         self.light_mode: LightMode = LightMode.off
         self.red_level = 0
         self.green_level = 0
+        self.infrared_level = 0
+        self.blue_level = 0
         self.pulse_config: dict[str, Any] | None = None
         self.camera_mode: str = "normal"
         self._abort_flag = False
@@ -108,31 +113,64 @@ class BenchState:
             RunState.running_pulse,
         }
 
-    def set_light_levels(self, red_level: int = 0, green_level: int = 0) -> None:
+    def set_light_levels(
+        self,
+        red_level: int = 0,
+        green_level: int = 0,
+        infrared_level: int = 0,
+        blue_level: int = 0,
+    ) -> None:
         red_level = max(0, min(255, int(red_level)))
         green_level = max(0, min(255, int(green_level)))
-        if red_level > 0 and green_level > 0:
+        infrared_level = max(0, min(255, int(infrared_level)))
+        blue_level = max(0, min(255, int(blue_level)))
+        active = {
+            name
+            for name, level in (
+                ("red", red_level),
+                ("green", green_level),
+                ("infrared", infrared_level),
+                ("blue", blue_level),
+            )
+            if level > 0
+        }
+        if active == {"red", "green"}:
             mode = LightMode.both
-        elif red_level > 0:
-            mode = LightMode.red
-        elif green_level > 0:
-            mode = LightMode.green
+        elif len(active) == 1:
+            mode = LightMode(next(iter(active)))
+        elif active:
+            mode = LightMode.multi
         else:
             mode = LightMode.off
         with self._lock:
             self.light_mode = mode
             self.red_level = red_level
             self.green_level = green_level
+            self.infrared_level = infrared_level
+            self.blue_level = blue_level
 
-    def set_light(self, mode: LightMode, red_level: int = 0, green_level: int = 0) -> None:
+    def set_light(
+        self,
+        mode: LightMode,
+        red_level: int = 0,
+        green_level: int = 0,
+        infrared_level: int = 0,
+        blue_level: int = 0,
+    ) -> None:
         if mode == LightMode.off:
-            self.set_light_levels(0, 0)
+            self.set_light_levels(0, 0, 0, 0)
         elif mode == LightMode.red:
-            self.set_light_levels(red_level, 0)
+            self.set_light_levels(red_level, 0, 0, 0)
         elif mode == LightMode.green:
-            self.set_light_levels(0, green_level)
+            self.set_light_levels(0, green_level, 0, 0)
+        elif mode == LightMode.infrared:
+            self.set_light_levels(0, 0, infrared_level, 0)
+        elif mode == LightMode.blue:
+            self.set_light_levels(0, 0, 0, blue_level)
         elif mode == LightMode.both:
-            self.set_light_levels(red_level, green_level)
+            self.set_light_levels(red_level, green_level, 0, 0)
+        elif mode == LightMode.multi:
+            self.set_light_levels(red_level, green_level, infrared_level, blue_level)
 
     def light_snapshot(self) -> dict[str, Any]:
         with self._lock:
@@ -140,6 +178,8 @@ class BenchState:
                 "mode": self.light_mode.value,
                 "red_level": self.red_level,
                 "green_level": self.green_level,
+                "infrared_level": self.infrared_level,
+                "blue_level": self.blue_level,
             }
 
     def set_pulse_config(self, config: dict[str, Any]) -> dict[str, Any]:
@@ -224,6 +264,8 @@ class LightRequest(BaseModel):
     mode: LightMode | None = None
     red_level: int | None = Field(None, ge=0, le=255)
     green_level: int | None = Field(None, ge=0, le=255)
+    infrared_level: int | None = Field(None, ge=0, le=255)
+    blue_level: int | None = Field(None, ge=0, le=255)
 
 
 class AdcPulseCaptureRequest(BaseModel):
@@ -232,8 +274,15 @@ class AdcPulseCaptureRequest(BaseModel):
     read_ms: int = Field(200, ge=1, le=10000)
     settle_ms: int = Field(20, ge=0, le=5000)
     red_level: int = Field(50, ge=0, le=255)
+    infrared_level: int | None = Field(None, ge=0, le=255)
     green_level: int = Field(50, ge=0, le=255)
     red_during_write: bool = True
+    # 405 nm reversal pulse fired partway through the READ phase (M-state photo-
+    # reversal discriminator). blue_ms=0 or blue_level=0 disables it. Requires a
+    # blue channel wired (VIVONICS_BLUE_LASER_GPIO); no-op on two-laser benches.
+    blue_level: int = Field(0, ge=0, le=255)
+    blue_delay_ms: int = Field(0, ge=0, le=10000)  # delay into the read phase
+    blue_ms: int = Field(0, ge=0, le=5000)         # pulse duration (0 = off)
     max_samples: int = Field(5000, ge=1, le=20000)
 
 
@@ -533,6 +582,8 @@ def _force_lasers_off() -> None:
         LaserGPIOConfig(
             red_pin=config.red_laser_gpio,
             green_pin=config.green_laser_gpio,
+            infrared_pin=config.infrared_laser_gpio,
+            blue_pin=config.blue_laser_gpio,
             active_high=config.laser_active_high,
         )
     )
@@ -590,6 +641,8 @@ def get_status():
                 "driver": projector.config.light_driver,
                 "red_laser_gpio": projector.config.red_laser_gpio,
                 "green_laser_gpio": projector.config.green_laser_gpio,
+                "infrared_laser_gpio": projector.config.infrared_laser_gpio,
+                "blue_laser_gpio": projector.config.blue_laser_gpio,
                 "laser_active_high": projector.config.laser_active_high,
                 "laser_pwm_hz": projector.config.laser_pwm_hz,
             }
@@ -621,19 +674,36 @@ def capture_adc_pulse(req: AdcPulseCaptureRequest):
     samples: list[dict[str, Any]] = []
     from ad7606 import to_signed_16
 
-    def command_for(elapsed_ms: float) -> tuple[str, int, int]:
+    read_start_ms = req.pre_ms + req.write_ms
+    use_infrared_read = req.infrared_level is not None
+    read_level = req.infrared_level if req.infrared_level is not None else req.red_level
+    read_red_level = 0 if use_infrared_read else read_level
+    read_infrared_level = read_level if use_infrared_read else 0
+
+    def command_for(elapsed_ms: float) -> tuple[str, int, int, int, int]:
         if elapsed_ms < req.pre_ms:
-            return "baseline", req.red_level, 0
-        if elapsed_ms < req.pre_ms + req.write_ms:
-            return "write", req.red_level if req.red_during_write else 0, req.green_level
-        return "read", req.red_level, 0
+            return "baseline", read_red_level, 0, read_infrared_level, 0
+        if elapsed_ms < read_start_ms:
+            return (
+                "write",
+                read_red_level if req.red_during_write else 0,
+                req.green_level,
+                read_infrared_level if req.red_during_write else 0,
+                0,
+            )
+        # Read phase: IR CW. Optionally fire a 405 nm reversal pulse partway in.
+        if req.blue_ms > 0 and req.blue_level > 0:
+            into_read = elapsed_ms - read_start_ms
+            if req.blue_delay_ms <= into_read < req.blue_delay_ms + req.blue_ms:
+                return "reverse", read_red_level, 0, read_infrared_level, req.blue_level
+        return "read", read_red_level, 0, read_infrared_level, 0
 
     with hardware_lock:
         projector.open()
-        current_command: tuple[str, int, int] | None = None
+        current_command: tuple[str, int, int, int, int] | None = None
         try:
-            projector.show_color(req.red_level, 0, 0, settle=False)
-            bench_state.set_light_levels(req.red_level, 0)
+            projector.show_color(read_red_level, 0, 0, infrared_level=read_infrared_level, settle=False)
+            bench_state.set_light_levels(read_red_level, 0, read_infrared_level, 0)
             if req.settle_ms > 0:
                 time.sleep(req.settle_ms / 1000.0)
             start = time.perf_counter()
@@ -643,17 +713,19 @@ def capture_adc_pulse(req: AdcPulseCaptureRequest):
                     break
                 command = command_for(elapsed_ms)
                 if command != current_command:
-                    _, red, green = command
-                    projector.show_color(red, green, 0, settle=False)
-                    bench_state.set_light_levels(red, green)
+                    _, red, green, infrared, blue = command
+                    projector.show_color(red, green, blue, infrared_level=infrared, settle=False)
+                    bench_state.set_light_levels(red, green, infrared, blue)
                     current_command = command
                 values = sensors.read_ad7606_frame()
-                phase, red, green = current_command
+                phase, red, green, infrared, blue = current_command
                 sample: dict[str, Any] = {
                     "t_ms": elapsed_ms,
                     "phase": phase,
                     "red_level": red,
                     "green_level": green,
+                    "infrared_level": infrared,
+                    "blue_level": blue,
                 }
                 for index, value in enumerate(values, start=1):
                     sample[f"ch{index}"] = float(value)
@@ -662,7 +734,7 @@ def capture_adc_pulse(req: AdcPulseCaptureRequest):
         finally:
             projector.off()
             projector.close()
-            bench_state.set_light_levels(0, 0)
+            bench_state.set_light_levels(0, 0, 0, 0)
 
     duration_ms = samples[-1]["t_ms"] - samples[0]["t_ms"] if len(samples) > 1 else 0.0
     sample_hz = (len(samples) - 1) * 1000.0 / duration_ms if duration_ms > 0 else 0.0
@@ -1086,18 +1158,29 @@ def set_light(req: LightRequest):
     with hardware_lock:
         projector.open()
         if req.mode == LightMode.off:
-            _show_light_levels(0, 0)
+            _show_light_levels(0, 0, 0, 0)
         elif req.mode == LightMode.red:
-            _show_light_levels(req.red_level if req.red_level is not None else 255, 0)
+            _show_light_levels(req.red_level if req.red_level is not None else 255, 0, 0, 0)
         elif req.mode == LightMode.green:
-            _show_light_levels(0, req.green_level if req.green_level is not None else 255)
+            _show_light_levels(0, req.green_level if req.green_level is not None else 255, 0, 0)
+        elif req.mode == LightMode.infrared:
+            _show_light_levels(0, 0, req.infrared_level if req.infrared_level is not None else 255, 0)
+        elif req.mode == LightMode.blue:
+            _show_light_levels(0, 0, 0, req.blue_level if req.blue_level is not None else 255)
         elif req.mode == LightMode.both:
             _show_light_levels(
                 req.red_level if req.red_level is not None else 255,
                 req.green_level if req.green_level is not None else 255,
+                0,
+                0,
             )
         else:
-            _show_light_levels(req.red_level or 0, req.green_level or 0)
+            _show_light_levels(
+                req.red_level or 0,
+                req.green_level or 0,
+                req.infrared_level or 0,
+                req.blue_level or 0,
+            )
 
     if bench_state.state in {RunState.aborted, RunState.completed, RunState.failed}:
         bench_state.state = RunState.idle
@@ -1471,25 +1554,42 @@ def _with_sensor_snapshot(event: dict[str, Any]) -> dict[str, Any]:
     return event
 
 
-def _show_light(mode: LightMode, red_level: int = 0, green_level: int = 0) -> None:
+def _show_light(
+    mode: LightMode,
+    red_level: int = 0,
+    green_level: int = 0,
+    infrared_level: int = 0,
+    blue_level: int = 0,
+) -> None:
     if projector is None:
         raise RuntimeError("Projector not initialized")
 
     if mode == LightMode.off:
-        _show_light_levels(0, 0)
+        _show_light_levels(0, 0, 0, 0)
     elif mode == LightMode.red:
-        _show_light_levels(red_level, 0)
+        _show_light_levels(red_level, 0, 0, 0)
     elif mode == LightMode.green:
-        _show_light_levels(0, green_level)
+        _show_light_levels(0, green_level, 0, 0)
+    elif mode == LightMode.infrared:
+        _show_light_levels(0, 0, infrared_level, 0)
+    elif mode == LightMode.blue:
+        _show_light_levels(0, 0, 0, blue_level)
     elif mode == LightMode.both:
-        _show_light_levels(red_level, green_level)
+        _show_light_levels(red_level, green_level, 0, 0)
+    elif mode == LightMode.multi:
+        _show_light_levels(red_level, green_level, infrared_level, blue_level)
 
 
-def _show_light_levels(red_level: int = 0, green_level: int = 0) -> None:
+def _show_light_levels(
+    red_level: int = 0,
+    green_level: int = 0,
+    infrared_level: int = 0,
+    blue_level: int = 0,
+) -> None:
     if projector is None:
         raise RuntimeError("Projector not initialized")
-    projector.show_color(red_level, green_level, 0, settle=False)
-    bench_state.set_light_levels(red_level, green_level)
+    projector.show_color(red_level, green_level, blue_level, infrared_level=infrared_level, settle=False)
+    bench_state.set_light_levels(red_level, green_level, infrared_level, blue_level)
 
 
 def _light_event(

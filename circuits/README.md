@@ -1,10 +1,13 @@
-# Reactor TIA circuit — 2 channels × OPA380AID TIA (JLCPCB build)
+# Reactor TIA circuit — 2 channels × OPA380AID TIA + 4× 2N7000 laser drivers (JLCPCB build)
 
 Two independent transimpedance front-ends that lift the ~1 % red M-state
 modulation above the fixed ADC/digital floor the passive 100 kΩ load could never
 beat. **One op-amp per channel (TIA only — no analog 2nd-stage filter);**
-anti-aliasing rides on the AD7606 oversampling. Full design rationale + noise
-budget: `../../docs/program/REACTOR_TIA_DESIGN.md` (parent repo).
+anti-aliasing rides on the AD7606 oversampling. The same schematic now also
+includes four active-high 2N7000 low-side laser switches for green, red,
+infrared, and blue modules. Current reactor mapping is `GPIO15` red,
+`GPIO24` green, `GPIO23` infrared, and `GPIO14` blue. Full design rationale + noise budget:
+`../../docs/program/REACTOR_TIA_DESIGN.md` (parent repo).
 Datasheets: `../docs/datasheets/opa380.pdf`, `bpw34.pdf`.
 
 Conventions copied from the working office board
@@ -17,7 +20,8 @@ Conventions copied from the working office board
 ## Files
 
 - `reactor_tia.kicad_sch` — KiCad schematic (v7 format; opens in KiCad 7 & 8).
-  Validated: `kicad-cli sch export netlist` → all 8 nets match the intended netlist.
+  Validated: `kicad-cli sch export netlist` → TIA and laser-driver nets match
+  the intended netlist.
 - `reactor_tia_bom_jlcpcb.csv` — JLCPCB BOM (office 4-column format).
 - `gen_reactor_tia_sch.py` — generator for **both** files (always in sync). Edit
   the tables at the top and re-run `python3 gen_reactor_tia_sch.py`.
@@ -33,7 +37,18 @@ Conventions copied from the working office board
   Shared bias:  R3/R4 = 100k/10k off +5V -> 0.45 V -> R5/C3 RC filter -> VBIAS
                 (ONE divider feeds BOTH + inputs)
   J1 -> AD7606:  V_CH1 = CHn,  V_CH2 = CHn+1     (J2 = +5 V / GND power in)
+
+  GPIO24_GREEN -> R6 330R -> Q1 gate; R10 100k gate pulldown -> GND
+  GPIO15_RED   -> R7 330R -> Q2 gate; R11 100k gate pulldown -> GND
+  GPIO23_INFRARED -> R8 330R -> Q3 gate; R12 100k gate pulldown -> GND
+  GPIO14_BLUE  -> R9 330R -> Q4 gate; R13 100k gate pulldown -> GND
+  J4 laser outputs: LASER+ / GREEN_N, RED_N, INFRARED_N, BLUE_N
+  J5 laser power: LASER+ / GND, common-grounded to Pi/ADC
 ```
+
+Software boundary: the bench service currently owns red/green and has optional
+blue support via `VIVONICS_BLUE_LASER_GPIO`; the infrared channel is a hardware
+breakout until the service grows an explicit IR GPIO setting.
 
 Channel 1 = signal; **Channel 2 = a matched copy** — use it as a ratiometric
 reference PD (subtract laser RIN/drift) or a second optical plane. Identical
@@ -65,8 +80,11 @@ not 12 V). See `REACTOR_TIA_DESIGN.md §5b`.
 | C7 | 1 µF 0402 | **C52923** | ✅ verified (office board) |
 | R3 | 100 k 0603 | **C25803** | ✅ verified |
 | R4, R5 | 10 k 0603 | **C25804** | ✅ high confidence |
+| R6–R9 | 330 Ω 0603 | C23138 | ⚠ best-effort — series gate resistors |
+| R10–R13 | 100 k 0603 | **C25803** | ✅ same part as R3; 2N7000 gate pulldowns |
 | R1, R2 | 10 M 0603 | C57129 | ⚠ best-effort — **verify** (MPN 0603WAF1005T5E) |
 | C1, C2 | 10 pF C0G 0603 | C168544 | ⚠ best-effort — **verify** |
+| Q1–Q4 | 2N7000 TO-92 | hand-add | Low-side laser switches; keep laser modules current-limited |
 
 The ⚠ rows are commodity passives whose exact C-number I couldn't fully confirm;
 the MPN is in each symbol's `Part Number` field, and **JLCPCB's BOM uploader
@@ -84,12 +102,14 @@ the BOM + CPL + Gerbers from the laid-out PCB. Workflow:
    `*-top-pos.csv` CPL, and a BOM identical in format to the CSV here).
 3. Upload to JLCPCB. (Or upload Gerbers + this CSV + CPL manually.)
 
-**SMT-assembled (14 parts):** U1, U2, R1–R5, C1–C7 — top side.
+**SMT-assembled (22 parts):** U1, U2, R1–R13, C1–C7 — top side.
 **Hand-add (Assembly excluded from the SMT BOM):**
 - **D1, D2 BPW34** — leaded THT, and you *want* them positionable for optical
   alignment to the reactor/fiber. Don't reflow them flat; bring each to 2 pads /
   a 2-pin connector and cable it.
-- **J1, J2** — 2.54 mm THT headers; hand-solder.
+- **Q1–Q4 2N7000** — TO-92 low-side MOSFET switches for the green, red,
+  infrared, and blue laser channels.
+- **J1–J5** — 2.54 mm THT headers; hand-solder.
 
 ## Layout notes (kills the pickup)
 
@@ -99,6 +119,9 @@ the BOM + CPL + Gerbers from the laid-out PCB. Workflow:
   baffle. **Keep the two channels' summing nodes apart** — crosstalk between them
   would corrupt a ratiometric (CH1−CH2) read.
 - Star ground: keep laser-driver/GPIO switching return off the analog return.
+- Route the Q1–Q4 source and laser-supply return directly back to the common
+  ground entry; do not run that switching current through either TIA summing-node
+  area or photodiode shield return.
 - Enable AD7606 oversampling (OS0–2, currently tied GND) for a free sinc
   anti-alias + averaging stage — this is what replaces the analog filter stage.
 

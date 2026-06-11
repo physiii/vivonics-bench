@@ -4,6 +4,7 @@ Comment,Designator,Footprint,LCSC
 "100nF","C4,C5","Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder","C1525"
 "1uF","C7","Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder","C52923"
 "10M","R1,R2","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C57129"
-"100k","R3","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C25803"
+"100k","R3,R10,R11,R12,R13","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C25803"
 "10k","R4,R5","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C25804"
+"330R","R6,R7,R8,R9","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C23138"
 "OPA380AID","U1,U2","Package_SO:SOIC-8_3.9x4.9mm_P1.27mm","C201677"
