@@ -215,9 +215,9 @@ class SensorSuite:
 
     def _init_ad7606(self):
         try:
-            from ad7606 import AD7606Reader
+            from ad7606_fast import FastAD7606
 
-            reader = AD7606Reader()
+            reader = FastAD7606()
             reader.open()
             return reader
         except Exception as exc:  # pragma: no cover - hardware dependent

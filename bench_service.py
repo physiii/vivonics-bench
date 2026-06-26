@@ -672,7 +672,7 @@ def capture_adc_pulse(req: AdcPulseCaptureRequest):
 
     total_ms = req.pre_ms + req.write_ms + req.read_ms
     samples: list[dict[str, Any]] = []
-    from ad7606 import to_signed_16
+    from ad7606_fast import to_signed_16
 
     read_start_ms = req.pre_ms + req.write_ms
     use_infrared_read = req.infrared_level is not None
