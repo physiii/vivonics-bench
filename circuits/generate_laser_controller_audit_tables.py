@@ -81,9 +81,13 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
     if net.startswith("ISENSE"):
         return "Laser source-sense telemetry through 1 k isolation into ESP32 ADC."
     if net.startswith("MPD") and net[3:].isdigit():
-        return "Filtered internal laser monitor-photodiode telemetry into ESP32 ADC."
+        return "Filtered INA4180 internal laser monitor-photodiode current telemetry into ESP32 ADC."
+    if "MPD_AMP" in net:
+        return "INA4180 monitor-PD current-sense amplifier output before the 1 k / 100 nF ADC filter."
+    if "MPD_BIAS" in net:
+        return "LM4040-derived monitor-PD anode bias node; holds LASER_V+ to MPD_BIAS near 5 V."
     if "MPD_RAW" in net:
-        return "Raw internal monitor-photodiode anode node: J4 pin, 10 k burden, 100 nF filter, and ADC isolation resistor."
+        return "Raw internal monitor-photodiode anode node from J4 into the 750 ohm high-side sense resistor and INA4180 IN+ pin."
     if net.startswith("LASER_N"):
         return "Laser cathode sink path from harness J4 to AO3400A drain."
     if net.endswith("/FB"):
@@ -236,6 +240,29 @@ def pin_intent_for_node(
         return "External laser-anode supply input." if net == "LASER_V+" else "Laser supply connector return ground."
     if value == "EXT 5V":
         return "External 5V input before OR-ing diode." if "EXT5V" in net else "External 5V connector ground."
+    if value == "INA4180A1":
+        return {
+            "1": "INA4180 channel 1 output to the MPD1 ADC RC filter.",
+            "2": "INA4180 channel 1 negative input on MPD_BIAS, the load side of the monitor sense resistor.",
+            "3": "INA4180 channel 1 positive input on MPD_RAW1, the laser monitor-PD anode side of the sense resistor.",
+            "4": "INA4180 3.3 V supply.",
+            "5": "INA4180 channel 2 positive input on MPD_RAW2.",
+            "6": "INA4180 channel 2 negative input on MPD_BIAS.",
+            "7": "INA4180 channel 2 output to the MPD2 ADC RC filter.",
+            "8": "INA4180 channel 3 output to the MPD3 ADC RC filter.",
+            "9": "INA4180 channel 3 negative input on MPD_BIAS.",
+            "10": "INA4180 channel 3 positive input on MPD_RAW3.",
+            "11": "INA4180 ground reference for ADC output accuracy.",
+            "12": "INA4180 channel 4 positive input on MPD_RAW4.",
+            "13": "INA4180 channel 4 negative input on MPD_BIAS.",
+            "14": "INA4180 channel 4 output to the MPD4 ADC RC filter.",
+        }.get(pin, "Review required: INA4180 unknown pin.")
+    if value == "LM4040C50 5V":
+        return {
+            "1": "LM4040 cathode tied to LASER_V+ so the reference clamps the high-side monitor-bias drop.",
+            "2": "LM4040 anode tied to MPD_BIAS.",
+            "3": "LM4040 star pin tied to anode/MPD_BIAS per TI guidance for noisy environments.",
+        }.get(pin, "Review required: LM4040 unknown pin.")
 
     if value == "OPA380AID":
         return {
@@ -256,6 +283,12 @@ def pin_intent_for_node(
             "4": "TLV9001 inverting source-sense feedback input.",
             "5": "TLV9001 positive supply tied to +5V with local decoupling.",
         }.get(pin, "Review required: TLV9001 unknown pin.")
+    if value == "OFFBOARD LASER+MPD":
+        return {
+            "1": "Off-board laser diode cathode tied to the board low-side current-sink net LASER_Nx.",
+            "2": "Off-board common laser anode / monitor-PD cathode / case tied to LASER_V+ for PLT/A-code cans.",
+            "3": "Off-board internal monitor-PD anode exported as MPD_RAWx into the INA4180/LM4040 monitor front end.",
+        }.get(pin, "Review required: off-board laser-can unknown pin.")
     if value == "AO3400A":
         return {
             "1": "AO3400A gate driven through 1k from TLV9001 loop output.",
@@ -285,10 +318,16 @@ def pin_intent_for_node(
         return "USB series resistor connector/ESD side." if net.endswith("_ESD") else "USB series resistor ESP32 module side."
     if value.startswith("30k LIMIT"):
         return "PWM command limiter node." if re.match(r"Net-\(U[5-8]-\+\)$", net) else "PWM command limiter ground leg."
-    if value.startswith("10k MPD"):
-        return "Monitor-PD burden resistor raw MPD side." if "MPD_RAW" in net else "Monitor-PD burden resistor ground side."
+    if value.startswith("750R MPD sense"):
+        return "Monitor-PD sense resistor raw laser-harness side." if "MPD_RAW" in net else "Monitor-PD sense resistor MPD_BIAS side."
+    if value.startswith("2.49k MPD bias"):
+        return "MPD_BIAS sink resistor high side." if "MPD_BIAS" in net else "MPD_BIAS sink resistor ground return."
     if value.startswith("1k ADC"):
-        return "Monitor-PD ADC isolation resistor filtered ADC side." if net.startswith("MPD") and net[3:].isdigit() else "Monitor-PD ADC isolation resistor raw/filter side."
+        return "Monitor-PD ADC isolation resistor filtered ADC side." if net.startswith("MPD") and net[3:].isdigit() else "Monitor-PD ADC isolation resistor INA4180 output side."
+    if value.startswith("100nF MPD ADC"):
+        return "Monitor-PD ADC filter capacitor ADC side." if net.startswith("MPD") and net[3:].isdigit() else "Monitor-PD ADC filter capacitor ground return."
+    if value.startswith("100nF MPD bias"):
+        return "Monitor-PD bias-reference capacitor participating in the 5V LASER_V+ to MPD_BIAS shunt reference."
 
     if footprint.startswith("Resistor_SMD"):
         return f"Resistor pin participating in: {net_intent}"
@@ -1126,7 +1165,7 @@ def main() -> int:
                 "These generated-board checks keep USB protection, ESP32-S3 support parts, "
                 "AP2112 decoupling, every TIA input/feedback/decoupling/bias cluster, every "
                 "laser gate/sense/control/compensation cluster, and every monitor-PD "
-                "burden/filter/ADC-isolation cluster close to the pins they serve."
+                "sense/reference/ADC-isolation cluster close to the pins they serve."
             )
             lines.append("")
             lines.append("| Check | Actual | Limit | Status |")

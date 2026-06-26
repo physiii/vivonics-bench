@@ -1580,8 +1580,8 @@ for _color in ["IR", "RED", "GREEN", "BLUE"]:
 
 for _index, _j4_pin in enumerate(["2", "4", "6", "8"], 1):
     PLACEMENT_CHECKS += [
-        (f"MPD_RAW{_index} burden resistor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"RMPD{_index}", "1"), 4.0),
-        (f"MPD_RAW{_index} filter capacitor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"CMPD{_index}", "1"), 2.5),
+        (f"MPD_RAW{_index} sense resistor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"RMPD{_index}", "1"), 4.0),
+        (f"MPD{_index} ADC filter capacitor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"CMPD{_index}", "1"), 2.5),
         (f"MPD_RAW{_index} ADC isolation resistor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"RADC{_index}", "2"), 4.0),
     ]
 

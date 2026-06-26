@@ -62,16 +62,16 @@ for _color in ["IR", "RED", "GREEN", "BLUE"]:
 
 for _index, _j4_pin in enumerate(["2", "4", "6", "8"], 1):
     CRITICAL_ROUTE_LINKS += [
-        (f"MPD_RAW{_index} burden resistor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"RMPD{_index}", "1"), 4.0),
-        (f"MPD_RAW{_index} filter capacitor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"CMPD{_index}", "1"), 2.5),
+        (f"MPD_RAW{_index} sense resistor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"RMPD{_index}", "1"), 4.0),
+        (f"MPD{_index} ADC filter capacitor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"CMPD{_index}", "1"), 2.5),
         (f"MPD_RAW{_index} ADC isolation resistor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"RADC{_index}", "2"), 4.0),
     ]
 
 MIN_ROUTED_CRITICAL_LINKS = 109
 PREROUTE_ROUTE_DESCRIPTIONS = {
-    "MPD_RAW2 burden resistor at J4",
-    "MPD_RAW3 burden resistor at J4",
-    "MPD_RAW4 burden resistor at J4",
+    "MPD_RAW2 sense resistor at J4",
+    "MPD_RAW3 sense resistor at J4",
+    "MPD_RAW4 sense resistor at J4",
 }
 PREROUTE_USB_ROUTE_DESCRIPTIONS = {
     "USB D- connector to USBLC6",
@@ -214,7 +214,7 @@ POWER_ROUTE_LINKS = [
 ]
 GND_LOCAL_ROUTE_LINKS = [
     ("ESP32 pin 1 ground to local decap ground", ("MCU_ESP32-S3", "U9", "1", "MCU_ESP32-S3", "C43", "2"), 0.20),
-    ("MPD4 filter ground to burden ground", ("POWER_IO", "CMPD4", "2", "POWER_IO", "RMPD4", "2"), 0.20),
+    ("MPD4 filter ground to sense-bias return", ("POWER_IO", "CMPD4", "2", "POWER_IO", "RMPD4", "2"), 0.20),
 ]
 PREROUTE_POWER_ROUTE_DESCRIPTIONS = {
     "VBUS connector to USBLC6 VBUS reference",
@@ -957,6 +957,14 @@ def emit_ground_plane_fanout_segments(
         board_ref = board_ref_by_comp.get((sheet, ref_for(sheet, local_ref)))
         if board_ref:
             via_in_pad_fallbacks.add((board_ref, "2"))
+    forced_gnd_fanout_offsets: dict[tuple[str, str], tuple[float, float]] = {}
+    for sheet, local_ref in [
+        ("LASER_IR", "C17"),
+        ("LASER_RED", "C20"),
+    ]:
+        board_ref = board_ref_by_comp.get((sheet, ref_for(sheet, local_ref)))
+        if board_ref:
+            forced_gnd_fanout_offsets[(board_ref, "2")] = (1.0, 0.25)
 
     route_items: list[tuple[int, float, str, str, dict[str, float | str]]] = []
     seen_points: set[tuple[str, str, float, float]] = set()
@@ -985,7 +993,22 @@ def emit_ground_plane_fanout_segments(
         via_drill = VIA_DRILL if high_current else GND_FANOUT_VIA_DRILL
         toward = (start[0] + 1.0, start[1])
         committed: tuple[tuple[float, float], list[tuple[float, float]]] | None = None
+        forced_offset = forced_gnd_fanout_offsets.get((ref, pin))
+        if forced_offset is not None:
+            forced_via = (round(start[0] + forced_offset[0], 4), round(start[1] + forced_offset[1], 4))
+            forced_escape = [start, forced_via]
+            if _via_clear_sized(pads, existing_segments, forced_via, "GND", via_size) and _route_shape_clear(
+                pads,
+                existing_segments,
+                "GND",
+                forced_escape,
+                width,
+                "F.Cu",
+            ):
+                committed = (forced_via, forced_escape)
         for via in _via_candidates_sized(pads, existing_segments, start, toward, "GND", via_size)[:12]:
+            if committed is not None:
+                break
             escape = _route_one(
                 pads,
                 existing_segments,

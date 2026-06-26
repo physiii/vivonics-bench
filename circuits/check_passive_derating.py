@@ -129,6 +129,22 @@ RES_RATINGS = {
         package="0603",
         source="Royalohm 0603WAF 0603 family data: 0.1W, 75V, +/-1%.",
     ),
+    "0603WAF2491T5E": ResistorRating(
+        value="2.49k",
+        power_w=0.10,
+        voltage_v=75.0,
+        tolerance="+/-1%",
+        package="0603",
+        source="LCSC C22908 / UNI-ROYAL 0603WAF2491T5E page: 2.49k, 100mW, 75V, +/-1%, +/-100ppm/C.",
+    ),
+    "RC0603FR-07750RL": ResistorRating(
+        value="750R",
+        power_w=0.10,
+        voltage_v=75.0,
+        tolerance="+/-1%",
+        package="0603",
+        source="LCSC C114635 / Yageo RC0603FR-07750RL page: 750 ohm, 100mW, 75V, +/-1%, +/-100ppm/C.",
+    ),
     "RMC060310KFN": ResistorRating(
         value="10k",
         power_w=0.10,
@@ -158,10 +174,15 @@ RES_RATINGS = {
 
 def capacitor_stress(comp: dict[str, str]) -> CapacitorStress:
     value = comp["value"]
-    if value == "100nF MPD":
+    if value == "100nF MPD bias":
         return CapacitorStress(
-            voltage_v=10.77,
-            reason="monitor-PD raw filter is checked against the PLT5 green 10.5V rail plus diode/loop margin",
+            voltage_v=5.05,
+            reason="LM4040 monitor-PD bias reference capacitor is across the nominal 5V LASER_V+ to MPD_BIAS reference",
+        )
+    if value == "100nF MPD ADC":
+        return CapacitorStress(
+            voltage_v=3.3,
+            reason="ADC-side monitor-PD output filter is limited by the INA4180 output on the ESP32 3.3V ADC domain",
         )
     if value == "10pF C0G":
         return CapacitorStress(
@@ -195,12 +216,23 @@ def resistor_stress(comp: dict[str, str]) -> ResistorStress:
             voltage_v=3.6,
             reason="USB series damping resistor; no intentional DC load, checked for steady-state signal voltage only",
         )
+    if value == "750R MPD sense":
+        return ResistorStress(
+            power_w=0.00008,
+            voltage_v=0.25,
+            reason="monitor-PD sense resistor at a conservative 330uA monitor current; INA4180 gain/output headroom is checked separately",
+        )
+    if value == "2.49k MPD bias":
+        return ResistorStress(
+            power_w=(10.77 - 5.0) * (10.77 - 5.0) / 2490.0,
+            voltage_v=10.77 - 5.0,
+            reason="LM4040 shunt-reference sink from MPD_BIAS to GND at the high green LASER_V+ rail margin",
+        )
     resistance_ohms = {
         "1k": 1_000.0,
         "1k ADC": 1_000.0,
         "10k": 10_000.0,
         "10k BOOT": 10_000.0,
-        "10k MPD": 10_000.0,
         "30k LIMIT": 30_000.0,
         "10M": 10_000_000.0,
     }.get(value)

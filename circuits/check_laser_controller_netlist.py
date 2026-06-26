@@ -196,6 +196,7 @@ def main() -> int:
         "C21": ("1uF", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "CL05A105KA5NQNC", "C52923"),
         "C22": ("100nF", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "CL05B104KO5NNNC", "C1525"),
         "CC": ("10pF C0G", "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder", "CC0603JRNPO9BN100", "C106245"),
+        "LD": ("OFFBOARD LASER+MPD", "", "", ""),
         "Q1": ("AO3400A", "Package_TO_SOT_SMD:SOT-23", "AO3400A", "C20917"),
         "R11": ("10R 2W", "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder", "HoCR2512-2W-10R-1%", "C5123624"),
         "R12": ("1k", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "0603WAF1001T5E", "C21190"),
@@ -221,6 +222,8 @@ def main() -> int:
         "U9": ("ESP32-S3-WROOM-1", "RF_Module:ESP32-S3-WROOM-1", "ESP32-S3-WROOM-1-N16R8", "C2913199"),
     }
     power_io_components = {
+        "CINA": ("100nF", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "CL05B104KO5NNNC", "C1525"),
+        "CREF": ("100nF MPD bias", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "CL05B104KO5NNNC", "C1525"),
         "C50": ("10uF", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNE", "C15850"),
         "D10": ("SS14", "Diode_SMD:D_SMA", "SS14", "C2480"),
         "D11": ("SS14", "Diode_SMD:D_SMA", "SS14", "C2480"),
@@ -228,11 +231,14 @@ def main() -> int:
         "J2": ("EXT 5V", "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical", "", ""),
         "J4": ("LASER+MPD out", "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical", "", ""),
         "J5": ("LASER PSU", "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical", "", ""),
+        "RBIAS": ("2.49k MPD bias", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "0603WAF2491T5E", "C22908"),
+        "UMPD": ("INA4180A1", "Package_SO:TSSOP-14_4.4x5mm_P0.65mm", "INA4180A1IPWR", "C2057528"),
+        "UREF": ("LM4040C50 5V", "Package_TO_SOT_SMD:SOT-23", "LM4040C50IDBZR", "C69316"),
     }
     for index in range(1, 5):
-        power_io_components[f"CMPD{index}"] = ("100nF MPD", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "CL05B104KO5NNNC", "C1525")
+        power_io_components[f"CMPD{index}"] = ("100nF MPD ADC", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "CL05B104KO5NNNC", "C1525")
         power_io_components[f"RADC{index}"] = ("1k ADC", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "0603WAF1001T5E", "C21190")
-        power_io_components[f"RMPD{index}"] = ("10k MPD", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "0603WAF1002T5E", "C269701")
+        power_io_components[f"RMPD{index}"] = ("750R MPD sense", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "RC0603FR-07750RL", "C114635")
     for color in WL:
         for ref, fields in tia_components.items():
             expect_component(f"/TIA_{color}/", ref_for(f"TIA_{color}", ref), *fields)
@@ -267,6 +273,13 @@ def main() -> int:
             ("5", "V+", "power_in"),
         ]:
             expect_pin(ref, pin, function, pintype)
+    for ref in [ref_for(f"LASER_{color}", "LD") for color in WL]:
+        for pin, function, pintype in [
+            ("1", "LD_K", "passive"),
+            ("2", "LD_A/PD_K/CASE", "passive"),
+            ("3", "PD_A", "passive"),
+        ]:
+            expect_pin(ref, pin, function, pintype)
     for pin, function, pintype in [
         ("1", "VIN", "power_in"),
         ("2", "GND", "power_in"),
@@ -277,6 +290,25 @@ def main() -> int:
         expect_pin(ref_for("MCU_ESP32-S3", "U10"), pin, function, pintype)
     for pin, function in [("1", "IO1"), ("2", "GND"), ("3", "IO2"), ("4", "IO2"), ("5", "VBUS"), ("6", "IO1")]:
         expect_pin(ref_for("MCU_ESP32-S3", "U12"), pin, function, "passive")
+    for pin, function, pintype in [
+        ("1", "OUT1", "output"),
+        ("2", "IN-1", "input"),
+        ("3", "IN+1", "input"),
+        ("4", "VS", "power_in"),
+        ("5", "IN+2", "input"),
+        ("6", "IN-2", "input"),
+        ("7", "OUT2", "output"),
+        ("8", "OUT3", "output"),
+        ("9", "IN-3", "input"),
+        ("10", "IN+3", "input"),
+        ("11", "GND", "power_in"),
+        ("12", "IN+4", "input"),
+        ("13", "IN-4", "input"),
+        ("14", "OUT4", "output"),
+    ]:
+        expect_pin(ref_for("POWER_IO", "UMPD"), pin, function, pintype)
+    for pin, function in [("1", "K"), ("2", "A"), ("3", "*")]:
+        expect_pin(ref_for("POWER_IO", "UREF"), pin, function, "passive")
     for pin, function, pintype in [
         ("1", "GND", "power_in"),
         ("2", "3V3", "power_in"),
@@ -341,6 +373,8 @@ def main() -> int:
     ext5_j = ref_for("POWER_IO", "J2")
     d_usb = ref_for("POWER_IO", "D10")
     d_ext = ref_for("POWER_IO", "D11")
+    ina_mpd = ref_for("POWER_IO", "UMPD")
+    mpd_ref = ref_for("POWER_IO", "UREF")
 
     for item in [(ldo, "1", "VIN"), (ldo, "3", "EN")]:
         has("+5V", *item)
@@ -378,7 +412,11 @@ def main() -> int:
         ])
 
     for index, (color, j4_pin) in enumerate(zip(WL, ["1", "3", "5", "7"]), 1):
-        exact(f"LASER_N{index}", [("J4", j4_pin), (ref_for(f"LASER_{color}", "Q1"), "3")])
+        exact(f"LASER_N{index}", [
+            ("J4", j4_pin),
+            (ref_for(f"LASER_{color}", "LD"), "1"),
+            (ref_for(f"LASER_{color}", "Q1"), "3"),
+        ])
 
     # Native USB path: connector -> USBLC6 -> 22R -> ESP32-S3 GPIO19/20.
     exact("/MCU_ESP32-S3/USB_DM_CONN", [(usb_j, "2"), (usblc, "1")])
@@ -392,19 +430,47 @@ def main() -> int:
     exact("/MCU_ESP32-S3/ESP_EN", [(ref_for("MCU_ESP32-S3", "CEN"), "1"), (uart_j, "3"), (ref_for("MCU_ESP32-S3", "REN"), "2"), ("U9", "3")])
     exact("/MCU_ESP32-S3/ESP_BOOT", [(uart_j, "4"), (ref_for("MCU_ESP32-S3", "RBOOT"), "2"), ("U9", "27")])
 
-    # Internal laser monitor PD feedback into ESP32 ADC pins.
+    # Internal laser monitor PD feedback: PLT5-style monitor-PD anode into a
+    # high-side sense resistor, INA4180A1 gain=20, then ADC-side RC filtering.
+    ina_in_plus = {1: "3", 2: "5", 3: "10", 4: "12"}
+    ina_in_minus = {1: "2", 2: "6", 3: "9", 4: "13"}
+    ina_out = {1: "1", 2: "7", 3: "8", 4: "14"}
     for index, j4_pin in enumerate(["2", "4", "6", "8"], 1):
         exact(
-            f"/POWER_IO/MPD_RAW{index}",
+            f"MPD_RAW{index}",
             [
-                (ref_for("POWER_IO", f"CMPD{index}"), "1"),
                 ("J4", j4_pin),
-                (ref_for("POWER_IO", f"RADC{index}"), "2"),
+                (ref_for(f"LASER_{WL[index - 1]}", "LD"), "3"),
                 (ref_for("POWER_IO", f"RMPD{index}"), "1"),
+                (ina_mpd, ina_in_plus[index]),
+            ],
+        )
+        exact(
+            f"/POWER_IO/MPD_AMP{index}",
+            [
+                (ina_mpd, ina_out[index]),
+                (ref_for("POWER_IO", f"RADC{index}"), "1"),
             ],
         )
     for index, esp_pin in enumerate(["38", "39", "12", "17"], 1):
-        exact(f"MPD{index}", [(ref_for("POWER_IO", f"RADC{index}"), "1"), ("U9", esp_pin)])
+        exact(
+            f"MPD{index}",
+            [
+                (ref_for("POWER_IO", f"CMPD{index}"), "1"),
+                (ref_for("POWER_IO", f"RADC{index}"), "2"),
+                ("U9", esp_pin),
+            ],
+        )
+    mpd_bias_nodes: list[tuple[str, str]] = [
+        (mpd_ref, "2"),
+        (mpd_ref, "3"),
+        (ref_for("POWER_IO", "CREF"), "2"),
+        (ref_for("POWER_IO", "RBIAS"), "1"),
+    ]
+    for index in range(1, 5):
+        mpd_bias_nodes.append((ref_for("POWER_IO", f"RMPD{index}"), "2"))
+        mpd_bias_nodes.append((ina_mpd, ina_in_minus[index]))
+    exact("/POWER_IO/MPD_BIAS", sorted(mpd_bias_nodes))
     for index, (color, esp_pin) in enumerate(zip(WL, ["4", "5", "6", "7"]), 1):
         exact(f"ISENSE{index}", [(ref_for(f"LASER_{color}", "R12"), "2"), ("U9", esp_pin)])
     for index, (color, esp_pin) in enumerate(zip(WL, ["9", "31", "21", "22"]), 1):
@@ -420,7 +486,10 @@ def main() -> int:
             (ref_for(sheet, "U1"), "6"),
         ])
     exact("CONVST", [(ad7606_j, "5"), ("U9", "10")])
-    exact("LASER_V+", [("J4", "9"), ("J5", "1")])
+    laser_vplus_nodes = [("J4", "9"), ("J5", "1"), (mpd_ref, "1"), (ref_for("POWER_IO", "CREF"), "1")]
+    for color in WL:
+        laser_vplus_nodes.append((ref_for(f"LASER_{color}", "LD"), "2"))
+    exact("LASER_V+", sorted(laser_vplus_nodes))
     exact("VBUS_5V", [(d_usb, "1"), (usb_j, "1"), (usblc, "5")])
     exact("/POWER_IO/EXT5V", [(d_ext, "1"), (ext5_j, "1")])
 
@@ -443,6 +512,8 @@ def main() -> int:
         (ref_for("MCU_ESP32-S3", "C43"), "1"),
         (ref_for("MCU_ESP32-S3", "REN"), "1"),
         (ref_for("MCU_ESP32-S3", "RBOOT"), "1"),
+        (ina_mpd, "4"),
+        (ref_for("POWER_IO", "CINA"), "1"),
     }
     gnd_nodes: set[tuple[str, str]] = {
         (usb_j, "5"),
@@ -463,6 +534,9 @@ def main() -> int:
         ("J4", "10"),
         ("J5", "2"),
         (ref_for("POWER_IO", "C50"), "2"),
+        (ina_mpd, "11"),
+        (ref_for("POWER_IO", "CINA"), "2"),
+        (ref_for("POWER_IO", "RBIAS"), "2"),
     }
     for color in WL:
         tia_sheet = f"TIA_{color}"
@@ -495,7 +569,6 @@ def main() -> int:
 
     for index in range(1, 5):
         gnd_nodes.update({
-            (ref_for("POWER_IO", f"RMPD{index}"), "2"),
             (ref_for("POWER_IO", f"CMPD{index}"), "2"),
         })
 
@@ -608,7 +681,9 @@ def main() -> int:
     }
     checks.append((not multi_net_pins, "physical pin appears on one net only", f"{multi_net_pins}"))
 
-    hand_add_refs = {ad7606_j, uart_j, "J4", "J5", ext5_j}
+    hand_add_refs = {ad7606_j, uart_j, "J4", "J5", ext5_j} | {
+        ref_for(f"LASER_{color}", "LD") for color in WL
+    }
     assembled = [comp for comp in comps if comp["ref"] not in hand_add_refs]
     missing_fields = [
         comp
@@ -620,25 +695,29 @@ def main() -> int:
         for comp in comps
         if comp["ref"] in hand_add_refs and (comp["lcsc"] or comp["mpn"])
     ]
-    checks.append((len(comps) == 117, "component count", f"got {len(comps)}, expected 117"))
-    checks.append((len(assembled) == 112, "assembled component count", f"got {len(assembled)}, expected 112"))
+    checks.append((len(comps) == 126, "component count", f"got {len(comps)}, expected 126"))
+    checks.append((len(assembled) == 117, "assembled component count", f"got {len(assembled)}, expected 117"))
     checks.append((not missing_fields, "assembled component fields", f"missing {missing_fields}"))
     checks.append((not hand_with_fields, "hand-add field exclusion", f"unexpected fields {hand_with_fields}"))
 
     expected_lcsc_counts = {
         "C106245": 8,
-        "C1525": 15,
+        "C1525": 17,
         "C15850": 6,
         "C201677": 4,
         "C20917": 4,
         "C21190": 16,
         "C22984": 4,
+        "C22908": 1,
         "C23345": 2,
         "C2480": 2,
-        "C269701": 18,
+        "C269701": 14,
         "C2900216": 4,
         "C2913199": 1,
         "C398363": 4,
+        "C2057528": 1,
+        "C114635": 4,
+        "C69316": 1,
         "C51118": 1,
         "C5120592": 1,
         "C5123624": 4,

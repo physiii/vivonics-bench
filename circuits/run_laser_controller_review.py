@@ -146,6 +146,7 @@ def main() -> int:
         "circuits/check_schematic_hierarchy_labels.py",
         "circuits/check_power_thermal_budget.py",
         "circuits/check_laser_current_budget.py",
+        "circuits/check_laser_monitor_pd_budget.py",
         "circuits/check_passive_derating.py",
         "circuits/generate_laser_controller_audit_tables.py",
         "circuits/circuit_designators.py",
@@ -228,6 +229,16 @@ def main() -> int:
         (
             "PLT5 green laser-current policy",
             ["python3", "circuits/check_laser_current_budget.py", "--policy", "plt5-520b-green-10v5"],
+            {},
+        ),
+        (
+            "PLT5 monitor-PD high-side bias policy",
+            ["python3", "circuits/check_laser_monitor_pd_budget.py", "--policy", "plt5-520b-green-10v5"],
+            {},
+        ),
+        (
+            "MPD ADC-scale-only policy",
+            ["python3", "circuits/check_laser_monitor_pd_budget.py", "--policy", "adc-scale-only-10v5"],
             {},
         ),
         (

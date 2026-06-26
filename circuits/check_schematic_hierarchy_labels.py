@@ -20,7 +20,7 @@ ROOT = PROJECT_DIR / "laser_controller.kicad_sch"
 
 
 TIA_CHILD_LABELS = {"V_OUT": "output"}
-LASER_CHILD_LABELS = {"PWM_IN": "input", "LASER_N": "output", "ISENSE": "output"}
+LASER_CHILD_LABELS = {"PWM_IN": "input", "LASER_N": "output", "ISENSE": "output", "MPD_RAW": "output"}
 MCU_CHILD_LABELS = {
     **{f"PWM{i}": "output" for i in range(1, 5)},
     **{f"ISENSE{i}": "input" for i in range(1, 5)},
@@ -33,6 +33,7 @@ POWER_IO_CHILD_LABELS = {
     "CONVST": "input",
     "VBUS_5V": "input",
     **{f"LASER_N{i}": "input" for i in range(1, 5)},
+    **{f"MPD_RAW{i}": "input" for i in range(1, 5)},
     **{f"MPD{i}": "output" for i in range(1, 5)},
 }
 
@@ -71,6 +72,7 @@ EXPECTED_ROOT_GLOBAL_COUNTS = Counter(
         **{f"PWM{i}": 2 for i in range(1, 5)},
         **{f"ISENSE{i}": 2 for i in range(1, 5)},
         **{f"LASER_N{i}": 2 for i in range(1, 5)},
+        **{f"MPD_RAW{i}": 2 for i in range(1, 5)},
         **{f"MPD{i}": 2 for i in range(1, 5)},
         "CONVST": 2,
         "VBUS_5V": 2,
@@ -79,6 +81,9 @@ EXPECTED_ROOT_GLOBAL_COUNTS = Counter(
 
 
 LOCAL_LABEL_DENYLIST = set(EXPECTED_ROOT_GLOBAL_COUNTS)
+ALLOWED_LOCAL_LABEL_COLLISIONS = {
+    "power_io.kicad_sch": {f"MPD_RAW{i}" for i in range(1, 5)},
+}
 
 SCHEMATIC_TEXT_DENYLIST = {
     "mcu.kicad_sch": {
@@ -174,7 +179,10 @@ def main() -> int:
                 f"{child_file} hierarchical labels mismatch: got {child_labels}, "
                 f"expected {expected_labels}"
             )
-        local_label_collisions = sorted(set(labels_of("label", text)) & LOCAL_LABEL_DENYLIST)
+        allowed_local_collisions = ALLOWED_LOCAL_LABEL_COLLISIONS.get(child_file, set())
+        local_label_collisions = sorted(
+            (set(labels_of("label", text)) & LOCAL_LABEL_DENYLIST) - allowed_local_collisions
+        )
         if local_label_collisions:
             failures.append(
                 f"{child_file} uses board-level global names as local labels: {local_label_collisions}"

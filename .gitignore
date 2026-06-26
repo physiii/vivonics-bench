@@ -9,3 +9,7 @@ venv/
 bench_frames/
 vivonics_x1_linearity/
 vivonics_sensor_check.json
+
+# KiCad local editor state.
+*_autosave-*.kicad_pcb
+~*.lck

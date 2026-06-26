@@ -18,7 +18,7 @@ The board checker also enforces 109 pad-to-pad proximity limits: USBLC6 at the c
 22 ohm USB series resistors near GPIO19/GPIO20, AP2112 input/output capacitors, local ESP32
 3V3 decoupling, EN RC, BOOT pull-up, every OPA380/SFH2201 TIA input-feedback-bias cluster,
 every TLV9001/AO3400A laser gate/sense/control/compensation cluster, and every monitor-PD
-burden/filter/ADC-isolation cluster at J4.
+sense/reference/ADC-isolation cluster at J4.
 It also fails on different-net pad bounding-box overlaps between different footprints.
 It also fails if any physical pad geometry falls outside the 90 x 50 mm board outline.
 It also fails if routed copper endpoints/vias leave the board outline or if any same-net
@@ -100,9 +100,11 @@ J4 pinout: 1 `LASER_N1`, 2 `MPD_RAW1`, 3 `LASER_N2`, 4 `MPD_RAW2`, 5
 - **SFH2201**: pad 1 = cathode, pad 2 = anode — check PD orientation.
 - **J4 laser pinout**: confirm every raw laser MPN's LD/PD/common/case pin table before
   building the harness. PLT5 520B ties pin 2 to `LD anode + PD cathode + case`; other
-  three-pin cans may not. The current `MPD_RAWx` burden is direct-compatible with PLT5-style
-  / Thorlabs A-code common-anode monitor polarity only; `L785P090` C-code monitor feedback
-  needs an adapter or a different driver/monitor front end, and `L450G2` has no monitor PD.
+  three-pin cans may not. The current high-side `MPD_RAWx` front end is polarity-compatible
+  with PLT5-style / Thorlabs A-code common-anode monitor polarity and holds the PLT5-style
+  monitor diode near `VRPD = 5 V` at the 10.5 V green rail. `L785P090` C-code monitor
+  feedback needs an adapter or a different driver/monitor front end, and `L450G2` has no
+  monitor PD.
 
 ## Routing notes
 
@@ -113,8 +115,9 @@ J4 pinout: 1 `LASER_N1`, 2 `MPD_RAW1`, 3 `LASER_N2`, 4 `MPD_RAW2`, 5
 - **Analog/digital split**: ESP32 + PWM returns off TIA analog return; star ground.
 - **Laser current path** (AO3400A drain → LASER_N → J4): short wide traces, away from TIA.
 - **Monitor PD path** (`MPD_RAWx`): route as quiet analog telemetry, not with the laser
-  cathode current paths. Keep the 10 k burden / 100 nF filter / 1 k ADC isolation parts
-  close to J4 or the ESP32 ADC entry area.
+  cathode current paths. Keep the 750 ohm sense resistors, INA4180 inputs, LM4040 bias
+  reference, 2.49 k sink, and 1 k / 100 nF ADC filters close to J4 or the ESP32 ADC
+  entry area.
 - The custom PCB checker now enforces same-layer spacing from laser-current copper:
   `TIA_Sensitive` >= 2.00 mm, `MPD_RAWx` >= 0.50 mm, and filtered `Monitor_ADC`
   telemetry >= 0.25 mm. Current minima are 15.911 mm, 1.222 mm, and 0.350 mm,

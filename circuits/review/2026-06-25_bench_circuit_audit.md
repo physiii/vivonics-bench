@@ -85,28 +85,47 @@ Each `MPD_RAWx` net is exactly:
 
 | Raw monitor net | Nodes |
 |---|---|
-| `/POWER_IO/MPD_RAW1` | `J4.2`, `R41.1`, `C35.1`, `R42.2` |
-| `/POWER_IO/MPD_RAW2` | `J4.4`, `R43.1`, `C36.1`, `R44.2` |
-| `/POWER_IO/MPD_RAW3` | `J4.6`, `R45.1`, `C37.1`, `R46.2` |
-| `/POWER_IO/MPD_RAW4` | `J4.8`, `R47.1`, `C38.1`, `R48.2` |
+| `/POWER_IO/MPD_RAW1` | `J4.2`, `R42.1`, `U12.3` |
+| `/POWER_IO/MPD_RAW2` | `J4.4`, `R44.1`, `U12.5` |
+| `/POWER_IO/MPD_RAW3` | `J4.6`, `R46.1`, `U12.10` |
+| `/POWER_IO/MPD_RAW4` | `J4.8`, `R48.1`, `U12.12` |
+
+The shared monitor-bias net is:
+
+| Bias net | Nodes |
+|---|---|
+| `/POWER_IO/MPD_BIAS` | `R42.2`, `R44.2`, `R46.2`, `R48.2`, `U12.2`, `U12.6`, `U12.9`, `U12.13`, `U13.2`, `U13.3`, `C36.2`, `R41.1` |
+
+Each INA output net is exactly:
+
+| Amplified monitor net | Nodes |
+|---|---|
+| `/POWER_IO/MPD_AMP1` | `U12.1`, `R43.1` |
+| `/POWER_IO/MPD_AMP2` | `U12.7`, `R45.1` |
+| `/POWER_IO/MPD_AMP3` | `U12.8`, `R47.1` |
+| `/POWER_IO/MPD_AMP4` | `U12.14`, `R49.1` |
 
 Each filtered monitor ADC net is exactly:
 
 | ADC net | Nodes |
 |---|---|
-| `MPD1` | `R42.1`, `U9.38` GPIO2/ADC1_CH1 |
-| `MPD2` | `R44.1`, `U9.39` GPIO1/ADC1_CH0 |
-| `MPD3` | `R46.1`, `U9.12` GPIO8/ADC1_CH7 |
-| `MPD4` | `R48.1`, `U9.17` GPIO9/ADC1_CH8 |
+| `MPD1` | `R43.2`, `C37.1`, `U9.38` GPIO2/ADC1_CH1 |
+| `MPD2` | `R45.2`, `C38.1`, `U9.39` GPIO1/ADC1_CH0 |
+| `MPD3` | `R47.2`, `C39.1`, `U9.12` GPIO8/ADC1_CH7 |
+| `MPD4` | `R49.2`, `C40.1`, `U9.17` GPIO9/ADC1_CH8 |
 
-The front end is a passive low-side monitor burden:
-`MPD_RAWx -> 10k to GND || 100 nF to GND -> 1k -> ESP32 ADC1`.
+The front end is a high-side monitor-current sense circuit:
+`MPD_RAWx -> 750R -> MPD_BIAS`; INA4180A1 gain 20 drives
+`MPD_AMPx -> 1k/100 nF -> ESP32 ADC1`. LM4040C50 holds
+`LASER_V+ - MPD_BIAS` near 5 V through a 2.49 k sink.
 
-This directly supports PLT5-style and Thorlabs A-code common-anode /
-monitor-PD-cathode laser cans. It does not directly support the canonical
-`L785P090` C-code monitor topology without an adapter or different monitor
-front end, and `L450G2` has no monitor photodiode. This remains a release
-blocker until every actual laser MPN and harness pinout is locked.
+This is polarity-compatible with PLT5-style and Thorlabs A-code common-anode /
+monitor-PD-cathode laser cans. For PLT5 520B at `LASER_V+ = 10.5 V`, typical
+150 uA monitor current produces about 2.25 V at the ESP32 ADC and about 4.89 V
+monitor-PD reverse bias. It does not directly support the canonical `L785P090`
+C-code monitor topology without an adapter or different monitor front end, and
+`L450G2` has no monitor photodiode. Actual MPN, reverse-bias limit, and harness
+pinout remain release blockers.
 
 ## PCB Route Evidence
 
@@ -120,7 +139,7 @@ clearance, endpoint, via, and local-length policies. Current key route evidence:
 | Laser anode rail | `LASER_V+` is explicitly routed with 0.80 mm current-path copper and passes the generated width/length gate. |
 | Laser sense returns | Each 10 ohm 2512 sense resistor ground pad reaches a distinct 0.60/0.30 mm high-current GND via within the project limit. |
 | TIA sensitive nets | Summing-node, photodiode-bias, feedback, VBIAS, and local decoupling routes pass placement and sensitive local-route length checks. |
-| Monitor PD nets | `MPD_RAWx` burden/filter/isolation parts are placed at J4 and pass raw-monitor route length and same-layer laser-clearance checks. |
+| Monitor PD nets | `MPD_RAWx`, `MPD_BIAS`, INA4180, LM4040, sense, filter, and isolation parts are placed as the monitor front end and pass the schematic-level source/net checks. |
 | ESP32 antenna | Keepout intrusions are checked against the generated board artifact. |
 | Pending rails | `+5V` and `GND` remain rail/zone pending and need KiCad refill/DRC plus visual return-path signoff. The laser-driver TLV9001 inter-channel `+5V` trunk is routed, but the bulk `+5V` bridge into that trunk is still missing. |
 

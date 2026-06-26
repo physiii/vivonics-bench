@@ -615,8 +615,8 @@ def build_board(emit_routes=True):
             emit_fp(comp, j6_x, j6_y, j6_rot, prefix="J")  # EXT 5V
         else:
             prest.append(comp)
-    # SS14 diodes + bulk cap + MPD burden/filter/isolation passives.
-    # MPD passives are placed by J4 pin so the raw monitor-PD node is short and quiet.
+    # SS14 diodes + bulk cap + MPD sense/reference/filter/isolation passives.
+    # MPD front-end parts are placed by J4 pin so the raw monitor-PD node is short and quiet.
     prest_by_ref = {p["ref"]: p for p in prest}
     power_io_xy = {
         "D10": (env_float("LC_D5_X", 80.0), env_float("LC_D5_Y", 8.5), 0, "D"),

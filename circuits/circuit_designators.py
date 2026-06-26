@@ -69,6 +69,7 @@ TIA_REF_MAP = {
 
 LASER_REF_MAP = {
     "LASER_IR": {
+        "LD": "LD1",
         "U11": "U5",
         "R31": "R17",
         "Q1": "Q1",
@@ -81,6 +82,7 @@ LASER_REF_MAP = {
         "CC": "C19",
     },
     "LASER_RED": {
+        "LD": "LD2",
         "U11": "U6",
         "R31": "R22",
         "Q1": "Q2",
@@ -93,6 +95,7 @@ LASER_REF_MAP = {
         "CC": "C22",
     },
     "LASER_GREEN": {
+        "LD": "LD3",
         "U11": "U7",
         "R31": "R27",
         "Q1": "Q3",
@@ -105,6 +108,7 @@ LASER_REF_MAP = {
         "CC": "C25",
     },
     "LASER_BLUE": {
+        "LD": "LD4",
         "U11": "U8",
         "R31": "R32",
         "Q1": "Q4",
@@ -143,18 +147,23 @@ POWER_REF_MAP = {
     "D10": "D5",
     "D11": "D6",
     "C50": "C34",
-    "RMPD1": "R41",
-    "CMPD1": "C35",
-    "RADC1": "R42",
-    "RMPD2": "R43",
-    "CMPD2": "C36",
-    "RADC2": "R44",
-    "RMPD3": "R45",
-    "CMPD3": "C37",
-    "RADC3": "R46",
-    "RMPD4": "R47",
-    "CMPD4": "C38",
-    "RADC4": "R48",
+    "UMPD": "U12",
+    "UREF": "U13",
+    "CINA": "C35",
+    "CREF": "C36",
+    "RBIAS": "R41",
+    "RMPD1": "R42",
+    "RADC1": "R43",
+    "CMPD1": "C37",
+    "RMPD2": "R44",
+    "RADC2": "R45",
+    "CMPD2": "C38",
+    "RMPD3": "R46",
+    "RADC3": "R47",
+    "CMPD3": "C39",
+    "RMPD4": "R48",
+    "RADC4": "R49",
+    "CMPD4": "C40",
 }
 
 LOCAL_TO_ACTUAL = {

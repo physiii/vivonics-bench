@@ -241,9 +241,12 @@ BLOCKED release readiness: 13 open fabrication/release blockers
   [VISUAL_RETURN_PATH_REVIEW] GND and sensitive return paths need visual review after zone refill
     Detail: The graph proves pads are connected, not that laser current, USB ESD, ESP32, and TIA returns have acceptable real copper paths.
     Required action: After KiCad zone refill, inspect GND islands/stitching and keep laser-current returns away from TIA summing-node return paths.
+  [PLT5_MONITOR_PD_BIAS] PLT5 520B monitor-PD bias is not released on the passive 10.5 V bench front end
+    Detail: The passive MPD_RAWx burden gives an ESP32-scale voltage for PLT5-style monitor current, but it does not regulate the monitor photodiode reverse bias. At LASER_V+ = 10.5 V, the 10 k burden puts the PLT5 monitor photodiode at about 9.0 V reverse bias at typical 150 uA monitor current and about 10.5 V in the dark/off case while the rail is present. The PLT5 datasheet monitor-current condition is VRPD = 5 V and is not an absolute power guarantee.
+    Required action: For PLT5 520B at the green 10.5 V rail, either prove the actual diode MPN allows the passive reverse-bias condition for relative telemetry, leave MPD unused, or add a high-side/level-shifted/APC monitor front end matched to the laser pin code.
   [ACTUAL_LASER_MPN_HARNESS] Actual laser MPN pin tables and J4 harness are not released
-    Detail: The PLT5 520B pinout is only a compatible reference. The current MPD_RAWx burden directly supports PLT5-style and Thorlabs A-code common-anode / monitor-PD-cathode cans. The canonical 785 nm proof diode L785P090 is C-code, so its monitor photodiode is not compatible with this low-side monitor front end without an adapter or different driver/monitor topology. L450G2 has no monitor photodiode.
-    Required action: Lock every laser diode MPN, verify its datasheet pin table and can/common polarity, then build the J4 harness from that table. For L785P090 monitor feedback, design a C-code-compatible adapter/front end or choose a compatible 785 nm diode.
+    Detail: The PLT5 520B pinout is only a compatible reference. The current MPD_RAWx burden is polarity-compatible with PLT5-style and Thorlabs A-code common-anode / monitor-PD-cathode cans, but it is not a universal monitor-bias circuit. The canonical 785 nm proof diode L785P090 is C-code, so its monitor photodiode is not compatible with this low-side monitor front end without an adapter or different driver/monitor topology. L450G2 has no monitor photodiode.
+    Required action: Lock every laser diode MPN, verify its datasheet pin table, can/common polarity, and monitor-PD reverse-bias requirements, then build the J4 harness from that table. For L785P090 monitor feedback, design a C-code-compatible adapter/front end or choose a compatible 785 nm diode.
   [PER_DIODE_LASER_THERMAL_BUDGET] Per-diode laser current and heat budget is still open
     Detail: A single LASER_V+ rail can be safe for one diode class and unsafe for another because AO3400A heat is set by rail headroom.
     Required action: Run the laser-current budget for every selected diode, intended LASER_V+, current setpoint, and duty cycle; measure driver/sense-resistor temperature during bring-up.
@@ -326,4 +329,3 @@ Command: `git diff --check`
 ## PASS: Trailing whitespace scan
 
 Command: `rg -n [ \t]+$ circuits docs -g *.md -g *.py -g *.kicad_sch -g *.kicad_pcb`
-

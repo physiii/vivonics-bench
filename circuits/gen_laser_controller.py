@@ -7,7 +7,7 @@ Produces (1 channel, 4 wavelengths):
   tia_ir/red/green/blue.kicad_sch  — four on-board signal PD + OPA380 TIA sheets
   laser_ir/red/green/blue.kicad_sch — four constant-current laser sink sheets
   mcu.kicad_sch                    — ESP32-S3 MCU sheet using the access-controller Espressif symbol
-  power_io.kicad_sch               — 5V OR-ing, laser supply, AD7606 outputs, laser outputs, MPD filters
+  power_io.kicad_sch               — 5V OR-ing, laser supply, AD7606 outputs, laser outputs, MPD high-side feedback
   laser_controller_bom_jlcpcb.csv  — consolidated JLCPCB BOM
   laser_controller.kicad_pro       — minimal project file (written once if absent)
 
@@ -18,7 +18,7 @@ reverse-biased into an OPA380 TIA → 4 TIA outputs to the external AD7606. (Sin
 intensity read = the bench proxy for the
 production Gpixel per-pixel intensity reader; see DUAL_PINHOLE / INDEX_READ_PRODUCTION
 docs.) Control: ESP32-S3-WROOM-1 (matches access-controller), native USB Mini-B + USBLC6
-ESD; 4× PWM → 4 laser drivers; 4 laser I-sense + 4 monitor-PD voltages → ESP32 ADC pins.
+ESD; 4× PWM → 4 laser drivers; 4 laser I-sense + 4 monitor-PD current-sense outputs → ESP32 ADC pins.
 Power: USB VBUS (5V) ‖ external J6 5V OR-ed via SS14 Schottkys → +5V; AP2112K-3.3 → +3V3;
 laser anode supply LASER_V+ (J5) is a separate rail.  Every SMT part carries visible-on-
 click LCSC + Part Number fields (same convention as the access-controller project).
@@ -196,6 +196,38 @@ S("ESD_USB",{"1":(-7.62,2.54,0,"IO1","passive",2.54),"6":(7.62,2.54,180,"IO1","p
              "3":(-7.62,-2.54,0,"IO2","passive",2.54),"4":(7.62,-2.54,180,"IO2","passive",2.54),
              "5":(0,7.62,270,"VBUS","passive",2.54),"2":(0,-7.62,90,"GND","passive",2.54)},
   [[(-5.08,5.08),(5.08,5.08),(5.08,-5.08),(-5.08,-5.08),(-5.08,5.08)]],[("ESD",0,0,1.2)], roff=(-4,-9), voff=(-4,10))
+# INA4180A1IPWR, PW TSSOP-14: quad high/low-side current-sense amplifier.
+# Pinout from TI INAx180 datasheet: 1 OUT1, 2 IN-1, 3 IN+1, 4 VS, 5 IN+2,
+# 6 IN-2, 7 OUT2, 8 OUT3, 9 IN-3, 10 IN+3, 11 GND, 12 IN+4, 13 IN-4, 14 OUT4.
+S("INA4180_TSSOP14",
+  {"1":(12.7,16.0,180,"OUT1","output",2.54),
+   "2":(-12.7,13.5,0,"IN-1","input",2.54),"3":(-12.7,18.5,0,"IN+1","input",2.54),
+   "4":(0,23.0,270,"VS","power_in",2.54),
+   "5":(-12.7,8.5,0,"IN+2","input",2.54),"6":(-12.7,3.5,0,"IN-2","input",2.54),
+   "7":(12.7,6.0,180,"OUT2","output",2.54),
+   "8":(12.7,-6.0,180,"OUT3","output",2.54),
+   "9":(-12.7,-8.5,0,"IN-3","input",2.54),"10":(-12.7,-3.5,0,"IN+3","input",2.54),
+   "11":(0,-23.0,90,"GND","power_in",2.54),
+   "12":(-12.7,-13.5,0,"IN+4","input",2.54),"13":(-12.7,-18.5,0,"IN-4","input",2.54),
+   "14":(12.7,-16.0,180,"OUT4","output",2.54)},
+  [[(-10.16,21.0),(10.16,21.0),(10.16,-21.0),(-10.16,-21.0),(-10.16,21.0)]],
+  [("INA4180",0,0,1.3)], hide_nums=False, roff=(-10.0,-25.5), voff=(-10.0,24.5))
+# LM4040C50IDBZR, DBZ SOT-23-3: pin 1 cathode, pin 2 anode, pin 3 "*" must float or tie to anode.
+S("LM4040_DBZ",
+  {"1":(0,5.08,270,"K","passive",1.27),"2":(0,-5.08,90,"A","passive",1.27),"3":(5.08,-5.08,180,"*","passive",1.27)},
+  [[(-1.27,1.27),(1.27,1.27),(0,-1.27),(-1.27,1.27)], [(-1.27,-1.27),(1.27,-1.27)], [(-1.8,2.2),(1.8,2.2)]],
+  [("5.0V",0,0,1.0)], hide_nums=False, roff=(6,-6), voff=(6,6))
+S("LASER_CAN_MON_PD",
+  {"1":(-12.7,0,0,"LD_K","passive",2.54),
+   "2":(0,-12.7,270,"LD_A/PD_K/CASE","passive",2.54),
+   "3":(12.7,5.08,180,"PD_A","passive",2.54)},
+  [[(-8.0,-8.0),(8.0,-8.0),(8.0,10.0),(-8.0,10.0),(-8.0,-8.0)],
+   [(-5.0,-2.5),(1.0,0.0),(-5.0,2.5),(-5.0,-2.5)],
+   [(1.0,-3.2),(1.0,3.2)],
+   [(-2.5,6.8),(2.5,6.8),(0.0,9.2),(-2.5,6.8)],
+   [(2.5,6.0),(2.5,9.6)]],
+  [("LD",-2.5,-5.5,1.0),("MPD",-1.0,4.2,1.0)],
+  hide_nums=False, roff=(-14,-16), voff=(-14,14))
 for sn,ys in [("CONN4",[3.81,1.27,-1.27,-3.81]),("CONN2",[1.27,-1.27]),("CONN3",[2.54,0,-2.54]),
               ("CONN5",[5.08,2.54,0,-2.54,-5.08]),("CONN6",[6.35,3.81,1.27,-1.27,-3.81,-6.35]),
               ("CONN8",[8.89,6.35,3.81,1.27,-1.27,-3.81,-6.35,-8.89]),
@@ -210,12 +242,15 @@ S("GND",{"1":(0,0,270,"GND","power_in",0)},[[(0,0),(0,-2.032)],[(-2.032,-2.032),
 
 REFLET={"R_H":"R","R_V":"R","POT_H":"RV","POT_V":"RV","C_H":"C","C_V":"C","PHOTODIODE":"D","OPA_N":"U",
         "TLV9001_SOT23_5":"U",
+        "INA4180_TSSOP14":"U","LM4040_DBZ":"U",
+        "LASER_CAN_MON_PD":"LD",
         "CONN2":"J","CONN3":"J","CONN4":"J","CONN5":"J","CONN6":"J","CONN8":"J","CONN10":"J","NMOS":"Q",
         "Espressif:ESP32-S3-WROOM-1":"U",
         "LDO5":"U","SCHOTTKY":"D","USB_MINIB":"J","ESD_USB":"U"}
 # Hand-add (excluded from SMT BOM): only the THT 2.54mm I/O headers. Everything else, including
 # the SFH2201 signal PDs, ESP32-S3, 3224W SMD pots, and USB Mini-B connector, is JLCPCB machine-placed.
 HAND={"CONN2","CONN3","CONN4","CONN5","CONN6","CONN8","CONN10"}
+OFFBOARD={"LASER_CAN_MON_PD"}
 PASSIVE_GLYPH_NUMS=("R_H","R_V","POT_H","POT_V","C_H","C_V","PHOTODIODE","OPA_N","TLV9001_SOT23_5","NMOS","SCHOTTKY")
 
 FP_R="Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
@@ -224,6 +259,7 @@ FP_603="Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 FP_402="Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder"
 FP_805="Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 FP_SO8="Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
+FP_TSSOP14="Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
 FP_POT_SMD="Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical"   # SMD trimmer (JLCPCB-mountable)
 FP_SOT235="Package_TO_SOT_SMD:SOT-23-5"
 FP_SOT236="Package_TO_SOT_SMD:SOT-23-6"
@@ -244,9 +280,13 @@ LCSC_10R="C5123624"  # 10Ω 2512 2W 1% Milliohm HoCR2512-2W-10R-1% — laser sou
 LCSC_1K="C21190"; LCSC_10PF="C106245"; LCSC_10UF="C15850"; LCSC_1UF="C52923"; LCSC_100NF="C1525"
 LCSC_30K="C22984"    # 30k 0603 1% UNI-ROYAL 0603WAF3002T5E — PWM command divider
 LCSC_10M="C57129"    # 10M 0603 1% (UNI-ROYAL 0603WAF1005T5E) — verify stock at order
+LCSC_750R="C114635"  # 750Ω 0603 1% Yageo RC0603FR-07750RL — monitor-PD sense shunt
+LCSC_249K="C22908"   # 2.49k 0603 1% UNI-ROYAL 0603WAF2491T5E — LM4040 shunt-reference sink
 LCSC_POT10K="C81348" # Bourns 3224W-1-103 10k SMD trimmer (Extended) — replaces THT 3296W VBIAS pot
 LCSC_OPA="C201677"   # OPA380AID (Extended, low stock — buy buffer)
 LCSC_TLV="C398363"; LCSC_NMOS="C20917" # AO3400A N-MOSFET, SOT-23, Basic
+LCSC_INA4180="C2057528" # INA4180A1IPWR quad current-sense amplifier, TSSOP-14
+LCSC_LM4040="C69316"    # LM4040C50IDBZR 5.0V shunt reference, SOT-23-3
 LCSC_ESP="C2913199"  # ESP32-S3-WROOM-1 (exact C-number used on the access-controller); native USB D-=GPIO19 D+=GPIO20
 LCSC_LDO="C51118"    # AP2112K-3.3 SOT-23-5, 250mV dropout (was AMS1117 C6186 — too much dropout off USB VBUS)
 LCSC_ESD="C7519"     # USBLC6-2SC6
@@ -298,7 +338,7 @@ def sym_def(name):
     if s["power"]: o.append("    (power)")
     if s["hide_nums"]: o.append("    (pin_numbers hide)")
     o+=["    (pin_names (offset 1.016) hide)",
-        f"    (in_bom {'no' if s['power'] else 'yes'}) (on_board yes)",
+        f"    (in_bom {'no' if s['power'] or name in OFFBOARD else 'yes'}) (on_board yes)",
         f'    (property "Reference" "{ref}" (at 0 {fmt(ref_y)} 0) (effects (font (size 1.27 1.27)){ref_hide}))',
         f'    (property "Value" "{name}" (at 0 {fmt(val_y)} 0) (effects (font (size 1.27 1.27))))',
         '    (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))',
@@ -320,8 +360,10 @@ def sym_def(name):
 def emit_part(ref,sym,val,fp,mpn,lcsc,x,y):
     rx,ry=SYM[sym]["roff"]; vx,vy=SYM[sym]["voff"]
     lib_id = sym if ":" in sym else f"viv:{sym}"
+    in_bom = "no" if sym in OFFBOARD else "yes"
+    on_board = "yes"
     L=[f'  (symbol (lib_id "{lib_id}") (at {fmt(x)} {fmt(y)} 0) (unit 1)',
-       "    (in_bom yes) (on_board yes) (dnp no)",f"    (uuid {uid()})",
+       f"    (in_bom {in_bom}) (on_board {on_board}) (dnp no)",f"    (uuid {uid()})",
        f'    (property "Reference" "{ref}" (at {fmt(x+rx)} {fmt(y+ry)} 0) (effects (font (size 1.0 1.0)) (justify left)))',
        f'    (property "Value" "{val}" (at {fmt(x+vx)} {fmt(y+vy)} 0) (effects (font (size 1.0 1.0)) (justify left)))',
        f'    (property "Footprint" "{fp}" (at {fmt(x)} {fmt(y)} 0) (effects (font (size 1.0 1.0)) hide))',
@@ -451,6 +493,7 @@ def build_laser_driver(sheet_name: str):
     nIN=(ux-7.62,oy-2.54); pIN=(ux-7.62,oy+2.54); OUT=(ux+7.62,oy)
     parts={
         "U11":("TLV9001_SOT23_5","TLV9001",FP_SOT235,"TLV9001IDBVR",LCSC_TLV,ux,oy),
+        "LD":("LASER_CAN_MON_PD","OFFBOARD LASER+MPD","","","",315,150),
         "R21":("R_H","10k",FP_R,"0603WAF1002T5E",LCSC_10K,172,oy+2.54),
         "R22":("R_V","30k LIMIT",FP_R,"0603WAF3002T5E",LCSC_30K,198,oy+6.35),
         "C21":("C_V","1uF",FP_402,"CL05A105KA5NQNC",LCSC_1UF,188,oy+13),
@@ -476,8 +519,11 @@ def build_laser_driver(sheet_name: str):
     junctions=[pnode,sense,OUT]
     add_stub(wires,labels,pin(parts,"R21","1"),"left","H:PWM_IN",shape="input")
     add_stub(wires,labels,pin(parts,"R12","2"),"right","H:ISENSE",shape="output")
-    cN=pin(parts,"Q1","3"); top=(cN[0],cN[1]-7)                          # drain → LASER_N (up)
-    wires.append([cN,top]); labels.append(("H:LASER_N",top[0],top[1],"left","output"))
+    cN=pin(parts,"Q1","3"); top=(cN[0],cN[1]-7)                          # drain → LASER_N and off-board LD cathode
+    ld_k=pin(parts,"LD","1")
+    wires.append([cN,top,(ld_k[0],top[1]),ld_k]); labels.append(("H:LASER_N",top[0],top[1],"left","output"))
+    add_rail(power,wires,"LASER_VP",pin(parts,"LD","2"))
+    add_stub(wires,labels,pin(parts,"LD","3"),"right","H:MPD_RAW",dist=10,shape="output")
     for p in (nIN,sense):                                                # FB: −IN and sense top
         e=(p[0]-9,p[1]); wires.append([p,e]); labels.append(("FB",e[0],e[1],"right"))
     e=(OUT[0]+4,oy-7); wires.append([OUT,(OUT[0]+4,oy),e]); labels.append(("LOUT",e[0],e[1],"left"))
@@ -487,6 +533,7 @@ def build_laser_driver(sheet_name: str):
         ("Laser Driver  —  TLV9001 + AO3400A constant-current sink  ·  I = V_ctrl / 10Ω  ·  reused 4× (IR / RED / GREEN / BLUE)",150,114,2.0),
         ("PWM_IN → R21/C21 with R22 30k limiter → +IN (full-scale ≈2.48V, ≈248mA) ;  −IN = FB (sense top).",150,120,1.3),
         ("TLV9001 out → R31 → Q1 gate ; source → 10Ω 2W sense → GND.  CC = loop comp (FB↔LOUT, tune in bring-up).",150,125,1.3),
+        ("Off-board PLT/A-code laser can shown for connectivity: LD_K→LASER_N, LD_A/PD_K/case→LASER_V+, PD_A→MPD_RAW→POWER_IO U12/U13.",150,130,1.3),
     ]
     color = sheet_name.removeprefix("LASER_")
     return build_sch_content(
@@ -624,13 +671,19 @@ def build_power_io():
         "J5":("CONN2","LASER PSU",FP_H2,"","",45,110),
         "C50":("C_V","10uF",FP_805,"CL21A106KAYNNNE",LCSC_10UF,105,64),
         "J1":("CONN6","AD7606 out",FP_H6,"","",250,70),
-        "J4":("CONN10","LASER+MPD out",FP_H10,"","",250,135),
+        "J4":("CONN10","LASER+MPD out",FP_H10,"","",340,135),
+        "UMPD":("INA4180_TSSOP14","INA4180A1",FP_TSSOP14,"INA4180A1IPWR",LCSC_INA4180,192,132),
+        "UREF":("LM4040_DBZ","LM4040C50 5V",FP_SOT23,"LM4040C50IDBZR",LCSC_LM4040,114,122),
+        "CINA":("C_V","100nF",FP_402,"CL05B104KO5NNNC",LCSC_100NF,172,88),
+        "CREF":("C_V","100nF MPD bias",FP_402,"CL05B104KO5NNNC",LCSC_100NF,128,122),
+        "RBIAS":("R_V","2.49k MPD bias",FP_R,"0603WAF2491T5E",LCSC_249K,132,146),
     }
     for i in range(4):
-        y = 106 + i*14
-        parts[f"RMPD{i+1}"] = ("R_V","10k MPD",FP_R,"0603WAF1002T5E",LCSC_10K,184,y+3.81)
-        parts[f"CMPD{i+1}"] = ("C_V","100nF MPD",FP_402,"CL05B104KO5NNNC",LCSC_100NF,197,y+2.54)
-        parts[f"RADC{i+1}"] = ("R_H","1k ADC",FP_R,"0603WAF1001T5E",LCSC_1K,213,y)
+        sense_y = 110 + i*12
+        adc_y = 114 + i*12
+        parts[f"RMPD{i+1}"] = ("R_H","750R MPD sense",FP_R,"RC0603FR-07750RL",LCSC_750R,218,sense_y)
+        parts[f"RADC{i+1}"] = ("R_H","1k ADC",FP_R,"0603WAF1001T5E",LCSC_1K,260,adc_y)
+        parts[f"CMPD{i+1}"] = ("C_V","100nF MPD ADC",FP_402,"CL05B104KO5NNNC",LCSC_100NF,280,adc_y+2.54)
     power=[]; wires=[]; labels=[]
     # 5V OR-ing
     add_stub(wires,labels,pin(parts,"D10","1"),"left","H:VBUS_5V",shape="input")
@@ -650,18 +703,43 @@ def build_power_io():
     for jp,net in [("1","LASER_N1"),("3","LASER_N2"),("5","LASER_N3"),("7","LASER_N4")]:
         add_stub(wires,labels,pin(parts,"J4",jp),"left",f"H:{net}",dist=9,shape="input")
     for jp,net in [("2","MPD_RAW1"),("4","MPD_RAW2"),("6","MPD_RAW3"),("8","MPD_RAW4")]:
-        add_stub(wires,labels,pin(parts,"J4",jp),"left",net,dist=9)
+        add_stub(wires,labels,pin(parts,"J4",jp),"left",f"H:{net}",dist=9,shape="input")
     add_rail_dn(power,wires,"LASER_VP",pin(parts,"J4","9"))
     add_rail_dn(power,wires,"GND",pin(parts,"J4","10"))
-    # monitor PD telemetry: raw MPD node -> 10k burden || 100nF LPF -> 1k ADC isolation -> ESP32 ADC
+    # monitor PD telemetry: hold PD cathode-to-anode bias near 5V, sense monitor current high-side,
+    # then feed a low-impedance filtered voltage into the ESP32 ADC.
+    add_rail(power,wires,"+3V3",pin(parts,"UMPD","4"))
+    add_rail(power,wires,"GND",pin(parts,"UMPD","11"))
+    add_rail(power,wires,"+3V3",pin(parts,"CINA","1"))
+    add_rail(power,wires,"GND",pin(parts,"CINA","2"))
+    add_rail(power,wires,"LASER_VP",pin(parts,"UREF","1"))
+    uref_anode = pin(parts,"UREF","2")
+    uref_star = pin(parts,"UREF","3")
+    wires.append([uref_anode, uref_star])
+    add_stub(wires,labels,uref_anode,"left","MPD_BIAS",dist=10)
+    add_rail(power,wires,"LASER_VP",pin(parts,"CREF","1"))
+    cref_bias = pin(parts,"CREF","2")
+    cref_label = (cref_bias[0], round(cref_bias[1]+8,4))
+    wires.append([cref_bias, cref_label])
+    labels.append(("MPD_BIAS", cref_label[0], cref_label[1], "left"))
+    add_stub(wires,labels,pin(parts,"RBIAS","1"),"right","MPD_BIAS",dist=7)
+    add_rail(power,wires,"GND",pin(parts,"RBIAS","2"))
+
+    ina_in_plus = {1:"3", 2:"5", 3:"10", 4:"12"}
+    ina_in_minus = {1:"2", 2:"6", 3:"9", 4:"13"}
+    ina_out = {1:"1", 2:"7", 3:"8", 4:"14"}
     for i in range(1,5):
         raw = f"MPD_RAW{i}"
-        add_stub(wires,labels,pin(parts,f"RMPD{i}","1"),"right",raw,dist=5)
-        add_rail(power,wires,"GND",pin(parts,f"RMPD{i}","2"))
-        add_stub(wires,labels,pin(parts,f"CMPD{i}","1"),"right",raw,dist=5)
+        amp = f"MPD_AMP{i}"
+        add_stub(wires,labels,pin(parts,f"RMPD{i}","1"),"left",raw,dist=7)
+        add_stub(wires,labels,pin(parts,f"RMPD{i}","2"),"right","MPD_BIAS",dist=7)
+        add_stub(wires,labels,pin(parts,"UMPD",ina_in_plus[i]),"left",raw,dist=7)
+        add_stub(wires,labels,pin(parts,"UMPD",ina_in_minus[i]),"left","MPD_BIAS",dist=7)
+        add_stub(wires,labels,pin(parts,"UMPD",ina_out[i]),"right",amp,dist=7)
+        add_stub(wires,labels,pin(parts,f"RADC{i}","1"),"left",amp,dist=7)
+        add_stub(wires,labels,pin(parts,f"RADC{i}","2"),"right",f"H:MPD{i}",dist=7,shape="output")
+        add_stub(wires,labels,pin(parts,f"CMPD{i}","1"),"right",f"H:MPD{i}",dist=5,shape="output")
         add_rail(power,wires,"GND",pin(parts,f"CMPD{i}","2"))
-        add_stub(wires,labels,pin(parts,f"RADC{i}","2"),"right",raw,dist=5)
-        add_stub(wires,labels,pin(parts,f"RADC{i}","1"),"left",f"H:MPD{i}",dist=7,shape="output")
     # PWR_FLAGs — declare the externally-supplied rails as sources (silences ERC)
     junctions=[]
     declare_source(power,wires,"+5V",60,138)
@@ -673,8 +751,9 @@ def build_power_io():
         ("Power & I/O  —  USB‖external 5V OR-ing, separate laser supply, AD7606 outputs, laser + monitor-PD outputs",36,16,2.2),
         ("J6 = ext +5V in;  USB VBUS (from J1) ‖ J6 OR-ed via SS14 Schottkys (D5/D6) → +5V.  J5 = laser anode supply (LASER_V+).",36,22,1.3),
         ("J3 → external AD7606 (VOUT1..4 = the 4 TIA outputs + CONVST + GND).  J4 → LASER_N/MPD_RAW pairs + LASER_V+ + GND shield/return.",36,28,1.3),
-        ("MPD_RAWx → 10k burden || 100nF → 1k → MPDx ESP32 ADC.  PLT5 520B typ monitor current ≈150uA → about 1.5V at 10k.",36,34,1.3),
-        ("ISENSE headroom: keep I_laser ≲ 250 mA so V_sense (=I·10Ω) stays inside the ESP32 ADC range with margin.",36,40,1.3),
+        ("MPD_RAWx -> 750R sense to MPD_BIAS; INA4180A1 gain=20 -> 1k/100nF -> MPDx ESP32 ADC.",36,34,1.3),
+        ("LM4040C50 holds LASER_V+ - MPD_BIAS near 5V; PLT5 typ 150uA -> about 2.25V ADC and about 4.89V monitor-PD reverse bias.",36,40,1.3),
+        ("ISENSE headroom: keep I_laser <= 250 mA so V_sense (=I*10ohm) stays inside the ESP32 ADC range with margin.",36,46,1.3),
     ]
     return build_sch_content(
         "Power & IO",
@@ -697,7 +776,7 @@ def gl(name,x,y,j):
 def build_root():
     P=["(kicad_sch","  (version 20230121)","  (generator eeschema)",f"  (uuid {ROOT_UUID})",
        '  (paper "A2")',"  (title_block",
-       '    (title "Laser Controller — 1ch x 4 wavelengths: on-board PD -> TIA + monitor-PD feedback + ESP32-S3 USB + 4x laser drivers")',
+       '    (title "Laser Controller")',
        '    (date "2026-06-24")','    (rev "v9")','    (company "Vivonics")',"  )"]
     extra=[]
     def sheet(name,file,sx,sy,w,h,pins,fontsz=1.4,pps=7):
@@ -728,7 +807,8 @@ def build_root():
         sheet(f"LASER_{wl}",f"laser_{wl.lower()}.kicad_sch",240,rows[i],62,34,
               [("PWM_IN","input","left",f"PWM{i+1}"),
                ("LASER_N","output","right",f"LASER_N{i+1}"),
-               ("ISENSE","output","right",f"ISENSE{i+1}")])
+               ("ISENSE","output","right",f"ISENSE{i+1}"),
+               ("MPD_RAW","output","right",f"MPD_RAW{i+1}")])
     # MCU (column 3, top) — control pins on the left (facing the lasers)
     mcu_pins=[(f"PWM{i+1}","output","left",f"PWM{i+1}") for i in range(4)]+[
         (f"ISENSE{i+1}","input","left",f"ISENSE{i+1}") for i in range(4)]+[
@@ -739,12 +819,13 @@ def build_root():
     pio_pins=[(f"VOUT{i+1}","input","left",f"VOUT{i+1}") for i in range(4)]+[
         ("CONVST","input","left","CONVST"),("VBUS_5V","input","left","VBUS_5V")]+[
         (f"LASER_N{i+1}","input","left",f"LASER_N{i+1}") for i in range(4)]+[
+        (f"MPD_RAW{i+1}","input","left",f"MPD_RAW{i+1}") for i in range(4)]+[
         (f"MPD{i+1}","output","left",f"MPD{i+1}") for i in range(4)]
-    sheet("POWER_IO","power_io.kicad_sch",430,rows[3]+24,95,110,pio_pins)
+    sheet("POWER_IO","power_io.kicad_sch",430,rows[3]+24,95,140,pio_pins)
 
     P+=extra
     P.append(f'  (text "LASER CONTROLLER  ·  Vivonics  ·  rev v9   —   1 channel x 4 wavelengths (IR / RED / GREEN / BLUE)  ·  TIA x4  ·  laser_driver x4  ·  monitor PD ADC x4  ·  mcu  ·  power_io" (at 40 30 0) (effects (font (size 2.4 2.4)) (justify left)) (uuid {uid()}))')
-    P.append(f'  (text "Global-label nets join the sheet pins (VOUT1..4, PWM1..4, ISENSE1..4, MPD1..4, LASER_N1..4, CONVST, VBUS_5V).   +5V / +3V3 / LASER_V+ / GND are global power.   Each channel = 1 laser + current-sense + internal monitor PD + external/sample PD TIA." (at 40 36 0) (effects (font (size 1.6 1.6)) (justify left)) (uuid {uid()}))')
+    P.append(f'  (text "Global-label nets join the sheet pins (VOUT1..4, PWM1..4, ISENSE1..4, MPD_RAW1..4, MPD1..4, LASER_N1..4, CONVST, VBUS_5V).   +5V / +3V3 / LASER_V+ / GND are global power.   Each channel = 1 laser + current-sense + internal monitor PD + external/sample PD TIA." (at 40 36 0) (effects (font (size 1.6 1.6)) (justify left)) (uuid {uid()}))')
     P+=['  (sheet_instances','    (path "/" (page "1"))',"  )",")"]
     txt="\n".join(P)+"\n"
     assert sum((c=="(")-(c==")") for c in txt)==0,"paren imbalance in root"
@@ -755,7 +836,7 @@ def build_bom():
     groups={}; hand={}; ctr={}
     for sheet,(mult,parts) in BOM_REG.items():
         for ref,(sym,val,fp,mpn,lcsc,x,y) in parts.items():
-            if sym in HAND or lcsc=="":
+            if sym in HAND or sym in OFFBOARD or lcsc=="":
                 hand[(val,mpn)] = hand.get((val,mpn),0)+mult; continue
             for _ in range(mult):
                 groups.setdefault((val,fp,lcsc),[]).append(ref)

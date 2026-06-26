@@ -11,10 +11,17 @@ Sources:
 Current bench topology:
 - The laser driver is a low-side current sink:
   `LASER_V+ -> laser diode -> LASER_Nx -> AO3400A -> 10 ohm sense -> GND`.
-- The monitor path is a low-side passive burden:
-  `MPD_RAWx -> 10k to GND || 100 nF to GND -> 1k -> ESP32 ADC1`.
+- The monitor path is a high-side current-sense front end:
+  `MPD_RAWx -> 750R MPD sense -> MPD_BIAS`.
+- INA4180A1 gain 20 converts the 750R sense drop to `MPD_AMPx`, then
+  `1k/100nF` filters feed the ESP32 ADC1 `MPDx` pins.
+- `LM4040C50` holds `LASER_V+ - MPD_BIAS` near `5 V`.
 - This monitor path expects the monitor photodiode cathode at the laser common
   high node and the monitor photodiode anode on `MPD_RAWx`.
+- For PLT5 520B at `LASER_V+ = 10.5 V`, the PLT5 datasheet monitor current
+  condition is `VRPD = 5 V`; this front end holds the monitor photodiode near
+  that condition for PLT5-style/A-code pinouts while keeping the ADC signal
+  ESP32-scale.
 
 Compatible direct harness class:
 - `PLT5 520B` style: pin 1 `LD cathode` -> `LASER_Nx`; pin 2
@@ -29,8 +36,8 @@ Not compatible with the current monitor front end:
   anode, and its monitor diode cathode is the isolated monitor pin; the case
   common is on the laser cathode / monitor diode anode side. The low-side sink
   can only drive that laser with an adapter that maps the common pin to
-  `LASER_Nx`, and the current low-side `MPD_RAWx` burden is the wrong polarity
-  and common-mode for its monitor diode.
+  `LASER_Nx`, and the existing `MPD_RAWx` circuit is the wrong polarity and
+  common-mode for its monitor diode.
 - Thorlabs `L450G2` is a G-code diode with no monitor photodiode, so `MPD_RAWx`
   cannot provide source feedback for that part.
 - Thorlabs `L405P20` is a B-code spot-test candidate, not the production erase
@@ -41,6 +48,9 @@ Required action before laser bring-up:
 - For direct monitor feedback on this bench PCB, use only A-code or PLT-style
   common-anode / monitor-PD-cathode laser cans, or build a documented adapter
   that presents that topology to J4.
+- For PLT5 520B direct telemetry at the 10.5 V green rail, verify the actual
+  diode MPN's monitor-PD reverse-bias and monitor-current limits before relying
+  on the high-side INA4180/LM4040 front end.
 - For `L785P090` monitor feedback, add a C-code-compatible driver/monitor front
   end or use a dedicated APC driver matched to the diode polarity. Do not wire
   `L785P090` directly to J4 and expect the existing `MPD_RAWx` circuit to work.

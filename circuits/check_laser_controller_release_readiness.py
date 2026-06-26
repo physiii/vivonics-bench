@@ -108,8 +108,8 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "ACTUAL_LASER_MPN_HARNESS",
         "Actual laser MPN pin tables and J4 harness are not released",
-        "The PLT5 520B pinout is only a compatible reference. The current MPD_RAWx burden directly supports PLT5-style and Thorlabs A-code common-anode / monitor-PD-cathode cans. The canonical 785 nm proof diode L785P090 is C-code, so its monitor photodiode is not compatible with this low-side monitor front end without an adapter or different driver/monitor topology. L450G2 has no monitor photodiode.",
-        "Lock every laser diode MPN, verify its datasheet pin table and can/common polarity, then build the J4 harness from that table. For L785P090 monitor feedback, design a C-code-compatible adapter/front end or choose a compatible 785 nm diode.",
+        "The PLT5 520B pinout is only a compatible reference. The current high-side MPD_RAWx front end is polarity-compatible with PLT5-style and Thorlabs A-code common-anode / monitor-PD-cathode cans, but it is not a universal monitor-bias circuit. The canonical 785 nm proof diode L785P090 is C-code, so its monitor photodiode is not compatible with the existing MPD_RAWx circuit without an adapter or different driver/monitor topology. L450G2 has no monitor photodiode.",
+        "Lock every laser diode MPN, verify its datasheet pin table, can/common polarity, and monitor-PD reverse-bias requirements, then build the J4 harness from that table. For L785P090 monitor feedback, design a C-code-compatible adapter/front end or choose a compatible 785 nm diode.",
         (
             Evidence(
                 "docs/part-notes/PLT5-520B-harness-reference.md",
@@ -139,7 +139,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 (
                     "confirm every raw laser MPN's LD/PD/common/case pin table",
                     "actual laser harness MPN review",
-                    "L785P090` C-code monitor feedback",
+                    "L785P090` C-code monitor",
                 ),
             ),
             Evidence(

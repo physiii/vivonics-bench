@@ -30,6 +30,8 @@ CRITICAL_PART_NOTES = [
     "SS14.md",
     "65100516121.md",
     "3224W-1-103E.md",
+    "INA4180A1IPWR.md",
+    "LM4040C50IDBZR.md",
     "PLT5-520B-harness-reference.md",
     "laser-harness-pin-code-compatibility.md",
     "passive-bom-source-note.md",

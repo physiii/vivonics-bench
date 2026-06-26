@@ -23,10 +23,16 @@ Do not use it as the film/readout detector.
 - `laser_ir/red/green/blue.kicad_sch` are current-regulated low-side sinks:
   `PWM_IN -> RC + 30k limiter -> TLV9001 -> AO3400A gate`, with `10 ohm`
   2512 2 W source-sense feedback.
+- Each laser sheet now includes a non-BOM off-board laser-can model so the
+  internal monitor PD is visible in the laser circuit: `LD_K -> LASER_N`,
+  common `LD_A/PD_K/case -> LASER_V+`, and `PD_A -> MPD_RAW`.
 - `power_io.kicad_sch` exposes each laser cathode and monitor photodiode node
   on J4, plus common `LASER_V+` and a shield/return `GND`.
-- Each monitor input uses a passive front end: `MPD_RAWx -> 10k burden to GND`,
-  `100nF` shunt filter to GND, then `1k` series isolation into `MPDx`.
+- Each monitor input uses a high-side current-sense front end:
+  `MPD_RAWx -> 750R sense -> MPD_BIAS`; INA4180A1 gain 20 drives
+  `MPD_AMPx -> 1k -> MPDx`, with `100nF` ADC-side filtering.
+- LM4040C50 holds `LASER_V+ - MPD_BIAS` near 5 V through a 2.49 k sink, so
+  PLT5-style monitor diodes see about the datasheet monitor-current bias.
 - `mcu.kicad_sch` routes `MPD1..4` to ESP32-S3 ADC1 pins:
   GPIO2, GPIO1, GPIO8, and GPIO9.
 - `tia_ir/red/green/blue.kicad_sch` use separate on-board SFH2201 photodiodes and OPA380
@@ -63,18 +69,30 @@ compatible with PLT5-style and Thorlabs A-code common-anode / monitor-PD-cathode
 diodes. `L785P090` is C-code: the laser cathode / monitor-PD anode side is the
 case common, while the monitor-PD cathode is the isolated monitor pin. The
 low-side current sink can only drive that laser through an adapter that maps the
-common pin to `LASER_Nx`, and the existing `MPD_RAWx -> 10k to GND` burden is
-the wrong polarity/common-mode for the C-code monitor diode. Do not wire
-`L785P090` directly to J4 and expect monitor feedback from this circuit.
+common pin to `LASER_Nx`, and the high-side `MPD_RAWx -> 750R -> MPD_BIAS`
+front end is the wrong polarity/common-mode for the C-code monitor diode. Do
+not wire `L785P090` directly to J4 and expect monitor feedback from this
+circuit.
 
 `L450G2` is G-code and has no monitor photodiode, so its corresponding `MPD_RAWx`
 channel is absent telemetry unless a different source monitor is added.
 
 The PLT5 520B datasheet gives a typical monitor current around `150 uA` at its
-rated optical power, so the existing `10M` OPA380 TIA topology is the wrong
-scale for monitor feedback. The bench path uses `10k`, giving about `1.5 V`
-typical before calibration, with the existing firmware current clamp still
-acting as the hard safety limit.
+rated optical power, and monitor current refers to `VRPD = 5 V` as a short-time
+power reference, not guaranteed absolute accuracy. The bench path is scaled for
+that condition: at the current green policy of `LASER_V+ = 10.5 V`, LM4040C50
+sets `MPD_BIAS` near `5.5 V`, the `750R` sense resistor drops about `112.5 mV`
+at `150 uA`, and INA4180A1 gain 20 drives about `2.25 V` into the ESP32 ADC
+path. The monitor photodiode reverse bias is about `4.89 V` at typical monitor
+current and about `5.00 V` in the dark/off case while `LASER_V+` is present.
+The ADC path remains linear to about `218 uA` of monitor current with the
+current 3.3 V headroom guard.
+
+This fixes the PLT5-style 10.5 V bench-bias defect, but it is still source
+telemetry rather than a release-approved production APC loop. Firmware must keep
+the current loop as the hard safety limit, and every actual laser MPN still
+needs a pin table, can/common polarity, monitor-PD reverse-bias limit, and
+optical calibration check before relying on MPD feedback.
 
 Recommended bench control architecture:
 
@@ -123,6 +141,8 @@ or detector gain drift.
 - Confirm each laser MPN's exact pin table and can/common-node polarity.
 - Reject direct `L785P090` monitor-PD use on this board until a C-code adapter or
   C-code-compatible driver/monitor front end is designed.
+- For PLT5-style cans, verify the high-side INA4180/LM4040 monitor front end
+  against the actual diode MPN's monitor-PD reverse-bias limit before bring-up.
 - Confirm whether the mechanical mount isolates the can or ties it to chassis.
 - Pick driver topology per diode polarity, not per wavelength.
 - Calibrate `laser current -> monitor current -> external power meter` for each
