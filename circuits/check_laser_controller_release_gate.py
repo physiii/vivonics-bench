@@ -15,12 +15,16 @@ from pathlib import Path
 
 from circuit_designators import WL, ref_for
 from check_laser_controller_pcb import (
+    _point_in_pad,
     parse_board_net_table,
     parse_board_segments,
     parse_board_vias,
     parse_declared_copper_layers,
     parse_footprint_geometry,
+    parse_pad_geometry_from_text,
+    parse_zone_summaries,
     split_multi_pad_signal_nets,
+    via_copper_layers,
 )
 
 
@@ -162,6 +166,161 @@ def _can_assign_distinct_vias(
     return True
 
 
+def rail_zone_split_details(
+    board_path: Path,
+    copper_layers: set[str],
+    segments: list[dict[str, object]],
+    vias: list[dict[str, object]],
+    target_nets: list[str],
+) -> list[str]:
+    """Return actionable pad groups for split rail/zone nets.
+
+    The normal PCB checker intentionally allows known rail/zone nets to remain
+    pending while generated copper is still being developed. The release gate
+    should still say exactly what is split so the next layout change is obvious.
+    """
+    board_text = board_path.read_text()
+    pad_geometry = parse_pad_geometry_from_text(board_text)
+
+    RouteNode = tuple[float, float, str]
+
+    def route_point_key(point: tuple[float, float], layer: str) -> RouteNode:
+        return (round(point[0], 4), round(point[1], 4), layer)
+
+    def pad_layers(pad: dict[str, float | str]) -> set[str]:
+        layers = str(pad.get("layers", ""))
+        if "*.Cu" in layers:
+            return set(copper_layers)
+        return {
+            layer
+            for layer in copper_layers
+            if layer in layers
+        }
+
+    graph_by_net: dict[str, dict[RouteNode, set[RouteNode]]] = defaultdict(lambda: defaultdict(set))
+    route_points_by_net_layer: dict[tuple[str, str], set[tuple[float, float]]] = defaultdict(set)
+    for segment in segments:
+        net = str(segment["net"])
+        if net not in target_nets:
+            continue
+        layer = str(segment["layer"])
+        a_point = segment["a"]
+        b_point = segment["b"]
+        assert isinstance(a_point, tuple) and isinstance(b_point, tuple)
+        a = route_point_key(a_point, layer)
+        b = route_point_key(b_point, layer)
+        graph_by_net[net][a].add(b)
+        graph_by_net[net][b].add(a)
+        route_points_by_net_layer[(net, layer)].add((a[0], a[1]))
+        route_points_by_net_layer[(net, layer)].add((b[0], b[1]))
+
+    for via in vias:
+        net = str(via["net"])
+        if net not in target_nets:
+            continue
+        point = via["at"]
+        assert isinstance(point, tuple)
+        layers = sorted(via_copper_layers(via, copper_layers))
+        for layer in layers:
+            route_points_by_net_layer[(net, layer)].add((round(point[0], 4), round(point[1], 4)))
+        via_nodes = [route_point_key(point, layer) for layer in layers]
+        for index, node in enumerate(via_nodes):
+            for other in via_nodes[index + 1:]:
+                graph_by_net[net][node].add(other)
+                graph_by_net[net][other].add(node)
+
+    pads_by_net: dict[str, list[dict[str, object]]] = defaultdict(list)
+    for ref, pad_map in pad_geometry.items():
+        for pin, pad_list in pad_map.items():
+            for pad in pad_list:
+                net = str(pad.get("net", ""))
+                if net not in target_nets:
+                    continue
+                center = (float(pad["x"]), float(pad["y"]))
+                nodes = {route_point_key(center, layer) for layer in pad_layers(pad)}
+                if not nodes:
+                    continue
+                for index, node in enumerate(sorted(nodes)):
+                    for other in sorted(nodes)[index + 1:]:
+                        graph_by_net[net][node].add(other)
+                        graph_by_net[net][other].add(node)
+                for node in list(nodes):
+                    for route_point in route_points_by_net_layer.get((net, node[2]), set()):
+                        if _point_in_pad(route_point, pad, 0.01):
+                            route_node = route_point_key(route_point, node[2])
+                            graph_by_net[net][node].add(route_node)
+                            graph_by_net[net][route_node].add(node)
+                pads_by_net[net].append(
+                    {
+                        "ref": ref,
+                        "pin": pin,
+                        "point": (round(center[0], 4), round(center[1], 4)),
+                        "nodes": nodes,
+                    }
+                )
+
+    has_gnd_in1_plane = any(
+        zone["net_name"] == "GND"
+        and zone["layers"] == {"In1.Cu"}
+        and zone["has_fill"]
+        for zone in parse_zone_summaries(board_path)
+    )
+    if "GND" in target_nets and has_gnd_in1_plane:
+        plane_node: RouteNode = (-9999.0, -9999.0, "In1.Cu")
+        for pad in pads_by_net.get("GND", []):
+            for node in set(pad["nodes"]):  # type: ignore[arg-type]
+                if node[2] == "In1.Cu":
+                    graph_by_net["GND"][plane_node].add(node)
+                    graph_by_net["GND"][node].add(plane_node)
+        for via in vias:
+            if str(via["net"]) != "GND" or "In1.Cu" not in via_copper_layers(via, copper_layers):
+                continue
+            point = via["at"]
+            assert isinstance(point, tuple)
+            via_node = route_point_key(point, "In1.Cu")
+            graph_by_net["GND"][plane_node].add(via_node)
+            graph_by_net["GND"][via_node].add(plane_node)
+
+    details: list[str] = []
+    for net in target_nets:
+        pads = pads_by_net.get(net, [])
+        if not pads:
+            continue
+        unseen = set(range(len(pads)))
+        components: list[list[dict[str, object]]] = []
+        while unseen:
+            start_index = unseen.pop()
+            start_nodes = set(pads[start_index]["nodes"])  # type: ignore[arg-type]
+            queue: list[RouteNode] = list(start_nodes)
+            seen: set[RouteNode] = set(start_nodes)
+            while queue:
+                node = queue.pop()
+                for neighbor in graph_by_net[net].get(node, set()):
+                    if neighbor not in seen:
+                        seen.add(neighbor)
+                        queue.append(neighbor)
+            component_indexes = [
+                index
+                for index, pad in enumerate(pads)
+                if set(pad["nodes"]) & seen  # type: ignore[arg-type]
+            ]
+            components.append([pads[index] for index in component_indexes])
+            for index in component_indexes:
+                unseen.discard(index)
+        if len(components) <= 1:
+            continue
+        components.sort(key=len, reverse=True)
+        component_summaries = []
+        for index, component in enumerate(components, 1):
+            pad_names = [f"{pad['ref']}.{pad['pin']}" for pad in component[:12]]
+            suffix = " ..." if len(component) > len(pad_names) else ""
+            component_summaries.append(
+                f"group {index} ({len(component)} pads): " + ", ".join(pad_names) + suffix
+            )
+        details.append(f"{net} split into {len(components)} copper groups: " + " | ".join(component_summaries))
+    return details
+
+
 def laser_sense_return_failures(
     board_path: Path,
     segments: list[dict[str, object]],
@@ -249,6 +408,16 @@ def main() -> int:
         failures.append(
             "rail/zone multi-pad nets still require pour/trunk routing and KiCad refill/DRC: "
             + ", ".join(pending_zone_or_rail_nets)
+        )
+        failures.extend(
+            "  " + detail
+            for detail in rail_zone_split_details(
+                board_path,
+                declared_layers,
+                segments,
+                vias,
+                pending_zone_or_rail_nets,
+            )
         )
     failures.extend(laser_cathode_geometry_failures(segments))
     failures.extend(laser_supply_geometry_failures(segments, vias))
