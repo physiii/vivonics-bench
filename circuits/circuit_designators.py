@@ -16,7 +16,7 @@ TIA_REF_MAP = {
     "TIA_IR": {
         "D1": "D1",
         "U1": "U1",
-        "R2": "R1",
+        "RVFB": "RV5",
         "C1": "C1",
         "C2": "C2",
         "RB": "R2",
@@ -29,7 +29,7 @@ TIA_REF_MAP = {
     "TIA_RED": {
         "D1": "D2",
         "U1": "U2",
-        "R2": "R5",
+        "RVFB": "RV6",
         "C1": "C5",
         "C2": "C6",
         "RB": "R6",
@@ -42,7 +42,7 @@ TIA_REF_MAP = {
     "TIA_GREEN": {
         "D1": "D3",
         "U1": "U3",
-        "R2": "R9",
+        "RVFB": "RV7",
         "C1": "C9",
         "C2": "C10",
         "RB": "R10",
@@ -55,7 +55,7 @@ TIA_REF_MAP = {
     "TIA_BLUE": {
         "D1": "D4",
         "U1": "U4",
-        "R2": "R13",
+        "RVFB": "RV8",
         "C1": "C13",
         "C2": "C14",
         "RB": "R14",
@@ -137,6 +137,17 @@ MCU_REF_MAP = {
 
 POWER_REF_MAP = {
     "J1": "J3",
+    "UADC": "U14",
+    "CADCAV1": "C51",
+    "CADCAV2": "C52",
+    "CADCAV3": "C53",
+    "CADCAV4": "C54",
+    "CADCDRV": "C55",
+    "CADCBULK": "C56",
+    "CREG1": "C57",
+    "CREG2": "C58",
+    "CREFIN": "C59",
+    "CREFCAP": "C60",
     "J4": "J4",
     "J5": "J5",
     "J2": "J6",

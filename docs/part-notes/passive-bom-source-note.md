@@ -16,6 +16,8 @@ Current passive families:
 - 750 ohm 0603 monitor-PD sense resistor: `RC0603FR-07750RL`, LCSC `C114635`.
 - 2.49 k 0603 monitor-bias sink resistor: `CRCW06032K49FKEAHP`, LCSC `C2099849`.
 - 10 ohm 2512 2 W laser sense resistors: `HoCR2512-2W-10R-1%`, LCSC `C5123624`.
+- Bourns 3224W SMD trimmers: `3224W-1-103E` / LCSC `C81348` for VBIAS,
+  and `3224W-1-205E` / LCSC `C116323` for TIA feedback trim.
 
 Current verification:
 - The netlist checker asserts value, footprint, MPN, and LCSC for every passive

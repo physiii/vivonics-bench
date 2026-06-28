@@ -73,9 +73,27 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
     if net == "/POWER_IO/EXT5V":
         return "External 5 V input from J6 pin 1 to D6 anode into +5V OR-ing."
     if net.startswith("VOUT"):
-        return "OPA380 TIA output and feedback high side to external AD7606 header."
+        return "OPA380 TIA output and feedback high side into the on-board AD7606-4 signal ADC, mirrored on the debug header."
     if net == "CONVST":
-        return "ESP32 GPIO17 conversion-start output to external AD7606 header."
+        return "ESP32 GPIO15 conversion-start output to the on-board AD7606-4 CONVSTA/CONVSTB pins and debug header."
+    if net == "ADC_SCLK":
+        return "ESP32 GPIO17 serial clock into the on-board AD7606-4 RD/SCLK pin."
+    if net == "ADC_CS":
+        return "ESP32 GPIO18 chip-select output into the on-board AD7606-4 CS pin."
+    if net == "ADC_MISO_A":
+        return "On-board AD7606-4 DOUTA serial data output into ESP32 GPIO21."
+    if net == "ADC_MISO_B":
+        return "On-board AD7606-4 DOUTB serial data output into ESP32 GPIO38."
+    if net == "ADC_BUSY":
+        return "On-board AD7606-4 BUSY status output into ESP32 GPIO47."
+    if net == "ADC_RESET":
+        return "ESP32 GPIO48 reset output into the on-board AD7606-4 RESET pin."
+    if re.match(r"Net-\(C5[78]-Pad1\)$", net):
+        return "AD7606-4 internal regulator decoupling capacitor node on a REGCAP pin."
+    if "REFIN{slash}REFOUT" in net:
+        return "AD7606-4 internal/reference output decoupling node at REFIN/REFOUT."
+    if "REFCAPA" in net:
+        return "AD7606-4 reference-buffer decoupling node tying REFCAPA and REFCAPB to the local reference capacitor."
     if net in {"/MCU_ESP32-S3/D-", "/MCU_ESP32-S3/D+"}:
         return "CP2102 Mini-B USB data line through the copied MCU-sheet ESD protection into the CP2102N USB bridge."
     if net in {"/MCU_ESP32-S3/IO19", "/MCU_ESP32-S3/IO20"}:
@@ -210,7 +228,19 @@ def pin_intent_for_node(
         if net.startswith("MPD") and net[3:].isdigit():
             return "ESP32-S3 ADC1 input for filtered internal laser monitor-PD telemetry."
         if net == "CONVST":
-            return "ESP32-S3 GPIO output for the external AD7606 conversion-start line."
+            return "ESP32-S3 GPIO15 output for the on-board AD7606-4 conversion-start line."
+        if net == "ADC_SCLK":
+            return "ESP32-S3 GPIO17 output used as the AD7606-4 serial clock."
+        if net == "ADC_CS":
+            return "ESP32-S3 GPIO18 output used as the AD7606-4 chip select."
+        if net == "ADC_MISO_A":
+            return "ESP32-S3 GPIO21 input reading AD7606-4 DOUTA."
+        if net == "ADC_MISO_B":
+            return "ESP32-S3 GPIO38 input reading AD7606-4 DOUTB."
+        if net == "ADC_BUSY":
+            return "ESP32-S3 GPIO47 input reading AD7606-4 BUSY."
+        if net == "ADC_RESET":
+            return "ESP32-S3 GPIO48 output driving AD7606-4 RESET."
         if "ESP_TX" in net:
             return "ESP32-S3 UART0 TX brought to the bench header."
         if "ESP_RX" in net:
@@ -279,13 +309,42 @@ def pin_intent_for_node(
             "4": "Bring-up header ESP32 GPIO0/BOOT access.",
             "5": "Bring-up header ground reference.",
         }.get(pin, "Review required: UART header unknown pin.")
-    if value == "AD7606 out":
+    if value == "ADC debug":
         if net.startswith("VOUT"):
-            return "External ADC header pin carrying one OPA380 TIA output."
+            return "Debug header pin carrying one OPA380 TIA output already digitized by the on-board AD7606-4."
         if net == "CONVST":
-            return "External ADC header conversion-start control pin."
+            return "Debug header mirror of the AD7606-4 conversion-start control pin."
         if net == "GND":
-            return "External ADC header ground reference."
+            return "Debug header ground reference."
+    if value == "AD7606BSTZ-4":
+        if net.startswith("VOUT"):
+            return "AD7606-4 analog input pin for one OPA380 TIA output channel."
+        if net == "+5V":
+            return "AD7606-4 AVCC analog supply pin tied to the board 5V analog rail with local decoupling."
+        if net == "+3V3":
+            return "AD7606-4 VDRIVE/control strap pin tied to the ESP32 3.3V logic domain."
+        if net == "GND":
+            return "AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin."
+        if net == "CONVST":
+            return "AD7606-4 conversion-start input; CONVSTA and CONVSTB are tied together for simultaneous sampling."
+        if net == "ADC_SCLK":
+            return "AD7606-4 RD/SCLK serial clock input from ESP32 GPIO17."
+        if net == "ADC_CS":
+            return "AD7606-4 chip-select input from ESP32 GPIO18."
+        if net == "ADC_MISO_A":
+            return "AD7606-4 DOUTA serial data output to ESP32 GPIO21."
+        if net == "ADC_MISO_B":
+            return "AD7606-4 DOUTB serial data output to ESP32 GPIO38."
+        if net == "ADC_BUSY":
+            return "AD7606-4 BUSY conversion-status output to ESP32 GPIO47."
+        if net == "ADC_RESET":
+            return "AD7606-4 RESET input from ESP32 GPIO48."
+        if "REGCAP" in function:
+            return "AD7606-4 internal regulator capacitor pin."
+        if "REFIN" in function:
+            return "AD7606-4 internal/reference output pin decoupled by the local reference capacitor."
+        if "REFCAP" in function:
+            return "AD7606-4 reference-buffer capacitor pin."
     if value == "LASER+MPD out":
         if net.startswith("LASER_N"):
             return "Laser harness cathode sink output for one channel."
@@ -388,6 +447,12 @@ def pin_intent_for_node(
             "2": "Bourns trimmer wiper feeding the OPA380 VBIAS resistor.",
             "3": "Bourns trimmer low-side return to GND.",
         }.get(pin, "Review required: VBIAS trimmer unknown pin.")
+    if value == "RF 2M":
+        return {
+            "1": "Bourns feedback trimmer low side tied to the OPA380 summing node.",
+            "2": "Bourns feedback trimmer wiper tied to the OPA380 output side for rheostat fail-safe behavior.",
+            "3": "Bourns feedback trimmer output-side terminal tied to OPA380 output and AD7606 header.",
+        }.get(pin, "Review required: feedback trimmer unknown pin.")
 
     if value.startswith("10R 2W"):
         return "Laser current-sense resistor high side." if net.endswith("/FB") else "Laser current-sense resistor low-side GND return."

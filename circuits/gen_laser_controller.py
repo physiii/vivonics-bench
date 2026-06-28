@@ -7,14 +7,14 @@ Produces (1 channel, 4 wavelengths):
   tia_ir/red/green/blue.kicad_sch  — four on-board signal PD + OPA380 TIA sheets
   laser_ir/red/green/blue.kicad_sch — four constant-current laser sink sheets
   mcu.kicad_sch                    — imported access-controller ESP32-S3 MCU sheet
-  power_io.kicad_sch               — 5V OR-ing, laser supply, AD7606 outputs, laser outputs, MPD high-side feedback
+  power_io.kicad_sch               — 5V OR-ing, laser supply, on-board AD7606-4 ADC, laser outputs, MPD high-side feedback
   laser_controller_bom_jlcpcb.csv  — consolidated JLCPCB BOM
   laser_controller.kicad_pro       — minimal project file (written once if absent)
 
 Architecture: ONE optical channel, FOUR wavelengths (IR / RED / GREEN / BLUE). Each
 wavelength has a constant-current laser driver with current-sense feedback, and one
 on-board single clear Si PIN photodiode (Osram SFH2201, 300–1100 nm — covers blue→IR)
-reverse-biased into an OPA380 TIA → 4 TIA outputs to the external AD7606. (Single-PD
+reverse-biased into an OPA380 TIA → on-board AD7606-4 ADC read by the ESP32. (Single-PD
 intensity read = the bench proxy for the
 production Gpixel per-pixel intensity reader; see DUAL_PINHOLE / INDEX_READ_PRODUCTION
 docs.) Control: ESP32-S3-WROOM-1 (matches access-controller), native USB Mini-B + USBLC6
@@ -228,6 +228,80 @@ S("LM4040_DBZ",
   [[(-1.27,1.27),(1.27,1.27),(0,-1.27),(-1.27,1.27)], [(-1.8,2.54),(1.8,2.54)],
    [(-1.27,-2.54),(1.27,-2.54)], [(3.81,-5.08),(1.27,-2.54)]],
   [("5.0V",0,0,1.0)], hide_nums=False, roff=(6,-6), voff=(6,6))
+# AD7606BSTZ-4, LQFP-64: 4-channel simultaneous-sampling ADC in serial mode.
+# Pinout follows the AD7606/AD7606-6/AD7606-4 datasheet RL-64 package table.
+S("AD7606_4",
+  {
+   "49":(-25.4,15.24,0,"V1","input",2.54),
+   "51":(-25.4,10.16,0,"V2","input",2.54),
+   "57":(-25.4,5.08,0,"V3","input",2.54),
+   "59":(-25.4,0,0,"V4","input",2.54),
+   "9":(25.4,17.78,180,"CONVSTA","input",2.54),
+   "10":(25.4,15.24,180,"CONVSTB","input",2.54),
+   "11":(25.4,12.7,180,"RESET","input",2.54),
+   "12":(25.4,10.16,180,"RD/SCLK","input",2.54),
+   "13":(25.4,7.62,180,"CS","input",2.54),
+   "14":(25.4,5.08,180,"BUSY","output",2.54),
+   "15":(25.4,2.54,180,"FRSTDATA","output",2.54),
+   "24":(25.4,0,180,"DB7/DOUTA","output",2.54),
+   "25":(25.4,-2.54,180,"DB8/DOUTB","output",2.54),
+   "1":(-12.7,25.4,270,"AVCC","power_in",2.54),
+   "37":(-7.62,25.4,270,"AVCC","power_in",2.54),
+   "38":(-2.54,25.4,270,"AVCC","power_in",2.54),
+   "48":(2.54,25.4,270,"AVCC","power_in",2.54),
+   "23":(10.16,25.4,270,"VDRIVE","power_in",2.54),
+   "6":(15.24,25.4,270,"PAR/SER/BYTE SEL","input",2.54),
+   "7":(20.32,25.4,270,"STBY","input",2.54),
+   "34":(25.4,-10.16,180,"REF SELECT","input",2.54),
+   "3":(-20.32,-25.4,90,"OS0","input",2.54),
+   "4":(-17.78,-25.4,90,"OS1","input",2.54),
+   "5":(-15.24,-25.4,90,"OS2","input",2.54),
+   "8":(-12.7,-25.4,90,"RANGE","input",2.54),
+   "16":(-10.16,-25.4,90,"DB0","input",2.54),
+   "17":(-7.62,-25.4,90,"DB1","input",2.54),
+   "18":(-5.08,-25.4,90,"DB2","input",2.54),
+   "19":(-2.54,-25.4,90,"DB3","input",2.54),
+   "20":(0,-25.4,90,"DB4","input",2.54),
+   "21":(2.54,-25.4,90,"DB5","input",2.54),
+   "22":(5.08,-25.4,90,"DB6","input",2.54),
+   "27":(7.62,-25.4,90,"DB9","input",2.54),
+   "28":(10.16,-25.4,90,"DB10","input",2.54),
+   "29":(12.7,-25.4,90,"DB11","input",2.54),
+   "30":(15.24,-25.4,90,"DB12","input",2.54),
+   "31":(17.78,-25.4,90,"DB13","input",2.54),
+   "32":(20.32,-25.4,90,"DB14/HBEN","input",2.54),
+   "33":(22.86,-25.4,90,"DB15/BYTE SEL","input",2.54),
+   "36":(-25.4,-7.62,0,"REGCAP","passive",2.54),
+   "39":(-25.4,-12.7,0,"REGCAP","passive",2.54),
+   "42":(-25.4,-17.78,0,"REFIN/REFOUT","passive",2.54),
+   "44":(-25.4,-22.86,0,"REFCAPA","passive",2.54),
+   "45":(-25.4,-25.4,0,"REFCAPB","passive",2.54),
+   "2":(-25.4,-33.02,90,"AGND","power_in",2.54),
+   "26":(-22.86,-33.02,90,"AGND","power_in",2.54),
+   "35":(-20.32,-33.02,90,"AGND","power_in",2.54),
+   "40":(-17.78,-33.02,90,"AGND","power_in",2.54),
+   "41":(-15.24,-33.02,90,"AGND","power_in",2.54),
+   "43":(-12.7,-33.02,90,"REFGND","power_in",2.54),
+   "46":(-10.16,-33.02,90,"REFGND","power_in",2.54),
+   "47":(-7.62,-33.02,90,"AGND","power_in",2.54),
+   "50":(-5.08,-33.02,90,"V1GND","power_in",2.54),
+   "52":(-2.54,-33.02,90,"V2GND","power_in",2.54),
+   "53":(0,-33.02,90,"AGND","power_in",2.54),
+   "54":(2.54,-33.02,90,"AGND","power_in",2.54),
+   "55":(5.08,-33.02,90,"AGND","power_in",2.54),
+   "56":(7.62,-33.02,90,"AGND","power_in",2.54),
+   "58":(10.16,-33.02,90,"V3GND","power_in",2.54),
+   "60":(12.7,-33.02,90,"V4GND","power_in",2.54),
+   "61":(15.24,-33.02,90,"AGND","power_in",2.54),
+   "62":(17.78,-33.02,90,"AGND","power_in",2.54),
+   "63":(20.32,-33.02,90,"AGND","power_in",2.54),
+   "64":(22.86,-33.02,90,"AGND","power_in",2.54),
+  },
+  [[(-22.86,22.86),(22.86,22.86),(22.86,-22.86),(-22.86,-22.86),(-22.86,22.86)],
+   [(-22.86,-22.86),(-22.86,-25.4)],
+   [(-25.4,-30.48),(22.86,-30.48)]],
+  [("AD7606-4",0,0,1.4)], hide_nums=False, roff=(-22,-26), voff=(-22,25))
+SYM["AD7606_4"]["body_box"] = (-22.86, 22.86, 22.86, -22.86)
 S("LASER_CAN_MON_PD",
   {"1":(-12.7,0,0,"LD_K","passive",4.7),
    "2":(0,-12.7,90,"LD_A/PD_K/CASE","passive",4.7),
@@ -263,14 +337,14 @@ S("GND",{"1":(0,0,270,"GND","power_in",0)},[[(0,0),(0,-2.032)],[(-2.032,-2.032),
 
 REFLET={"R_H":"R","R_V":"R","POT_H":"RV","POT_V":"RV","C_H":"C","C_V":"C","PHOTODIODE":"D","OPA_N":"U",
         "TLV9001_SOT23_5":"U",
-        "INA4180_TSSOP14":"U","LM4040_DBZ":"U",
+        "INA4180_TSSOP14":"U","LM4040_DBZ":"U","AD7606_4":"U",
         "LASER_CAN_MON_PD":"LD",
         "LASER_CAN_DIODE_CASE":"LD",
         "CONN2":"J","CONN3":"J","CONN4":"J","CONN5":"J","CONN6":"J","CONN8":"J","CONN10":"J","NMOS":"Q",
         "Espressif:ESP32-S3-WROOM-1":"U",
         "LDO5":"U","SCHOTTKY":"D","USB_MINIB":"J","ESD_USB":"U"}
 # Hand-add (excluded from SMT BOM): only the THT 2.54mm I/O headers. Everything else, including
-# the SFH2201 signal PDs, ESP32-S3, 3224W SMD pots, and USB Mini-B connector, is JLCPCB machine-placed.
+    # the SFH2201 signal PDs, ESP32-S3, AD7606, 3224W SMD pots, and USB Mini-B connector, is JLCPCB machine-placed.
 HAND={"CONN2","CONN3","CONN4","CONN5","CONN6","CONN8","CONN10"}
 NON_SMT_ASSEMBLY={"LASER_CAN_MON_PD","LASER_CAN_DIODE_CASE"}
 PASSIVE_GLYPH_NUMS=("R_H","R_V","POT_H","POT_V","C_H","C_V","PHOTODIODE","OPA_N","TLV9001_SOT23_5","NMOS","SCHOTTKY")
@@ -282,6 +356,7 @@ FP_402="Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder"
 FP_805="Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder"
 FP_SO8="Package_SO:SOIC-8_3.9x4.9mm_P1.27mm"
 FP_TSSOP14="Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
+FP_AD7606="Package_QFP:LQFP-64_10x10mm_P0.5mm"
 FP_POT_SMD="Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical"   # SMD trimmer (JLCPCB-mountable)
 FP_SOT235="Package_TO_SOT_SMD:SOT-23-5"
 FP_SOT236="Package_TO_SOT_SMD:SOT-23-6"
@@ -303,10 +378,10 @@ LCSC_22R="C23345"     # 22Ω 0603 1% UNI-ROYAL 0603WAF220JT5E (Basic) — USB D+
 LCSC_10R="C5123624"  # 10Ω 2512 2W 1% Milliohm HoCR2512-2W-10R-1% — laser source sense
 LCSC_1K="C2907002"; LCSC_10PF="C106245"; LCSC_10UF="C318691"; LCSC_1UF="C7472946"; LCSC_100NF="C83056"
 LCSC_30K="C22984"    # 30k 0603 1% UNI-ROYAL 0603WAF3002T5E — PWM command divider
-LCSC_10M="C844730"   # 10M 0603 1% Vishay CRCW060310M0FKEA
 LCSC_750R="C114635"  # 750Ω 0603 1% Yageo RC0603FR-07750RL — monitor-PD sense shunt
 LCSC_249K="C2099849" # 2.49k 0603 1% Vishay CRCW06032K49FKEAHP — LM4040 shunt-reference sink
 LCSC_POT10K="C81348" # Bourns 3224W-1-103 10k SMD trimmer (Extended) — replaces THT 3296W VBIAS pot
+LCSC_POT2M="C116323" # Bourns 3224W-1-205E 2M SMD trimmer (Extended) — TIA feedback rheostat
 LCSC_OPA="C201677"   # OPA380AID (Extended, low stock — buy buffer)
 LCSC_TLV="C398363"; LCSC_NMOS="C20917" # AO3400A N-MOSFET, SOT-23, Basic
 LCSC_INA4180="C2057528" # INA4180A1IPWR quad current-sense amplifier, TSSOP-14
@@ -317,6 +392,7 @@ LCSC_ESD="C7519"     # USBLC6-2SC6
 LCSC_SCH="C2480"     # SS14 SMA Schottky 40V/1A (Basic)
 LCSC_USB="C5120592"     # Würth 65100516121 USB Mini-B horizontal SMD (same as access-controller)
 LCSC_PD="C2900216"   # Osram SFH2201 clear broadband Si PIN PD (Extended); 300–1100nm covers 450/520/650/780nm
+LCSC_AD7606="C51512" # Analog Devices AD7606BSTZ-4RL 4ch 16-bit simultaneous-sampling ADC, LQFP-64
 
 LASER_MPN = {
     "LASER_IR": {
@@ -521,7 +597,7 @@ def build_tia_channel(sheet_name: str):
         "RB":("R_H","1k",FP_R,"FRC0603F1001TS",LCSC_1K,pdcx-16,pdcy),          # PD cathode → +5V bias
         "CB":("C_V","1uF",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,pd_kx,pdcy+6),     # PD cathode bypass → GND
         "U1":("OPA_N","OPA380AID",FP_SO8,"OPA380AID",LCSC_OPA,ux,oy),
-        "R2":("R_H","10M",FP_R,"CRCW060310M0FKEA",LCSC_10M,215,RfY),          # fixed Rf (no 10M SMD trimmer)
+        "RVFB":("POT_H","RF 2M",FP_POT_SMD,"3224W-1-205E",LCSC_POT2M,215,RfY), # feedback trim, wiper tied to output side
         "C1":("C_H","10pF C0G",FP_603,"CC0603JRNPO9BN100",LCSC_10PF,215,CfY),
         "RT":("R_V","10k",FP_R,"CRCW060310K0FKEA",LCSC_10K,165,140),          # bounds VBIAS ≤2.5V (OPA380 CM)
         "RV11":("POT_V","VBIAS 10k",FP_POT_SMD,"3224W-1-103E",LCSC_POT10K,165,oy+2.54),  # SMD trimmer
@@ -533,7 +609,7 @@ def build_tia_channel(sheet_name: str):
     nIN=pin(parts,"U1","2"); pIN=pin(parts,"U1","3"); OUT=pin(parts,"U1","6")
     oy = parts["U1"][6]
     LRX,RRX = nIN[0], OUT[0]                          # feedback rails rise from −IN / out
-    RfY=pin(parts,"R2","1")[1]; CfY=pin(parts,"C1","1")[1]
+    RfY=pin(parts,"RVFB","1")[1]; CfY=pin(parts,"C1","1")[1]
     power=[]; wires=[]; labels=[]
     add_rail(power,wires,"+5V",pin(parts,"U1","7")); add_rail(power,wires,"GND",pin(parts,"U1","4"))
     add_rail(power,wires,"+5V",pin(parts,"C2","1")); add_rail(power,wires,"GND",pin(parts,"C2","2"))
@@ -542,11 +618,14 @@ def build_tia_channel(sheet_name: str):
     wires += [[anode,(anode[0],nIN[1]),nIN], [pin(parts,"RB","2"),cathode], [cathode,pin(parts,"CB","1")]]
     add_rail(power,wires,"+5V",pin(parts,"RB","1"))
     add_rail(power,wires,"GND",pin(parts,"CB","2"))
-    # feedback: −IN → left rail up ; out → right rail up ; R2 (Rf) ∥ C1 (Cf) bridge across the top
+    # feedback: −IN → left rail up ; out → right rail up ; RVFB (Rf trim) ∥ C1 (Cf) bridge across the top
+    rvfb_w = pin(parts,"RVFB","2")
     wires += [
         [nIN,(LRX,CfY),(LRX,RfY)],                             # left rail (−IN → Cf row → Rf row ; vertices = endpoints)
         [OUT,(RRX,oy),(RRX,CfY),(RRX,RfY)],                    # right rail (out → Cf row → Rf row)
-        [pin(parts,"R2","1"),(LRX,RfY)], [pin(parts,"R2","2"),(RRX,RfY)],   # fixed Rf across feedback rails
+        [pin(parts,"RVFB","1"),(LRX,RfY)],
+        [pin(parts,"RVFB","3"),(RRX,RfY)],
+        [rvfb_w,(RRX,rvfb_w[1]),(RRX,RfY)],                   # rheostat: wiper tied to output side
         [pin(parts,"C1","1"),(LRX,CfY)], [pin(parts,"C1","2"),(RRX,CfY)],
         [OUT,(OUT[0]+10.16,oy)],                               # → V_OUT
     ]
@@ -562,8 +641,8 @@ def build_tia_channel(sheet_name: str):
     labels.append(("H:V_OUT",OUT[0]+10.16,oy,"left","output"))
     texts=[
         ("TIA Channel  —  on-board SFH2201 signal PD → OPA380AID transimpedance amp  ·  reused 4× (IR / RED / GREEN / BLUE)",150,104,2.0),
-        ("PD reverse-biased: cathode → +5V via RB (1k) + CB bypass ; anode → OPA380 −IN summing node.  Rf = R2 (10M) ∥ Cf = C1 (10pF).",150,110,1.3),
-        ("VBIAS: +5V → RT(10k) → RV11 trim → RC(R1,C11) → +IN (held ≤2.5V).  V_OUT = VBIAS ± I_pd·Rf → external AD7606.",150,116,1.3),
+        ("PD reverse-biased: cathode → +5V via RB (1k) + CB bypass ; anode → OPA380 −IN summing node.  Rf = RVFB (2M trim) ∥ Cf = C1 (10pF).",150,110,1.3),
+        ("VBIAS: +5V → RT(10k) → RV11 trim → RC(R1,C11) → +IN (held ≤2.5V).  V_OUT = VBIAS ± I_pd·Rf → on-board AD7606-4.",150,116,1.3),
     ]
     color = sheet_name.removeprefix("TIA_")
     opamp_ncs = [pin(parts, "U1", num) for num in ("1", "5", "8")]
@@ -825,7 +904,20 @@ def build_power_io():
         "C3V3IN":("C_V","1uF",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,116,64),
         "C3V3OUT":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,148,60),
         "C3V3BULK":("C_V","10uF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,162,60),
-        "J1":("CONN6","AD7606 out",FP_H6,"","",250,70),
+        "J1":("CONN6","ADC debug",FP_H6,"","",250,70),
+        "UADC":("AD7606_4","AD7606BSTZ-4",FP_AD7606,"AD7606BSTZ-4RL",LCSC_AD7606,250,205),
+        "CADCAV1":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,220,170),
+        "CADCAV2":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,230,170),
+        "CADCAV3":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,240,170),
+        "CADCAV4":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,250,170),
+        # Keep this off UADC pin 7's x-coordinate so the decoupler GND stub
+        # cannot merge with the STBY high strap in the generated schematic.
+        "CADCDRV":("C_V","100nF ADC VDRIVE",FP_402,"0402B104K160CT",LCSC_100NF,285,170),
+        "CADCBULK":("C_V","10uF ADC AVCC",FP_805,"CL21A106KAYNNNG",LCSC_10UF,205,170),
+        "CREG1":("C_V","1uF ADC REGCAP",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,205,215),
+        "CREG2":("C_V","1uF ADC REGCAP",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,195,220),
+        "CREFIN":("C_V","10uF ADC REF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,185,225),
+        "CREFCAP":("C_V","10uF ADC REFCAP",FP_805,"CL21A106KAYNNNG",LCSC_10UF,175,230),
         "J4":("CONN10","LASER+MPD out",FP_H10,"","",360,135),
         "UMPD":("INA4180_TSSOP14","INA4180A1",FP_TSSOP14,"INA4180A1IPWR",LCSC_INA4180,178,132),
         "UREF":("LM4040_DBZ","LM4040C50 5V",FP_SOT23,"LM4040C50IDBZR",LCSC_LM4040,114,122),
@@ -863,10 +955,52 @@ def build_power_io():
     add_rail(power,wires,"GND",pin(parts,"C3V3BULK","2"))
     # laser supply rail
     add_rail(power,wires,"LASER_VP",pin(parts,"J5","1")); add_rail(power,wires,"GND",pin(parts,"J5","2"))
-    # AD7606 outputs: 4 TIA outputs + CONVST + GND  (dist=9 so labels clear the header pin numbers)
+    # ADC debug header mirrors the signal-PD ADC analog inputs and conversion trigger.
     for jp,net in [("1","VOUT1"),("2","VOUT2"),("3","VOUT3"),("4","VOUT4"),("5","CONVST")]:
         add_stub(wires,labels,pin(parts,"J1",jp),"left",f"H:{net}",dist=9,shape="input")
     add_rail_dn(power,wires,"GND",pin(parts,"J1","6"))
+    # On-board AD7606-4: four OPA380 TIA outputs into V1/V2/V3/V4, serial data back to ESP32.
+    adc_input_pins = {"VOUT1":"49", "VOUT2":"51", "VOUT3":"57", "VOUT4":"59"}
+    for net, adc_pin in adc_input_pins.items():
+        add_stub(wires,labels,pin(parts,"UADC",adc_pin),"left",f"H:{net}",dist=10,shape="input")
+    conv_a = pin(parts,"UADC","9")
+    conv_b = pin(parts,"UADC","10")
+    conv_bus = (conv_a[0]+8.89, conv_a[1])
+    wires.append([conv_a, conv_bus, (conv_bus[0], conv_b[1]), conv_b])
+    add_label(labels,conv_bus,"H:CONVST",justify="left",shape="input")
+    for adc_pin, net, shape in [
+        ("11","ADC_RESET","input"),
+        ("12","ADC_SCLK","input"),
+        ("13","ADC_CS","input"),
+        ("14","ADC_BUSY","output"),
+        ("24","ADC_MISO_A","output"),
+        ("25","ADC_MISO_B","output"),
+    ]:
+        add_stub(wires,labels,pin(parts,"UADC",adc_pin),"right",f"H:{net}",dist=10,shape=shape)
+    ncs.append(pin(parts,"UADC","15"))
+    for adc_pin in ["1","37","38","48"]:
+        add_rail(power,wires,"+5V",pin(parts,"UADC",adc_pin))
+    for adc_pin in ["6","7","23","34"]:
+        add_rail(power,wires,"+3V3",pin(parts,"UADC",adc_pin))
+    for adc_pin in ["3","4","5","8","16","17","18","19","20","21","22","27","28","29","30","31","32","33",
+                    "2","26","35","40","41","43","46","47","50","52","53","54","55","56","58","60","61","62","63","64"]:
+        add_rail(power,wires,"GND",pin(parts,"UADC",adc_pin))
+    for cap in ["CADCAV1","CADCAV2","CADCAV3","CADCAV4","CADCBULK"]:
+        add_rail(power,wires,"+5V",pin(parts,cap,"1")); add_rail(power,wires,"GND",pin(parts,cap,"2"))
+    add_rail(power,wires,"+3V3",pin(parts,"CADCDRV","1")); add_rail(power,wires,"GND",pin(parts,"CADCDRV","2"))
+    for cap, adc_pin in [("CREG1","36"),("CREG2","39"),("CREFIN","42")]:
+        cap_top = pin(parts,cap,"1")
+        adc_ref_pin = pin(parts,"UADC",adc_pin)
+        jog = (adc_ref_pin[0] - 8.89, adc_ref_pin[1])
+        wires.append([adc_ref_pin, jog, (jog[0], cap_top[1]), cap_top])
+        add_rail(power,wires,"GND",pin(parts,cap,"2"))
+    refcap_top = pin(parts,"CREFCAP","1")
+    refcap_a = pin(parts,"UADC","44")
+    refcap_b = pin(parts,"UADC","45")
+    refcap_jog = (refcap_a[0] - 8.89, refcap_a[1])
+    wires.append([refcap_a, refcap_jog, (refcap_jog[0], refcap_b[1]), refcap_b])
+    wires.append([refcap_jog, (refcap_jog[0], refcap_top[1]), refcap_top])
+    add_rail(power,wires,"GND",pin(parts,"CREFCAP","2"))
     # laser outputs: cathode/monitor pairs + common laser anode supply + shield/return ground
     for jp,net in [("1","LASER_N1"),("3","LASER_N2"),("5","LASER_N3"),("7","LASER_N4")]:
         add_stub(wires,labels,pin(parts,"J4",jp),"left",f"H:{net}",dist=9,shape="input")
@@ -919,9 +1053,9 @@ def build_power_io():
     da=pin(parts,"D10","1")                         # D10 anode = VBUS_5V net
     power.append(("PWR_FLAG",da[0],da[1]+9)); wires.append([da,(da[0],da[1]+9)]); junctions.append(da)
     texts=[
-        ("Power & I/O  —  USB‖external 5V OR-ing, AP2112 +3V3 source, separate laser supply, AD7606 outputs, laser + monitor-PD outputs",36,16,2.2),
+        ("Power & I/O  —  USB‖external 5V OR-ing, AP2112 +3V3 source, separate laser supply, on-board AD7606-4 ADC, laser + monitor-PD outputs",36,16,2.2),
         ("J6 = ext +5V in;  USB VBUS (from MCU J1) ‖ J6 OR-ed via SS14 Schottkys (D5/D6) → +5V; U11 AP2112K-3.3 → +3V3.",36,22,1.3),
-        ("J3 → external AD7606 (VOUT1..4 = the 4 TIA outputs + CONVST + GND).  J4 → LASER_N/MPD_RAW pairs + LASER_V+ + GND shield/return.",36,28,1.3),
+        ("U14 AD7606BSTZ-4 digitizes VOUT1..4 on-board; ESP32 drives CONVST/SCLK/CS/RESET and reads BUSY + DOUTA/DOUTB.  J3 is debug only.",36,28,1.3),
         ("MPD_RAWx -> 750R sense to MPD_BIAS; INA4180A1 gain=20 -> 1k/100nF -> MPDx ESP32 ADC.",36,34,1.3),
         ("LM4040C50 holds LASER_V+ - MPD_BIAS near 5V; PLT5 typ 150uA -> about 2.25V ADC and about 4.89V monitor-PD reverse bias.",36,40,1.3),
         ("ISENSE headroom: keep I_laser <= 250 mA so V_sense (=I*10ohm) stays inside the ESP32 ADC range with margin.",36,46,1.3),
@@ -1006,6 +1140,12 @@ def build_root():
         ("IO15","output","left","CONVST"),
         ("5V","output","left","VBUS_5V"),
         ("3V3","input","left","+3V3"),
+        ("IO17","output","right","ADC_SCLK"),
+        ("IO18","output","right","ADC_CS"),
+        ("IO21","input","right","ADC_MISO_A"),
+        ("IO38","input","right","ADC_MISO_B"),
+        ("IO47","input","right","ADC_BUSY"),
+        ("IO48","output","right","ADC_RESET"),
     ]
     sheet("MCU_ESP32-S3","mcu.kicad_sch",430,rows[0],95,118,mcu_pins)
     # POWER_IO (column 3, bottom)
@@ -1013,12 +1153,19 @@ def build_root():
         ("CONVST","input","left","CONVST"),("VBUS_5V","input","left","VBUS_5V")]+[
         (f"LASER_N{i+1}","input","left",f"LASER_N{i+1}") for i in range(4)]+[
         (f"MPD_RAW{i+1}","input","left",f"MPD_RAW{i+1}") for i in range(4)]+[
-        (f"MPD{i+1}","output","left",f"MPD{i+1}") for i in range(4)]
+        (f"MPD{i+1}","output","left",f"MPD{i+1}") for i in range(4)]+[
+        ("ADC_SCLK","input","right","ADC_SCLK"),
+        ("ADC_CS","input","right","ADC_CS"),
+        ("ADC_MISO_A","output","right","ADC_MISO_A"),
+        ("ADC_MISO_B","output","right","ADC_MISO_B"),
+        ("ADC_BUSY","output","right","ADC_BUSY"),
+        ("ADC_RESET","input","right","ADC_RESET"),
+    ]
     sheet("POWER_IO","power_io.kicad_sch",430,220,95,140,pio_pins,pps=6.5)
 
     P+=extra
-    P.append(f'  (text "LASER CONTROLLER  ·  Vivonics  ·  rev v9   —   1 channel x 4 wavelengths (IR / RED / GREEN / BLUE)  ·  TIA x4  ·  laser_driver x4  ·  monitor PD ADC x3+spare  ·  mcu  ·  power_io" (at 40 30 0) (effects (font (size 2.4 2.4)) (justify left)) (uuid {uid()}))')
-    P.append(f'  (text "Global-label nets join sheet pins (VOUT1..4, PWM1..4, ISENSE1..4, MPD_RAW1..3 plus open MPD_RAW4 header/front-end, MPD1..4, LASER_N1..4, CONVST, VBUS_5V, +3V3). MCU mapping: IO10/11/12/16=PWM1..4, IO4..7=ISENSE1..4, IO2/3/8/9=MPD1..4, IO15=CONVST." (at 40 36 0) (effects (font (size 1.6 1.6)) (justify left)) (uuid {uid()}))')
+    P.append(f'  (text "LASER CONTROLLER  ·  Vivonics  ·  rev v9   —   1 channel x 4 wavelengths (IR / RED / GREEN / BLUE)  ·  TIA x4  ·  laser_driver x4  ·  AD7606-4 signal ADC  ·  monitor PD ADC x3+spare  ·  mcu  ·  power_io" (at 40 30 0) (effects (font (size 2.4 2.4)) (justify left)) (uuid {uid()}))')
+    P.append(f'  (text "Global-label nets join sheet pins (VOUT1..4, ADC_SCLK/CS/MISO_A/MISO_B/BUSY/RESET, PWM1..4, ISENSE1..4, MPD_RAW1..3 plus open MPD_RAW4, MPD1..4, LASER_N1..4, CONVST, VBUS_5V, +3V3)." (at 40 36 0) (effects (font (size 1.6 1.6)) (justify left)) (uuid {uid()}))')
     P+=['  (sheet_instances','    (path "/" (page "1"))',"  )",")"]
     txt="\n".join(P)+"\n"
     assert sum((c=="(")-(c==")") for c in txt)==0,"paren imbalance in root"

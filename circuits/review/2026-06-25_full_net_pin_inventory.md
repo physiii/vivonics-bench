@@ -15,29 +15,16 @@ Schematic references are generated globally unique before KiCad netlist export. 
 | `segments` | 0 |
 | `vias` | 0 |
 | `zones` | 1 |
-| `pad_net_lines` | 436 |
-| `net_table_entries` | 108 |
+| `pad_net_lines` | 12 |
+| `net_table_entries` | 536 |
 | `keepout_zones` | 1 |
 | `gnd_reference_zone_defs` | 0 |
-| `net_classes` | 8 |
-| `classified_nets` | 107 |
-| `placement_proximity_checks` | 0/109 PASS |
+| `placement_proximity_checks` | 4/109 PASS |
 | `connected_critical_local_route_links` | 0/109 |
 | `multi_pad_nets` | 92 |
 | `explicitly_routed_multi_pad_nets` | 0 |
 | `unrouted_multi_pad_nets` | 86 |
 | `zone_or_rail_pending_multi_pad_nets` | 6 |
-
-| Net Class | Nets |
-|---|---:|
-| `Laser_Current` | 9 |
-| `Power_Rails` | 5 |
-| `USB` | 0 |
-| `TIA_Sensitive` | 24 |
-| `Monitor_ADC` | 12 |
-| `Laser_Control` | 16 |
-| `Digital_Control` | 1 |
-| `Default` | 40 |
 
 ### USB Route Detail
 
@@ -83,27 +70,27 @@ These generated-board checks keep USB protection, ESP32-S3 support parts, AP2112
 | USBLC6 D+ to 22R series | n/a | 10.00 mm | FAIL: ('MCU_ESP32-S3', 'U12') |
 | USB D- series to ESP32 GPIO19 | n/a | 4.50 mm | FAIL: ('MCU_ESP32-S3', 'RUSBM') |
 | USB D+ series to ESP32 GPIO20 | n/a | 4.50 mm | FAIL: ('MCU_ESP32-S3', 'RUSBP') |
-| AP2112 input cap at VIN | 82.78 mm | 4.00 mm | FAIL |
-| AP2112 100n output cap at VOUT | 66.51 mm | 4.00 mm | FAIL |
-| AP2112 bulk output cap at VOUT | 71.55 mm | 4.00 mm | FAIL |
-| ESP32 local 3V3 decap | 33.91 mm | 3.00 mm | FAIL |
+| AP2112 input cap at VIN | 22.61 mm | 4.00 mm | FAIL |
+| AP2112 100n output cap at VOUT | 31.33 mm | 4.00 mm | FAIL |
+| AP2112 bulk output cap at VOUT | 15.10 mm | 4.00 mm | FAIL |
+| ESP32 local 3V3 decap | 3.20 mm | 3.00 mm | FAIL |
 | ESP32 EN capacitor | n/a | 4.00 mm | FAIL: ('MCU_ESP32-S3', 'CEN') |
 | ESP32 EN pull-up | n/a | 5.00 mm | FAIL: ('MCU_ESP32-S3', 'REN') |
 | ESP32 BOOT pull-up | n/a | 4.00 mm | FAIL: ('MCU_ESP32-S3', 'RBOOT') |
-| TIA_IR photodiode anode to OPA380 -IN | 46.26 mm | 5.50 mm | FAIL |
-| TIA_IR feedback resistor at OPA380 -IN | 18.57 mm | 3.50 mm | FAIL |
-| TIA_IR feedback capacitor at OPA380 -IN | 35.62 mm | 2.50 mm | FAIL |
-| TIA_IR feedback resistor at OPA380 OUT | 15.45 mm | 4.50 mm | FAIL |
-| TIA_IR feedback capacitor at OPA380 OUT | 32.39 mm | 2.50 mm | FAIL |
-| TIA_IR OPA380 supply decoupling | 47.96 mm | 2.50 mm | FAIL |
-| TIA_IR PD bias resistor at cathode | 20.18 mm | 4.50 mm | FAIL |
-| TIA_IR PD cathode bypass at cathode | 35.70 mm | 3.00 mm | FAIL |
-| TIA_IR VBIAS resistor at OPA380 +IN | 105.39 mm | 5.00 mm | FAIL |
-| TIA_IR VBIAS capacitor at OPA380 +IN | 120.44 mm | 4.00 mm | FAIL |
+| TIA_IR photodiode anode to OPA380 -IN | 3.43 mm | 5.50 mm | PASS |
+| TIA_IR feedback resistor at OPA380 -IN | 9.96 mm | 3.50 mm | FAIL |
+| TIA_IR feedback capacitor at OPA380 -IN | 9.43 mm | 2.50 mm | FAIL |
+| TIA_IR feedback resistor at OPA380 OUT | 14.94 mm | 4.50 mm | FAIL |
+| TIA_IR feedback capacitor at OPA380 OUT | 2.71 mm | 2.50 mm | FAIL |
+| TIA_IR OPA380 supply decoupling | 2.31 mm | 2.50 mm | PASS |
+| TIA_IR PD bias resistor at cathode | 2.98 mm | 4.50 mm | PASS |
+| TIA_IR PD cathode bypass at cathode | 2.84 mm | 3.00 mm | PASS |
+| TIA_IR VBIAS resistor at OPA380 +IN | 7.34 mm | 5.00 mm | FAIL |
+| TIA_IR VBIAS capacitor at OPA380 +IN | 4.99 mm | 4.00 mm | FAIL |
 | TIA_RED photodiode anode to OPA380 -IN | 46.26 mm | 5.50 mm | FAIL |
-| TIA_RED feedback resistor at OPA380 -IN | 18.57 mm | 3.50 mm | FAIL |
+| TIA_RED feedback resistor at OPA380 -IN | n/a | 3.50 mm | FAIL: ('TIA_RED', 'R2') |
 | TIA_RED feedback capacitor at OPA380 -IN | 35.62 mm | 2.50 mm | FAIL |
-| TIA_RED feedback resistor at OPA380 OUT | 15.45 mm | 4.50 mm | FAIL |
+| TIA_RED feedback resistor at OPA380 OUT | n/a | 4.50 mm | FAIL: ('TIA_RED', 'R2') |
 | TIA_RED feedback capacitor at OPA380 OUT | 32.39 mm | 2.50 mm | FAIL |
 | TIA_RED OPA380 supply decoupling | 47.96 mm | 2.50 mm | FAIL |
 | TIA_RED PD bias resistor at cathode | 20.18 mm | 4.50 mm | FAIL |
@@ -111,9 +98,9 @@ These generated-board checks keep USB protection, ESP32-S3 support parts, AP2112
 | TIA_RED VBIAS resistor at OPA380 +IN | 105.39 mm | 5.00 mm | FAIL |
 | TIA_RED VBIAS capacitor at OPA380 +IN | 120.44 mm | 4.00 mm | FAIL |
 | TIA_GREEN photodiode anode to OPA380 -IN | 46.26 mm | 5.50 mm | FAIL |
-| TIA_GREEN feedback resistor at OPA380 -IN | 18.57 mm | 3.50 mm | FAIL |
+| TIA_GREEN feedback resistor at OPA380 -IN | n/a | 3.50 mm | FAIL: ('TIA_GREEN', 'R2') |
 | TIA_GREEN feedback capacitor at OPA380 -IN | 35.62 mm | 2.50 mm | FAIL |
-| TIA_GREEN feedback resistor at OPA380 OUT | 15.45 mm | 4.50 mm | FAIL |
+| TIA_GREEN feedback resistor at OPA380 OUT | n/a | 4.50 mm | FAIL: ('TIA_GREEN', 'R2') |
 | TIA_GREEN feedback capacitor at OPA380 OUT | 32.39 mm | 2.50 mm | FAIL |
 | TIA_GREEN OPA380 supply decoupling | 47.96 mm | 2.50 mm | FAIL |
 | TIA_GREEN PD bias resistor at cathode | 20.18 mm | 4.50 mm | FAIL |
@@ -121,9 +108,9 @@ These generated-board checks keep USB protection, ESP32-S3 support parts, AP2112
 | TIA_GREEN VBIAS resistor at OPA380 +IN | 105.39 mm | 5.00 mm | FAIL |
 | TIA_GREEN VBIAS capacitor at OPA380 +IN | 120.44 mm | 4.00 mm | FAIL |
 | TIA_BLUE photodiode anode to OPA380 -IN | 46.26 mm | 5.50 mm | FAIL |
-| TIA_BLUE feedback resistor at OPA380 -IN | 18.57 mm | 3.50 mm | FAIL |
+| TIA_BLUE feedback resistor at OPA380 -IN | n/a | 3.50 mm | FAIL: ('TIA_BLUE', 'R2') |
 | TIA_BLUE feedback capacitor at OPA380 -IN | 35.62 mm | 2.50 mm | FAIL |
-| TIA_BLUE feedback resistor at OPA380 OUT | 15.45 mm | 4.50 mm | FAIL |
+| TIA_BLUE feedback resistor at OPA380 OUT | n/a | 4.50 mm | FAIL: ('TIA_BLUE', 'R2') |
 | TIA_BLUE feedback capacitor at OPA380 OUT | 32.39 mm | 2.50 mm | FAIL |
 | TIA_BLUE OPA380 supply decoupling | 47.96 mm | 2.50 mm | FAIL |
 | TIA_BLUE PD bias resistor at cathode | 20.18 mm | 4.50 mm | FAIL |
@@ -236,15 +223,15 @@ This table checks whether every pad on each multi-pad PCB net is connected by ex
 | `MPD_RAW2` | 4 | 4 | UNROUTED | LD2.3 \| J4.4 \| U12.5 \| R44.1 |
 | `MPD_RAW3` | 4 | 4 | UNROUTED | LD3.3 \| J4.6 \| U12.10 \| R46.1 |
 | `MPD_RAW4` | 3 | 3 | UNROUTED | J4.8 \| U12.12 \| R48.1 |
-| `Net-(D1-A)` | 4 | 4 | UNROUTED | D1.2 \| U1.2 \| R1.1 \| C1.1 |
+| `Net-(D1-A)` | 4 | 4 | UNROUTED | D1.2 \| U1.2 \| C1.1 \| RV5.1 |
 | `Net-(D1-K)` | 3 | 3 | UNROUTED | D1.1 \| R2.2 \| C3.1 |
 | `Net-(D10-A)` | 2 | 2 | UNROUTED | J1.1 \| D10.2 |
 | `Net-(D13-A)` | 2 | 2 | UNROUTED | J2.1 \| D13.2 |
-| `Net-(D2-A)` | 4 | 4 | UNROUTED | D2.2 \| U2.2 \| R5.1 \| C5.1 |
+| `Net-(D2-A)` | 4 | 4 | UNROUTED | D2.2 \| U2.2 \| C5.1 \| RV6.1 |
 | `Net-(D2-K)` | 3 | 3 | UNROUTED | D2.1 \| R6.2 \| C7.1 |
-| `Net-(D3-A)` | 4 | 4 | UNROUTED | D3.2 \| U3.2 \| R9.1 \| C9.1 |
+| `Net-(D3-A)` | 4 | 4 | UNROUTED | D3.2 \| U3.2 \| C9.1 \| RV7.1 |
 | `Net-(D3-K)` | 3 | 3 | UNROUTED | D3.1 \| R10.2 \| C11.1 |
-| `Net-(D4-A)` | 4 | 4 | UNROUTED | D4.2 \| U4.2 \| R13.1 \| C13.1 |
+| `Net-(D4-A)` | 4 | 4 | UNROUTED | D4.2 \| U4.2 \| C13.1 \| RV8.1 |
 | `Net-(D4-K)` | 3 | 3 | UNROUTED | D4.1 \| R14.2 \| C15.1 |
 | `Net-(Q1-G)` | 2 | 2 | UNROUTED | R17.2 \| Q1.1 |
 | `Net-(Q2-G)` | 2 | 2 | UNROUTED | R22.2 \| Q2.1 |
@@ -275,10 +262,10 @@ This table checks whether every pad on each multi-pad PCB net is connected by ex
 | `PWM2` | 2 | 2 | UNROUTED | R25.1 \| U9.19 |
 | `PWM3` | 2 | 2 | UNROUTED | R30.1 \| U9.20 |
 | `PWM4` | 2 | 2 | UNROUTED | R35.1 \| U9.9 |
-| `VOUT1` | 4 | 4 | UNROUTED | U1.6 \| R1.2 \| C1.2 \| J3.1 |
-| `VOUT2` | 4 | 4 | UNROUTED | U2.6 \| R5.2 \| C5.2 \| J3.2 |
-| `VOUT3` | 4 | 4 | UNROUTED | U3.6 \| R9.2 \| C9.2 \| J3.3 |
-| `VOUT4` | 4 | 4 | UNROUTED | U4.6 \| R13.2 \| C13.2 \| J3.4 |
+| `VOUT1` | 5 | 5 | UNROUTED | U1.6 \| C1.2 \| J3.1 \| RV5.2 \| RV5.3 |
+| `VOUT2` | 5 | 5 | UNROUTED | U2.6 \| C5.2 \| J3.2 \| RV6.2 \| RV6.3 |
+| `VOUT3` | 5 | 5 | UNROUTED | U3.6 \| C9.2 \| J3.3 \| RV7.2 \| RV7.3 |
+| `VOUT4` | 5 | 5 | UNROUTED | U4.6 \| C13.2 \| J3.4 \| RV8.2 \| RV8.3 |
 | `+3V3` | 16 | 16 | ZONE_OR_RAIL_PENDING | U9.2 \| C43.1 \| R54.1 \| R59.1 \| R60.2 \| R52.1 \| R53.1 \| U10.6 \| ... 8 more |
 | `+5V` | 30 | 30 | ZONE_OR_RAIL_PENDING | R2.1 \| U1.7 \| C2.1 \| R4.1 \| R6.1 \| U2.7 \| C6.1 \| R8.1 \| ... 22 more |
 | `/POWER_IO/EXT5V` | 2 | 2 | ZONE_OR_RAIL_PENDING | D6.1 \| J6.1 |
@@ -292,8 +279,8 @@ Every exported netlist node is assigned a component-pin-level role. This is stri
 
 | Metric | Value |
 |---|---:|
-| `exported_netlist_nodes` | 452 |
-| `pin_intent_roles` | 452 |
+| `exported_netlist_nodes` | 456 |
+| `pin_intent_roles` | 456 |
 | `missing_pin_intent_roles` | 0 |
 
 ## Net Inventory
@@ -365,15 +352,15 @@ Total exported nets: **139**.
 | `MPD_RAW2` | `J4.4` `4`, `LD2.3` `PD_A`, `R44.1`, `U12.5` `IN+2` | Raw internal monitor-photodiode anode node from J4 into the 750 ohm high-side sense resistor and INA4180 IN+ pin. |
 | `MPD_RAW3` | `J4.6` `6`, `LD3.3` `PD_A`, `R46.1`, `U12.10` `IN+3` | Raw internal monitor-photodiode anode node from J4 into the 750 ohm high-side sense resistor and INA4180 IN+ pin. |
 | `MPD_RAW4` | `J4.8` `8`, `R48.1`, `U12.12` `IN+4` | Spare/open blue-channel monitor input at J4 and INA4180 channel 4; PLT5 450GB has no monitor photodiode. |
-| `Net-(D1-A)` | `C1.1`, `D1.2` `A`, `R1.1`, `U1.2` `-` | TIA summing node: SFH2201 anode, OPA380 inverting input, feedback R/C low side. |
+| `Net-(D1-A)` | `C1.1`, `D1.2` `A`, `RV5.1`, `U1.2` `-` | TIA summing node: SFH2201 anode, OPA380 inverting input, feedback R/C low side. |
 | `Net-(D1-K)` | `C3.1`, `D1.1` `K`, `R2.2` | SFH2201 cathode reverse-bias node: +5V through RB and local bypass CB. |
 | `Net-(D10-A)` | `D10.2` `A`, `J1.1` `VBUS` | Copied MCU-sheet Mini-B VBUS before 1N5819HW isolation diode into the board VBUS_5V net. |
 | `Net-(D13-A)` | `D13.2` `A`, `J2.1` `VBUS` | Copied MCU-sheet Mini-B VBUS before 1N5819HW isolation diode into the board VBUS_5V net. |
-| `Net-(D2-A)` | `C5.1`, `D2.2` `A`, `R5.1`, `U2.2` `-` | TIA summing node: SFH2201 anode, OPA380 inverting input, feedback R/C low side. |
+| `Net-(D2-A)` | `C5.1`, `D2.2` `A`, `RV6.1`, `U2.2` `-` | TIA summing node: SFH2201 anode, OPA380 inverting input, feedback R/C low side. |
 | `Net-(D2-K)` | `C7.1`, `D2.1` `K`, `R6.2` | SFH2201 cathode reverse-bias node: +5V through RB and local bypass CB. |
-| `Net-(D3-A)` | `C9.1`, `D3.2` `A`, `R9.1`, `U3.2` `-` | TIA summing node: SFH2201 anode, OPA380 inverting input, feedback R/C low side. |
+| `Net-(D3-A)` | `C9.1`, `D3.2` `A`, `RV7.1`, `U3.2` `-` | TIA summing node: SFH2201 anode, OPA380 inverting input, feedback R/C low side. |
 | `Net-(D3-K)` | `C11.1`, `D3.1` `K`, `R10.2` | SFH2201 cathode reverse-bias node: +5V through RB and local bypass CB. |
-| `Net-(D4-A)` | `C13.1`, `D4.2` `A`, `R13.1`, `U4.2` `-` | TIA summing node: SFH2201 anode, OPA380 inverting input, feedback R/C low side. |
+| `Net-(D4-A)` | `C13.1`, `D4.2` `A`, `RV8.1`, `U4.2` `-` | TIA summing node: SFH2201 anode, OPA380 inverting input, feedback R/C low side. |
 | `Net-(D4-K)` | `C15.1`, `D4.1` `K`, `R14.2` | SFH2201 cathode reverse-bias node: +5V through RB and local bypass CB. |
 | `Net-(Q1-G)` | `Q1.1` `G`, `R17.2` | AO3400A gate node after TLV9001 output resistor. |
 | `Net-(Q2-G)` | `Q2.1` `G`, `R22.2` | AO3400A gate node after TLV9001 output resistor. |
@@ -405,10 +392,10 @@ Total exported nets: **139**.
 | `PWM3` | `R30.1`, `U9.20` `GPIO12/TOUCH12/ADC2_CH1/FSPICLK/FSPIIO6/SUBSPICLK` | ESP32 PWM command into one laser-driver input resistor. |
 | `PWM4` | `R35.1`, `U9.9` `GPIO16/U0CTS/ADC2_CH5/XTAL_32K_N` | ESP32 PWM command into one laser-driver input resistor. |
 | `VBUS_5V` | `C41.1`, `C42.1`, `D10.1` `K`, `D13.1` `K`, `D14.2` `A2`, `D5.1` `A`, `D9.2` `A2`, `R55.2` | USB connector VBUS, USBLC6 VBUS clamp reference, and D5 anode into +5V OR-ing. |
-| `VOUT1` | `C1.2`, `J3.1` `1`, `R1.2`, `U1.6` | OPA380 TIA output and feedback high side to external AD7606 header. |
-| `VOUT2` | `C5.2`, `J3.2` `2`, `R5.2`, `U2.6` | OPA380 TIA output and feedback high side to external AD7606 header. |
-| `VOUT3` | `C9.2`, `J3.3` `3`, `R9.2`, `U3.6` | OPA380 TIA output and feedback high side to external AD7606 header. |
-| `VOUT4` | `C13.2`, `J3.4` `4`, `R13.2`, `U4.6` | OPA380 TIA output and feedback high side to external AD7606 header. |
+| `VOUT1` | `C1.2`, `J3.1` `1`, `RV5.2` `W`, `RV5.3`, `U1.6` | OPA380 TIA output and feedback high side to external AD7606 header. |
+| `VOUT2` | `C5.2`, `J3.2` `2`, `RV6.2` `W`, `RV6.3`, `U2.6` | OPA380 TIA output and feedback high side to external AD7606 header. |
+| `VOUT3` | `C9.2`, `J3.3` `3`, `RV7.2` `W`, `RV7.3`, `U3.6` | OPA380 TIA output and feedback high side to external AD7606 header. |
+| `VOUT4` | `C13.2`, `J3.4` `4`, `RV8.2` `W`, `RV8.3`, `U4.6` | OPA380 TIA output and feedback high side to external AD7606 header. |
 | `unconnected-(J1-ID-Pad4)` | `J1.4` `ID` | Intentional no-connect from generated schematic. |
 | `unconnected-(J2-ID-Pad4)` | `J2.4` `ID` | Intentional no-connect from generated schematic. |
 | `unconnected-(LD4-CASE-Pad2)` | `LD4.2` `CASE` | Intentional no-connect from generated schematic. |
@@ -560,11 +547,11 @@ Total schematic components: **151**.
 | `C15` | `/TIA_BLUE/` | 1uF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `C7472946` | `HGC0402R5105K250NTEJ` |
 | `C16` | `/TIA_BLUE/` | 10uF | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `C318691` | `CL21A106KAYNNNG` |
 | `D4` | `/TIA_BLUE/` | SFH2201 | `OptoDevice:Osram_SFH2201` | `C2900216` | `SFH2201` |
-| `R13` | `/TIA_BLUE/` | 10M | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C844730` | `CRCW060310M0FKEA` |
 | `R14` | `/TIA_BLUE/` | 1k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2907002` | `FRC0603F1001TS` |
 | `R15` | `/TIA_BLUE/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C844918` | `CRCW060310K0FKEA` |
 | `R16` | `/TIA_BLUE/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C844918` | `CRCW060310K0FKEA` |
 | `RV4` | `/TIA_BLUE/` | VBIAS 10k | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `C81348` | `3224W-1-103E` |
+| `RV8` | `/TIA_BLUE/` | RF 2M | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `C116323` | `3224W-1-205E` |
 | `U4` | `/TIA_BLUE/` | OPA380AID | `Package_SO:SOIC-8_3.9x4.9mm_P1.27mm` | `C201677` | `OPA380AID` |
 | `C10` | `/TIA_GREEN/` | 100nF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `C83056` | `0402B104K160CT` |
 | `C11` | `/TIA_GREEN/` | 1uF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `C7472946` | `HGC0402R5105K250NTEJ` |
@@ -574,30 +561,30 @@ Total schematic components: **151**.
 | `R10` | `/TIA_GREEN/` | 1k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2907002` | `FRC0603F1001TS` |
 | `R11` | `/TIA_GREEN/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C844918` | `CRCW060310K0FKEA` |
 | `R12` | `/TIA_GREEN/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C844918` | `CRCW060310K0FKEA` |
-| `R9` | `/TIA_GREEN/` | 10M | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C844730` | `CRCW060310M0FKEA` |
 | `RV3` | `/TIA_GREEN/` | VBIAS 10k | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `C81348` | `3224W-1-103E` |
+| `RV7` | `/TIA_GREEN/` | RF 2M | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `C116323` | `3224W-1-205E` |
 | `U3` | `/TIA_GREEN/` | OPA380AID | `Package_SO:SOIC-8_3.9x4.9mm_P1.27mm` | `C201677` | `OPA380AID` |
 | `C1` | `/TIA_IR/` | 10pF C0G | `Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder` | `C106245` | `CC0603JRNPO9BN100` |
 | `C2` | `/TIA_IR/` | 100nF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `C83056` | `0402B104K160CT` |
 | `C3` | `/TIA_IR/` | 1uF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `C7472946` | `HGC0402R5105K250NTEJ` |
 | `C4` | `/TIA_IR/` | 10uF | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `C318691` | `CL21A106KAYNNNG` |
 | `D1` | `/TIA_IR/` | SFH2201 | `OptoDevice:Osram_SFH2201` | `C2900216` | `SFH2201` |
-| `R1` | `/TIA_IR/` | 10M | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C844730` | `CRCW060310M0FKEA` |
 | `R2` | `/TIA_IR/` | 1k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2907002` | `FRC0603F1001TS` |
 | `R3` | `/TIA_IR/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C844918` | `CRCW060310K0FKEA` |
 | `R4` | `/TIA_IR/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C844918` | `CRCW060310K0FKEA` |
 | `RV1` | `/TIA_IR/` | VBIAS 10k | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `C81348` | `3224W-1-103E` |
+| `RV5` | `/TIA_IR/` | RF 2M | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `C116323` | `3224W-1-205E` |
 | `U1` | `/TIA_IR/` | OPA380AID | `Package_SO:SOIC-8_3.9x4.9mm_P1.27mm` | `C201677` | `OPA380AID` |
 | `C5` | `/TIA_RED/` | 10pF C0G | `Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder` | `C106245` | `CC0603JRNPO9BN100` |
 | `C6` | `/TIA_RED/` | 100nF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `C83056` | `0402B104K160CT` |
 | `C7` | `/TIA_RED/` | 1uF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `C7472946` | `HGC0402R5105K250NTEJ` |
 | `C8` | `/TIA_RED/` | 10uF | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `C318691` | `CL21A106KAYNNNG` |
 | `D2` | `/TIA_RED/` | SFH2201 | `OptoDevice:Osram_SFH2201` | `C2900216` | `SFH2201` |
-| `R5` | `/TIA_RED/` | 10M | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C844730` | `CRCW060310M0FKEA` |
 | `R6` | `/TIA_RED/` | 1k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2907002` | `FRC0603F1001TS` |
 | `R7` | `/TIA_RED/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C844918` | `CRCW060310K0FKEA` |
 | `R8` | `/TIA_RED/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C844918` | `CRCW060310K0FKEA` |
 | `RV2` | `/TIA_RED/` | VBIAS 10k | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `C81348` | `3224W-1-103E` |
+| `RV6` | `/TIA_RED/` | RF 2M | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `C116323` | `3224W-1-205E` |
 | `U2` | `/TIA_RED/` | OPA380AID | `Package_SO:SOIC-8_3.9x4.9mm_P1.27mm` | `C201677` | `OPA380AID` |
 
 ## Pin Coverage By Physical Reference
@@ -681,11 +668,9 @@ Each row is a globally unique schematic/PCB designator. No repeated hierarchical
 | `Q4` | `/LASER_BLUE/` | AO3400A | `Package_TO_SOT_SMD:SOT-23` | `1` `G` -> `Net-(Q4-G)`<br>`2` `S` -> `/LASER_BLUE/FB`<br>`3` `D` -> `LASER_N4` | `1` / `Net-(Q4-G)`: AO3400A gate driven through 1k from TLV9001 loop output.<br>`2` / `/LASER_BLUE/FB`: AO3400A source at the laser current-sense feedback node.<br>`3` / `LASER_N4`: AO3400A drain as low-side laser cathode sink. |
 | `Q5` | `/MCU_ESP32-S3/` | Q_L8050QLT1G | `Package_TO_SOT_SMD:SOT-23` | `1` `B` -> `Net-(Q5-B)`<br>`2` `E` -> `/MCU_ESP32-S3/RTS`<br>`3` `C` -> `/MCU_ESP32-S3/EN` | `1` / `Net-(Q5-B)`: Copied CP2102 RTS/DTR transistor-network pin for ESP32 EN/GPIO0 sequencing.<br>`2` / `/MCU_ESP32-S3/RTS`: Copied CP2102 RTS/DTR transistor-network pin for ESP32 EN/GPIO0 sequencing.<br>`3` / `/MCU_ESP32-S3/EN`: Copied CP2102 RTS/DTR transistor-network pin for ESP32 EN/GPIO0 sequencing. |
 | `Q6` | `/MCU_ESP32-S3/` | Q_L8550HQLT1G | `Package_TO_SOT_SMD:SOT-23` | `1` `B` -> `Net-(Q6-B)`<br>`2` `E` -> `/MCU_ESP32-S3/PROG`<br>`3` `C` -> `/MCU_ESP32-S3/DTR` | `1` / `Net-(Q6-B)`: Copied CP2102 RTS/DTR transistor-network pin for ESP32 EN/GPIO0 sequencing.<br>`2` / `/MCU_ESP32-S3/PROG`: Copied CP2102 RTS/DTR transistor-network pin for ESP32 EN/GPIO0 sequencing.<br>`3` / `/MCU_ESP32-S3/DTR`: Copied CP2102 RTS/DTR transistor-network pin for ESP32 EN/GPIO0 sequencing. |
-| `R1` | `/TIA_IR/` | 10M | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `Net-(D1-A)`<br>`2` -> `VOUT1` | `1` / `Net-(D1-A)`: Resistor pin participating in: TIA summing node: SFH2201 anode, OPA380 inverting input, feedback R/C low side.<br>`2` / `VOUT1`: Resistor pin participating in: OPA380 TIA output and feedback high side to external AD7606 header. |
 | `R10` | `/TIA_GREEN/` | 1k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `+5V`<br>`2` -> `Net-(D3-K)` | `1` / `+5V`: Resistor pin participating in: Board 5 V rail after USB/external Schottky OR-ing; feeds analog, laser-driver op amps, and 3V3 LDO input.<br>`2` / `Net-(D3-K)`: Resistor pin participating in: SFH2201 cathode reverse-bias node: +5V through RB and local bypass CB. |
 | `R11` | `/TIA_GREEN/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `Net-(RV3-W)`<br>`2` -> `Net-(U3-+)` | `1` / `Net-(RV3-W)`: Resistor pin participating in: TIA VBIAS trimmer wiper through R1 into filtered OPA380 non-inverting input.<br>`2` / `Net-(U3-+)`: Resistor pin participating in: OPA380 non-inverting VBIAS node after trim/filter. |
 | `R12` | `/TIA_GREEN/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `+5V`<br>`2` -> `Net-(R12-Pad2)` | `1` / `+5V`: Resistor pin participating in: Board 5 V rail after USB/external Schottky OR-ing; feeds analog, laser-driver op amps, and 3V3 LDO input.<br>`2` / `Net-(R12-Pad2)`: TIA VBIAS trim upper node between the +5V limiting resistor and the Bourns trimmer high side. |
-| `R13` | `/TIA_BLUE/` | 10M | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `Net-(D4-A)`<br>`2` -> `VOUT4` | `1` / `Net-(D4-A)`: Resistor pin participating in: TIA summing node: SFH2201 anode, OPA380 inverting input, feedback R/C low side.<br>`2` / `VOUT4`: Resistor pin participating in: OPA380 TIA output and feedback high side to external AD7606 header. |
 | `R14` | `/TIA_BLUE/` | 1k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `+5V`<br>`2` -> `Net-(D4-K)` | `1` / `+5V`: Resistor pin participating in: Board 5 V rail after USB/external Schottky OR-ing; feeds analog, laser-driver op amps, and 3V3 LDO input.<br>`2` / `Net-(D4-K)`: Resistor pin participating in: SFH2201 cathode reverse-bias node: +5V through RB and local bypass CB. |
 | `R15` | `/TIA_BLUE/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `Net-(RV4-W)`<br>`2` -> `Net-(U4-+)` | `1` / `Net-(RV4-W)`: Resistor pin participating in: TIA VBIAS trimmer wiper through R1 into filtered OPA380 non-inverting input.<br>`2` / `Net-(U4-+)`: Resistor pin participating in: OPA380 non-inverting VBIAS node after trim/filter. |
 | `R16` | `/TIA_BLUE/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `+5V`<br>`2` -> `Net-(R16-Pad2)` | `1` / `+5V`: Resistor pin participating in: Board 5 V rail after USB/external Schottky OR-ing; feeds analog, laser-driver op amps, and 3V3 LDO input.<br>`2` / `Net-(R16-Pad2)`: TIA VBIAS trim upper node between the +5V limiting resistor and the Bourns trimmer high side. |
@@ -721,7 +706,6 @@ Each row is a globally unique schematic/PCB designator. No repeated hierarchical
 | `R47` | `/POWER_IO/` | 1k ADC | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `/POWER_IO/MPD_AMP3`<br>`2` -> `MPD3` | `1` / `/POWER_IO/MPD_AMP3`: Monitor-PD ADC isolation resistor INA4180 output side.<br>`2` / `MPD3`: Monitor-PD ADC isolation resistor filtered ADC side. |
 | `R48` | `/POWER_IO/` | 750R MPD sense | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `MPD_RAW4`<br>`2` -> `/POWER_IO/MPD_BIAS` | `1` / `MPD_RAW4`: Monitor-PD sense resistor raw laser-harness side.<br>`2` / `/POWER_IO/MPD_BIAS`: Monitor-PD sense resistor MPD_BIAS side. |
 | `R49` | `/POWER_IO/` | 1k ADC | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `/POWER_IO/MPD_AMP4`<br>`2` -> `MPD4` | `1` / `/POWER_IO/MPD_AMP4`: Monitor-PD ADC isolation resistor INA4180 output side.<br>`2` / `MPD4`: Monitor-PD ADC isolation resistor filtered ADC side. |
-| `R5` | `/TIA_RED/` | 10M | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `Net-(D2-A)`<br>`2` -> `VOUT2` | `1` / `Net-(D2-A)`: Resistor pin participating in: TIA summing node: SFH2201 anode, OPA380 inverting input, feedback R/C low side.<br>`2` / `VOUT2`: Resistor pin participating in: OPA380 TIA output and feedback high side to external AD7606 header. |
 | `R50` | `/MCU_ESP32-S3/` | 10K | `Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder` | `1` -> `/MCU_ESP32-S3/DTR`<br>`2` -> `Net-(Q5-B)` | `1` / `/MCU_ESP32-S3/DTR`: Resistor pin participating in: CP2102N DTR output feeding the copied auto-boot/reset transistor network.<br>`2` / `Net-(Q5-B)`: Resistor pin participating in: Copied CP2102N RTS/DTR transistor base-drive node for ESP32 EN/GPIO0 auto-reset sequencing. |
 | `R51` | `/MCU_ESP32-S3/` | 10K | `Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder` | `1` -> `/MCU_ESP32-S3/RTS`<br>`2` -> `Net-(Q6-B)` | `1` / `/MCU_ESP32-S3/RTS`: Resistor pin participating in: CP2102N RTS output feeding the copied auto-reset transistor network.<br>`2` / `Net-(Q6-B)`: Resistor pin participating in: Copied CP2102N RTS/DTR transistor base-drive node for ESP32 EN/GPIO0 auto-reset sequencing. |
 | `R52` | `/MCU_ESP32-S3/` | 10K | `Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder` | `1` -> `+3V3`<br>`2` -> `/MCU_ESP32-S3/FACT` | `1` / `+3V3`: Resistor pin participating in: ESP32-S3 3.3 V rail from AP2112K output, plus MCU reset/boot pulls and decoupling.<br>`2` / `/MCU_ESP32-S3/FACT`: Resistor pin participating in: Copied access-controller factory button net on ESP32-S3 GPIO1 with 10 k pull-up. |
@@ -736,11 +720,14 @@ Each row is a globally unique schematic/PCB designator. No repeated hierarchical
 | `R60` | `/MCU_ESP32-S3/` | 10K | `Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder` | `1` -> `/MCU_ESP32-S3/IO13`<br>`2` -> `+3V3` | `1` / `/MCU_ESP32-S3/IO13`: Resistor pin participating in: Copied access-controller ESP32-S3 GPIO strap/support net with local 10 k pull-up.<br>`2` / `+3V3`: Resistor pin participating in: ESP32-S3 3.3 V rail from AP2112K output, plus MCU reset/boot pulls and decoupling. |
 | `R7` | `/TIA_RED/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `Net-(RV2-W)`<br>`2` -> `Net-(U2-+)` | `1` / `Net-(RV2-W)`: Resistor pin participating in: TIA VBIAS trimmer wiper through R1 into filtered OPA380 non-inverting input.<br>`2` / `Net-(U2-+)`: Resistor pin participating in: OPA380 non-inverting VBIAS node after trim/filter. |
 | `R8` | `/TIA_RED/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `+5V`<br>`2` -> `Net-(R8-Pad2)` | `1` / `+5V`: Resistor pin participating in: Board 5 V rail after USB/external Schottky OR-ing; feeds analog, laser-driver op amps, and 3V3 LDO input.<br>`2` / `Net-(R8-Pad2)`: TIA VBIAS trim upper node between the +5V limiting resistor and the Bourns trimmer high side. |
-| `R9` | `/TIA_GREEN/` | 10M | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `Net-(D3-A)`<br>`2` -> `VOUT3` | `1` / `Net-(D3-A)`: Resistor pin participating in: TIA summing node: SFH2201 anode, OPA380 inverting input, feedback R/C low side.<br>`2` / `VOUT3`: Resistor pin participating in: OPA380 TIA output and feedback high side to external AD7606 header. |
 | `RV1` | `/TIA_IR/` | VBIAS 10k | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `1` -> `Net-(R4-Pad2)`<br>`2` `W` -> `Net-(RV1-W)`<br>`3` -> `GND` | `1` / `Net-(R4-Pad2)`: TIA VBIAS trim upper node between the +5V limiting resistor and the Bourns trimmer high side.<br>`2` / `Net-(RV1-W)`: Bourns trimmer wiper feeding the OPA380 VBIAS resistor.<br>`3` / `GND`: Bourns trimmer low-side return to GND. |
 | `RV2` | `/TIA_RED/` | VBIAS 10k | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `1` -> `Net-(R8-Pad2)`<br>`2` `W` -> `Net-(RV2-W)`<br>`3` -> `GND` | `1` / `Net-(R8-Pad2)`: TIA VBIAS trim upper node between the +5V limiting resistor and the Bourns trimmer high side.<br>`2` / `Net-(RV2-W)`: Bourns trimmer wiper feeding the OPA380 VBIAS resistor.<br>`3` / `GND`: Bourns trimmer low-side return to GND. |
 | `RV3` | `/TIA_GREEN/` | VBIAS 10k | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `1` -> `Net-(R12-Pad2)`<br>`2` `W` -> `Net-(RV3-W)`<br>`3` -> `GND` | `1` / `Net-(R12-Pad2)`: TIA VBIAS trim upper node between the +5V limiting resistor and the Bourns trimmer high side.<br>`2` / `Net-(RV3-W)`: Bourns trimmer wiper feeding the OPA380 VBIAS resistor.<br>`3` / `GND`: Bourns trimmer low-side return to GND. |
 | `RV4` | `/TIA_BLUE/` | VBIAS 10k | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `1` -> `Net-(R16-Pad2)`<br>`2` `W` -> `Net-(RV4-W)`<br>`3` -> `GND` | `1` / `Net-(R16-Pad2)`: TIA VBIAS trim upper node between the +5V limiting resistor and the Bourns trimmer high side.<br>`2` / `Net-(RV4-W)`: Bourns trimmer wiper feeding the OPA380 VBIAS resistor.<br>`3` / `GND`: Bourns trimmer low-side return to GND. |
+| `RV5` | `/TIA_IR/` | RF 2M | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `1` -> `Net-(D1-A)`<br>`2` `W` -> `VOUT1`<br>`3` -> `VOUT1` | `1` / `Net-(D1-A)`: Bourns feedback trimmer low side tied to the OPA380 summing node.<br>`2` / `VOUT1`: Bourns feedback trimmer wiper tied to the OPA380 output side for rheostat fail-safe behavior.<br>`3` / `VOUT1`: Bourns feedback trimmer output-side terminal tied to OPA380 output and AD7606 header. |
+| `RV6` | `/TIA_RED/` | RF 2M | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `1` -> `Net-(D2-A)`<br>`2` `W` -> `VOUT2`<br>`3` -> `VOUT2` | `1` / `Net-(D2-A)`: Bourns feedback trimmer low side tied to the OPA380 summing node.<br>`2` / `VOUT2`: Bourns feedback trimmer wiper tied to the OPA380 output side for rheostat fail-safe behavior.<br>`3` / `VOUT2`: Bourns feedback trimmer output-side terminal tied to OPA380 output and AD7606 header. |
+| `RV7` | `/TIA_GREEN/` | RF 2M | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `1` -> `Net-(D3-A)`<br>`2` `W` -> `VOUT3`<br>`3` -> `VOUT3` | `1` / `Net-(D3-A)`: Bourns feedback trimmer low side tied to the OPA380 summing node.<br>`2` / `VOUT3`: Bourns feedback trimmer wiper tied to the OPA380 output side for rheostat fail-safe behavior.<br>`3` / `VOUT3`: Bourns feedback trimmer output-side terminal tied to OPA380 output and AD7606 header. |
+| `RV8` | `/TIA_BLUE/` | RF 2M | `Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical` | `1` -> `Net-(D4-A)`<br>`2` `W` -> `VOUT4`<br>`3` -> `VOUT4` | `1` / `Net-(D4-A)`: Bourns feedback trimmer low side tied to the OPA380 summing node.<br>`2` / `VOUT4`: Bourns feedback trimmer wiper tied to the OPA380 output side for rheostat fail-safe behavior.<br>`3` / `VOUT4`: Bourns feedback trimmer output-side terminal tied to OPA380 output and AD7606 header. |
 | `SW1` | `/MCU_ESP32-S3/` | SW_PUSH | `Button_Switch_SMD:SW_SPST_PTS645` | `1` `1` -> `/MCU_ESP32-S3/EN`<br>`2` `2` -> `GND` | `1` / `/MCU_ESP32-S3/EN`: Copied MCU pushbutton signal contact.<br>`2` / `GND`: Copied MCU pushbutton ground contact. |
 | `SW2` | `/MCU_ESP32-S3/` | SW_PUSH | `Button_Switch_SMD:SW_SPST_PTS645` | `1` `1` -> `/MCU_ESP32-S3/PROG`<br>`2` `2` -> `GND` | `1` / `/MCU_ESP32-S3/PROG`: Copied MCU pushbutton signal contact.<br>`2` / `GND`: Copied MCU pushbutton ground contact. |
 | `SW3` | `/MCU_ESP32-S3/` | SW_PUSH | `Button_Switch_SMD:SW_SPST_PTS645` | `1` `1` -> `/MCU_ESP32-S3/FACT`<br>`2` `2` -> `GND` | `1` / `/MCU_ESP32-S3/FACT`: Copied MCU pushbutton signal contact.<br>`2` / `GND`: Copied MCU pushbutton ground contact. |

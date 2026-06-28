@@ -105,14 +105,6 @@ RES_RATINGS = {
         package="0603",
         source="LCSC C844918 / Vishay CRCW060310K0FKEA page: 10k, 100mW, 75V, +/-1%, +/-100ppm/C.",
     ),
-    "CRCW060310M0FKEA": ResistorRating(
-        value="10M",
-        power_w=0.10,
-        voltage_v=75.0,
-        tolerance="+/-1%",
-        package="0603",
-        source="LCSC C844730 / Vishay CRCW060310M0FKEA page: 10M, 100mW, 75V, +/-1%, +/-100ppm/C.",
-    ),
     "0603WAF220JT5E": ResistorRating(
         value="22R",
         power_w=0.10,
@@ -193,6 +185,14 @@ RES_RATINGS = {
         package="4mm SMD trimmer",
         source="Bourns 3224 datasheet: 0.25W at 85C, 300V max, +/-10%, +/-100ppm/C.",
     ),
+    "3224W-1-205E": ResistorRating(
+        value="2M trimmer",
+        power_w=0.25,
+        voltage_v=300.0,
+        tolerance="+/-10%",
+        package="4mm SMD trimmer",
+        source="Bourns 3224 datasheet and LCSC C116323 order source: 2M, 0.25W at 85C, 300V max.",
+    ),
 }
 
 
@@ -234,6 +234,12 @@ def resistor_stress(comp: dict[str, str]) -> ResistorStress:
             voltage_v=5.0,
             reason="conservative full 5V across 10k VBIAS trim element",
         )
+    if mpn == "3224W-1-205E":
+        return ResistorStress(
+            power_w=5.0 * 5.0 / 2_000_000.0,
+            voltage_v=5.0,
+            reason="conservative full 5V across 2M TIA feedback trim element",
+        )
     if value == "22R USB":
         return ResistorStress(
             power_w=0.0,
@@ -262,7 +268,6 @@ def resistor_stress(comp: dict[str, str]) -> ResistorStress:
         "22.1K": 22_100.0,
         "30k LIMIT": 30_000.0,
         "47.5K": 47_500.0,
-        "10M": 10_000_000.0,
     }.get(value)
     if resistance_ohms is None:
         return ResistorStress(

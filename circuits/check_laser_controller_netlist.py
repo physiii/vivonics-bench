@@ -183,10 +183,10 @@ def main() -> int:
         "CB": ("1uF", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "HGC0402R5105K250NTEJ", "C7472946"),
         "D1": ("SFH2201", "OptoDevice:Osram_SFH2201", "SFH2201", "C2900216"),
         "R1": ("10k", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "CRCW060310K0FKEA", "C844918"),
-        "R2": ("10M", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "CRCW060310M0FKEA", "C844730"),
         "RB": ("1k", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "FRC0603F1001TS", "C2907002"),
         "RT": ("10k", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "CRCW060310K0FKEA", "C844918"),
         "RV11": ("VBIAS 10k", "Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical", "3224W-1-103E", "C81348"),
+        "RVFB": ("RF 2M", "Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical", "3224W-1-205E", "C116323"),
         "U1": ("OPA380AID", "Package_SO:SOIC-8_3.9x4.9mm_P1.27mm", "OPA380AID", "C201677"),
     }
     laser_components = {
@@ -243,10 +243,21 @@ def main() -> int:
         "C3V3BULK": ("10uF", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
         "D10": ("SS14", "Diode_SMD:D_SMA", "SS14", "C2480"),
         "D11": ("SS14", "Diode_SMD:D_SMA", "SS14", "C2480"),
-        "J1": ("AD7606 out", "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical", "", ""),
+        "J1": ("ADC debug", "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical", "", ""),
         "J2": ("EXT 5V", "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical", "", ""),
         "J4": ("LASER+MPD out", "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical", "", ""),
         "J5": ("LASER PSU", "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical", "", ""),
+        "UADC": ("AD7606BSTZ-4", "Package_QFP:LQFP-64_10x10mm_P0.5mm", "AD7606BSTZ-4RL", "C51512"),
+        "CADCAV1": ("100nF ADC AVCC", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
+        "CADCAV2": ("100nF ADC AVCC", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
+        "CADCAV3": ("100nF ADC AVCC", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
+        "CADCAV4": ("100nF ADC AVCC", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
+        "CADCDRV": ("100nF ADC VDRIVE", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
+        "CADCBULK": ("10uF ADC AVCC", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
+        "CREG1": ("1uF ADC REGCAP", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "HGC0402R5105K250NTEJ", "C7472946"),
+        "CREG2": ("1uF ADC REGCAP", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "HGC0402R5105K250NTEJ", "C7472946"),
+        "CREFIN": ("10uF ADC REF", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
+        "CREFCAP": ("10uF ADC REFCAP", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
         "RBIAS": ("2.49k MPD bias", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "CRCW06032K49FKEAHP", "C2099849"),
         "U3V3": ("AP2112K-3.3", "Package_TO_SOT_SMD:SOT-23-5", "AP2112K-3.3TRG1", "C51118"),
         "UMPD": ("INA4180A1", "Package_SO:TSSOP-14_4.4x5mm_P0.65mm", "INA4180A1IPWR", "C2057528"),
@@ -365,6 +376,73 @@ def main() -> int:
     for pin, function in [("1", "K"), ("2", "A"), ("3", "*")]:
         expect_pin(ref_for("POWER_IO", "UREF"), pin, function, "passive")
     for pin, function, pintype in [
+        ("1", "AVCC", "power_in"),
+        ("2", "AGND", "power_in"),
+        ("3", "OS0", "input"),
+        ("4", "OS1", "input"),
+        ("5", "OS2", "input"),
+        ("6", "PAR/SER/BYTE_SEL", "input"),
+        ("7", "STBY", "input"),
+        ("8", "RANGE", "input"),
+        ("9", "CONVSTA", "input"),
+        ("10", "CONVSTB", "input"),
+        ("11", "RESET", "input"),
+        ("12", "RD/SCLK", "input"),
+        ("13", "CS", "input"),
+        ("14", "BUSY", "output"),
+        ("15", "FRSTDATA", "output+no_connect"),
+        ("16", "DB0", "input"),
+        ("17", "DB1", "input"),
+        ("18", "DB2", "input"),
+        ("19", "DB3", "input"),
+        ("20", "DB4", "input"),
+        ("21", "DB5", "input"),
+        ("22", "DB6", "input"),
+        ("23", "VDRIVE", "power_in"),
+        ("24", "DB7/DOUTA", "output"),
+        ("25", "DB8/DOUTB", "output"),
+        ("26", "AGND", "power_in"),
+        ("27", "DB9", "input"),
+        ("28", "DB10", "input"),
+        ("29", "DB11", "input"),
+        ("30", "DB12", "input"),
+        ("31", "DB13", "input"),
+        ("32", "DB14/HBEN", "input"),
+        ("33", "DB15/BYTE_SEL", "input"),
+        ("34", "REF_SELECT", "input"),
+        ("35", "AGND", "power_in"),
+        ("36", "REGCAP", "passive"),
+        ("37", "AVCC", "power_in"),
+        ("38", "AVCC", "power_in"),
+        ("39", "REGCAP", "passive"),
+        ("40", "AGND", "power_in"),
+        ("41", "AGND", "power_in"),
+        ("42", "REFIN/REFOUT", "passive"),
+        ("43", "REFGND", "power_in"),
+        ("44", "REFCAPA", "passive"),
+        ("45", "REFCAPB", "passive"),
+        ("46", "REFGND", "power_in"),
+        ("47", "AGND", "power_in"),
+        ("48", "AVCC", "power_in"),
+        ("49", "V1", "input"),
+        ("50", "V1GND", "power_in"),
+        ("51", "V2", "input"),
+        ("52", "V2GND", "power_in"),
+        ("53", "AGND", "power_in"),
+        ("54", "AGND", "power_in"),
+        ("55", "AGND", "power_in"),
+        ("56", "AGND", "power_in"),
+        ("57", "V3", "input"),
+        ("58", "V3GND", "power_in"),
+        ("59", "V4", "input"),
+        ("60", "V4GND", "power_in"),
+        ("61", "AGND", "power_in"),
+        ("62", "AGND", "power_in"),
+        ("63", "AGND", "power_in"),
+        ("64", "AGND", "power_in"),
+    ]:
+        expect_pin(ref_for("POWER_IO", "UADC"), pin, function, pintype)
+    for pin, function, pintype in [
         ("1", "GND", "power_in"),
         ("2", "3V3", "power_in"),
         ("3", "EN", "input"),
@@ -438,7 +516,8 @@ def main() -> int:
     usb_uart_j = "J1"
     usb_native_j = "J2"
     cp2102 = "U10"
-    ad7606_j = ref_for("POWER_IO", "J1")
+    adc_debug_j = ref_for("POWER_IO", "J1")
+    adc = ref_for("POWER_IO", "UADC")
     ext5_j = ref_for("POWER_IO", "J2")
     d_usb = ref_for("POWER_IO", "D10")
     d_ext = ref_for("POWER_IO", "D11")
@@ -558,16 +637,30 @@ def main() -> int:
     for index, (color, esp_pin) in enumerate(zip(WL, ["18", "19", "20", "9"]), 1):
         exact(f"PWM{index}", [(ref_for(f"LASER_{color}", "R21"), "1"), ("U9", esp_pin)])
 
-    # Board interfaces: external ADC, laser harness, laser PSU, and 5V input OR-ing.
+    # Board interfaces: on-board signal ADC, debug header, laser harness,
+    # laser PSU, and 5V input OR-ing.
+    adc_input_pin = {1: "49", 2: "51", 3: "57", 4: "59"}
     for index, (color, j1_pin) in enumerate(zip(WL, ["1", "2", "3", "4"]), 1):
         sheet = f"TIA_{color}"
         exact(f"VOUT{index}", [
             (ref_for(sheet, "C1"), "2"),
-            (ad7606_j, j1_pin),
-            (ref_for(sheet, "R2"), "2"),
+            (adc_debug_j, j1_pin),
+            (ref_for(sheet, "RVFB"), "2"),
+            (ref_for(sheet, "RVFB"), "3"),
             (ref_for(sheet, "U1"), "6"),
+            (adc, adc_input_pin[index]),
         ])
-    exact("CONVST", [(ad7606_j, "5"), ("U9", "8")])
+    exact("CONVST", [(adc_debug_j, "5"), (adc, "9"), (adc, "10"), ("U9", "8")])
+    exact("ADC_SCLK", [(adc, "12"), ("U9", "10")])
+    exact("ADC_CS", [(adc, "13"), ("U9", "11")])
+    exact("ADC_MISO_A", [(adc, "24"), ("U9", "23")])
+    exact("ADC_MISO_B", [(adc, "25"), ("U9", "31")])
+    exact("ADC_BUSY", [(adc, "14"), ("U9", "24")])
+    exact("ADC_RESET", [(adc, "11"), ("U9", "25")])
+    exact(f"Net-({ref_for('POWER_IO', 'CREG1')}-Pad1)", [(ref_for("POWER_IO", "CREG1"), "1"), (adc, "36")])
+    exact(f"Net-({ref_for('POWER_IO', 'CREG2')}-Pad1)", [(ref_for("POWER_IO", "CREG2"), "1"), (adc, "39")])
+    exact(f"Net-({adc}-REFIN{{slash}}REFOUT)", [(ref_for("POWER_IO", "CREFIN"), "1"), (adc, "42")])
+    exact(f"Net-({adc}-REFCAPA)", [(ref_for("POWER_IO", "CREFCAP"), "1"), (adc, "44"), (adc, "45")])
     laser_vplus_nodes = [("J4", "9"), ("J5", "1"), (mpd_ref, "1"), (ref_for("POWER_IO", "CREF"), "1")]
     for color in ("IR", "RED", "GREEN"):
         laser_vplus_nodes.append((ref_for(f"LASER_{color}", "LD"), "2"))
@@ -586,6 +679,15 @@ def main() -> int:
         (ref_for("POWER_IO", "C3V3IN"), "1"),
         (ldo, "1"),
         (ldo, "3"),
+        (adc, "1"),
+        (adc, "37"),
+        (adc, "38"),
+        (adc, "48"),
+        (ref_for("POWER_IO", "CADCAV1"), "1"),
+        (ref_for("POWER_IO", "CADCAV2"), "1"),
+        (ref_for("POWER_IO", "CADCAV3"), "1"),
+        (ref_for("POWER_IO", "CADCAV4"), "1"),
+        (ref_for("POWER_IO", "CADCBULK"), "1"),
     }
     plus3v3_nodes: set[tuple[str, str]] = {
         ("U9", "2"),
@@ -604,6 +706,11 @@ def main() -> int:
         (cp2102, "7"),
         (ina_mpd, "4"),
         (ref_for("POWER_IO", "CINA"), "1"),
+        (adc, "6"),
+        (adc, "7"),
+        (adc, "23"),
+        (adc, "34"),
+        (ref_for("POWER_IO", "CADCDRV"), "1"),
     }
     gnd_nodes: set[tuple[str, str]] = {
         (usb_uart_j, "5"),
@@ -614,7 +721,7 @@ def main() -> int:
         (cp2102, "3"),
         (cp2102, "29"),
         (ldo, "2"),
-        (ad7606_j, "6"),
+        (adc_debug_j, "6"),
         (ext5_j, "2"),
         ("J4", "10"),
         ("J5", "2"),
@@ -643,6 +750,54 @@ def main() -> int:
         ("SW1", "2"),
         ("SW2", "2"),
         ("SW3", "2"),
+        (adc, "2"),
+        (adc, "3"),
+        (adc, "4"),
+        (adc, "5"),
+        (adc, "8"),
+        (adc, "16"),
+        (adc, "17"),
+        (adc, "18"),
+        (adc, "19"),
+        (adc, "20"),
+        (adc, "21"),
+        (adc, "22"),
+        (adc, "26"),
+        (adc, "27"),
+        (adc, "28"),
+        (adc, "29"),
+        (adc, "30"),
+        (adc, "31"),
+        (adc, "32"),
+        (adc, "33"),
+        (adc, "35"),
+        (adc, "40"),
+        (adc, "41"),
+        (adc, "43"),
+        (adc, "46"),
+        (adc, "47"),
+        (adc, "50"),
+        (adc, "52"),
+        (adc, "53"),
+        (adc, "54"),
+        (adc, "55"),
+        (adc, "56"),
+        (adc, "58"),
+        (adc, "60"),
+        (adc, "61"),
+        (adc, "62"),
+        (adc, "63"),
+        (adc, "64"),
+        (ref_for("POWER_IO", "CADCAV1"), "2"),
+        (ref_for("POWER_IO", "CADCAV2"), "2"),
+        (ref_for("POWER_IO", "CADCAV3"), "2"),
+        (ref_for("POWER_IO", "CADCAV4"), "2"),
+        (ref_for("POWER_IO", "CADCDRV"), "2"),
+        (ref_for("POWER_IO", "CADCBULK"), "2"),
+        (ref_for("POWER_IO", "CREG1"), "2"),
+        (ref_for("POWER_IO", "CREG2"), "2"),
+        (ref_for("POWER_IO", "CREFIN"), "2"),
+        (ref_for("POWER_IO", "CREFCAP"), "2"),
     }
     for color in WL:
         tia_sheet = f"TIA_{color}"
@@ -688,7 +843,7 @@ def main() -> int:
         exact(f"Net-({ref_for(sheet, 'D1')}-A)", [
             (ref_for(sheet, "C1"), "1"),
             (ref_for(sheet, "D1"), "2"),
-            (ref_for(sheet, "R2"), "1"),
+            (ref_for(sheet, "RVFB"), "1"),
             (ref_for(sheet, "U1"), "2"),
         ])
         exact(f"Net-({ref_for(sheet, 'D1')}-K)", [
@@ -715,22 +870,17 @@ def main() -> int:
         (usb_native_j, "4"),
         (ldo, "4"),  # AP2112 SOT-23-5 NC pin.
         (ref_for("LASER_BLUE", "LD"), "2"),  # PLT5 450GB case pin is not tied to MPD_RAW4.
+        (adc, "15"),  # FRSTDATA is unused in two-wire serial readout.
     }
     for color in WL:
         tia_ref = ref_for(f"TIA_{color}", "U1")
         allowed_single_node_pins.update({(tia_ref, "1"), (tia_ref, "5"), (tia_ref, "8")})
     for pin in [
-        "10",
-        "11",
         "16",
-        "23",
-        "24",
-        "25",
         "26",
         "28",
         "29",
         "30",
-        "31",
         "32",
         "33",
         "34",
@@ -788,7 +938,7 @@ def main() -> int:
     }
     checks.append((not multi_net_pins, "physical pin appears on one net only", f"{multi_net_pins}"))
 
-    hand_add_refs = {ad7606_j, "J4", "J5", ext5_j} | {
+    hand_add_refs = {adc_debug_j, "J4", "J5", ext5_j} | {
         ref_for(f"LASER_{color}", "LD") for color in WL
     }
     assembled = [comp for comp in comps if comp["ref"] not in hand_add_refs]
@@ -797,21 +947,21 @@ def main() -> int:
         for comp in assembled
         if not comp["lcsc"] or not comp["mpn"] or not comp["footprint"]
     ]
-    hand_refs_without_laser_mpns = {ad7606_j, "J4", "J5", ext5_j}
+    hand_refs_without_laser_mpns = {adc_debug_j, "J4", "J5", ext5_j}
     hand_with_fields = [
         comp
         for comp in comps
         if comp["ref"] in hand_refs_without_laser_mpns and (comp["lcsc"] or comp["mpn"])
     ]
-    checks.append((len(comps) == 151, "component count", f"got {len(comps)}, expected 151"))
-    checks.append((len(assembled) == 143, "assembled component count", f"got {len(assembled)}, expected 143"))
+    checks.append((len(comps) == 162, "component count", f"got {len(comps)}, expected 162"))
+    checks.append((len(assembled) == 154, "assembled component count", f"got {len(assembled)}, expected 154"))
     checks.append((not missing_fields, "assembled component fields", f"missing {missing_fields}"))
     checks.append((not hand_with_fields, "hand-add field exclusion", f"unexpected fields {hand_with_fields}"))
 
     expected_lcsc_counts = {
         "C106245": 8,
-        "C83056": 16,
-        "C318691": 9,
+        "C83056": 21,
+        "C318691": 12,
         "C201677": 4,
         "C20917": 4,
         "C2907002": 16,
@@ -829,8 +979,9 @@ def main() -> int:
         "C51118": 1,
         "C5123624": 4,
         "C5199850": 6,
-        "C7472946": 12,
-        "C844730": 4,
+        "C7472946": 14,
+        "C51512": 1,
+        "C116323": 4,
         "C81348": 4,
         "C82544": 2,
         "C46391": 2,

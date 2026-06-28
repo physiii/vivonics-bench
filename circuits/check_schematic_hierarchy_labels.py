@@ -23,6 +23,12 @@ TIA_CHILD_LABELS = {"V_OUT": "output"}
 LASER_CHILD_LABELS = {"PWM_IN": "input", "LASER_N": "output", "ISENSE": "output", "MPD_RAW": "output"}
 LASER_BLUE_CHILD_LABELS = {"PWM_IN": "input", "LASER_N": "output", "ISENSE": "output"}
 MCU_CHILD_LABELS = {
+    "IO47": "input",
+    "IO38": "input",
+    "IO17": "output",
+    "IO48": "output",
+    "IO18": "output",
+    "IO21": "input",
     "IO9": "input",
     "IO10": "output",
     "I2C_DATA": "input",
@@ -57,11 +63,23 @@ MCU_ROOT_PINS = {
     "IO15": "output",
     "5V": "output",
     "3V3": "input",
+    "IO17": "output",
+    "IO18": "output",
+    "IO21": "input",
+    "IO38": "input",
+    "IO47": "input",
+    "IO48": "output",
 }
 POWER_IO_CHILD_LABELS = {
     **{f"VOUT{i}": "input" for i in range(1, 5)},
     "CONVST": "input",
     "VBUS_5V": "input",
+    "ADC_SCLK": "input",
+    "ADC_CS": "input",
+    "ADC_MISO_A": "output",
+    "ADC_MISO_B": "output",
+    "ADC_BUSY": "output",
+    "ADC_RESET": "input",
     **{f"LASER_N{i}": "input" for i in range(1, 5)},
     **{f"MPD_RAW{i}": "input" for i in range(1, 5)},
     **{f"MPD{i}": "output" for i in range(1, 5)},
@@ -110,6 +128,12 @@ EXPECTED_ROOT_GLOBAL_COUNTS = Counter(
         "CONVST": 2,
         "VBUS_5V": 2,
         "+3V3": 1,
+        "ADC_SCLK": 2,
+        "ADC_CS": 2,
+        "ADC_MISO_A": 2,
+        "ADC_MISO_B": 2,
+        "ADC_BUSY": 2,
+        "ADC_RESET": 2,
     }
 )
 

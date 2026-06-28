@@ -1,6 +1,7 @@
 Comment,Designator,Footprint,LCSC
 "10pF C0G","C1,C5,C9,C13,C19,C22,C25,C28","Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder","C106245"
 "750R MPD sense","R42,R44,R46,R48","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C114635"
+"RF 2M","RV5,RV6,RV7,RV8","Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical","C116323"
 "SW_PUSH","SW1,SW2,SW3","Button_Switch_SMD:SW_SPST_PTS645","C127509"
 "10K","R59,R52,R58,R60,R53,R50,R51,R54","Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder","C191123"
 "OPA380AID","U1,U2,U3,U4","Package_SO:SOIC-8_3.9x4.9mm_P1.27mm","C201677"
@@ -16,6 +17,9 @@ Comment,Designator,Footprint,LCSC
 "ESP32-S3-WROOM-1","U9","Espressif:ESP32-S3-WROOM-1","C2913199"
 "22.1K","R55","Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder","C2929993"
 "10uF","C4,C8,C12,C16,C34,C50","Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder","C318691"
+"10uF ADC AVCC","C56","Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder","C318691"
+"10uF ADC REF","C59","Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder","C318691"
+"10uF ADC REFCAP","C60","Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder","C318691"
 "C_10uF","C41,C47,C42","Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder","C318691"
 "Q_L8550HQLT1G","Q6","Package_TO_SOT_SMD:SOT-23","C39282"
 "TLV9001","U5,U6,U7,U8","Package_TO_SOT_SMD:SOT-23-5","C398363"
@@ -23,21 +27,24 @@ Comment,Designator,Footprint,LCSC
 "Q_L8050QLT1G","Q5","Package_TO_SOT_SMD:SOT-23","C49581"
 "AP2112K-3.3","U11","Package_TO_SOT_SMD:SOT-23-5","C51118"
 "10R 2W","R18,R23,R28,R33","Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder","C5123624"
+"AD7606BSTZ-4","U14","Package_QFP:LQFP-64_10x10mm_P0.5mm","C51512"
 "ESD_5V","D7,D14,D9,D11,D12,D8","Diode_SMD:D_SOD-523","C5199850"
 "LM4040C50 5V","U13","Package_TO_SOT_SMD:SOT-23","C69316"
 "1uF","C3,C7,C11,C15,C18,C21,C24,C27,C48,C46,C44,C45","Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder","C7472946"
+"1uF ADC REGCAP","C57,C58","Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder","C7472946"
 "VBIAS 10k","RV1,RV2,RV3,RV4","Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical","C81348"
 "D_1N5819HW","D13,D10","Diode_SMD:D_SOD-123","C82544"
 "100nF","C2,C6,C10,C14,C17,C20,C23,C26,C49,C35,C43","Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder","C83056"
+"100nF ADC AVCC","C51,C52,C53,C54","Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder","C83056"
+"100nF ADC VDRIVE","C55","Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder","C83056"
 "100nF MPD ADC","C37,C38,C39,C40","Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder","C83056"
 "100nF MPD bias","C36","Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder","C83056"
-"10M","R1,R5,R9,R13","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C844730"
 "10k","R4,R3,R8,R7,R12,R11,R16,R15,R20,R25,R30,R35","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C844918"
 "1K","R57","Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder","C852624"
 "CP2102N-Axx-xQFN28","U10","Package_DFN_QFN:QFN-28-1EP_5x5mm_P0.5mm_EP3.35x3.35mm","C964632"
 #
 # Hand-add / not in SMT assembly:
-#   1x AD7606 out  ()
+#   1x ADC debug  ()
 #   1x D6505I 650nm TO18 STYLE-A LASER+MPD  (D6505I)
 #   1x D7805I 780nm TO18 STYLE-A LASER+MPD  (D7805I)
 #   1x EXT 5V  ()
@@ -45,6 +52,6 @@ Comment,Designator,Footprint,LCSC
 #   1x LASER+MPD out  ()
 #   1x PLT5 450GB TO56 LASER CASE  (PLT5 450GB)
 #   1x PLT5 520EB_P TO56 LASER+MPD  (PLT5 520EB_P)
-# SMT placements: 143.  Designators are generated uniquely by the schematic generator.
+# SMT placements: 154.  Designators are generated uniquely by the schematic generator.
 # NOTE: BOM LCSC codes were refreshed against live LCSC product pages on 2026-06-28.
 # NOTE: SFH2201 (C2900216) clear broadband Si PIN PD — covers blue/green/red/IR; JLCPCB Extended (one-time feeder fee).

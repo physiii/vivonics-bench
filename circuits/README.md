@@ -4,9 +4,10 @@ Bench controller for the bR index/phase read. **One optical channel, four wavele
 (IR / RED / GREEN / BLUE). Each wavelength has a precision **constant-current laser sink**
 (with current-sense feedback) and one **on-board Osram SFH2201 clear Si PIN photodiode**
 reverse-biased into an **OPA380 transimpedance amp**. The four TIA outputs go to the
-external **AD7606**. An **ESP32-S3-WROOM-1** real-time co-processor drives the 4 PWM laser
+on-board **AD7606BSTZ-4**. An **ESP32-S3-WROOM-1** real-time co-processor drives the 4 PWM laser
 controls, reads the 4 current-sense voltages and 4 internal laser monitor-photodiode
-voltages on its own ADC pins, issues hardware-timed **CONVST** to the AD7606, is programmed
+voltages on its own ADC pins, issues hardware-timed **CONVST** to the AD7606, clocks the
+AD7606 serial outputs, is programmed
 and powered over **native USB (Mini-B)**, and talks to the Raspberry Pi over **UART**.
 
 **Why a single PD per wavelength (not a quad/centroid PD):** the production reader is a
@@ -51,7 +52,7 @@ python3 gen_laser_controller.py
 | `tia_ir.kicad_sch`, `tia_red.kicad_sch`, `tia_green.kicad_sch`, `tia_blue.kicad_sch` | Four on-board PD + OPA380 TIA sheets with globally unique designators. |
 | `laser_ir.kicad_sch`, `laser_red.kicad_sch`, `laser_green.kicad_sch`, `laser_blue.kicad_sch` | Four constant-current laser sink sheets with globally unique designators; each sheet has a direct through-hole TO-can footprint in parallel with the J4 harness option so `LD_K`, common `LD_A/PD_K/case`, and `PD_A -> MPD_RAW` are visible. |
 | `mcu.kicad_sch` | ESP32-S3-WROOM-1 + AP2112K-3.3 LDO + USB Mini-B + USBLC6 ESD + EN R/C + UART header. |
-| `power_io.kicad_sch` | 5V OR-ing, laser supply, AD7606 output header, laser + monitor-PD output header, and shared INA4180/LM4040 monitor-PD front end. |
+| `power_io.kicad_sch` | 5V OR-ing, laser supply, on-board AD7606-4 signal ADC, ADC debug header, laser + monitor-PD output header, and shared INA4180/LM4040 monitor-PD front end. |
 | `laser_controller_bom_jlcpcb.csv` | Full generated JLCPCB BOM (Comment, Designator, Footprint, LCSC). |
 | `laser_controller.kicad_pro` | KiCad 7 project file. |
 | `LASER_MONITOR_PD_FEEDBACK.md` | Design note for the internal laser monitor photodiode feedback path and production APC implications. |
@@ -71,8 +72,8 @@ the JLCPCB BOM exports straight from the `LCSC` column.
 PD + TIA CHANNEL (×4 = IR / RED / GREEN / BLUE)  — on-board, no off-board optics header
   Osram SFH2201 clear Si PIN PD (D1):  cathode → +5V via RB(1k)+CB bypass = reverse bias
         anode → OPA380AID −IN (summing node)
-  Rf = R2 (10M fixed) ∥ Cf = C1 (10pF) → ~1.6 kHz pole ;  +IN = VBIAS (RV11 10k trim + RC)
-  V_OUT = VBIAS + I_pd·Rf  →  external AD7606 (J3)
+  Rf = RVFB (2M feedback trim, wiper tied to output side) ∥ Cf = C1 (10pF) ;  +IN = VBIAS (RV11 10k trim + RC)
+  V_OUT = VBIAS + I_pd·Rf  →  U14 AD7606BSTZ-4 on-board ADC, mirrored on J3 debug header
 
 LASER DRIVER (×4, one per wavelength)
   PWM_IN → 10k/1µF filter with 30k pulldown limiter → TLV9001(+) ; TLV9001 OUT →
@@ -88,14 +89,15 @@ MCU  ESP32-S3-WROOM-1 (2.4 GHz Wi-Fi 802.11 b/g/n / Bluetooth LE / native USB)
   USB Mini-B (J1) → USBLC6-2SC6 ESD → 22Ω series resistors → native USB-Serial/JTAG
   (D+ = GPIO20 / module pin 14, D− = GPIO19 / module pin 13)
   4× PWM → laser drivers · 4× ISENSE ← laser current-sense · 4× MPD ← internal monitor PDs ·
-  CONVST → AD7606 · UART/EN/BOOT (J2) → Raspberry Pi
+  CONVST/SCLK/CS/RESET → AD7606 · BUSY/DOUTA/DOUTB ← AD7606 · UART/EN/BOOT (J2) → Raspberry Pi
   VDD3P3 from AP2112K-3.3 LDO (bench/no-RF thermal policy only) ; EN pulled up + 100nF ;
   GPIO0/BOOT pulled up and exposed on J2
 
 POWER / IO
   +5V  = USB VBUS  ‖  J6 external 5V, OR-ed via SS14 Schottkys (D5/D6) ; PWR_FLAGs declare sources
   +3V3 = AP2112K-3.3   ·   LASER_V+ = J5 (separate laser-anode rail)
-  J3 (1×06) → AD7606 (VOUT1..4 + CONVST + GND)
+  U14 AD7606BSTZ-4RL → VOUT1..4, CONVST, SCLK, CS, BUSY, RESET, DOUTA, DOUTB
+  J3 (1×06) → ADC debug mirror (VOUT1..4 + CONVST + GND)
   J4 (1×10) → laser diodes + monitor PDs: LASER_N/MPD_RAW pairs + LASER_V+ + GND
   MPD_RAWx -> 750R sense -> MPD_BIAS ; INA4180A1 gain 20 -> 1k/100nF -> MPDx ESP32 ADC
   LM4040C50 holds LASER_V+ - MPD_BIAS near 5V for PLT5-style/A-code monitor diodes
@@ -126,12 +128,13 @@ hand-added through-hole headers and direct laser-can footprints.
 | U11 | AP2112K-3.3 (SOT-23-5) | **C51118** | Basic | 3V3 LDO for bench USB/UART with RF disabled; sustained Wi-Fi/BLE needs a buck or measured duty-cycle proof. |
 | U12 | INA4180A1IPWR (TSSOP-14) | **C2057528** | — | quad high-side monitor-PD current-sense amplifier, gain 20. |
 | U13 | LM4040C50IDBZR (SOT-23-3) | **C69316** | — | 5.0 V shunt reference for `MPD_BIAS`; DBZ pin 3 tied to anode. |
+| U14 | AD7606BSTZ-4RL (LQFP-64) | **C51512** | Extended | 4-channel simultaneous signal-PD ADC; `VOUT1..4` into V1/V2/V3/V4, serial readback to ESP32. |
 | U9 | **ESP32-S3-WROOM-1** | **C2913199** | Extended | MCU — exact C-number used on the access-controller; native USB. |
 | D1–D4 | **Osram SFH2201** photodiode | **C2900216** | Extended | on-board clear Si PIN PD, 300–1100 nm (`OptoDevice:Osram_SFH2201`). One per wavelength. |
 | Q1–Q4 | AO3400A N-MOSFET (SOT-23) | **C20917** | Basic | laser low-side sink pass device. |
 | D5–D6 | SS14 (SMA) | **C2480** | Basic | 5V OR-ing Schottky, 40V/1A. |
-| RV1–RV4 | 10k SMD trimmer | **C81348** | Extended | VBIAS, Bourns **3224W-1-103** (SMD, JLCPCB-mountable). |
-| R (10M) | 10M 0603 1% | **C844730** | — | **fixed Rf** — no 10M SMD trimmer exists, so the gain resistor is a value-select SMT part. |
+| RV1–RV4 | 10k SMD trimmer | **C81348** | Extended | VBIAS, Bourns **3224W-1-103E** (SMD, JLCPCB-mountable). |
+| RV5–RV8 | 2M SMD trimmer | **C116323** | Extended | TIA feedback trim, Bourns **3224W-1-205E**, wiper tied to OPA380 output side. |
 | R (10k) | 10k 0603 1% | **C844918** | — | VBIAS / EN / BOOT pull-up resistors. |
 | R (750Ω) | 750Ω 0603 1% | **C114635** | — | monitor-PD high-side sense resistors. |
 | R (2.49k) | 2.49k 0603 1% | **C2099849** | — | LM4040/`MPD_BIAS` sink resistor. |
@@ -153,7 +156,7 @@ hand-added through-hole headers and direct laser-can footprints.
 | LD2 | D6505I, `OptoDevice:LaserDiode_TO18-D5.6-3` | Direct red laser can option; electrically in parallel with J4 channel 2. |
 | LD3 | PLT5 520EB_P, `OptoDevice:LaserDiode_TO56-3` | Direct green laser can option; electrically in parallel with J4 channel 3. |
 | LD4 | PLT5 450GB, `OptoDevice:LaserDiode_TO56-3` | Direct blue laser can option; case pad is intentionally no-connect; electrically in parallel with J4 channel 4 except `MPD_RAW4` stays spare/open. |
-| J3 | 1×06 THT header | AD7606 out: VOUT1..4 + CONVST + GND. |
+| J3 | 1×06 THT header | ADC debug mirror: VOUT1..4 + CONVST + GND. |
 | J4 | 1×10 THT header | laser + monitor out: LASER_N/MPD_RAW pairs + LASER_V+ + GND. |
 | J6 | 1×02 THT header | external +5V in. |
 | J5 | 1×02 THT header | laser-anode supply (LASER_V+). |
@@ -161,12 +164,12 @@ hand-added through-hole headers and direct laser-can footprints.
 
 ## ⚠ Before PCB layout — required pin-accuracy pass
 
-Connectivity is validated by KiCad **netlist export — 114 exported nets, zero unintended tied
+Connectivity is validated by KiCad **netlist export — 144 exported nets, zero unintended tied
 bench signals**. The USB `ID` pin, LDO `NC` pin, OPA380 `NC` pins 1/5/8, and unused ESP32-S3
 pads are deliberate no-connects; `check_laser_controller_netlist.py` now fails any single-node
 exported net outside that explicit no-connect allowlist. It also asserts exact value/footprint/MPN/LCSC
-identity for all 122 schematic components and package pin functions for the datasheet-sensitive
-parts: OPA380, TLV9001, AP2112K, USBLC6, ESP32-S3-WROOM-1, INA4180, LM4040, AO3400A,
+identity for all 162 schematic components and package pin functions for the datasheet-sensitive
+parts: OPA380, TLV9001, AP2112K, USBLC6, ESP32-S3-WROOM-1, INA4180, LM4040, AD7606, AO3400A,
 SFH2201, SS14, and USB Mini-B. It also asserts exact `+5V`, `+3V3`, and `GND` rail membership so broad power
 rails cannot hide a stray or missing power pin. The review file
 `review/2026-06-25_datasheet_pin_matrix.md` summarizes the datasheet pin decisions and the
@@ -178,8 +181,8 @@ and package-sensitive KiCad footprint files; secondary distributor/order sources
 warnings rather than silent assumptions, and vendor-CDN probe failures such as ST remain
 explicit manual release-time checks.
 `check_schematic_hierarchy_labels.py` separately enforces the intended root/child-sheet
-interface: 10 root sheets, typed sheet pins, 52 whitelisted root global labels,
-52 typed child hierarchical labels, and zero child-sheet global labels.
+interface: 10 root sheets, typed sheet pins, the whitelisted root global labels,
+matching typed child hierarchical labels, and zero child-sheet global labels.
 `check_schematic_presentation.py` separately enforces reviewability of the generated sheets:
 net labels must clear symbol bodies, visible reference/value text, and other labels, generated
 wire segments must not pass through component bodies, and every generated wire endpoint must land
@@ -296,9 +299,11 @@ datasheet-check before routing:
 - **ESP32 EN/BOOT** — EN has 10 k pull-up + 100 nF POR cap; GPIO0/BOOT has 10 k pull-up
   and is exposed on J2 for forced download/bring-up.
 
-**Still verify (firmware/host side):** AD7606 RANGE pin — the unipolar 0–5 V TIA output suits
-the **±5 V** range on a base AD7606 (or use AD7606B/C 0–5 V); keep per-laser current ≲ 250 mA
-so `I·10Ω` stays inside the ESP32 ADC window.
+**Still verify (firmware side):** U14 straps `RANGE` low for the base AD7606 **±5 V**
+input range, `REF_SELECT` high for the internal reference, and `OS0..2` low for no
+oversampling. Confirm ESP32 timing, serial readback mode, and scale conversion before
+trusting bench readings; keep per-laser current ≲ 250 mA so `I·10Ω` stays inside the
+ESP32 ADC window.
 
 The generator emits globally unique schematic references before KiCad netlist export. Do not
 reintroduce repeated sheet-local designators; `circuit_designators.py` is the translation layer
@@ -314,7 +319,8 @@ between readable logical route names and physical component references.
 - Keep `MPD_RAW1..4` and `MPD_BIAS` away from laser cathode switching/current traces;
   place the 750 ohm sense resistors, INA4180, LM4040, bias sink, and ADC filters close
   to the laser connector or quiet ADC entry path.
-- Enable AD7606 oversampling (OS0–2) for a free sinc anti-alias + averaging stage.
+- If firmware needs AD7606 oversampling, change the U14 `OS0..2` straps intentionally;
+  the current schematic ties them low for no oversampling.
 - ISENSE headroom: I_laser·10Ω must stay inside the ESP32 ADC range (≈0–3.1 V with 11 dB
   atten) — keep per-channel current ≲ 250 mA, or drop R_sense on a high-current channel.
 - **ESP32-S3 antenna keep-out**: no copper pour / parts in the module antenna zone (toward the

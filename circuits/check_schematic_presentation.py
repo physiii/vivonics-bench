@@ -206,6 +206,9 @@ def symbol_body_box(lib_id: str, x: float, y: float) -> Box | None:
     sym = gen.SYM.get(sym_name)
     if not sym or sym.get("power"):
         return None
+    if "body_box" in sym:
+        left, top, right, bottom = sym["body_box"]
+        return Box(x + left, y - top, x + right, y - bottom)
     points = [pt for poly in sym["glyph"] for pt in poly]
     if not points:
         return None

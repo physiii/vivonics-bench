@@ -190,7 +190,7 @@ NET_CLASS_SPECS = OrderedDict([
         "via_drill": 0.30,
     }),
     ("Digital_Control", {
-        "description": "ESP32 UART, reset/boot, and AD7606 conversion-start logic nets.",
+        "description": "ESP32 UART, reset/boot, and AD7606 serial/control logic nets.",
         "clearance": 0.20,
         "trace_width": 0.25,
         "via_dia": 0.60,
@@ -245,7 +245,8 @@ def classify_net(net_name):
         or net_name.endswith("/LOUT")
     ):
         return "Laser_Control"
-    if net_name in {"CONVST", "/MCU_ESP32-S3/ESP_BOOT", "/MCU_ESP32-S3/ESP_EN", "/MCU_ESP32-S3/ESP_RX", "/MCU_ESP32-S3/ESP_TX"}:
+    if net_name in {"CONVST", "ADC_SCLK", "ADC_CS", "ADC_MISO_A", "ADC_MISO_B", "ADC_BUSY", "ADC_RESET",
+                    "/MCU_ESP32-S3/ESP_BOOT", "/MCU_ESP32-S3/ESP_EN", "/MCU_ESP32-S3/ESP_RX", "/MCU_ESP32-S3/ESP_TX"}:
         return "Digital_Control"
     return "Default"
 
@@ -321,7 +322,7 @@ def load_components():
 
 TIA_ORDER = ["TIA_IR", "TIA_RED", "TIA_GREEN", "TIA_BLUE"]
 LASER_ORDER = ["LASER_IR", "LASER_RED", "LASER_GREEN", "LASER_BLUE"]
-TIA_REFS = {"C1","C2","C11","CB","D1","R1","R2","RB","RT","RV11","U1"}
+TIA_REFS = {"C1","C2","C11","CB","D1","R1","RB","RT","RV11","RVFB","U1"}
 LASER_REFS = {"C21","C22","CC","Q1","R11","R12","R21","R22","R31","U11"}
 
 def channel_sheet(prefix, index_text):
@@ -408,7 +409,7 @@ def make_ref_counters():
         return f"{prefix}{ctr[prefix]}"
     return ctr, assign
 
-ROLE_IC=('SOIC-8','SOT-23-5','SOT-23-6','SOT-23','TSSOP','D_SMA')
+    ROLE_IC=('SOIC-8','SOT-23-5','SOT-23-6','SOT-23','TSSOP','LQFP','D_SMA')
 
 def build_board(emit_routes=False):
     global COMPONENT_KEYS
@@ -468,7 +469,7 @@ def build_board(emit_routes=False):
         rows = max(1, (len(physical_parts) + cols - 1) // cols)
         return y + rows * dy + 12.0
 
-    tia_order = ["D1", "RB", "CB", "U1", "R2", "C1", "C2", "RT", "RV11", "R1", "C11"]
+    tia_order = ["D1", "RB", "CB", "U1", "RVFB", "C1", "C2", "RT", "RV11", "R1", "C11"]
     laser_order = ["U11", "R31", "Q1", "R11", "R12", "C22", "R21", "R22", "C21", "CC", "LD"]
     mcu_order = [
         "U9", "C43", "C41", "C42", "C44", "R54", "R59", "R60",
@@ -480,7 +481,9 @@ def build_board(emit_routes=False):
     power_io_order = [
         "D10", "D11", "J2", "J5", "C50",
         "U3V3", "C3V3IN", "C3V3OUT", "C3V3BULK",
-        "J1", "J4", "UMPD", "UREF", "CINA", "CREF", "RBIAS",
+        "J1", "UADC", "CADCBULK", "CADCAV1", "CADCAV2", "CADCAV3", "CADCAV4", "CADCDRV",
+        "CREG1", "CREG2", "CREFIN", "CREFCAP",
+        "J4", "UMPD", "UREF", "CINA", "CREF", "RBIAS",
         "RMPD1", "RADC1", "CMPD1", "RMPD2", "RADC2", "CMPD2", "RMPD3", "RADC3", "CMPD3",
         "RMPD4", "RADC4", "CMPD4",
     ]
