@@ -113,14 +113,18 @@ def write_report(results: list[StepResult], release_blocked: bool) -> None:
             lines.extend(line.rstrip() for line in result.output[-REPORT_OUTPUT_TAIL_CHARS:].splitlines())
             lines.append("```")
         lines.append("")
+    while lines and lines[-1] == "":
+        lines.pop()
     REPORT_PATH.write_text("\n".join(line.rstrip() for line in lines) + "\n")
 
 
 def normalize_existing_report() -> None:
     if not REPORT_PATH.exists():
         return
-    text = REPORT_PATH.read_text()
-    REPORT_PATH.write_text("\n".join(line.rstrip() for line in text.splitlines()) + "\n")
+    lines = [line.rstrip() for line in REPORT_PATH.read_text().splitlines()]
+    while lines and lines[-1] == "":
+        lines.pop()
+    REPORT_PATH.write_text("\n".join(lines) + "\n")
 
 
 def main() -> int:
@@ -141,9 +145,11 @@ def main() -> int:
         "circuits/pcb_critical_routes.py",
         "circuits/check_laser_controller_netlist.py",
         "circuits/check_laser_controller_pcb.py",
+        "circuits/check_pcb_staging.py",
         "circuits/check_laser_controller_release_gate.py",
         "circuits/check_laser_controller_release_readiness.py",
         "circuits/check_schematic_hierarchy_labels.py",
+        "circuits/check_schematic_presentation.py",
         "circuits/check_power_thermal_budget.py",
         "circuits/check_laser_current_budget.py",
         "circuits/check_laser_monitor_pd_budget.py",
@@ -177,6 +183,11 @@ def main() -> int:
             ["python3", "circuits/check_schematic_hierarchy_labels.py", "circuits/laser_controller.kicad_sch"],
             {},
         ),
+        (
+            "Schematic presentation assertions",
+            ["python3", "circuits/check_schematic_presentation.py", "circuits/laser_controller.kicad_sch"],
+            {},
+        ),
         ("Source-register assertions", ["python3", "circuits/check_laser_controller_sources.py", str(NETLIST_PATH)], {}),
         ("Part-note completeness assertions", ["python3", "circuits/check_part_notes_completeness.py"], {}),
         ("Source-document evidence", ["python3", "circuits/check_source_documents.py"], {}),
@@ -193,10 +204,10 @@ def main() -> int:
             {},
         ),
         (
-            "PCB assertions",
+            "PCB staging assertions",
             [
                 "python3",
-                "circuits/check_laser_controller_pcb.py",
+                "circuits/check_pcb_staging.py",
                 "circuits/laser_controller.kicad_pcb",
                 str(NETLIST_PATH),
             ],
@@ -213,10 +224,9 @@ def main() -> int:
             {
                 "blocked_codes": {1},
                 "blocked_note": (
-                    "Generated signal/control copper passes the custom PCB gate; "
-                    "+5V/GND rail-zone signoff still requires a bulk +5V bridge "
-                    "into the routed laser-driver +5V trunk, KiCad refill, DRC, and return-path "
-                    "review before fabrication."
+                    "The current PCB artifact is intentionally placement-only: components are "
+                    "staged outside the outline with pad nets, but routing, zones, KiCad refill, "
+                    "DRC, and return-path review remain future fabrication work."
                 ),
             },
         ),
@@ -227,13 +237,13 @@ def main() -> int:
             {"expected_codes": {1}},
         ),
         (
-            "PLT5 green laser-current policy",
-            ["python3", "circuits/check_laser_current_budget.py", "--policy", "plt5-520b-green-10v5"],
+            "Green high-Vf laser-current thermal reference",
+            ["python3", "circuits/check_laser_current_budget.py", "--policy", "green-high-vf-10v5"],
             {},
         ),
         (
-            "PLT5 monitor-PD high-side bias policy",
-            ["python3", "circuits/check_laser_monitor_pd_budget.py", "--policy", "plt5-520b-green-10v5"],
+            "PLT5 520EB_P monitor-PD high-side bias policy",
+            ["python3", "circuits/check_laser_monitor_pd_budget.py", "--policy", "plt5-520ebp-green-10v5"],
             {},
         ),
         (
@@ -242,8 +252,8 @@ def main() -> int:
             {},
         ),
         (
-            "PLT5 12V laser-current expected fail",
-            ["python3", "circuits/check_laser_current_budget.py", "--policy", "plt5-520b-green-12v"],
+            "Green high-Vf 12V laser-current expected fail",
+            ["python3", "circuits/check_laser_current_budget.py", "--policy", "green-high-vf-12v"],
             {"expected_codes": {1}},
         ),
         (

@@ -1,4 +1,4 @@
-# ESP32-S3-WROOM-1-N16R8 Part Note
+# ESP32-S3-WROOM-1-N16 Part Note
 
 Sources:
 - Espressif ESP32-S3-WROOM-1/WROOM-1U datasheet:

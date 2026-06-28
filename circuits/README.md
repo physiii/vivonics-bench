@@ -34,9 +34,10 @@ python3 gen_laser_controller.py
 |---|---|
 | `gen_laser_controller.py` | Generator for root, TIA, laser-driver, MCU, power/IO sheets + BOM. |
 | `adapt_mcu.py` | Compatibility wrapper that regenerates only the clean bench MCU sheet; it no longer copies access-controller circuitry. |
-| `gen_pcb.py` | Placement + pad-net generator (reads the exported KiCad netlist, embeds footprints, assigns PCB pad nets; review wrapper runs it with strict/capped route search). |
+| `gen_pcb.py` | Placement-staging generator: keeps only the 90 x 50 mm board outline, stages schematic footprints outside the outline, and assigns PCB pad nets for manual placement/ratsnest work. |
 | `check_laser_controller_pcb.py` | Board-level guardrail: verifies generated PCB pad nets against the exported schematic netlist. |
 | `check_schematic_hierarchy_labels.py` | Schematic hierarchy/label guardrail: verifies root sheet pins, pin directions, child hierarchical label shapes, and intentional root global-label whitelist. |
+| `check_schematic_presentation.py` | Schematic presentation guardrail: verifies generated net labels clear symbols/text/other labels, generated wires do not enter symbol bodies, and symbol pin anchors/strokes touch their glyphs. |
 | `check_laser_controller_sources.py` | Source/register guardrail: verifies every exported MPN/LCSC token is represented in the source register or part notes, every exported net has a specific electrical-intent mapping, and every exported component pin has a component-pin-level role. |
 | `check_part_notes_completeness.py` | Part-note guardrail: verifies critical datasheet notes still carry pinout, layout, risk, and checker-evidence phrases. |
 | `check_source_documents.py` | Source-document guardrail: verifies required datasheet/manufacturer URLs and required local source/footprint artifacts are present; reports secondary/distributor source risks and vendor-CDN probe failures as warnings. |
@@ -48,7 +49,7 @@ python3 gen_laser_controller.py
 | `run_laser_controller_review.py` | One-command review wrapper for available gates, open release blockers, and KiCad ERC/DRC availability reporting. |
 | `laser_controller.kicad_sch` | Root sheet — sheet symbols + global-label interconnect (A2). |
 | `tia_ir.kicad_sch`, `tia_red.kicad_sch`, `tia_green.kicad_sch`, `tia_blue.kicad_sch` | Four on-board PD + OPA380 TIA sheets with globally unique designators. |
-| `laser_ir.kicad_sch`, `laser_red.kicad_sch`, `laser_green.kicad_sch`, `laser_blue.kicad_sch` | Four constant-current laser sink sheets with globally unique designators; each sheet also shows the off-board 3-pin laser can model so `LD_K`, common `LD_A/PD_K/case`, and `PD_A -> MPD_RAW` are visible. |
+| `laser_ir.kicad_sch`, `laser_red.kicad_sch`, `laser_green.kicad_sch`, `laser_blue.kicad_sch` | Four constant-current laser sink sheets with globally unique designators; each sheet has a direct through-hole TO-can footprint in parallel with the J4 harness option so `LD_K`, common `LD_A/PD_K/case`, and `PD_A -> MPD_RAW` are visible. |
 | `mcu.kicad_sch` | ESP32-S3-WROOM-1 + AP2112K-3.3 LDO + USB Mini-B + USBLC6 ESD + EN R/C + UART header. |
 | `power_io.kicad_sch` | 5V OR-ing, laser supply, AD7606 output header, laser + monitor-PD output header, and shared INA4180/LM4040 monitor-PD front end. |
 | `laser_controller_bom_jlcpcb.csv` | Full generated JLCPCB BOM (Comment, Designator, Footprint, LCSC). |
@@ -78,7 +79,7 @@ LASER DRIVER (×4, one per wavelength)
   1k → AO3400A gate ; source → 10Ω 2512 2W sense → GND
   I_laser = V_ctrl / 10Ω ; full-scale command ≈2.48V, so nominal clamp ≈248mA.
   Sense top → FB (op-amp −) and 1k → ISENSE (isolates the ADC tap from the loop) ;
-  10pF loop-comp ; AO3400A drain → LASER_N (J4) ; off-board laser-can model:
+  10pF loop-comp ; AO3400A drain → LASER_N (direct LDx footprint and J4 harness) ; laser-can model:
   LD_K → LASER_N, common LD_A/PD_K/case → LASER_V+, PD_A → MPD_RAW
   LASER_V+ is a shared bench rail: set it from the actual diode Vf/current table so the
   AO3400A does not become the heat sink.
@@ -112,8 +113,8 @@ GREEN/BLUE); the SFH2201 is broadband (300–1100 nm) so the same PD detects all
 
 ## BOM — verified LCSC numbers (2026-06-22)
 
-`laser_controller_bom_jlcpcb.csv` covers the generated full design: **117 SMT placements**,
-with the through-hole I/O headers hand-added.
+`laser_controller_bom_jlcpcb.csv` covers the generated full design: SMT placements plus
+hand-added through-hole headers and direct laser-can footprints.
 
 ### SMT (JLCPCB assembled)
 
@@ -130,24 +131,28 @@ with the through-hole I/O headers hand-added.
 | Q1–Q4 | AO3400A N-MOSFET (SOT-23) | **C20917** | Basic | laser low-side sink pass device. |
 | D5–D6 | SS14 (SMA) | **C2480** | Basic | 5V OR-ing Schottky, 40V/1A. |
 | RV1–RV4 | 10k SMD trimmer | **C81348** | Extended | VBIAS, Bourns **3224W-1-103** (SMD, JLCPCB-mountable). |
-| R (10M) | 10M 0603 1% | **C57129** | — | **fixed Rf** — no 10M SMD trimmer exists, so the gain resistor is a value-select SMT part. |
-| R (10k) | 10k 0603 1% | **C269701** | Basic | VBIAS / EN / BOOT pull-up resistors. |
+| R (10M) | 10M 0603 1% | **C844730** | — | **fixed Rf** — no 10M SMD trimmer exists, so the gain resistor is a value-select SMT part. |
+| R (10k) | 10k 0603 1% | **C844918** | — | VBIAS / EN / BOOT pull-up resistors. |
 | R (750Ω) | 750Ω 0603 1% | **C114635** | — | monitor-PD high-side sense resistors. |
-| R (2.49k) | 2.49k 0603 1% | **C22908** | — | LM4040/`MPD_BIAS` sink resistor. |
+| R (2.49k) | 2.49k 0603 1% | **C2099849** | — | LM4040/`MPD_BIAS` sink resistor. |
 | R (22Ω) | 22Ω 0603 1% | **C23345** | Basic | USB D+/D− series damping resistors. |
-| R (1k) | 1k 0603 1% | **C21190** | Basic | gate / ISENSE-isolation / PD-bias / monitor-ADC isolation resistor. |
+| R (1k) | 1k 0603 1% | **C2907002** | — | gate / ISENSE-isolation / PD-bias / monitor-ADC isolation resistor. |
 | R (30k) | 30k 0603 1% | **C22984** | Basic | PWM command limiter pulldown. |
 | R (10Ω) | 10Ω 2512 2W 1% | **C5123624** | Basic | laser source-sense resistor. |
 | C (10pF) | 10pF C0G 0603 | **C106245** | Extended | Cf / loop-comp. |
-| C (1µF) | 1µF 0402 | **C52923** | Basic | PWM filter / PD-bias bypass / LDO input. |
-| C (100nF) | 100nF 0402 | **C1525** | Basic | decoupling and monitor-PD low-pass filters. |
-| C (10µF) | 10µF 0805 | **C15850** | Basic | bulk decoupling. |
+| C (1µF) | 1µF 0402 25V X5R | **C7472946** | — | PWM filter / PD-bias bypass / LDO input. |
+| C (100nF) | 100nF 0402 16V X7R | **C83056** | — | decoupling and monitor-PD low-pass filters. |
+| C (10µF) | 10µF 0805 25V X5R | **C318691** | — | bulk decoupling. |
 | J1 | USB Mini-B receptacle | **C5120592** | (JLC assy) | Würth 65100516121 horizontal SMD Mini-B — machine-placed. |
 
-### Hand-add / off-board (not in SMT assembly)
+### Hand-add / not in SMT assembly
 
 | Part | Value | Notes |
 |---|---|---|
+| LD1 | D7805I, `OptoDevice:LaserDiode_TO18-D5.6-3` | Direct IR laser can option; electrically in parallel with J4 channel 1. |
+| LD2 | D6505I, `OptoDevice:LaserDiode_TO18-D5.6-3` | Direct red laser can option; electrically in parallel with J4 channel 2. |
+| LD3 | PLT5 520EB_P, `OptoDevice:LaserDiode_TO56-3` | Direct green laser can option; electrically in parallel with J4 channel 3. |
+| LD4 | PLT5 450GB, `OptoDevice:LaserDiode_TO56-3` | Direct blue laser can option; case pad is intentionally no-connect; electrically in parallel with J4 channel 4 except `MPD_RAW4` stays spare/open. |
 | J3 | 1×06 THT header | AD7606 out: VOUT1..4 + CONVST + GND. |
 | J4 | 1×10 THT header | laser + monitor out: LASER_N/MPD_RAW pairs + LASER_V+ + GND. |
 | J6 | 1×02 THT header | external +5V in. |
@@ -173,8 +178,15 @@ and package-sensitive KiCad footprint files; secondary distributor/order sources
 warnings rather than silent assumptions, and vendor-CDN probe failures such as ST remain
 explicit manual release-time checks.
 `check_schematic_hierarchy_labels.py` separately enforces the intended root/child-sheet
-interface: 10 root sheets, typed sheet pins, 44 whitelisted root global labels,
-44 typed child hierarchical labels, and zero child-sheet global labels.
+interface: 10 root sheets, typed sheet pins, 52 whitelisted root global labels,
+52 typed child hierarchical labels, and zero child-sheet global labels.
+`check_schematic_presentation.py` separately enforces reviewability of the generated sheets:
+net labels must clear symbol bodies, visible reference/value text, and other labels, generated
+wire segments must not pass through component bodies, and every generated wire endpoint must land
+on a real connection object. It also checks that custom-symbol pin anchors/strokes touch the symbol
+glyph, preventing visually disconnected parts. Generated symbol origins, wire endpoints, labels,
+junctions, no-connect markers, sheet pins, and custom-symbol pin anchors must stay on the 50 mil
+schematic grid.
 The generated PCB has explicit pad nets verified by `check_laser_controller_pcb.py` so
 missing pad-net assignment on quoted/bare footprint pads is caught before routing. The same PCB
 check verifies routing net-class membership for laser
@@ -273,10 +285,11 @@ datasheet-check before routing:
 - **Monitor PD path** — `MPD_RAWx` feeds a 750 ohm high-side sense resistor into
   `MPD_BIAS`; INA4180A1 gain 20 drives a 1 k / 100 nF ADC-side filter into `MPDx`.
   LM4040C50 holds `LASER_V+ - MPD_BIAS` near 5 V. At `LASER_V+ = 10.5 V`, typical
-  PLT5 520B monitor current around 150 uA maps to about 2.25 V at the ESP32 ADC and
-  about 4.89 V monitor-PD reverse bias. This front end is only polarity-compatible with
-  PLT5-style / Thorlabs A-code common-anode, monitor-PD-cathode cans. It is not a
-  direct `L785P090` C-code monitor interface, and `L450G2` has no monitor photodiode.
+  PLT5 520EB_P monitor current around 150 uA maps to about 2.25 V at the ESP32 ADC and
+  about 4.89 V monitor-PD reverse bias. This front end is compatible with the selected
+  `D7805I`, `D6505I`, and `PLT5 520EB_P` monitor-pin topology. Selected blue diode
+  `PLT5 450GB` has no monitor photodiode, so `MPD_RAW4` / `MPD4` is spare/open for that
+  source.
 - **USB native programming** — D−/D+ route through USBLC6 and 22 Ω series resistors to
   ESP32-S3 GPIO19/GPIO20; the generated board gates the pair at 40 mm max per leg, 5 mm
   max skew, F.Cu only, 0.25 mm width, and zero vias.

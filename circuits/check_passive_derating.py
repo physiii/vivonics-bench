@@ -57,26 +57,26 @@ class ResistorStress:
 
 
 CAP_RATINGS = {
-    "CL05B104KO5NNNC": CapacitorRating(
+    "0402B104K160CT": CapacitorRating(
         value="100nF",
         voltage_v=16.0,
         dielectric="X7R",
         package="0402",
-        source="Samsung CL05B104KO5NNN page: 100nF +/-10%, X7R, 16Vdc, mass production.",
+        source="LCSC C83056 / Walsin 0402B104K160CT page: 100nF +/-10%, X7R, 16Vdc.",
     ),
-    "CL05A105KA5NQNC": CapacitorRating(
+    "HGC0402R5105K250NTEJ": CapacitorRating(
         value="1uF",
         voltage_v=25.0,
         dielectric="X5R",
         package="0402",
-        source="Samsung CL05A105KA5NQN page: 1uF +/-10%, X5R, 25Vdc, mass production.",
+        source="LCSC C7472946 / Chinocera HGC0402R5105K250NTEJ page: 1uF +/-10%, X5R, 25Vdc.",
     ),
-    "CL21A106KAYNNNE": CapacitorRating(
+    "CL21A106KAYNNNG": CapacitorRating(
         value="10uF",
         voltage_v=25.0,
         dielectric="X5R",
         package="0805",
-        source="Samsung CL21A106KAYNNN page: 10uF +/-10%, X5R, 25Vdc, mass production.",
+        source="LCSC C318691 / Samsung CL21A106KAYNNNG page: 10uF +/-10%, X5R, 25Vdc.",
     ),
     "CC0603JRNPO9BN100": CapacitorRating(
         value="10pF",
@@ -89,29 +89,29 @@ CAP_RATINGS = {
 
 
 RES_RATINGS = {
-    "0603WAF1001T5E": ResistorRating(
+    "FRC0603F1001TS": ResistorRating(
         value="1k",
         power_w=0.10,
         voltage_v=75.0,
         tolerance="+/-1%",
         package="0603",
-        source="Royalohm 0603WAF1001T5E distributor/manufacturer data: 0.1W, 75V, +/-1%.",
+        source="LCSC C2907002 / FOJAN FRC0603F1001TS page: 1k, 100mW, 75V, +/-1%, +/-100ppm/C.",
     ),
-    "0603WAF1002T5E": ResistorRating(
+    "CRCW060310K0FKEA": ResistorRating(
         value="10k",
         power_w=0.10,
         voltage_v=75.0,
         tolerance="+/-1%",
         package="0603",
-        source="Royalohm 0603WAF 0603 family data: 0.1W, 75V, +/-1%.",
+        source="LCSC C844918 / Vishay CRCW060310K0FKEA page: 10k, 100mW, 75V, +/-1%, +/-100ppm/C.",
     ),
-    "0603WAF1005T5E": ResistorRating(
+    "CRCW060310M0FKEA": ResistorRating(
         value="10M",
         power_w=0.10,
         voltage_v=75.0,
         tolerance="+/-1%",
         package="0603",
-        source="Royalohm 0603WAF 0603 family data: 0.1W, 75V, +/-1%.",
+        source="LCSC C844730 / Vishay CRCW060310M0FKEA page: 10M, 100mW, 75V, +/-1%, +/-100ppm/C.",
     ),
     "0603WAF220JT5E": ResistorRating(
         value="22R",
@@ -129,13 +129,13 @@ RES_RATINGS = {
         package="0603",
         source="Royalohm 0603WAF 0603 family data: 0.1W, 75V, +/-1%.",
     ),
-    "0603WAF2491T5E": ResistorRating(
+    "CRCW06032K49FKEAHP": ResistorRating(
         value="2.49k",
-        power_w=0.10,
+        power_w=0.333,
         voltage_v=75.0,
         tolerance="+/-1%",
         package="0603",
-        source="LCSC C22908 / UNI-ROYAL 0603WAF2491T5E page: 2.49k, 100mW, 75V, +/-1%, +/-100ppm/C.",
+        source="LCSC C2099849 / Vishay CRCW06032K49FKEAHP page: 2.49k, 333mW, 75V, +/-1%, +/-100ppm/C.",
     ),
     "RC0603FR-07750RL": ResistorRating(
         value="750R",
@@ -145,13 +145,37 @@ RES_RATINGS = {
         package="0603",
         source="LCSC C114635 / Yageo RC0603FR-07750RL page: 750 ohm, 100mW, 75V, +/-1%, +/-100ppm/C.",
     ),
-    "RMC060310KFN": ResistorRating(
+    "RT0402BRD071KL": ResistorRating(
+        value="1k",
+        power_w=0.0625,
+        voltage_v=50.0,
+        tolerance="+/-0.1%",
+        package="0402",
+        source="LCSC C852624 / Yageo RT0402BRD071KL page: 1k, 62.5mW, 50V, +/-0.1%, +/-25ppm/C.",
+    ),
+    "ERJ2RKF1002X": ResistorRating(
         value="10k",
         power_w=0.10,
         voltage_v=50.0,
         tolerance="+/-1%",
+        package="0402",
+        source="LCSC C191123 / Panasonic ERJ2RKF1002X page: 10k, 100mW, 50V, +/-1%, +/-100ppm/C.",
+    ),
+    "FRC0402F2212TS": ResistorRating(
+        value="22.1k",
+        power_w=0.0625,
+        voltage_v=50.0,
+        tolerance="+/-1%",
+        package="0402",
+        source="LCSC C2929993 / FOJAN FRC0402F2212TS page: 22.1k, 62.5mW, 50V, +/-1%.",
+    ),
+    "0603WAF4752T5E": ResistorRating(
+        value="47.5k",
+        power_w=0.10,
+        voltage_v=75.0,
+        tolerance="+/-1%",
         package="0603",
-        source="JLCPCB/TyoHM C269701 page: 100mW, 10k, 50V, +/-1%, +/-100ppm/C.",
+        source="LCSC C23061 / UNI-ROYAL 0603WAF4752T5E page: 47.5k, 100mW, 75V, +/-1%.",
     ),
     "HoCR2512-2W-10R-1%": ResistorRating(
         value="10R",
@@ -230,10 +254,14 @@ def resistor_stress(comp: dict[str, str]) -> ResistorStress:
         )
     resistance_ohms = {
         "1k": 1_000.0,
+        "1K": 1_000.0,
         "1k ADC": 1_000.0,
         "10k": 10_000.0,
+        "10K": 10_000.0,
         "10k BOOT": 10_000.0,
+        "22.1K": 22_100.0,
         "30k LIMIT": 30_000.0,
+        "47.5K": 47_500.0,
         "10M": 10_000_000.0,
     }.get(value)
     if resistance_ohms is None:

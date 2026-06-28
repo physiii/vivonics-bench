@@ -1,0 +1,6 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "Espressif")(type "KiCad")(uri "${KIPRJMOD}/lib/Espressif.kicad_sym")(options "")(descr "Project-local copy of office Espressif symbols"))
+  (lib (name "Open_Automation")(type "KiCad")(uri "${KIPRJMOD}/lib/Open_Automation.kicad_sym")(options "")(descr "Project-local copy of office Open Automation symbols"))
+  (lib (name "open_automation")(type "KiCad")(uri "${KIPRJMOD}/lib/Open_Automation.kicad_sym")(options "")(descr "Project-local copy of office Open Automation symbols"))
+)

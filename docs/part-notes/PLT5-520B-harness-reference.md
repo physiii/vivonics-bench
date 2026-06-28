@@ -1,40 +1,50 @@
-# PLT5 520B Harness Reference Note
+# ams OSRAM PLT5 Harness Reference Note
 
-Source:
-- ams OSRAM PLT5 520B datasheet:
-  `https://look.ams-osram.com/m/200c3d8553b61059/original/PLT5-520B.pdf`
+Sources:
+- ams OSRAM `PLT5 520EB_P` datasheet:
+  `https://look.ams-osram.com/m/650bf4d7f1f7e736/original/PLT5-520EB_P.pdf`
+- ams OSRAM `PLT5 450GB` datasheet:
+  `https://look.ams-osram.com/m/29170f7edbc7cb46/original/PLT5-450GB.pdf`
 
-Current bench assumption:
-- Compatible 3-pin laser cans use one laser cathode, one common laser anode /
+Current bench assumption for monitor-capable cans:
+- Compatible 3-pin monitor cans use one laser cathode, one common laser anode /
   monitor-PD cathode node, and one monitor-PD anode.
-- J4 exposes `LASER_Nx`, `MPD_RAWx`, common `LASER_V+`, and GND.
+- The direct `LDx` through-hole footprints and J4 expose the same
+  `LASER_Nx`, `MPD_RAWx`, common `LASER_V+`, and GND nets.
 
-Design implication:
-- The monitor photodiode path is useful for source telemetry/APC, but it does
-  not measure transmitted/sample optical signal.
-- PLT5 520B monitor current is specified at `VRPD = 5 V` as a short-time power
-  reference, not as an accurate absolute power measurement.
-- The bench schematic now uses a high-side INA4180/LM4040 monitor front end:
+PLT5 520EB_P result:
+- The datasheet pin table says pin 1 = LD Cathode, pin 2 = LD Anode, PD
+  Cathode (case), and pin 3 = PD Anode.
+- This is compatible with the bench Style-A/PLT monitor model:
+  `LD_K -> LASER_N3`, common `LD_A/PD_K/case -> LASER_V+`, and `PD_A ->
+  MPD_RAW3`.
+- Direct footprint `LD3` is `OptoDevice:LaserDiode_TO56-3`; the J4 harness
+  pins are electrically in parallel with that footprint.
+- PLT5 520EB_P monitor current is specified at `VRPD = 5 V` as a short-time
+  power reference, not as an accurate absolute power measurement.
+- The bench schematic uses a high-side INA4180/LM4040 monitor front end:
   `MPD_RAWx -> 750R MPD sense -> MPD_BIAS`, with `LASER_V+ - MPD_BIAS` held
   near 5 V and INA4180A1 gain 20 feeding the ESP32 ADC path.
 - At `LASER_V+ = 10.5 V`, PLT5-style `150 uA` monitor current gives about
   `2.25 V` at the ADC and about `4.89 V` monitor-PD reverse bias.
-- The current-loop thermal budget uses this part only as a green reference. A
-  PLT5 520B-style green diode needs a higher `LASER_V+` rail than low-forward-
-  voltage red/IR diodes, so a shared `LASER_V+` rail must be checked per diode
-  before any full-current run.
+
+PLT5 450GB result:
+- The datasheet pin table says pin 1 = LD Anode, pin 2 = Case, and pin 3 =
+  LD Cathode.
+- This part has no monitor photodiode. It must not be modeled as
+  `LD_A/PD_K/case` plus `PD_A`.
+- Direct footprint `LD4` is `OptoDevice:LaserDiode_TO56-3`. The bench mapping
+  is `LD_A -> LASER_V+`, `LD_K -> LASER_N4`, and `CASE` deliberately left
+  unconnected. `MPD_RAW4` remains a spare/open monitor front-end input at J4
+  and U12.
 
 Release blocker:
 - Every actual laser MPN must be checked against its own pin table and can/common
-  polarity before building the J4 harness. Do not assume all 3-pin laser cans
-  match PLT5 520B.
-- The current bench `MPD_RAWx` high-side front end is polarity-compatible with
-  PLT5-style/common-anode monitor polarity. It does not directly support
-  Thorlabs `L785P090` C-code monitor feedback, and `L450G2` has no monitor
-  photodiode.
-- Direct PLT5-style MPD telemetry on this bench board is relative telemetry
-  after diode-MPN approval and calibration, not a release-approved APC loop.
-  A production PLT5 monitor-bias/APC circuit still needs a dedicated driver or
-  APC front end matched to the laser pin code.
+  polarity before building the J4 harness or soldering the diode into `LDx`.
+- Direct `MPD_RAWx` telemetry is approved only for the three compatible
+  monitor-PD parts in this Digikey set: `D7805I`, `D6505I`, and
+  `PLT5 520EB_P`.
+- `PLT5 450GB` has no monitor photodiode, so `MPD4` is not source optical
+  telemetry for that blue channel.
 - For every actual laser MPN, run `check_laser_current_budget.py` with that
   diode's forward-voltage/current assumption and the intended `LASER_V+`.

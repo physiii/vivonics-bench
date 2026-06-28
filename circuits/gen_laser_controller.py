@@ -6,7 +6,7 @@ Produces (1 channel, 4 wavelengths):
   laser_controller.kicad_sch       — root (sheet symbols + global-label interconnect)
   tia_ir/red/green/blue.kicad_sch  — four on-board signal PD + OPA380 TIA sheets
   laser_ir/red/green/blue.kicad_sch — four constant-current laser sink sheets
-  mcu.kicad_sch                    — ESP32-S3 MCU sheet using the access-controller Espressif symbol
+  mcu.kicad_sch                    — imported access-controller ESP32-S3 MCU sheet
   power_io.kicad_sch               — 5V OR-ing, laser supply, AD7606 outputs, laser outputs, MPD high-side feedback
   laser_controller_bom_jlcpcb.csv  — consolidated JLCPCB BOM
   laser_controller.kicad_pro       — minimal project file (written once if absent)
@@ -27,6 +27,7 @@ Run:  python3 gen_laser_controller.py
 """
 from __future__ import annotations
 import os
+import re
 from pathlib import Path
 from circuit_designators import WL, actualize_parts
 
@@ -34,9 +35,18 @@ PROJECT = "laser_controller"
 ROOT_UUID = "c1d2e3f4-6000-4000-a000-000000000001"
 ACCESS_CONTROLLER_MCU = Path("/home/andy/projects/access-controller/circuits/controller/microcontroller.kicad_sch")
 OUT_DIR = Path(__file__).resolve().parent
+GRID_MM = 1.27
 _ctr = [0]
+_pwr_ctr = [200]
 def uid(): _ctr[0]+=1; return f"c1d2e3f4-6000-4000-a000-{_ctr[0]:012d}"
 def fmt(v): return f"{v:.4f}".rstrip("0").rstrip(".")
+def snap(v): return round(round(v / GRID_MM) * GRID_MM, 4)
+def snap_point(point): return (snap(point[0]), snap(point[1]))
+def grid_parts(parts):
+    return {
+        ref: (sym, val, fp, mpn, lcsc, snap(x), snap(y))
+        for ref, (sym, val, fp, mpn, lcsc, x, y) in parts.items()
+    }
 
 def extract_symbol_block(path: Path, symbol_name: str) -> str:
     """Return a top-level KiCad lib_symbol block from a reference schematic."""
@@ -80,28 +90,28 @@ S("C_H", {"1":(-2.54,0,0,"~","passive",1.905),"2":(2.54,0,180,"~","passive",1.90
   [[(-0.635,-1.778),(-0.635,1.778)],[(0.635,-1.778),(0.635,1.778)]])
 S("C_V", {"1":(0,2.54,270,"~","passive",1.905),"2":(0,-2.54,90,"~","passive",1.905)},
   [[(-1.778,-0.635),(1.778,-0.635)],[(-1.778,0.635),(1.778,0.635)]])
-# Photodiode (Osram SFH2201 clear Si PIN, KiCad D_Photo convention): cathode (pin1, left) → +5V bias ; anode (pin2, right) → TIA −IN
-S("PHOTODIODE", {"1":(-3.81,0,0,"K","passive",1.27),"2":(3.81,0,180,"A","passive",1.27)},
-  [[(1.27,1.524),(1.27,-1.524),(-1.27,0),(1.27,1.524)],       # diode triangle (anode base right → apex left)
-   [(-1.27,1.524),(-1.27,-1.524)],                            # cathode bar (left)
+# Photodiode (Osram SFH2201 clear Si PIN, KiCad D_Photo convention): cathode (pin1, left) -> +5V bias ; anode (pin2, right) -> TIA -IN
+S("PHOTODIODE", {"1":(-2.54,0,0,"K","passive",0),"2":(2.54,0,180,"A","passive",0)},
+  [[(2.54,1.524),(2.54,-1.524),(-2.54,0),(2.54,1.524)],       # diode triangle (anode base right → apex left)
+   [(-2.54,1.524),(-2.54,-1.524)],                            # cathode bar (left), coincident with the K connection point
    [(0.6,3.0),(-0.4,1.8)],[(-0.4,1.8),(0.32,1.82)],[(-0.4,1.8),(-0.28,2.5)],   # incoming-light arrow 1
    [(2.1,3.0),(1.1,1.8)],[(1.1,1.8),(1.82,1.82)],[(1.1,1.8),(1.22,2.5)]],      # incoming-light arrow 2
   hide_nums=True, roff=(6,2.2), voff=(6,4.2))
 # OPA380AID SOIC-8: 1/5/8 are NC, 2=IN-, 3=IN+, 4=V-, 6=OUT, 7=V+.
 S("OPA_N", {"1":(-10.16,5.08,0,"NC","passive",2.54),
             "2":(-7.62,2.54,0,"-","input",2.54),"3":(-7.62,-2.54,0,"+","input",2.54),
-            "4":(0,-7.62,90,"V-","power_in",2.54),
+            "4":(0,-7.62,90,"V-","power_in",5.08),
             "5":(10.16,-5.08,180,"NC","passive",2.54),
-            "6":(7.62,0,180,"","output",2.54),"7":(0,7.62,270,"V+","power_in",2.54),
+            "6":(7.62,0,180,"","output",2.54),"7":(0,7.62,270,"V+","power_in",5.08),
             "8":(10.16,5.08,180,"NC","passive",2.54)},
   [[(-5.08,-5.08),(5.08,0),(-5.08,5.08),(-5.08,-5.08)]],[("+",-3.81,-2.54,1.0),("-",-3.81,2.54,1.0)])
 # TLV9001IDBVR, DBV SOT-23-5 package: 1=OUT, 2=V-, 3=IN+, 4=IN-, 5=V+.
 S("TLV9001_SOT23_5", {"4":(-7.62,2.54,0,"-","input",2.54),"3":(-7.62,-2.54,0,"+","input",2.54),
-            "1":(7.62,0,180,"","output",2.54),"5":(0,7.62,270,"V+","power_in",2.54),"2":(0,-7.62,90,"V-","power_in",2.54)},
+            "1":(7.62,0,180,"","output",2.54),"5":(0,7.62,270,"V+","power_in",5.08),"2":(0,-7.62,90,"V-","power_in",5.08)},
   [[(-5.08,-5.08),(5.08,0),(-5.08,5.08),(-5.08,-5.08)]],[("+",-3.81,-2.54,1.0),("-",-3.81,2.54,1.0)])
 # AO3400A SOT-23 N-MOSFET: 1=gate, 2=source, 3=drain.
-S("NMOS", {"3":(0,5.08,270,"D","passive",1.27),"1":(-5.08,0,0,"G","input",1.27),"2":(0,-5.08,90,"S","passive",1.27)},
-  [[(-0.635,2.032),(0,0),(-0.635,-2.032)],[(0,2.54),(0,1.524)],[(0,-1.524),(0,-2.54)],[(-0.762,-0.762),(0,-1.524),(0.762,-0.762)]])
+S("NMOS", {"3":(0,5.08,270,"D","passive",2.54),"1":(-5.08,0,0,"G","input",2.54),"2":(0,-5.08,90,"S","passive",2.54)},
+  [[(-2.54,2.54),(-2.54,-2.54)],[(-0.635,2.032),(0,0),(-0.635,-2.032)],[(0,2.54),(0,1.524)],[(0,-1.524),(0,-2.54)],[(-0.762,-0.762),(0,-1.524),(0.762,-0.762)]])
 # Schottky diode (SS14): anode left, cathode right
 S("SCHOTTKY", {"1":(-3.81,0,0,"A","passive",1.27),"2":(3.81,0,180,"K","passive",1.27)},
   [[(-3.81,0),(-1.27,0)],[(1.27,0),(3.81,0)],[(-1.27,1.27),(1.27,0),(-1.27,-1.27),(-1.27,1.27)],
@@ -200,33 +210,44 @@ S("ESD_USB",{"1":(-7.62,2.54,0,"IO1","passive",2.54),"6":(7.62,2.54,180,"IO1","p
 # Pinout from TI INAx180 datasheet: 1 OUT1, 2 IN-1, 3 IN+1, 4 VS, 5 IN+2,
 # 6 IN-2, 7 OUT2, 8 OUT3, 9 IN-3, 10 IN+3, 11 GND, 12 IN+4, 13 IN-4, 14 OUT4.
 S("INA4180_TSSOP14",
-  {"1":(12.7,16.0,180,"OUT1","output",2.54),
-   "2":(-12.7,13.5,0,"IN-1","input",2.54),"3":(-12.7,18.5,0,"IN+1","input",2.54),
-   "4":(0,23.0,270,"VS","power_in",2.54),
-   "5":(-12.7,8.5,0,"IN+2","input",2.54),"6":(-12.7,3.5,0,"IN-2","input",2.54),
-   "7":(12.7,6.0,180,"OUT2","output",2.54),
-   "8":(12.7,-6.0,180,"OUT3","output",2.54),
-   "9":(-12.7,-8.5,0,"IN-3","input",2.54),"10":(-12.7,-3.5,0,"IN+3","input",2.54),
-   "11":(0,-23.0,90,"GND","power_in",2.54),
-   "12":(-12.7,-13.5,0,"IN+4","input",2.54),"13":(-12.7,-18.5,0,"IN-4","input",2.54),
-   "14":(12.7,-16.0,180,"OUT4","output",2.54)},
-  [[(-10.16,21.0),(10.16,21.0),(10.16,-21.0),(-10.16,-21.0),(-10.16,21.0)]],
+  {"1":(12.7,15.24,180,"OUT1","output",2.54),
+   "2":(-12.7,12.7,0,"IN-1","input",2.54),"3":(-12.7,17.78,0,"IN+1","input",2.54),
+   "4":(0,22.86,270,"VS","power_in",2.54),
+   "5":(-12.7,7.62,0,"IN+2","input",2.54),"6":(-12.7,2.54,0,"IN-2","input",2.54),
+   "7":(12.7,5.08,180,"OUT2","output",2.54),
+   "8":(12.7,-5.08,180,"OUT3","output",2.54),
+   "9":(-12.7,-7.62,0,"IN-3","input",2.54),"10":(-12.7,-2.54,0,"IN+3","input",2.54),
+   "11":(0,-22.86,90,"GND","power_in",2.54),
+   "12":(-12.7,-12.7,0,"IN+4","input",2.54),"13":(-12.7,-17.78,0,"IN-4","input",2.54),
+   "14":(12.7,-15.24,180,"OUT4","output",2.54)},
+  [[(-10.16,20.32),(10.16,20.32),(10.16,-20.32),(-10.16,-20.32),(-10.16,20.32)]],
   [("INA4180",0,0,1.3)], hide_nums=False, roff=(-10.0,-25.5), voff=(-10.0,24.5))
 # LM4040C50IDBZR, DBZ SOT-23-3: pin 1 cathode, pin 2 anode, pin 3 "*" must float or tie to anode.
 S("LM4040_DBZ",
-  {"1":(0,5.08,270,"K","passive",1.27),"2":(0,-5.08,90,"A","passive",1.27),"3":(5.08,-5.08,180,"*","passive",1.27)},
-  [[(-1.27,1.27),(1.27,1.27),(0,-1.27),(-1.27,1.27)], [(-1.27,-1.27),(1.27,-1.27)], [(-1.8,2.2),(1.8,2.2)]],
+  {"1":(0,5.08,270,"K","passive",2.54),"2":(0,-5.08,90,"A","passive",2.54),"3":(5.08,-5.08,180,"*","passive",1.27)},
+  [[(-1.27,1.27),(1.27,1.27),(0,-1.27),(-1.27,1.27)], [(-1.8,2.54),(1.8,2.54)],
+   [(-1.27,-2.54),(1.27,-2.54)], [(3.81,-5.08),(1.27,-2.54)]],
   [("5.0V",0,0,1.0)], hide_nums=False, roff=(6,-6), voff=(6,6))
 S("LASER_CAN_MON_PD",
-  {"1":(-12.7,0,0,"LD_K","passive",2.54),
-   "2":(0,-12.7,270,"LD_A/PD_K/CASE","passive",2.54),
-   "3":(12.7,5.08,180,"PD_A","passive",2.54)},
+  {"1":(-12.7,0,0,"LD_K","passive",4.7),
+   "2":(0,-12.7,90,"LD_A/PD_K/CASE","passive",4.7),
+   "3":(12.7,5.08,180,"PD_A","passive",4.7)},
   [[(-8.0,-8.0),(8.0,-8.0),(8.0,10.0),(-8.0,10.0),(-8.0,-8.0)],
    [(-5.0,-2.5),(1.0,0.0),(-5.0,2.5),(-5.0,-2.5)],
    [(1.0,-3.2),(1.0,3.2)],
    [(-2.5,6.8),(2.5,6.8),(0.0,9.2),(-2.5,6.8)],
    [(2.5,6.0),(2.5,9.6)]],
   [("LD",-2.5,-5.5,1.0),("MPD",-1.0,4.2,1.0)],
+  hide_nums=False, roff=(-14,-16), voff=(-14,14))
+S("LASER_CAN_DIODE_CASE",
+  {"1":(0,-12.7,90,"LD_A","passive",4.7),
+   "2":(12.7,5.08,180,"CASE","passive",4.7),
+   "3":(-12.7,0,0,"LD_K","passive",4.7)},
+  [[(-8.0,-8.0),(8.0,-8.0),(8.0,10.0),(-8.0,10.0),(-8.0,-8.0)],
+   [(-5.0,-2.5),(1.0,0.0),(-5.0,2.5),(-5.0,-2.5)],
+   [(1.0,-3.2),(1.0,3.2)],
+   [(4.0,5.5),(7.0,5.5),(7.0,8.5),(4.0,8.5),(4.0,5.5)]],
+  [("LD",-2.5,-5.5,1.0),("CASE",2.5,4.2,1.0)],
   hide_nums=False, roff=(-14,-16), voff=(-14,14))
 for sn,ys in [("CONN4",[3.81,1.27,-1.27,-3.81]),("CONN2",[1.27,-1.27]),("CONN3",[2.54,0,-2.54]),
               ("CONN5",[5.08,2.54,0,-2.54,-5.08]),("CONN6",[6.35,3.81,1.27,-1.27,-3.81,-6.35]),
@@ -244,13 +265,14 @@ REFLET={"R_H":"R","R_V":"R","POT_H":"RV","POT_V":"RV","C_H":"C","C_V":"C","PHOTO
         "TLV9001_SOT23_5":"U",
         "INA4180_TSSOP14":"U","LM4040_DBZ":"U",
         "LASER_CAN_MON_PD":"LD",
+        "LASER_CAN_DIODE_CASE":"LD",
         "CONN2":"J","CONN3":"J","CONN4":"J","CONN5":"J","CONN6":"J","CONN8":"J","CONN10":"J","NMOS":"Q",
         "Espressif:ESP32-S3-WROOM-1":"U",
         "LDO5":"U","SCHOTTKY":"D","USB_MINIB":"J","ESD_USB":"U"}
 # Hand-add (excluded from SMT BOM): only the THT 2.54mm I/O headers. Everything else, including
 # the SFH2201 signal PDs, ESP32-S3, 3224W SMD pots, and USB Mini-B connector, is JLCPCB machine-placed.
 HAND={"CONN2","CONN3","CONN4","CONN5","CONN6","CONN8","CONN10"}
-OFFBOARD={"LASER_CAN_MON_PD"}
+NON_SMT_ASSEMBLY={"LASER_CAN_MON_PD","LASER_CAN_DIODE_CASE"}
 PASSIVE_GLYPH_NUMS=("R_H","R_V","POT_H","POT_V","C_H","C_V","PHOTODIODE","OPA_N","TLV9001_SOT23_5","NMOS","SCHOTTKY")
 
 FP_R="Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
@@ -268,20 +290,22 @@ FP_SMA="Diode_SMD:D_SMA"
 FP_ESP32S3="RF_Module:ESP32-S3-WROOM-1"   # stock KiCad footprint available here; access-controller uses Espressif lib name for same module
 FP_USB="Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal"  # Würth 65100516121 horizontal SMD Mini-B (same as access-controller)
 FP_PD="OptoDevice:Osram_SFH2201"          # clear broadband Si PIN PD; in-tree KiCad footprint (pad1=K, pad2=A)
+FP_LASER_TO18="OptoDevice:LaserDiode_TO18-D5.6-3"
+FP_LASER_TO56="OptoDevice:LaserDiode_TO56-3"
 FP_H2="Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
 FP_H5="Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical"
 FP_H6="Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical"
 FP_H10="Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical"
 
-# ── Verified LCSC numbers (parts agent, 2026-06-22) ───────────────────
-LCSC_10K="C269701"    # 10k 0603 1% TyoHM RMC060310KFN (Basic, in stock)
+# ── Verified LCSC numbers (parts agent, 2026-06-28) ───────────────────
+LCSC_10K="C844918"    # 10k 0603 1% Vishay CRCW060310K0FKEA (in stock)
 LCSC_22R="C23345"     # 22Ω 0603 1% UNI-ROYAL 0603WAF220JT5E (Basic) — USB D+/D− series damping
 LCSC_10R="C5123624"  # 10Ω 2512 2W 1% Milliohm HoCR2512-2W-10R-1% — laser source sense
-LCSC_1K="C21190"; LCSC_10PF="C106245"; LCSC_10UF="C15850"; LCSC_1UF="C52923"; LCSC_100NF="C1525"
+LCSC_1K="C2907002"; LCSC_10PF="C106245"; LCSC_10UF="C318691"; LCSC_1UF="C7472946"; LCSC_100NF="C83056"
 LCSC_30K="C22984"    # 30k 0603 1% UNI-ROYAL 0603WAF3002T5E — PWM command divider
-LCSC_10M="C57129"    # 10M 0603 1% (UNI-ROYAL 0603WAF1005T5E) — verify stock at order
+LCSC_10M="C844730"   # 10M 0603 1% Vishay CRCW060310M0FKEA
 LCSC_750R="C114635"  # 750Ω 0603 1% Yageo RC0603FR-07750RL — monitor-PD sense shunt
-LCSC_249K="C22908"   # 2.49k 0603 1% UNI-ROYAL 0603WAF2491T5E — LM4040 shunt-reference sink
+LCSC_249K="C2099849" # 2.49k 0603 1% Vishay CRCW06032K49FKEAHP — LM4040 shunt-reference sink
 LCSC_POT10K="C81348" # Bourns 3224W-1-103 10k SMD trimmer (Extended) — replaces THT 3296W VBIAS pot
 LCSC_OPA="C201677"   # OPA380AID (Extended, low stock — buy buffer)
 LCSC_TLV="C398363"; LCSC_NMOS="C20917" # AO3400A N-MOSFET, SOT-23, Basic
@@ -294,34 +318,88 @@ LCSC_SCH="C2480"     # SS14 SMA Schottky 40V/1A (Basic)
 LCSC_USB="C5120592"     # Würth 65100516121 USB Mini-B horizontal SMD (same as access-controller)
 LCSC_PD="C2900216"   # Osram SFH2201 clear broadband Si PIN PD (Extended); 300–1100nm covers 450/520/650/780nm
 
+LASER_MPN = {
+    "LASER_IR": {
+        "symbol": "LASER_CAN_MON_PD",
+        "value": "D7805I 780nm TO18 STYLE-A LASER+MPD",
+        "footprint": FP_LASER_TO18,
+        "mpn": "D7805I",
+        "ld_k": "1",
+        "ld_a": "2",
+        "mpd": "3",
+    },
+    "LASER_RED": {
+        "symbol": "LASER_CAN_MON_PD",
+        "value": "D6505I 650nm TO18 STYLE-A LASER+MPD",
+        "footprint": FP_LASER_TO18,
+        "mpn": "D6505I",
+        "ld_k": "1",
+        "ld_a": "2",
+        "mpd": "3",
+    },
+    "LASER_GREEN": {
+        "symbol": "LASER_CAN_MON_PD",
+        "value": "PLT5 520EB_P TO56 LASER+MPD",
+        "footprint": FP_LASER_TO56,
+        "mpn": "PLT5 520EB_P",
+        "ld_k": "1",
+        "ld_a": "2",
+        "mpd": "3",
+    },
+    "LASER_BLUE": {
+        "symbol": "LASER_CAN_DIODE_CASE",
+        "value": "PLT5 450GB TO56 LASER CASE",
+        "footprint": FP_LASER_TO56,
+        "mpn": "PLT5 450GB",
+        "ld_k": "3",
+        "ld_a": "1",
+        "case": "2",
+    },
+}
+
 def pin(parts,ref,num):
-    sym,*_,x,y=parts[ref]; lx,ly=SYM[sym]["pins"][num][:2]; return (x+lx,y-ly)
+    sym,*_,x,y=parts[ref]; lx,ly=SYM[sym]["pins"][num][:2]; return snap_point((x+lx,y-ly))
 
 def add_stub(wires,labels,p,side,name,dist=5.08,shape="passive"):
     """Short stub + label off a pin.  side: 'left'|'right'.  name may start 'H:' (hierarchical)."""
+    p = snap_point(p)
     d = -dist if side=="left" else dist
-    end=(round(p[0]+d,4), round(p[1],4))
+    end=snap_point((p[0]+d, p[1]))
     wires.append([p,end]); labels.append((name,end[0],end[1],"right" if d<0 else "left",shape))
+
+def add_label(labels,p,name,justify="left",shape="passive"):
+    p = snap_point(p)
+    labels.append((name,p[0],p[1],justify,shape))
+
+def add_bent_label(wires,labels,start,bends,name,justify="left",shape="passive"):
+    points=[snap_point(start),*[snap_point(bend) for bend in bends]]
+    wires.append(points)
+    add_label(labels,points[-1],name,justify=justify,shape=shape)
 
 def add_rail(power,wires,kind,p):
     """Drop a power symbol on a pin via a short vertical stub (rail above, GND below)."""
-    sp=(round(p[0],4), round(p[1]+ (6 if kind=="GND" else -6),4))
+    p = snap_point(p)
+    sp=snap_point((p[0], p[1]+ (5.08 if kind=="GND" else -5.08)))
     power.append((kind,sp[0],sp[1])); wires.append([p,sp])
 
 def add_rail_dn(power,wires,kind,p):
     """Place a rail symbol BELOW a pin (for bottom-of-connector supply pins)."""
-    sp=(round(p[0],4), round(p[1]+7,4)); power.append((kind,sp[0],sp[1])); wires.append([p,sp])
+    p = snap_point(p)
+    sp=snap_point((p[0], p[1]+6.35)); power.append((kind,sp[0],sp[1])); wires.append([p,sp])
 
 def declare_source(power,wires,kind,x,y):
     """Isolated rail-symbol + PWR_FLAG pair → tells ERC this externally-supplied net has a source."""
-    power.append((kind,x,y)); power.append(("PWR_FLAG",x,y-5)); wires.append([(x,y),(x,y-5)])
+    x, y = snap(x), snap(y)
+    flag = snap_point((x, y-5.08))
+    power.append((kind,x,y)); power.append(("PWR_FLAG",flag[0],flag[1])); wires.append([(x,y),flag])
 
 def ortho(poly):
     """Manhattanize a polyline: insert an L-bend corner so no segment is ever diagonal."""
+    poly = [snap_point(point) for point in poly]
     out=[poly[0]]
     for a,b in zip(poly,poly[1:]):
         if abs(a[0]-b[0])>1e-6 and abs(a[1]-b[1])>1e-6:
-            out.append((b[0],a[1]))
+            out.append(snap_point((b[0],a[1])))
         out.append(b)
     return out
 
@@ -338,7 +416,7 @@ def sym_def(name):
     if s["power"]: o.append("    (power)")
     if s["hide_nums"]: o.append("    (pin_numbers hide)")
     o+=["    (pin_names (offset 1.016) hide)",
-        f"    (in_bom {'no' if s['power'] or name in OFFBOARD else 'yes'}) (on_board yes)",
+        f"    (in_bom {'no' if s['power'] or name in NON_SMT_ASSEMBLY else 'yes'}) (on_board yes)",
         f'    (property "Reference" "{ref}" (at 0 {fmt(ref_y)} 0) (effects (font (size 1.27 1.27)){ref_hide}))',
         f'    (property "Value" "{name}" (at 0 {fmt(val_y)} 0) (effects (font (size 1.27 1.27))))',
         '    (property "Footprint" "" (at 0 0 0) (effects (font (size 1.27 1.27)) hide))',
@@ -358,9 +436,10 @@ def sym_def(name):
     o+=["    )","  )"]; return "\n".join(o)
 
 def emit_part(ref,sym,val,fp,mpn,lcsc,x,y):
+    x, y = snap(x), snap(y)
     rx,ry=SYM[sym]["roff"]; vx,vy=SYM[sym]["voff"]
     lib_id = sym if ":" in sym else f"viv:{sym}"
-    in_bom = "no" if sym in OFFBOARD else "yes"
+    in_bom = "no" if sym in NON_SMT_ASSEMBLY else "yes"
     on_board = "yes"
     L=[f'  (symbol (lib_id "{lib_id}") (at {fmt(x)} {fmt(y)} 0) (unit 1)',
        f"    (in_bom {in_bom}) (on_board {on_board}) (dnp no)",f"    (uuid {uid()})",
@@ -375,19 +454,30 @@ def emit_part(ref,sym,val,fp,mpn,lcsc,x,y):
     return "\n".join(L)
 
 def emit_power(kind,x,y,n):
+    x, y = snap(x), snap(y)
     ry=y+3.0 if kind=="GND" else y-3.0; vy=y+4.2 if kind=="GND" else y-3.2
+    _pwr_ctr[0] += 1
+    ref = f"#PWR{_pwr_ctr[0]:04d}"
     return "\n".join([
         f'  (symbol (lib_id "viv:{kind}") (at {fmt(x)} {fmt(y)} 0) (unit 1)',
         "    (in_bom no) (on_board yes) (dnp no)",f"    (uuid {uid()})",
-        f'    (property "Reference" "#PWR{n:02d}" (at {fmt(x)} {fmt(ry)} 0) (effects (font (size 1.0 1.0)) hide))',
+        f'    (property "Reference" "{ref}" (at {fmt(x)} {fmt(ry)} 0) (effects (font (size 1.0 1.0)) hide))',
         f'    (property "Value" "{kind}" (at {fmt(x)} {fmt(vy)} 0) (effects (font (size 1.27 1.27))))',
         '    (property "Footprint" "" (at 0 0 0) (effects (font (size 1.0 1.0)) hide))',
         '    (property "Datasheet" "" (at 0 0 0) (effects (font (size 1.0 1.0)) hide))',
         f'    (pin "1" (uuid {uid()}))',"    (instances",f'      (project "{PROJECT}"',
-        f'        (path "/{ROOT_UUID}" (reference "#PWR{n:02d}") (unit 1))',"      )","    )","  )"])
+        f'        (path "/{ROOT_UUID}" (reference "{ref}") (unit 1))',"      )","    )","  )"])
 
 BOM_REG = {}
 def build_sch_content(title,date,rev,parts,power,wires,junctions,labels,texts,mult=1,ncs=None):
+    parts = grid_parts(parts)
+    power = [(kind, snap(x), snap(y)) for kind, x, y in power]
+    junctions = [snap_point(point) for point in junctions]
+    ncs = [snap_point(point) for point in (ncs or [])]
+    labels = [
+        (label[0], snap(label[1]), snap(label[2]), *label[3:])
+        for label in labels
+    ]
     BOM_REG[title]=(mult,parts)
     P=["(kicad_sch","  (version 20230121)","  (generator eeschema)",f"  (uuid {ROOT_UUID})",
        '  (paper "A3")',"  (title_block",f'    (title "{title}")',f'    (date "{date}")',f'    (rev "{rev}")',
@@ -403,7 +493,7 @@ def build_sch_content(title,date,rev,parts,power,wires,junctions,labels,texts,mu
             if a==b: continue
             P.append(f"  (wire (pts (xy {fmt(a[0])} {fmt(a[1])}) (xy {fmt(b[0])} {fmt(b[1])})) (stroke (width 0) (type default)) (uuid {uid()}))")
     for x,y in junctions: P.append(f"  (junction (at {fmt(x)} {fmt(y)}) (diameter 0) (color 0 0 0 0) (uuid {uid()}))")
-    for x,y in (ncs or []): P.append(f"  (no_connect (at {fmt(x)} {fmt(y)}) (uuid {uid()}))")
+    for x,y in ncs: P.append(f"  (no_connect (at {fmt(x)} {fmt(y)}) (uuid {uid()}))")
     for label in labels:
         if len(label) == 4:
             t,x,y,j = label
@@ -423,23 +513,27 @@ def build_sch_content(title,date,rev,parts,power,wires,junctions,labels,texts,mu
 # ═══ SUB-SHEET: tia_<wavelength>.kicad_sch  (on-board PD + OPA380 TIA) ═══
 def build_tia_channel(sheet_name: str):
     oy=150; ux=215
-    nIN=(ux-7.62,oy-2.54); pIN=(ux-7.62,oy+2.54); OUT=(ux+7.62,oy)
-    LRX,RRX = nIN[0], OUT[0]                          # feedback rails rise from −IN / out
-    RfY,CfY = 138, 143
+    RfY,CfY = 124, 130
     pdcx,pdcy=188,131                                # PD cluster sits ABOVE the VBIAS chain (own clear column)
+    pd_kx = pdcx - 2.54                              # Put the bypass tap on the diode cathode glyph.
     parts={
         "D1":("PHOTODIODE","SFH2201",FP_PD,"SFH2201",LCSC_PD,pdcx,pdcy),       # on-board signal PD (one wavelength)
-        "RB":("R_H","1k",FP_R,"0603WAF1001T5E",LCSC_1K,pdcx-16,pdcy),          # PD cathode → +5V bias
-        "CB":("C_V","1uF",FP_402,"CL05A105KA5NQNC",LCSC_1UF,pdcx-5.81,pdcy+6), # PD cathode bypass → GND
+        "RB":("R_H","1k",FP_R,"FRC0603F1001TS",LCSC_1K,pdcx-16,pdcy),          # PD cathode → +5V bias
+        "CB":("C_V","1uF",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,pd_kx,pdcy+6),     # PD cathode bypass → GND
         "U1":("OPA_N","OPA380AID",FP_SO8,"OPA380AID",LCSC_OPA,ux,oy),
-        "R2":("R_H","10M",FP_R,"0603WAF1005T5E",LCSC_10M,215,RfY),            # fixed Rf (no 10M SMD trimmer)
+        "R2":("R_H","10M",FP_R,"CRCW060310M0FKEA",LCSC_10M,215,RfY),          # fixed Rf (no 10M SMD trimmer)
         "C1":("C_H","10pF C0G",FP_603,"CC0603JRNPO9BN100",LCSC_10PF,215,CfY),
-        "RT":("R_V","10k",FP_R,"0603WAF1002T5E",LCSC_10K,165,140),            # bounds VBIAS ≤2.5V (OPA380 CM)
+        "RT":("R_V","10k",FP_R,"CRCW060310K0FKEA",LCSC_10K,165,140),          # bounds VBIAS ≤2.5V (OPA380 CM)
         "RV11":("POT_V","VBIAS 10k",FP_POT_SMD,"3224W-1-103E",LCSC_POT10K,165,oy+2.54),  # SMD trimmer
-        "R1":("R_H","10k",FP_R,"0603WAF1002T5E",LCSC_10K,181,oy+2.54),
-        "C11":("C_V","10uF",FP_805,"CL21A106KAYNNNE",LCSC_10UF,191,oy+12),
-        "C2":("C_V","100nF",FP_402,"CL05B104KO5NNNC",LCSC_100NF,246,oy+10),   # V+ decoupling (clear space)
+        "R1":("R_H","10k",FP_R,"CRCW060310K0FKEA",LCSC_10K,181,oy+2.54),
+        "C11":("C_V","10uF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,191,oy+12),
+        "C2":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,246,oy+10),    # V+ decoupling (clear space)
     }
+    parts = grid_parts(parts)
+    nIN=pin(parts,"U1","2"); pIN=pin(parts,"U1","3"); OUT=pin(parts,"U1","6")
+    oy = parts["U1"][6]
+    LRX,RRX = nIN[0], OUT[0]                          # feedback rails rise from −IN / out
+    RfY=pin(parts,"R2","1")[1]; CfY=pin(parts,"C1","1")[1]
     power=[]; wires=[]; labels=[]
     add_rail(power,wires,"+5V",pin(parts,"U1","7")); add_rail(power,wires,"GND",pin(parts,"U1","4"))
     add_rail(power,wires,"+5V",pin(parts,"C2","1")); add_rail(power,wires,"GND",pin(parts,"C2","2"))
@@ -454,18 +548,18 @@ def build_tia_channel(sheet_name: str):
         [OUT,(RRX,oy),(RRX,CfY),(RRX,RfY)],                    # right rail (out → Cf row → Rf row)
         [pin(parts,"R2","1"),(LRX,RfY)], [pin(parts,"R2","2"),(RRX,RfY)],   # fixed Rf across feedback rails
         [pin(parts,"C1","1"),(LRX,CfY)], [pin(parts,"C1","2"),(RRX,CfY)],
-        [OUT,(233,oy)],                                        # → V_OUT
+        [OUT,(OUT[0]+10.16,oy)],                               # → V_OUT
     ]
     junctions=[nIN,cathode,(LRX,RfY),(LRX,CfY),(RRX,RfY),(RRX,CfY),OUT]
     # VBIAS chain (at +IN level): +5V → RT → RV11 → wiper → R1 → node → C11→GND ; node → +IN
-    node=(202,oy+2.54)
+    node=(pin(parts,"C11","1")[0],pIN[1])
     add_rail(power,wires,"+5V",pin(parts,"RT","1")); add_rail(power,wires,"GND",pin(parts,"RV11","3"))
     add_rail(power,wires,"GND",pin(parts,"C11","2"))
     wires += [[pin(parts,"RT","2"),pin(parts,"RV11","1")],
               [pin(parts,"RV11","2"),pin(parts,"R1","1")],
               [pin(parts,"R1","2"),node], [node,pin(parts,"C11","1")], [node,pIN]]
     junctions.append(node)
-    labels.append(("H:V_OUT",233,oy,"left","output"))
+    labels.append(("H:V_OUT",OUT[0]+10.16,oy,"left","output"))
     texts=[
         ("TIA Channel  —  on-board SFH2201 signal PD → OPA380AID transimpedance amp  ·  reused 4× (IR / RED / GREEN / BLUE)",150,104,2.0),
         ("PD reverse-biased: cathode → +5V via RB (1k) + CB bypass ; anode → OPA380 −IN summing node.  Rf = R2 (10M) ∥ Cf = C1 (10pF).",150,110,1.3),
@@ -490,24 +584,27 @@ def build_tia_channel(sheet_name: str):
 # ═══ SUB-SHEET: laser_<wavelength>.kicad_sch  (ONE constant-current sink) ═══
 def build_laser_driver(sheet_name: str):
     oy=152; ux=210                                  # op-amp center
-    nIN=(ux-7.62,oy-2.54); pIN=(ux-7.62,oy+2.54); OUT=(ux+7.62,oy)
+    laser = LASER_MPN[sheet_name]
     parts={
         "U11":("TLV9001_SOT23_5","TLV9001",FP_SOT235,"TLV9001IDBVR",LCSC_TLV,ux,oy),
-        "LD":("LASER_CAN_MON_PD","OFFBOARD LASER+MPD","","","",315,150),
-        "R21":("R_H","10k",FP_R,"0603WAF1002T5E",LCSC_10K,172,oy+2.54),
+        "LD":(laser["symbol"],laser["value"],laser["footprint"],laser["mpn"],"",315,150),
+        "R21":("R_H","10k",FP_R,"CRCW060310K0FKEA",LCSC_10K,172,oy+2.54),
         "R22":("R_V","30k LIMIT",FP_R,"0603WAF3002T5E",LCSC_30K,198,oy+6.35),
-        "C21":("C_V","1uF",FP_402,"CL05A105KA5NQNC",LCSC_1UF,188,oy+13),
-        "C22":("C_V","100nF",FP_402,"CL05B104KO5NNNC",LCSC_100NF,235,oy+16),       # V+ decoupling (open lower-middle)
-        "R31":("R_H","1k",FP_R,"0603WAF1001T5E",LCSC_1K,232,oy),
+        "C21":("C_V","1uF",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,188,oy+13),
+        "C22":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,235,oy+16),         # V+ decoupling (open lower-middle)
+        "R31":("R_H","1k",FP_R,"FRC0603F1001TS",LCSC_1K,232,oy),
         "Q1":("NMOS","AO3400A",FP_SOT23,"AO3400A",LCSC_NMOS,254,oy),
         "R11":("R_V","10R 2W",FP_R2512,"HoCR2512-2W-10R-1%",LCSC_10R,254,oy+16),   # source sense
-        "R12":("R_H","1k",FP_R,"0603WAF1001T5E",LCSC_1K,274,oy+13.46),             # isolates ISENSE tap
+        "R12":("R_H","1k",FP_R,"FRC0603F1001TS",LCSC_1K,274,oy+13.46),             # isolates ISENSE tap
         "CC":("C_V","10pF C0G",FP_603,"CC0603JRNPO9BN100",LCSC_10PF,165,oy+15),    # loop comp (FB↔LOUT)
     }
-    power=[]; wires=[]; labels=[]
+    parts = grid_parts(parts)
+    nIN=pin(parts,"U11","4"); pIN=pin(parts,"U11","3"); OUT=pin(parts,"U11","1")
+    oy = parts["U11"][6]
+    power=[]; wires=[]; labels=[]; ncs=[]
     add_rail(power,wires,"+5V",pin(parts,"U11","5")); add_rail(power,wires,"GND",pin(parts,"U11","2"))
     add_rail(power,wires,"+5V",pin(parts,"C22","1")); add_rail(power,wires,"GND",pin(parts,"C22","2"))
-    pnode=(188,oy+2.54)
+    pnode=(pin(parts,"C21","1")[0],pIN[1])
     wires += [[pin(parts,"R21","2"),pnode,pIN], [pnode,pin(parts,"C21","1")], [pnode,pin(parts,"R22","1")]]
     add_rail(power,wires,"GND",pin(parts,"C21","2"))
     add_rail(power,wires,"GND",pin(parts,"R22","2"))
@@ -519,21 +616,32 @@ def build_laser_driver(sheet_name: str):
     junctions=[pnode,sense,OUT]
     add_stub(wires,labels,pin(parts,"R21","1"),"left","H:PWM_IN",shape="input")
     add_stub(wires,labels,pin(parts,"R12","2"),"right","H:ISENSE",shape="output")
-    cN=pin(parts,"Q1","3"); top=(cN[0],cN[1]-7)                          # drain → LASER_N and off-board LD cathode
-    ld_k=pin(parts,"LD","1")
+    cN=pin(parts,"Q1","3"); top=snap_point((cN[0],cN[1]-6.35))            # drain → LASER_N and direct/harness LD cathode
+    ld_k=pin(parts,"LD",laser["ld_k"])
     wires.append([cN,top,(ld_k[0],top[1]),ld_k]); labels.append(("H:LASER_N",top[0],top[1],"left","output"))
-    add_rail(power,wires,"LASER_VP",pin(parts,"LD","2"))
-    add_stub(wires,labels,pin(parts,"LD","3"),"right","H:MPD_RAW",dist=10,shape="output")
-    for p in (nIN,sense):                                                # FB: −IN and sense top
-        e=(p[0]-9,p[1]); wires.append([p,e]); labels.append(("FB",e[0],e[1],"right"))
-    e=(OUT[0]+4,oy-7); wires.append([OUT,(OUT[0]+4,oy),e]); labels.append(("LOUT",e[0],e[1],"left"))
-    wires.append([pin(parts,"CC","1"),(165,oy+9)]);  labels.append(("FB",165,oy+9,"right"))
-    wires.append([pin(parts,"CC","2"),(165,oy+21)]); labels.append(("LOUT",165,oy+21,"right"))
+    add_rail_dn(power,wires,"LASER_VP",pin(parts,"LD",laser["ld_a"]))
+    if "mpd" in laser:
+        add_stub(wires,labels,pin(parts,"LD",laser["mpd"]),"right","H:MPD_RAW",dist=10,shape="output")
+    else:
+        ncs.append(pin(parts,"LD",laser["case"]))
+    cc_top=pin(parts,"CC","1"); cc_bot=pin(parts,"CC","2")
+    fb_x=snap(nIN[0]-8.89); fb_y=snap(OUT[1]-6.35); fb_right=snap(sense[0]+6.35)
+    wires.append([nIN,(fb_x,nIN[1]),(fb_x,fb_y),(fb_right,fb_y),(fb_right,sense[1]),sense])
+    wires.append([cc_top,(cc_top[0],fb_y),(fb_x,fb_y)])
+    labels.append(("FB",fb_x,fb_y,"right"))
+    junctions.append((fb_x,fb_y))
+
+    lout_x=snap(OUT[0]+5.08); lout_y=snap(cc_bot[1]+11.43)
+    lout_left=snap(cc_bot[0]-7.62)
+    wires.append([OUT,(lout_x,OUT[1]),(lout_x,lout_y),(lout_left,lout_y),(lout_left,cc_bot[1]),cc_bot])
+    labels.append(("LOUT",lout_x,lout_y,"left"))
+    junctions.append((lout_x,OUT[1]))
     texts=[
         ("Laser Driver  —  TLV9001 + AO3400A constant-current sink  ·  I = V_ctrl / 10Ω  ·  reused 4× (IR / RED / GREEN / BLUE)",150,114,2.0),
         ("PWM_IN → R21/C21 with R22 30k limiter → +IN (full-scale ≈2.48V, ≈248mA) ;  −IN = FB (sense top).",150,120,1.3),
         ("TLV9001 out → R31 → Q1 gate ; source → 10Ω 2W sense → GND.  CC = loop comp (FB↔LOUT, tune in bring-up).",150,125,1.3),
-        ("Off-board PLT/A-code laser can shown for connectivity: LD_K→LASER_N, LD_A/PD_K/case→LASER_V+, PD_A→MPD_RAW→POWER_IO U12/U13.",150,130,1.3),
+        ("Direct TO-can footprint is in parallel with the J4 harness option. Use one population path per channel unless intentionally paralleling sources.",150,130,1.3),
+        ("Digikey-cart MPNs: IR/red are US-Lasers Style-A TO18 monitor cans; green is PLT5 520EB_P TO56 monitor can; blue PLT5 450GB has no monitor PD.",150,135,1.3),
     ]
     color = sheet_name.removeprefix("LASER_")
     return build_sch_content(
@@ -547,6 +655,7 @@ def build_laser_driver(sheet_name: str):
         labels,
         texts,
         mult=1,
+        ncs=ncs,
     )
 
 # ═══ SUB-SHEET: mcu.kicad_sch  (ESP32-S3 + LDO + USB Mini-B + ESD) ═══
@@ -556,12 +665,12 @@ def build_mcu():
     # Left-side components (power + USB + UART) well clear of ESP32 left edge (ex-46 = 184)
     lx = 60   # left column x
     parts={
-        "U9":("Espressif:ESP32-S3-WROOM-1","ESP32-S3-WROOM-1",FP_ESP32S3,"ESP32-S3-WROOM-1-N16R8",LCSC_ESP,ex,ey),
+        "U9":("Espressif:ESP32-S3-WROOM-1","ESP32-S3-WROOM-1",FP_ESP32S3,"ESP32-S3-WROOM-1-N16",LCSC_ESP,ex,ey),
         # Power zone (top-left corner)
         "U10":("LDO5","AP2112K-3.3",FP_SOT235,"AP2112K-3.3TRG1",LCSC_LDO,lx+20,90),
-        "C44":("C_V","1uF",FP_402,"CL05A105KA5NQNC",LCSC_1UF,lx,90),
-        "C41":("C_V","100nF",FP_402,"CL05B104KO5NNNC",LCSC_100NF,lx+40,90),
-        "C42":("C_V","10uF",FP_805,"CL21A106KAYNNNE",LCSC_10UF,lx+55,90),
+        "C44":("C_V","1uF",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,lx,90),
+        "C41":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,lx+40,90),
+        "C42":("C_V","10uF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,lx+55,90),
         # USB zone (mid-left)
         "J6":("USB_MINIB","USB Mini-B",FP_USB,"65100516121",LCSC_USB,lx,160),
         "U12":("ESD_USB","USBLC6",FP_SOT236,"USBLC6-2SC6",LCSC_ESD,lx+60,160),
@@ -570,12 +679,13 @@ def build_mcu():
         # UART (bottom-left)
         "J3":("CONN5","UART->Pi",FP_H5,"","",lx,230),
         # EN network (between LDO and ESP32, clear of symbol)
-        "REN":("R_V","10k",FP_R,"RMC060310KFN",LCSC_10K,lx+80,100),
-        "CEN":("C_V","100nF",FP_402,"CL05B104KO5NNNC",LCSC_100NF,lx+100,100),
-        "RBOOT":("R_V","10k BOOT",FP_R,"RMC060310KFN",LCSC_10K,lx+120,100),
+        "REN":("R_V","10k",FP_R,"CRCW060310K0FKEA",LCSC_10K,lx+80,100),
+        "CEN":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,lx+100,100),
+        "RBOOT":("R_V","10k BOOT",FP_R,"CRCW060310K0FKEA",LCSC_10K,lx+120,100),
         # ESP VDD decoupling (near ESP32 top)
-        "C43":("C_V","100nF",FP_402,"CL05B104KO5NNNC",LCSC_100NF,ex-20,ey-55),
+        "C43":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,ex-20,ey-55),
     }
+    parts = grid_parts(parts)
     power=[]; wires=[]; labels=[]; ncs=[]
     # ── LDO: 5V→3V3 ──
     add_rail(power,wires,"+5V",pin(parts,"U10","1")); add_rail(power,wires,"+5V",pin(parts,"U10","3"))
@@ -585,31 +695,48 @@ def build_mcu():
     for c in ("C41","C42","C43"):
         add_rail(power,wires,"+3V3",pin(parts,c,"1")); add_rail(power,wires,"GND",pin(parts,c,"2"))
     # ── EN pull-up + POR cap ──
-    add_rail(power,wires,"+3V3",pin(parts,"REN","1")); add_stub(wires,labels,pin(parts,"REN","2"),"right","ESP_EN",dist=8)
-    add_stub(wires,labels,pin(parts,"CEN","1"),"right","ESP_EN",dist=8); add_rail(power,wires,"GND",pin(parts,"CEN","2"))
-    add_rail(power,wires,"+3V3",pin(parts,"RBOOT","1")); add_stub(wires,labels,pin(parts,"RBOOT","2"),"right","ESP_BOOT",dist=8)
+    add_rail(power,wires,"+3V3",pin(parts,"REN","1"))
+    ren_en = pin(parts,"REN","2")
+    ren_en_label = (ren_en[0], round(ren_en[1]+8,4))
+    wires.append([ren_en, ren_en_label])
+    add_label(labels,ren_en_label,"ESP_EN",justify="left")
+    cen_en = pin(parts,"CEN","1")
+    cen_en_label = (cen_en[0], round(cen_en[1]-8,4))
+    wires.append([cen_en, cen_en_label])
+    add_label(labels,cen_en_label,"ESP_EN",justify="left")
+    add_rail(power,wires,"GND",pin(parts,"CEN","2"))
+    add_rail(power,wires,"+3V3",pin(parts,"RBOOT","1"))
+    boot = pin(parts,"RBOOT","2")
+    boot_label = (boot[0], round(boot[1]+8,4))
+    wires.append([boot, boot_label])
+    add_label(labels,boot_label,"ESP_BOOT",justify="left")
     # ── ESP32 power ──
     add_rail(power,wires,"+3V3",pin(parts,"U9",ESP_PIN["VDD3P3"]))
     add_rail(power,wires,"GND",pin(parts,"U9",ESP_PIN["GND"]))
     # ── USB: J6 → USBLC6 ESD → 22R series resistors → ESP32 native USB ──
-    add_stub(wires,labels,pin(parts,"J6","2"),"right","USB_DM_CONN",dist=8)
+    add_stub(wires,labels,pin(parts,"J6","2"),"left","USB_DM_CONN",dist=10)
     add_stub(wires,labels,pin(parts,"U12","1"),"left","USB_DM_CONN",dist=8)
-    add_stub(wires,labels,pin(parts,"U12","6"),"right","USB_DM_ESD",dist=8)
-    add_stub(wires,labels,pin(parts,"RUSBM","1"),"left","USB_DM_ESD",dist=6)
+    usb_dm_esd = pin(parts,"U12","6")
+    usb_dm_r = pin(parts,"RUSBM","1")
+    wires.append([usb_dm_esd, usb_dm_r])
+    add_label(labels,(usb_dm_esd[0]+2, usb_dm_esd[1]),"USB_DM_ESD",justify="left")
     add_stub(wires,labels,pin(parts,"RUSBM","2"),"right","USB_DM",dist=6)
     add_stub(wires,labels,pin(parts,"U9",ESP_PIN["USB_DM"]),"right","USB_DM",dist=18)
-    add_stub(wires,labels,pin(parts,"J6","3"),"right","USB_DP_CONN",dist=8)
+    add_stub(wires,labels,pin(parts,"J6","3"),"left","USB_DP_CONN",dist=10)
     add_stub(wires,labels,pin(parts,"U12","3"),"left","USB_DP_CONN",dist=8)
-    add_stub(wires,labels,pin(parts,"U12","4"),"right","USB_DP_ESD",dist=8)
-    add_stub(wires,labels,pin(parts,"RUSBP","1"),"left","USB_DP_ESD",dist=6)
+    usb_dp_esd = pin(parts,"U12","4")
+    usb_dp_r = pin(parts,"RUSBP","1")
+    wires.append([usb_dp_esd, usb_dp_r])
+    add_label(labels,(usb_dp_esd[0]+2, usb_dp_esd[1]),"USB_DP_ESD",justify="left")
     add_stub(wires,labels,pin(parts,"RUSBP","2"),"right","USB_DP",dist=6)
     add_stub(wires,labels,pin(parts,"U9",ESP_PIN["USB_DP"]),"right","USB_DP",dist=18)
     # ── VBUS ──
     mjunc=[]
     jv=pin(parts,"J6","1"); ev=pin(parts,"U12","5")
     vy=ev[1]-8; vtap=(round((jv[0]+ev[0])/2,4),vy)
+    wires.append([(jv[0]-8,vy),(jv[0],vy)])
     wires.append([jv,(jv[0],vy),(ev[0],vy),ev])
-    labels.append(("H:VBUS_5V",jv[0]+2,vy,"left","output"))
+    labels.append(("H:VBUS_5V",jv[0]-8,vy,"right","output"))
     power.append(("PWR_FLAG",vtap[0],vy-5)); wires.append([vtap,(vtap[0],vy-5)]); mjunc.append(vtap)
     # USB grounds
     add_rail(power,wires,"GND",pin(parts,"J6","5")); add_rail(power,wires,"GND",pin(parts,"J6","6"))
@@ -621,9 +748,19 @@ def build_mcu():
         if net=="GND":
             add_rail(power,wires,"GND",pin(parts,"J3",jp))
         else:
-            add_stub(wires,labels,pin(parts,"J3",jp),"right",net,dist=8)
-            esp_side = "left" if epin == "EN" else "right"
-            add_stub(wires,labels,pin(parts,"U9",ESP_PIN[epin]),esp_side,net,dist=18)
+            add_stub(wires,labels,pin(parts,"J3",jp),"left",net,dist=10)
+            esp_pin = pin(parts,"U9",ESP_PIN[epin])
+            if epin == "EN":
+                add_bent_label(
+                    wires,
+                    labels,
+                    esp_pin,
+                    [(174, esp_pin[1]), (174, 132), (166, 132)],
+                    net,
+                    justify="right",
+                )
+            else:
+                add_stub(wires,labels,esp_pin,"right",net,dist=18)
     # ── ESP32 right-side hierarchical pins (long stubs to clear symbol) ──
     bench_signal_names = [f"PWM{i+1}" for i in range(4)]+[f"ISENSE{i+1}" for i in range(4)]+[f"MPD{i+1}" for i in range(4)]+["CONVST"]
     bench_signal_shapes = {
@@ -633,7 +770,21 @@ def build_mcu():
         "CONVST": "output",
     }
     for nm in bench_signal_names:
-        add_stub(wires,labels,pin(parts,"U9",ESP_PIN[nm]),"right",f"H:{nm}",dist=30,shape=bench_signal_shapes[nm])
+        pin_num = ESP_PIN[nm]
+        esp_pin = pin(parts,"U9",pin_num)
+        if nm == "PWM1":
+            add_bent_label(
+                wires,
+                labels,
+                esp_pin,
+                [(174, esp_pin[1]), (174, 136), (150, 136)],
+                f"H:{nm}",
+                justify="right",
+                shape=bench_signal_shapes[nm],
+            )
+            continue
+        side = "left" if SYM["Espressif:ESP32-S3-WROOM-1"]["pins"][pin_num][0] < 0 else "right"
+        add_stub(wires,labels,esp_pin,side,f"H:{nm}",dist=30,shape=bench_signal_shapes[nm])
     used_esp_pins = {
         ESP_PIN["GND"], ESP_PIN["VDD3P3"], ESP_PIN["EN"], ESP_PIN["BOOT"],
         ESP_PIN["U0TXD"], ESP_PIN["U0RXD"], ESP_PIN["USB_DM"], ESP_PIN["USB_DP"],
@@ -669,22 +820,27 @@ def build_power_io():
         "D11":("SCHOTTKY","SS14",FP_SMA,"SS14",LCSC_SCH,80,74),
         "J2":("CONN2","EXT 5V",FP_H2,"","",45,74),
         "J5":("CONN2","LASER PSU",FP_H2,"","",45,110),
-        "C50":("C_V","10uF",FP_805,"CL21A106KAYNNNE",LCSC_10UF,105,64),
+        "C50":("C_V","10uF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,105,64),
+        "U3V3":("LDO5","AP2112K-3.3",FP_SOT235,"AP2112K-3.3TRG1",LCSC_LDO,130,64),
+        "C3V3IN":("C_V","1uF",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,116,64),
+        "C3V3OUT":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,148,60),
+        "C3V3BULK":("C_V","10uF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,162,60),
         "J1":("CONN6","AD7606 out",FP_H6,"","",250,70),
-        "J4":("CONN10","LASER+MPD out",FP_H10,"","",340,135),
-        "UMPD":("INA4180_TSSOP14","INA4180A1",FP_TSSOP14,"INA4180A1IPWR",LCSC_INA4180,192,132),
+        "J4":("CONN10","LASER+MPD out",FP_H10,"","",360,135),
+        "UMPD":("INA4180_TSSOP14","INA4180A1",FP_TSSOP14,"INA4180A1IPWR",LCSC_INA4180,178,132),
         "UREF":("LM4040_DBZ","LM4040C50 5V",FP_SOT23,"LM4040C50IDBZR",LCSC_LM4040,114,122),
-        "CINA":("C_V","100nF",FP_402,"CL05B104KO5NNNC",LCSC_100NF,172,88),
-        "CREF":("C_V","100nF MPD bias",FP_402,"CL05B104KO5NNNC",LCSC_100NF,128,122),
-        "RBIAS":("R_V","2.49k MPD bias",FP_R,"0603WAF2491T5E",LCSC_249K,132,146),
+        "CINA":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,172,88),
+        "CREF":("C_V","100nF MPD bias",FP_402,"0402B104K160CT",LCSC_100NF,128,122),
+        "RBIAS":("R_V","2.49k MPD bias",FP_R,"CRCW06032K49FKEAHP",LCSC_249K,132,146),
     }
     for i in range(4):
         sense_y = 110 + i*12
         adc_y = 114 + i*12
-        parts[f"RMPD{i+1}"] = ("R_H","750R MPD sense",FP_R,"RC0603FR-07750RL",LCSC_750R,218,sense_y)
-        parts[f"RADC{i+1}"] = ("R_H","1k ADC",FP_R,"0603WAF1001T5E",LCSC_1K,260,adc_y)
-        parts[f"CMPD{i+1}"] = ("C_V","100nF MPD ADC",FP_402,"CL05B104KO5NNNC",LCSC_100NF,280,adc_y+2.54)
-    power=[]; wires=[]; labels=[]
+        parts[f"RMPD{i+1}"] = ("R_H","750R MPD sense",FP_R,"RC0603FR-07750RL",LCSC_750R,236,sense_y)
+        parts[f"RADC{i+1}"] = ("R_H","1k ADC",FP_R,"FRC0603F1001TS",LCSC_1K,288,adc_y)
+        parts[f"CMPD{i+1}"] = ("C_V","100nF MPD ADC",FP_402,"0402B104K160CT",LCSC_100NF,306,adc_y+2.54)
+    parts = grid_parts(parts)
+    power=[]; wires=[]; labels=[]; ncs=[]
     # 5V OR-ing
     add_stub(wires,labels,pin(parts,"D10","1"),"left","H:VBUS_5V",shape="input")
     add_rail(power,wires,"+5V",pin(parts,"D10","2"))
@@ -693,6 +849,18 @@ def build_power_io():
     add_rail(power,wires,"+5V",pin(parts,"D11","2"))
     add_rail(power,wires,"GND",pin(parts,"J2","2"))
     add_rail(power,wires,"+5V",pin(parts,"C50","1")); add_rail(power,wires,"GND",pin(parts,"C50","2"))
+    # Board 3V3 source for the imported access-controller MCU sheet.
+    add_rail(power,wires,"+5V",pin(parts,"U3V3","1"))
+    add_rail(power,wires,"+5V",pin(parts,"U3V3","3"))
+    add_rail(power,wires,"GND",pin(parts,"U3V3","2"))
+    add_rail(power,wires,"+3V3",pin(parts,"U3V3","5"))
+    ncs.append(pin(parts,"U3V3","4"))
+    add_rail(power,wires,"+5V",pin(parts,"C3V3IN","1"))
+    add_rail(power,wires,"GND",pin(parts,"C3V3IN","2"))
+    add_rail(power,wires,"+3V3",pin(parts,"C3V3OUT","1"))
+    add_rail(power,wires,"GND",pin(parts,"C3V3OUT","2"))
+    add_rail(power,wires,"+3V3",pin(parts,"C3V3BULK","1"))
+    add_rail(power,wires,"GND",pin(parts,"C3V3BULK","2"))
     # laser supply rail
     add_rail(power,wires,"LASER_VP",pin(parts,"J5","1")); add_rail(power,wires,"GND",pin(parts,"J5","2"))
     # AD7606 outputs: 4 TIA outputs + CONVST + GND  (dist=9 so labels clear the header pin numbers)
@@ -722,7 +890,7 @@ def build_power_io():
     cref_label = (cref_bias[0], round(cref_bias[1]+8,4))
     wires.append([cref_bias, cref_label])
     labels.append(("MPD_BIAS", cref_label[0], cref_label[1], "left"))
-    add_stub(wires,labels,pin(parts,"RBIAS","1"),"right","MPD_BIAS",dist=7)
+    add_stub(wires,labels,pin(parts,"RBIAS","1"),"left","MPD_BIAS",dist=10)
     add_rail(power,wires,"GND",pin(parts,"RBIAS","2"))
 
     ina_in_plus = {1:"3", 2:"5", 3:"10", 4:"12"}
@@ -731,14 +899,17 @@ def build_power_io():
     for i in range(1,5):
         raw = f"MPD_RAW{i}"
         amp = f"MPD_AMP{i}"
-        add_stub(wires,labels,pin(parts,f"RMPD{i}","1"),"left",raw,dist=7)
-        add_stub(wires,labels,pin(parts,f"RMPD{i}","2"),"right","MPD_BIAS",dist=7)
-        add_stub(wires,labels,pin(parts,"UMPD",ina_in_plus[i]),"left",raw,dist=7)
-        add_stub(wires,labels,pin(parts,"UMPD",ina_in_minus[i]),"left","MPD_BIAS",dist=7)
-        add_stub(wires,labels,pin(parts,"UMPD",ina_out[i]),"right",amp,dist=7)
-        add_stub(wires,labels,pin(parts,f"RADC{i}","1"),"left",amp,dist=7)
-        add_stub(wires,labels,pin(parts,f"RADC{i}","2"),"right",f"H:MPD{i}",dist=7,shape="output")
-        add_stub(wires,labels,pin(parts,f"CMPD{i}","1"),"right",f"H:MPD{i}",dist=5,shape="output")
+        add_stub(wires,labels,pin(parts,f"RMPD{i}","1"),"left",raw,dist=14)
+        add_stub(wires,labels,pin(parts,f"RMPD{i}","2"),"right","MPD_BIAS",dist=11)
+        add_stub(wires,labels,pin(parts,"UMPD",ina_in_plus[i]),"left",raw,dist=8.89)
+        add_stub(wires,labels,pin(parts,"UMPD",ina_in_minus[i]),"left","MPD_BIAS",dist=8.89)
+        add_stub(wires,labels,pin(parts,"UMPD",ina_out[i]),"right",amp,dist=12)
+        add_stub(wires,labels,pin(parts,f"RADC{i}","1"),"left",amp,dist=12)
+        radc_out = pin(parts,f"RADC{i}","2")
+        cmpd_top = pin(parts,f"CMPD{i}","1")
+        mpd_label = (cmpd_top[0] + 10, cmpd_top[1])
+        wires.append([radc_out, cmpd_top, mpd_label])
+        add_label(labels,mpd_label,f"H:MPD{i}",justify="left",shape="output")
         add_rail(power,wires,"GND",pin(parts,f"CMPD{i}","2"))
     # PWR_FLAGs — declare the externally-supplied rails as sources (silences ERC)
     junctions=[]
@@ -748,8 +919,8 @@ def build_power_io():
     da=pin(parts,"D10","1")                         # D10 anode = VBUS_5V net
     power.append(("PWR_FLAG",da[0],da[1]+9)); wires.append([da,(da[0],da[1]+9)]); junctions.append(da)
     texts=[
-        ("Power & I/O  —  USB‖external 5V OR-ing, separate laser supply, AD7606 outputs, laser + monitor-PD outputs",36,16,2.2),
-        ("J6 = ext +5V in;  USB VBUS (from J1) ‖ J6 OR-ed via SS14 Schottkys (D5/D6) → +5V.  J5 = laser anode supply (LASER_V+).",36,22,1.3),
+        ("Power & I/O  —  USB‖external 5V OR-ing, AP2112 +3V3 source, separate laser supply, AD7606 outputs, laser + monitor-PD outputs",36,16,2.2),
+        ("J6 = ext +5V in;  USB VBUS (from MCU J1) ‖ J6 OR-ed via SS14 Schottkys (D5/D6) → +5V; U11 AP2112K-3.3 → +3V3.",36,22,1.3),
         ("J3 → external AD7606 (VOUT1..4 = the 4 TIA outputs + CONVST + GND).  J4 → LASER_N/MPD_RAW pairs + LASER_V+ + GND shield/return.",36,28,1.3),
         ("MPD_RAWx -> 750R sense to MPD_BIAS; INA4180A1 gain=20 -> 1k/100nF -> MPDx ESP32 ADC.",36,34,1.3),
         ("LM4040C50 holds LASER_V+ - MPD_BIAS near 5V; PLT5 typ 150uA -> about 2.25V ADC and about 4.89V monitor-PD reverse bias.",36,40,1.3),
@@ -766,11 +937,13 @@ def build_power_io():
         labels,
         texts,
         mult=1,
+        ncs=ncs,
     )
 
 # ═══ ROOT SHEET: laser_controller.kicad_sch ═══
 def gl(name,x,y,j):
     ang = 180 if j=="right" else 0
+    x, y = snap(x), snap(y)
     return f'  (global_label "{name}" (shape bidirectional) (at {fmt(x)} {fmt(y)} {ang}) (effects (font (size 1.27 1.27)) (justify {j})) (uuid {uid()}))'
 
 def build_root():
@@ -780,6 +953,8 @@ def build_root():
        '    (date "2026-06-24")','    (rev "v9")','    (company "Vivonics")',"  )"]
     extra=[]
     def sheet(name,file,sx,sy,w,h,pins,fontsz=1.4,pps=7):
+        sx, sy, w, h = snap(sx), snap(sy), snap(w), snap(h)
+        pps = snap(pps)
         P.append(f"  (sheet (at {fmt(sx)} {fmt(sy)}) (size {fmt(w)} {fmt(h)}) (stroke (width 0.254) (type solid)) (fill (color 0 0 0 0.0))")
         P.append(f"    (uuid {uid()})")
         P.append(f'    (property "Sheetname" "{name}" (at {fmt(sx)} {fmt(sy-3)} 0) (effects (font (size {fontsz} {fontsz})) (justify left bottom)))')
@@ -788,11 +963,11 @@ def build_root():
         for grp,side in ((lefts,"left"),(rights,"right")):
             for i,(pn,pin_type,_,net) in enumerate(grp):
                 px = sx if side=="left" else sx+w
-                py = sy+8+i*pps
+                py = snap(sy+7.62+i*pps)
                 ang = 180 if side=="left" else 0
                 just = "right" if side=="left" else "left"
                 P.append(f'    (pin "{pn}" {pin_type} (at {fmt(px)} {fmt(py)} {ang}) (effects (font (size 1.0 1.0)) (justify {just})) (uuid {uid()}))')
-                ex = px-8 if side=="left" else px+8
+                ex = snap(px-7.62 if side=="left" else px+7.62)
                 extra.append(f"  (wire (pts (xy {fmt(px)} {fmt(py)}) (xy {fmt(ex)} {fmt(py)})) (stroke (width 0) (type default)) (uuid {uid()}))")
                 extra.append(gl(net,ex,py,"right" if side=="left" else "left"))
         P.append("  )")
@@ -804,16 +979,34 @@ def build_root():
               [("V_OUT","output","right",f"VOUT{i+1}")])
     # Laser drivers (column 2)
     for i,wl in enumerate(WL):
-        sheet(f"LASER_{wl}",f"laser_{wl.lower()}.kicad_sch",240,rows[i],62,34,
-              [("PWM_IN","input","left",f"PWM{i+1}"),
-               ("LASER_N","output","right",f"LASER_N{i+1}"),
-               ("ISENSE","output","right",f"ISENSE{i+1}"),
-               ("MPD_RAW","output","right",f"MPD_RAW{i+1}")])
-    # MCU (column 3, top) — control pins on the left (facing the lasers)
-    mcu_pins=[(f"PWM{i+1}","output","left",f"PWM{i+1}") for i in range(4)]+[
-        (f"ISENSE{i+1}","input","left",f"ISENSE{i+1}") for i in range(4)]+[
-        (f"MPD{i+1}","input","left",f"MPD{i+1}") for i in range(4)]+[
-        ("CONVST","output","left","CONVST"),("VBUS_5V","output","left","VBUS_5V")]
+        laser_pins = [
+            ("PWM_IN","input","left",f"PWM{i+1}"),
+            ("LASER_N","output","right",f"LASER_N{i+1}"),
+            ("ISENSE","output","right",f"ISENSE{i+1}"),
+        ]
+        if wl != "BLUE":
+            laser_pins.append(("MPD_RAW","output","right",f"MPD_RAW{i+1}"))
+        sheet(f"LASER_{wl}",f"laser_{wl.lower()}.kicad_sch",240,rows[i],62,34,laser_pins)
+    # MCU (column 3, top).  The imported access-controller MCU sheet exposes
+    # generic ESP32 GPIO names; map the bench control/telemetry nets at the
+    # root so the MCU page can stay visually aligned with the source design.
+    mcu_pins=[
+        ("IO10","output","left","PWM1"),
+        ("IO11","output","left","PWM2"),
+        ("IO12","output","left","PWM3"),
+        ("IO16","output","left","PWM4"),
+        ("IO4","input","left","ISENSE1"),
+        ("IO5","input","left","ISENSE2"),
+        ("IO6","input","left","ISENSE3"),
+        ("IO7","input","left","ISENSE4"),
+        ("IO2","input","left","MPD1"),
+        ("IO3","input","left","MPD2"),
+        ("IO8","input","left","MPD3"),
+        ("IO9","input","left","MPD4"),
+        ("IO15","output","left","CONVST"),
+        ("5V","output","left","VBUS_5V"),
+        ("3V3","input","left","+3V3"),
+    ]
     sheet("MCU_ESP32-S3","mcu.kicad_sch",430,rows[0],95,118,mcu_pins)
     # POWER_IO (column 3, bottom)
     pio_pins=[(f"VOUT{i+1}","input","left",f"VOUT{i+1}") for i in range(4)]+[
@@ -821,32 +1014,76 @@ def build_root():
         (f"LASER_N{i+1}","input","left",f"LASER_N{i+1}") for i in range(4)]+[
         (f"MPD_RAW{i+1}","input","left",f"MPD_RAW{i+1}") for i in range(4)]+[
         (f"MPD{i+1}","output","left",f"MPD{i+1}") for i in range(4)]
-    sheet("POWER_IO","power_io.kicad_sch",430,rows[3]+24,95,140,pio_pins)
+    sheet("POWER_IO","power_io.kicad_sch",430,220,95,140,pio_pins,pps=6.5)
 
     P+=extra
-    P.append(f'  (text "LASER CONTROLLER  ·  Vivonics  ·  rev v9   —   1 channel x 4 wavelengths (IR / RED / GREEN / BLUE)  ·  TIA x4  ·  laser_driver x4  ·  monitor PD ADC x4  ·  mcu  ·  power_io" (at 40 30 0) (effects (font (size 2.4 2.4)) (justify left)) (uuid {uid()}))')
-    P.append(f'  (text "Global-label nets join the sheet pins (VOUT1..4, PWM1..4, ISENSE1..4, MPD_RAW1..4, MPD1..4, LASER_N1..4, CONVST, VBUS_5V).   +5V / +3V3 / LASER_V+ / GND are global power.   Each channel = 1 laser + current-sense + internal monitor PD + external/sample PD TIA." (at 40 36 0) (effects (font (size 1.6 1.6)) (justify left)) (uuid {uid()}))')
+    P.append(f'  (text "LASER CONTROLLER  ·  Vivonics  ·  rev v9   —   1 channel x 4 wavelengths (IR / RED / GREEN / BLUE)  ·  TIA x4  ·  laser_driver x4  ·  monitor PD ADC x3+spare  ·  mcu  ·  power_io" (at 40 30 0) (effects (font (size 2.4 2.4)) (justify left)) (uuid {uid()}))')
+    P.append(f'  (text "Global-label nets join sheet pins (VOUT1..4, PWM1..4, ISENSE1..4, MPD_RAW1..3 plus open MPD_RAW4 header/front-end, MPD1..4, LASER_N1..4, CONVST, VBUS_5V, +3V3). MCU mapping: IO10/11/12/16=PWM1..4, IO4..7=ISENSE1..4, IO2/3/8/9=MPD1..4, IO15=CONVST." (at 40 36 0) (effects (font (size 1.6 1.6)) (justify left)) (uuid {uid()}))')
     P+=['  (sheet_instances','    (path "/" (page "1"))',"  )",")"]
     txt="\n".join(P)+"\n"
     assert sum((c=="(")-(c==")") for c in txt)==0,"paren imbalance in root"
     return txt
 
 # ═══ BOM ═══
+def imported_sheet_parts(path: Path) -> dict[str, tuple]:
+    if not path.exists():
+        return {}
+    text = path.read_text()
+    start = text.find("\n  (symbol (lib_id")
+    body = text[start + 1:] if start >= 0 else text
+    blocks = []
+    current = []
+    depth = 0
+    in_block = False
+    for line in body.splitlines():
+        if not in_block and line.startswith('  (symbol (lib_id "'):
+            current = [line]
+            depth = line.count("(") - line.count(")")
+            in_block = True
+            continue
+        if in_block:
+            current.append(line)
+            depth += line.count("(") - line.count(")")
+            if depth == 0:
+                blocks.append("\n".join(current))
+                in_block = False
+
+    parts = {}
+    for block in blocks:
+        def field(pattern: str) -> str:
+            match = re.search(pattern, block)
+            return match.group(1).strip() if match else ""
+        ref = field(r'\(property "Reference" "([^#][^"]*)"')
+        if not ref:
+            continue
+        parts[ref] = (
+            field(r'\(symbol \(lib_id "([^"]+)"'),
+            field(r'\(property "Value" "([^"]*)"'),
+            field(r'\(property "Footprint" "([^"]*)"'),
+            field(r'\(property "Part Number" "([^"]*)"'),
+            field(r'\(property "LCSC" "([^"]*)"'),
+            0,
+            0,
+        )
+    return parts
+
 def build_bom():
     groups={}; hand={}; ctr={}
-    for sheet,(mult,parts) in BOM_REG.items():
+    bom_sources = dict(BOM_REG)
+    bom_sources["MCU_ESP32-S3_IMPORTED"] = (1, imported_sheet_parts(OUT_DIR / "mcu.kicad_sch"))
+    for sheet,(mult,parts) in bom_sources.items():
         for ref,(sym,val,fp,mpn,lcsc,x,y) in parts.items():
-            if sym in HAND or sym in OFFBOARD or lcsc=="":
+            if sym in HAND or sym in NON_SMT_ASSEMBLY or lcsc=="":
                 hand[(val,mpn)] = hand.get((val,mpn),0)+mult; continue
             for _ in range(mult):
                 groups.setdefault((val,fp,lcsc),[]).append(ref)
     rows=["Comment,Designator,Footprint,LCSC"]; n=0
     for (val,fp,lcsc),refs in sorted(groups.items(), key=lambda kv:(kv[0][2],kv[0][0])):
         n+=len(refs); rows.append(f'"{val}","{",".join(refs)}","{fp}","{lcsc}"')
-    out="\n".join(rows)+"\n#\n# Hand-add / off-board (not in SMT assembly):\n"
+    out="\n".join(rows)+"\n#\n# Hand-add / not in SMT assembly:\n"
     for (val,mpn),qty in sorted(hand.items()): out+=f"#   {qty}x {val}  ({mpn})\n"
     out+=f"# SMT placements: {n}.  Designators are generated uniquely by the schematic generator.\n"
-    out+="# NOTE: 10k uses C269701 (TyoHM/RMC060310KFN class 0603 1%); verify stock at order.\n"
+    out+="# NOTE: BOM LCSC codes were refreshed against live LCSC product pages on 2026-06-28.\n"
     out+="# NOTE: SFH2201 (C2900216) clear broadband Si PIN PD — covers blue/green/red/IR; JLCPCB Extended (one-time feeder fee).\n"
     return out
 
@@ -861,11 +1098,11 @@ def atomic_write(path, text):
     os.replace(tmp,path)
 
 def main():
+    _pwr_ctr[0] = 200
     BOM_REG.clear()
     sheets = {
         **{f"tia_{wl.lower()}.kicad_sch": build_tia_channel(f"TIA_{wl}") for wl in WL},
         **{f"laser_{wl.lower()}.kicad_sch": build_laser_driver(f"LASER_{wl}") for wl in WL},
-        "mcu.kicad_sch": build_mcu(),
         "power_io.kicad_sch": build_power_io(),
         "laser_controller.kicad_sch": build_root(),
     }

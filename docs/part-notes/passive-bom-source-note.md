@@ -8,13 +8,13 @@ Source:
 
 Current passive families:
 - 10 pF C0G 0603: `CC0603JRNPO9BN100`, LCSC `C106245`
-- 100 nF 0402: `CL05B104KO5NNNC`, LCSC `C1525`
-- 1 uF 0402: `CL05A105KA5NQNC`, LCSC `C52923`
-- 10 uF 0805: `CL21A106KAYNNNE`, LCSC `C15850`
+- 100 nF 0402: `0402B104K160CT`, LCSC `C83056`
+- 1 uF 0402: `HGC0402R5105K250NTEJ`, LCSC `C7472946`
+- 10 uF 0805: `CL21A106KAYNNNG`, LCSC `C318691`
 - 1 k / 10 k / 30 k / 22 ohm / 10 M 0603 resistor families as encoded in
   the generated BOM and netlist checker.
 - 750 ohm 0603 monitor-PD sense resistor: `RC0603FR-07750RL`, LCSC `C114635`.
-- 2.49 k 0603 monitor-bias sink resistor: `0603WAF2491T5E`, LCSC `C22908`.
+- 2.49 k 0603 monitor-bias sink resistor: `CRCW06032K49FKEAHP`, LCSC `C2099849`.
 - 10 ohm 2512 2 W laser sense resistors: `HoCR2512-2W-10R-1%`, LCSC `C5123624`.
 
 Current verification:

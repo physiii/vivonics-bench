@@ -2,7 +2,170 @@
   "board": {
     "3dviewports": [],
     "design_settings": {
-      "rules": {}
+      "defaults": {
+        "board_outline_line_width": 0.049999999999999996,
+        "copper_line_width": 0.19999999999999998,
+        "copper_text_italic": false,
+        "copper_text_size_h": 1.5,
+        "copper_text_size_v": 1.5,
+        "copper_text_thickness": 0.3,
+        "copper_text_upright": false,
+        "courtyard_line_width": 0.049999999999999996,
+        "dimension_precision": 4,
+        "dimension_units": 3,
+        "dimensions": {
+          "arrow_length": 1270000,
+          "extension_offset": 500000,
+          "keep_text_aligned": true,
+          "suppress_zeroes": false,
+          "text_position": 0,
+          "units_format": 1
+        },
+        "fab_line_width": 0.09999999999999999,
+        "fab_text_italic": false,
+        "fab_text_size_h": 1.0,
+        "fab_text_size_v": 1.0,
+        "fab_text_thickness": 0.15,
+        "fab_text_upright": false,
+        "other_line_width": 0.09999999999999999,
+        "other_text_italic": false,
+        "other_text_size_h": 1.0,
+        "other_text_size_v": 1.0,
+        "other_text_thickness": 0.15,
+        "other_text_upright": false,
+        "pads": {
+          "drill": 0.762,
+          "height": 1.524,
+          "width": 1.524
+        },
+        "silk_line_width": 0.09999999999999999,
+        "silk_text_italic": false,
+        "silk_text_size_h": 1.0,
+        "silk_text_size_v": 1.0,
+        "silk_text_thickness": 0.09999999999999999,
+        "silk_text_upright": false,
+        "zones": {
+          "min_clearance": 0.5
+        }
+      },
+      "diff_pair_dimensions": [],
+      "drc_exclusions": [],
+      "meta": {
+        "version": 2
+      },
+      "rule_severities": {
+        "annular_width": "error",
+        "clearance": "error",
+        "connection_width": "warning",
+        "copper_edge_clearance": "error",
+        "copper_sliver": "warning",
+        "courtyards_overlap": "error",
+        "diff_pair_gap_out_of_range": "error",
+        "diff_pair_uncoupled_length_too_long": "error",
+        "drill_out_of_range": "error",
+        "duplicate_footprints": "warning",
+        "extra_footprint": "warning",
+        "footprint": "error",
+        "footprint_type_mismatch": "ignore",
+        "hole_clearance": "error",
+        "hole_near_hole": "error",
+        "invalid_outline": "error",
+        "isolated_copper": "warning",
+        "item_on_disabled_layer": "error",
+        "items_not_allowed": "error",
+        "length_out_of_range": "error",
+        "lib_footprint_issues": "warning",
+        "lib_footprint_mismatch": "warning",
+        "malformed_courtyard": "error",
+        "microvia_drill_out_of_range": "error",
+        "missing_courtyard": "ignore",
+        "missing_footprint": "warning",
+        "net_conflict": "warning",
+        "npth_inside_courtyard": "ignore",
+        "padstack": "warning",
+        "pth_inside_courtyard": "ignore",
+        "shorting_items": "error",
+        "silk_edge_clearance": "warning",
+        "silk_over_copper": "warning",
+        "silk_overlap": "warning",
+        "skew_out_of_range": "error",
+        "solder_mask_bridge": "error",
+        "starved_thermal": "error",
+        "text_height": "warning",
+        "text_thickness": "warning",
+        "through_hole_pad_without_hole": "error",
+        "too_many_vias": "error",
+        "track_dangling": "warning",
+        "track_width": "error",
+        "tracks_crossing": "error",
+        "unconnected_items": "error",
+        "unresolved_variable": "error",
+        "via_dangling": "warning",
+        "zones_intersect": "error"
+      },
+      "rules": {
+        "max_error": 0.005,
+        "min_clearance": 0.0,
+        "min_connection": 0.0,
+        "min_copper_edge_clearance": 0.5,
+        "min_hole_clearance": 0.25,
+        "min_hole_to_hole": 0.25,
+        "min_microvia_diameter": 0.19999999999999998,
+        "min_microvia_drill": 0.09999999999999999,
+        "min_resolved_spokes": 2,
+        "min_silk_clearance": 0.0,
+        "min_text_height": 0.7999999999999999,
+        "min_text_thickness": 0.08,
+        "min_through_hole_diameter": 0.3,
+        "min_track_width": 0.0,
+        "min_via_annular_width": 0.09999999999999999,
+        "min_via_diameter": 0.5,
+        "solder_mask_to_copper_clearance": 0.0,
+        "use_height_for_length_calcs": true
+      },
+      "teardrop_options": [
+        {
+          "td_allow_use_two_tracks": true,
+          "td_curve_segcount": 5,
+          "td_on_pad_in_zone": false,
+          "td_onpadsmd": true,
+          "td_onroundshapesonly": false,
+          "td_ontrackend": false,
+          "td_onviapad": true
+        }
+      ],
+      "teardrop_parameters": [
+        {
+          "td_curve_segcount": 0,
+          "td_height_ratio": 1.0,
+          "td_length_ratio": 0.5,
+          "td_maxheight": 2.0,
+          "td_maxlen": 1.0,
+          "td_target_name": "td_round_shape",
+          "td_width_to_size_filter_ratio": 0.9
+        },
+        {
+          "td_curve_segcount": 0,
+          "td_height_ratio": 1.0,
+          "td_length_ratio": 0.5,
+          "td_maxheight": 2.0,
+          "td_maxlen": 1.0,
+          "td_target_name": "td_rect_shape",
+          "td_width_to_size_filter_ratio": 0.9
+        },
+        {
+          "td_curve_segcount": 0,
+          "td_height_ratio": 1.0,
+          "td_length_ratio": 0.5,
+          "td_maxheight": 2.0,
+          "td_maxlen": 1.0,
+          "td_target_name": "td_track_end",
+          "td_width_to_size_filter_ratio": 0.9
+        }
+      ],
+      "track_widths": [],
+      "via_dimensions": [],
+      "zones_allow_external_fillets": false
     },
     "layer_presets": [],
     "viewports": []
@@ -244,7 +407,126 @@
         "name": "Default",
         "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.25,
+        "via_diameter": 0.8,
+        "via_drill": 0.4,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Digital_Control",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.25,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.2,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Laser_Control",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.25,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.3,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Laser_Current",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 1.0,
+        "via_diameter": 1.2,
+        "via_drill": 0.6,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.25,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Monitor_ADC",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.2,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.25,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "Power_Rails",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.6,
+        "via_diameter": 1.0,
+        "via_drill": 0.5,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.25,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "TIA_Sensitive",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.2,
+        "via_diameter": 0.6,
+        "via_drill": 0.3,
+        "wire_width": 6
+      },
+      {
+        "bus_width": 12,
+        "clearance": 0.18,
+        "diff_pair_gap": 0.25,
+        "diff_pair_via_gap": 0.25,
+        "diff_pair_width": 0.2,
+        "line_style": 0,
+        "microvia_diameter": 0.3,
+        "microvia_drill": 0.1,
+        "name": "USB",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "schematic_color": "rgba(0, 0, 0, 0.000)",
+        "track_width": 0.25,
         "via_diameter": 0.6,
         "via_drill": 0.3,
         "wire_width": 6
@@ -255,7 +537,436 @@
     },
     "net_colors": null,
     "netclass_assignments": null,
-    "netclass_patterns": []
+    "netclass_patterns": [
+      {
+        "netclass": "Laser_Current",
+        "pattern": "/LASER_BLUE/FB"
+      },
+      {
+        "netclass": "Laser_Current",
+        "pattern": "/LASER_GREEN/FB"
+      },
+      {
+        "netclass": "Laser_Current",
+        "pattern": "/LASER_IR/FB"
+      },
+      {
+        "netclass": "Laser_Current",
+        "pattern": "/LASER_RED/FB"
+      },
+      {
+        "netclass": "Laser_Current",
+        "pattern": "LASER_N1"
+      },
+      {
+        "netclass": "Laser_Current",
+        "pattern": "LASER_N2"
+      },
+      {
+        "netclass": "Laser_Current",
+        "pattern": "LASER_N3"
+      },
+      {
+        "netclass": "Laser_Current",
+        "pattern": "LASER_N4"
+      },
+      {
+        "netclass": "Laser_Current",
+        "pattern": "LASER_V+"
+      },
+      {
+        "netclass": "Power_Rails",
+        "pattern": "+3V3"
+      },
+      {
+        "netclass": "Power_Rails",
+        "pattern": "+5V"
+      },
+      {
+        "netclass": "Power_Rails",
+        "pattern": "/POWER_IO/EXT5V"
+      },
+      {
+        "netclass": "Power_Rails",
+        "pattern": "GND"
+      },
+      {
+        "netclass": "Power_Rails",
+        "pattern": "VBUS_5V"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(D1-A)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(D1-K)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(D2-A)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(D2-K)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(D3-A)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(D3-K)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(D4-A)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(D4-K)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(R12-Pad2)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(R16-Pad2)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(R4-Pad2)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(R8-Pad2)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(RV1-W)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(RV2-W)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(RV3-W)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(RV4-W)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(U1-+)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(U2-+)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(U3-+)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "Net-(U4-+)"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "VOUT1"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "VOUT2"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "VOUT3"
+      },
+      {
+        "netclass": "TIA_Sensitive",
+        "pattern": "VOUT4"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "ISENSE1"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "ISENSE2"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "ISENSE3"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "ISENSE4"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "MPD1"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "MPD2"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "MPD3"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "MPD4"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "MPD_RAW1"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "MPD_RAW2"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "MPD_RAW3"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "MPD_RAW4"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "/LASER_BLUE/LOUT"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "/LASER_GREEN/LOUT"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "/LASER_IR/LOUT"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "/LASER_RED/LOUT"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "Net-(Q1-G)"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "Net-(Q2-G)"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "Net-(Q3-G)"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "Net-(Q4-G)"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "Net-(U5-+)"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "Net-(U6-+)"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "Net-(U7-+)"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "Net-(U8-+)"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "PWM1"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "PWM2"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "PWM3"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "PWM4"
+      },
+      {
+        "netclass": "Digital_Control",
+        "pattern": "CONVST"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/D+"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/D-"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/DTR"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/EN"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/FACT"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO13"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO14"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO17"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO18"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO19"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO20"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO21"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO35"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO36"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO37"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO38"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO39"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO40"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO41"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO42"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO43"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO44"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO45"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO46"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO47"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/IO48"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/PROG"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/MCU_ESP32-S3/RTS"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/POWER_IO/MPD_AMP1"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/POWER_IO/MPD_AMP2"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/POWER_IO/MPD_AMP3"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/POWER_IO/MPD_AMP4"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "/POWER_IO/MPD_BIAS"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "Net-(D10-A)"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "Net-(D13-A)"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "Net-(Q5-B)"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "Net-(Q6-B)"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "Net-(U10-VBUS)"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "Net-(U10-~{RST})"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "Net-(U10-~{SUSPEND})"
+      }
+    ]
   },
   "pcbnew": {
     "last_paths": {
@@ -308,43 +1019,43 @@
       ""
     ],
     [
-      "c1d2e3f4-6000-4000-a000-000000000471",
+      "c1d2e3f4-6000-4000-a000-000000001150",
       "TIA_IR"
     ],
     [
-      "c1d2e3f4-6000-4000-a000-000000000475",
+      "c1d2e3f4-6000-4000-a000-000000001154",
       "TIA_RED"
     ],
     [
-      "c1d2e3f4-6000-4000-a000-000000000479",
+      "c1d2e3f4-6000-4000-a000-000000001158",
       "TIA_GREEN"
     ],
     [
-      "c1d2e3f4-6000-4000-a000-000000000483",
+      "c1d2e3f4-6000-4000-a000-000000001162",
       "TIA_BLUE"
     ],
     [
-      "c1d2e3f4-6000-4000-a000-000000000487",
+      "c1d2e3f4-6000-4000-a000-000000001166",
       "LASER_IR"
     ],
     [
-      "c1d2e3f4-6000-4000-a000-000000000497",
+      "c1d2e3f4-6000-4000-a000-000000001179",
       "LASER_RED"
     ],
     [
-      "c1d2e3f4-6000-4000-a000-000000000507",
+      "c1d2e3f4-6000-4000-a000-000000001192",
       "LASER_GREEN"
     ],
     [
-      "c1d2e3f4-6000-4000-a000-000000000517",
+      "c1d2e3f4-6000-4000-a000-000000001205",
       "LASER_BLUE"
     ],
     [
-      "c1d2e3f4-6000-4000-a000-000000000527",
+      "c1d2e3f4-6000-4000-a000-000000001215",
       "MCU_ESP32-S3"
     ],
     [
-      "c1d2e3f4-6000-4000-a000-000000000558",
+      "c1d2e3f4-6000-4000-a000-000000001261",
       "POWER_IO"
     ]
   ],

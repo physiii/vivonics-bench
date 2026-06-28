@@ -108,30 +108,22 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "ACTUAL_LASER_MPN_HARNESS",
         "Actual laser MPN pin tables and J4 harness are not released",
-        "The PLT5 520B pinout is only a compatible reference. The current high-side MPD_RAWx front end is polarity-compatible with PLT5-style and Thorlabs A-code common-anode / monitor-PD-cathode cans, but it is not a universal monitor-bias circuit. The canonical 785 nm proof diode L785P090 is C-code, so its monitor photodiode is not compatible with the existing MPD_RAWx circuit without an adapter or different driver/monitor topology. L450G2 has no monitor photodiode.",
-        "Lock every laser diode MPN, verify its datasheet pin table, can/common polarity, and monitor-PD reverse-bias requirements, then build the J4 harness from that table. For L785P090 monitor feedback, design a C-code-compatible adapter/front end or choose a compatible 785 nm diode.",
+        "The Digikey cart MPNs have mixed pin-code behavior: D7805I, D6505I, and PLT5 520EB_P match the bench monitor front end, while PLT5 450GB has no monitor photodiode and its case pin must not be tied into MPD_RAW4.",
+        "Build and inspect the J4 harness from the exact per-MPN pin table, verify can/case handling, and document that PLT5 450GB has no MPD telemetry before laser bring-up.",
         (
             Evidence(
                 "docs/part-notes/PLT5-520B-harness-reference.md",
                 (
                     "Every actual laser MPN must be checked against its own pin table",
-                    "Do not assume all 3-pin laser cans",
+                    "`PLT5 450GB` has no monitor photodiode",
                 ),
             ),
             Evidence(
                 "docs/part-notes/laser-harness-pin-code-compatibility.md",
                 (
-                    "L785P090` is a C-code diode",
-                    "the existing `MPD_RAWx` circuit",
-                    "L450G2` is a G-code diode with no monitor photodiode",
-                ),
-            ),
-            Evidence(
-                "../docs/program/PROOF_LASER_PARTS_2026-06-24.md",
-                (
-                    "Thorlabs `L785P090`",
-                    "Thorlabs `L450G2`",
-                    "Driver polarity must match the laser package.",
+                    "IR `D7805I`, Digikey `38-1028-ND`",
+                    "Blue `PLT5 450GB`, Digikey `475-PLT5450GB-ND`",
+                    "Do not connect PLT5 450GB case pin 2 to `MPD_RAW4`",
                 ),
             ),
             Evidence(
@@ -139,15 +131,14 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 (
                     "confirm every raw laser MPN's LD/PD/common/case pin table",
                     "actual laser harness MPN review",
-                    "L785P090` C-code monitor",
+                    "PLT5 450GB",
                 ),
             ),
             Evidence(
                 "docs/source-register.md",
                 (
-                    "Every actual laser MPN remains a required release check",
-                    "L785P090` is a C-code diode",
-                    "L450G2` has no monitor photodiode",
+                    "D7805I",
+                    "PLT5 450GB has no monitor photodiode",
                 ),
             ),
         ),

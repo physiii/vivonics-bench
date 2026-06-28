@@ -100,12 +100,6 @@ REQUIRED_ONLINE = [
         expect_pdf=True,
     ),
     OnlineEvidence(
-        "Alpha & Omega AO3400A datasheet",
-        "https://www.aosmd.com/res/data_sheets/AO3400A.pdf",
-        True,
-        expect_pdf=True,
-    ),
-    OnlineEvidence(
         "ams OSRAM SFH 2201 A01 datasheet",
         "https://look.ams-osram.com/m/151c0967b1d4864e/original/SFH-2201-A01.pdf",
         True,
@@ -118,8 +112,24 @@ REQUIRED_ONLINE = [
         expect_pdf=True,
     ),
     OnlineEvidence(
-        "ams OSRAM PLT5 520B datasheet",
-        "https://look.ams-osram.com/m/200c3d8553b61059/original/PLT5-520B.pdf",
+        "US-Lasers D6505I 650nm 5mW source page",
+        "http://www.us-lasers.com/d650nm5m.htm",
+        True,
+    ),
+    OnlineEvidence(
+        "US-Lasers D7805I 780nm 5mW source page",
+        "http://www.us-lasers.com/n780nm5m.htm",
+        True,
+    ),
+    OnlineEvidence(
+        "ams OSRAM PLT5 520EB_P datasheet",
+        "https://look.ams-osram.com/m/650bf4d7f1f7e736/original/PLT5-520EB_P.pdf",
+        True,
+        expect_pdf=True,
+    ),
+    OnlineEvidence(
+        "ams OSRAM PLT5 450GB datasheet",
+        "https://look.ams-osram.com/m/29170f7edbc7cb46/original/PLT5-450GB.pdf",
         True,
         expect_pdf=True,
     ),
@@ -158,6 +168,16 @@ WARNING_ONLINE = [
         ),
     ),
     OnlineEvidence(
+        "Alpha & Omega AO3400A datasheet",
+        "https://www.aosmd.com/res/data_sheets/AO3400A.pdf",
+        False,
+        expect_pdf=True,
+        note=(
+            "Primary source, but AOS currently returns a bot/noindex HTML page "
+            "to this shell environment; manual release-time verification remains required."
+        ),
+    ),
+    OnlineEvidence(
         "JLCPCB via-design article",
         "https://jlcpcb.com/blog/pcb-via-design-best-practices",
         False,
@@ -189,10 +209,10 @@ WARNING_ONLINE = [
         note="Distributor mirror used because the exact official Wuerth drawing URL was not directly reachable.",
     ),
     OnlineEvidence(
-        "TME Royalohm 0603WAF1001T5E page",
-        "https://www.tme.com/us/en-us/details/0603waf1001t5e/smd-resistors/royalohm/",
+        "LCSC C2907002 FRC0603F1001TS 1k resistor page",
+        "https://www.lcsc.com/product-detail/C2907002.html",
         False,
-        note="Representative 0603WAF family evidence for commodity resistors.",
+        note="Distributor/order source for active 1k 0603 passive rating evidence.",
     ),
     OnlineEvidence(
         "JLCPCB C22984 30k resistor page",
@@ -201,10 +221,10 @@ WARNING_ONLINE = [
         note="Distributor/order source for passive rating evidence.",
     ),
     OnlineEvidence(
-        "JLCPCB C269701 RMC060310KFN page",
-        "https://jlcpcb.com/partdetail/TyoHM-RMC060310KFN/C269701",
+        "LCSC C844918 CRCW060310K0FKEA 10k resistor page",
+        "https://www.lcsc.com/product-detail/C844918.html",
         False,
-        note="Distributor/order source for passive rating evidence.",
+        note="Distributor/order source for active 10k 0603 passive rating evidence.",
     ),
     OnlineEvidence(
         "JLCPCB C5123624 10 ohm 2512 sense resistor page",

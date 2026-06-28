@@ -119,13 +119,15 @@ The front end is a high-side monitor-current sense circuit:
 `MPD_AMPx -> 1k/100 nF -> ESP32 ADC1`. LM4040C50 holds
 `LASER_V+ - MPD_BIAS` near 5 V through a 2.49 k sink.
 
-This is polarity-compatible with PLT5-style and Thorlabs A-code common-anode /
-monitor-PD-cathode laser cans. For PLT5 520B at `LASER_V+ = 10.5 V`, typical
-150 uA monitor current produces about 2.25 V at the ESP32 ADC and about 4.89 V
-monitor-PD reverse bias. It does not directly support the canonical `L785P090`
-C-code monitor topology without an adapter or different monitor front end, and
-`L450G2` has no monitor photodiode. Actual MPN, reverse-bias limit, and harness
-pinout remain release blockers.
+This is polarity-compatible with the selected D7805I, D6505I, and
+PLT5 520EB_P monitor-photodiode pinouts when J4 is wired from each datasheet:
+laser cathode to `LASER_Nx`, common/anode side to `LASER_V+`, and monitor anode
+to `MPD_RAWx`. For PLT5 520EB_P at `LASER_V+ = 10.5 V`, typical 150 uA monitor
+current produces about 2.25 V at the ESP32 ADC and about 4.89 V monitor-PD
+reverse bias. PLT5 450GB has no monitor photodiode, so `MPD_RAW4` remains a
+spare/open monitor-front-end input and the case pin is not wired to it. Actual
+reverse-bias limit, current limit, optical safety limit, and harness build
+remain release blockers.
 
 ## PCB Route Evidence
 

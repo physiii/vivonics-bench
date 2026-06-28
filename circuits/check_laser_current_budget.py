@@ -33,24 +33,26 @@ class Policy:
 
 
 POLICIES = {
-    "plt5-520b-green-10v5": Policy(
-        name="plt5-520b-green-10v5",
+    "green-high-vf-10v5": Policy(
+        name="green-high-vf-10v5",
         laser_vplus_v=10.5,
         diode_vf_max_v=7.0,
         ambient_c=85.0,
         description=(
-            "PLT5 520B reference using datasheet max operating voltage 7.0 V "
-            "and a 10.5 V laser rail."
+            "High-forward-voltage green reference using 7.0 V diode headroom "
+            "and a 10.5 V laser rail. This is a thermal policy reference, not "
+            "an approval to drive the selected Digikey-cart lasers at the "
+            "247.5 mA hardware command clamp."
         ),
     ),
-    "plt5-520b-green-12v": Policy(
-        name="plt5-520b-green-12v",
+    "green-high-vf-12v": Policy(
+        name="green-high-vf-12v",
         laser_vplus_v=12.0,
         diode_vf_max_v=7.0,
         ambient_c=85.0,
         description=(
-            "PLT5 520B reference at a 12 V laser rail; this is expected to fail "
-            "the conservative continuous AO3400A thermal budget."
+            "High-forward-voltage green reference at a 12 V laser rail; this is "
+            "expected to fail the conservative continuous AO3400A thermal budget."
         ),
     ),
     "low-vf-diode-on-10v5": Policy(
@@ -90,7 +92,7 @@ def policy_from_args(args: argparse.Namespace) -> Policy:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--policy", choices=sorted(POLICIES), default="plt5-520b-green-10v5")
+    parser.add_argument("--policy", choices=sorted(POLICIES), default="green-high-vf-10v5")
     parser.add_argument("--laser-vplus-v", type=float, help="Override laser supply voltage.")
     parser.add_argument("--diode-vf-max-v", type=float, help="Override diode forward voltage at current limit.")
     parser.add_argument("--ambient-c", type=float, help="Override ambient temperature.")

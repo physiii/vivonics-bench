@@ -19,10 +19,11 @@ thermal margin depends on each laser diode's forward voltage, the shared
   temperature limited and application-board dependent.
 - JLCPCB C5123624 / HoCR2512-2W-10R-1% listing: 10 ohm, 2512, 2 W, 1 percent,
   250 V chip resistor.
-- ams OSRAM PLT5 520B datasheet: reference 520 nm 3-pin laser diode, forward
-  operation only, operating current up to the relevant 260 mA class, operating
-  voltage up to the relevant 7 V class, monitor current specified with reverse-
-  biased monitor PD and not guaranteed as an absolute power measurement.
+- Selected laser datasheets: US-Lasers D6505I and D7805I 5.6 mm Style-A cans,
+  ams OSRAM PLT5 520EB_P 5.6 mm monitor-PD can, and ams OSRAM PLT5 450GB
+  5.6 mm laser-only can. The high-forward-voltage green current policy is a
+  thermal reference, not an approval to run every selected diode at the hardware
+  command clamp.
 
 ## Current Clamp
 
@@ -57,11 +58,11 @@ degC/W`, the checker estimates:
 
 | Scenario | `LASER_V+` | Diode `Vf(max)` | Result |
 |---|---:|---:|---|
-| PLT5 520B reference green | 10.5 V | 7.0 V | Pass, narrow supply window |
-| PLT5 520B reference green | 12.0 V | 7.0 V | Fail, AO3400A heat |
+| High-Vf green reference | 10.5 V | 7.0 V | Pass, narrow supply window |
+| High-Vf green reference | 12.0 V | 7.0 V | Fail, AO3400A heat |
 | Low-Vf red/IR-style diode on green rail | 10.5 V | 2.5 V | Fail, AO3400A heat |
 
-For a PLT5 520B-style green diode at the 247.5 mA command clamp, the estimated
+For a high-forward-voltage green diode at the 247.5 mA command clamp, the estimated
 high-ambient rail window is roughly 10.0 V to 10.8 V. Below that, the current
 loop runs out of headroom. Above that, the SOT-23 MOSFET becomes the heat sink.
 
@@ -76,6 +77,9 @@ Current bench board:
   measurement.
 - Build the J4 harness only after checking each actual laser MPN pin table and
   can/common-node polarity.
+- Do not treat the 247.5 mA hardware clamp as safe for the selected Digikey-cart
+  D6505I, D7805I, PLT5 520EB_P, or PLT5 450GB without per-channel current
+  limits and optical safety signoff.
 
 Production design:
 
@@ -87,16 +91,17 @@ Production design:
 
 ## Verification
 
-Expected pass for the PLT5 520B reference at a controlled 10.5 V laser rail:
+Expected pass for the high-forward-voltage green reference at a controlled
+10.5 V laser rail:
 
 ```text
-python3 circuits/check_laser_current_budget.py --policy plt5-520b-green-10v5
+python3 circuits/check_laser_current_budget.py --policy green-high-vf-10v5
 ```
 
 Expected fail for too much rail headroom:
 
 ```text
-python3 circuits/check_laser_current_budget.py --policy plt5-520b-green-12v
+python3 circuits/check_laser_current_budget.py --policy green-high-vf-12v
 ```
 
 Expected fail for a low-forward-voltage diode on the same green-sized rail:

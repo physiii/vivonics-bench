@@ -99,12 +99,14 @@ J4 pinout: 1 `LASER_N1`, 2 `MPD_RAW1`, 3 `LASER_N2`, 4 `MPD_RAW2`, 5
 - **USB Mini-B**: Würth 65100516121 (C5120592), horizontal SMD, port faces board edge.
 - **SFH2201**: pad 1 = cathode, pad 2 = anode — check PD orientation.
 - **J4 laser pinout**: confirm every raw laser MPN's LD/PD/common/case pin table before
-  building the harness. PLT5 520B ties pin 2 to `LD anode + PD cathode + case`; other
-  three-pin cans may not. The current high-side `MPD_RAWx` front end is polarity-compatible
-  with PLT5-style / Thorlabs A-code common-anode monitor polarity and holds the PLT5-style
-  monitor diode near `VRPD = 5 V` at the 10.5 V green rail. `L785P090` C-code monitor
-  feedback needs an adapter or a different driver/monitor front end, and `L450G2` has no
-  monitor PD.
+  building the harness or soldering a diode into `LD1..LD4`. Current Digikey-cart
+  mapping: `D7805I` -> channel 1 with `OptoDevice:LaserDiode_TO18-D5.6-3`,
+  `D6505I` -> channel 2 with `OptoDevice:LaserDiode_TO18-D5.6-3`,
+  `PLT5 520EB_P` -> channel 3 with `OptoDevice:LaserDiode_TO56-3`, and
+  `PLT5 450GB` -> channel 4 with `OptoDevice:LaserDiode_TO56-3`. The first
+  three expose compatible monitor photodiodes; `PLT5 450GB` has no monitor
+  photodiode, so J4 pin 8 / `MPD_RAW4` is a spare/open monitor input and must
+  not be tied to the blue diode case pin.
 
 ## Routing notes
 
@@ -137,7 +139,7 @@ LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 python3 gen_pcb.py
 python3 check_laser_controller_pcb.py laser_controller.kicad_pcb /tmp/lc.net
 python3 check_laser_controller_release_gate.py laser_controller.kicad_pcb /tmp/lc.net
 python3 check_power_thermal_budget.py --policy bench-uart-usb
-python3 check_laser_current_budget.py --policy plt5-520b-green-10v5
+python3 check_laser_current_budget.py --policy green-high-vf-10v5
 python3 check_laser_controller_release_readiness.py
 ```
 
@@ -159,7 +161,7 @@ gate, and the release gate fails closed only on `+5V` and `GND` rail/zone
 signoff. The laser-driver inter-channel `+5V` trunk is routed, but the bulk
 `+5V` bridge into that trunk still needs placement/routing work before KiCad
 refill/DRC and visual return-path review.
-The bench/no-RF AP2112 thermal policy passes, and the PLT5 520B
+The bench/no-RF AP2112 thermal policy passes, and the PLT5 520EB_P
 reference laser-current budget passes only for a controlled 10.5 V green-style
 supply assumption. `check_laser_controller_release_readiness.py` intentionally
 reports the remaining open blockers. KiCad GUI ERC, zone refill, PCB DRC with
@@ -172,6 +174,6 @@ must verify every selected diode pin table before the J4 harness is built.
 
 See `laser_controller_bom_jlcpcb.csv`. Key notes:
 - **Power**: USB/external +5V for logic/analog; separate J5 `LASER_V+` for laser anodes.
-- **10k resistors**: C269701 (TyoHM, Basic, in stock).
+- **10k resistors**: C844918 (Vishay CRCW060310K0FKEA, live LCSC stock checked 2026-06-28).
 - **SFH2201**: C2900216 (Extended, one-time feeder fee).
 - **Pin headers J2,J3,J4,J5,J6**: through-hole, hand-soldered.

@@ -1,27 +1,24 @@
 #!/usr/bin/env python3
-"""Placement generator for laser_controller.kicad_pcb  (1 channel × 4 wavelengths).
+"""Placement-staging generator for laser_controller.kicad_pcb.
 
-Board: 90 × 50 mm, 1.6 mm, 4× M3 mounting holes.
-Optimized columnar layout:
-  Col 1 (x=0-13):  4× SFH2201 PDs at left edge (light enters from left)
-  Col 2 (x=13-36): 4× TIA channels (OPA380 + VBIAS + passives)
-  Col 3 (x=38-58): 4× Laser drivers (TLV9001 + AO3400A + passives)
-  Col 4 (x=60-90): ESP32-S3 + LDO + ESD + decoupling + connectors
+Board: 90 x 50 mm outline only.
+
+All schematic footprints are staged outside the board outline by sheet so they
+can be dragged into the board manually in KiCad.  The generator intentionally
+emits no board traces, vias, or board-level copper zones.  Footprint-internal
+items such as the ESP32 antenna keepout are preserved as part of the loaded
+component footprint.
 
 Reference numbering: automatic sequential per prefix (U1-U11, D1-D6, etc.).
 Pad net assignments are resolved from the exported KiCad netlist using the known
-generated sheet order.  The PCB generator emits a bounded set of auditable
-critical and low-speed routes; it is not a production autorouter.
+    generated sheet order.  This PCB generator is intentionally not a router.
 
 Run:  kicad-cli sch export netlist laser_controller.kicad_sch -o /tmp/lc.net
-      LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 python3 gen_pcb.py
-
-Do not use a plain `python3 gen_pcb.py` for review or release work. The strict
-route mode is the checked path; it fails closed on route candidates that cannot
-meet the declared generated-board clearance policy.
+      python3 gen_pcb.py
 """
 import re, os
 from collections import OrderedDict, defaultdict
+from math import cos, radians, sin
 from pathlib import Path
 
 # Default to the reviewed generated-copper policy. The routing module reads
@@ -46,7 +43,7 @@ from pcb_critical_routes import (
     parse_pad_geometry_from_text,
 )
 
-FPROOT="/usr/share/kicad/footprints"
+FPROOT = Path("/usr/share/kicad/footprints")
 NET="/tmp/lc.net"
 OUT_DIR=Path(__file__).resolve().parent
 _uu=[0]
@@ -60,16 +57,44 @@ def env_float(name, default):
 _fp={}
 def get_fp(libid):
     if libid in _fp: return _fp[libid]
+    if not libid or ":" not in libid:
+        _fp[libid] = None
+        print(f"  WARN footprint not placeable, skipping: {libid or '<empty>'}")
+        return None
     lib,name=libid.split(":",1)
-    path=f"{FPROOT}/{lib}.pretty/{name}.kicad_mod"
-    _fp[libid]=open(path).read() if os.path.exists(path) else None
+    search_paths = [
+        OUT_DIR / "lib" / f"{lib}.pretty" / f"{name}.kicad_mod",
+        OUT_DIR / f"{lib}.pretty" / f"{name}.kicad_mod",
+        FPROOT / f"{lib}.pretty" / f"{name}.kicad_mod",
+    ]
+    found_path = next((path for path in search_paths if path.exists()), None)
+    _fp[libid]=found_path.read_text() if found_path else None
     if _fp[libid] is None: print(f"  WARN footprint not found, skipping: {libid}")
     return _fp[libid]
 
 # ── place a footprint instance ────────────────────────────────────
+def transform_zone_polygons_to_board_coords(fp, origin_x, origin_y, rotation_deg):
+    """KiCad stores footprint keepout-zone polygon points in board coordinates."""
+    theta = radians(rotation_deg)
+    c = cos(theta)
+    s = sin(theta)
+
+    def transform_match(match):
+        lx = float(match.group(1))
+        ly = float(match.group(2))
+        gx = origin_x + lx * c - ly * s
+        gy = origin_y + lx * s + ly * c
+        return f"(xy {gx:.3f} {gy:.3f})"
+
+    def transform_zone(zone_match):
+        return re.sub(r'\(xy\s+([-\d.]+)\s+([-\d.]+)\)', transform_match, zone_match.group(0))
+
+    return re.sub(r'\(zone\b[\s\S]*?\n\s*\)', transform_zone, fp)
+
 def place(libid, ref, val, x, y, rot=0):
     fp=get_fp(libid)
     if fp is None: return None
+    fp=transform_zone_polygons_to_board_coords(fp, x, y, rot)
     fp=re.sub(r'\(tstamp [0-9a-fA-F-]+\)', lambda m:f'(tstamp {uuid()})', fp)
     # The KiCad ESP32-S3-WROOM footprint antenna keepout names only F/In1/B
     # in the stock footprint; this board is a four-layer Sig/GND/PWR/Sig
@@ -385,7 +410,7 @@ def make_ref_counters():
 
 ROLE_IC=('SOIC-8','SOT-23-5','SOT-23-6','SOT-23','TSSOP','D_SMA')
 
-def build_board(emit_routes=True):
+def build_board(emit_routes=False):
     global COMPONENT_KEYS
     _uu[0] = 0
     bysheet=load_components()
@@ -401,257 +426,83 @@ def build_board(emit_routes=True):
        LAYERS,'  (setup (pad_to_mask_clearance 0.05))','  (net 0 "")']
     body=[]
 
-    # ===== FLOORPLAN: 90 × 50 mm =====
-    BW,BH=90,50; M=3.0
-    # Keep the external ADC header near the TIA column.  Putting it in the
-    # right-edge connector stack makes VOUT3 the boxed-in analog output.
-    ad7606_x = env_float("LC_AD7606_X", 28.0)
-    ad7606_y = env_float("LC_AD7606_Y", 42.0)
-    ad7606_rot = env_float("LC_AD7606_ROT", 90.0)
-    j4_x = env_float("LC_J4_X", BW - 2.5)
-    j4_y = env_float("LC_J4_Y", 26.0)
-    j4_rot = env_float("LC_J4_ROT", 90.0)
-    j5_x = env_float("LC_J5_X", BW - 2.5)
-    j5_y = env_float("LC_J5_Y", 14.0)
-    j5_rot = env_float("LC_J5_ROT", 90.0)
-    j6_x = env_float("LC_J6_X", BW - 2.5)
-    j6_y = env_float("LC_J6_Y", 6.0)
-    j6_rot = env_float("LC_J6_ROT", 90.0)
-    esp32_x = env_float("LC_ESP32_X", 64.0)
-    esp32_y = env_float("LC_ESP32_Y", 6.75)
-    esp32_rot = env_float("LC_ESP32_ROT", 0.0)
-    laser_x_shift = env_float("LC_LASER_X_SHIFT", 0.0)
-    laser_c22_dx = env_float("LC_LASER_C22_DX", 0.0)
-    laser_c22_dy = env_float("LC_LASER_C22_DY", 0.0)
-    laser_c22_rot = env_float("LC_LASER_C22_ROT", 0.0)
+    # ===== FLOORPLAN: 90 x 50 mm outline, footprints staged outside =====
+    BW,BH=90,50
     body.append(outline(0,0,BW,BH))
-    for mx,my in [(M,M),(BW-M,M),(M,BH-M),(BW-M,BH-M)]: body.append(mhole(mx,my))
-    body.append(text("LASER CONTROLLER — Vivonics — 90x50mm — 4ch PD+TIA+Laser Driver+MPD — ESP32-S3",4,BH-1.8,1.0,"Cmts.User"))
 
     def emit_fp(comp, x, y, rot=0, prefix=None):
         ref = comp["ref"]
         sheet = comp["sheet"].strip("/")
         board_ref_by_comp[(sheet, ref)] = ref
+        if not comp["footprint"]:
+            return
         fp_str = place(comp["footprint"], ref, comp["value"], x, y, rot)
-        if fp_str: body.append(fp_str)
-
-    def pop_ref(parts_by_actual_ref, sheet, local_ref):
-        return parts_by_actual_ref.pop(ref_for(sheet, local_ref))
-
-    def cell(parts, x0, y0, refmap, wcols=4, dx=4.5, dy=3.5):
-        """Compact cell: pots→ICs→passives in tight rows."""
-        pots=[p for p in parts if p["ref"][:2]=='RV']
-        ics =[p for p in parts if any(k in p["footprint"] for k in ROLE_IC)]
-        smd =[p for p in parts if p not in pots and p not in ics]
-        POT_H = 5 if pots else 0; IC_H = 5 if ics else 0
-        for i,p in enumerate(pots):
-            emit_fp(p, x0+i*8, y0, 0, prefix=refmap.get(p["ref"], p["ref"]))
-        yo = y0 + POT_H
-        for i,p in enumerate(ics):
-            emit_fp(p, x0+i*7, yo, 0, prefix=refmap.get(p["ref"], p["ref"]))
-        yo += IC_H
-        for i,p in enumerate(smd):
-            emit_fp(p, x0+(i%wcols)*dx, yo+(i//wcols)*dy, 0, prefix=refmap.get(p["ref"], p["ref"]))
+        if fp_str is None:
+            raise RuntimeError(f"missing footprint for {ref}: {comp['footprint']}")
+        body.append(fp_str)
 
     WL=["IR","RED","GREEN","BLUE"]
-    rows=[5.0, 15.0, 27.0, 35.0]
-    laser_rows=[16.0, 24.0, 32.0, 40.0]
-    PD_X=3.0
+    stage_x = 115.0
+    stage_y = 8.0
 
-    # ── Col 1: Photodiodes at LEFT EDGE (x=3) ──
-    body.append(text("PD (SFH2201)",PD_X,47.5,0.7,"Cmts.User"))
-    for i,wl in enumerate(WL):
-        parts=bysheet[f"TIA_{wl}"]
-        for p in [p for p in parts if p["footprint"].startswith("OptoDevice")]:
-            emit_fp(p, PD_X, rows[i], 270, prefix="D")
+    def ordered_parts(sheet_name, local_order):
+        parts_by_ref = {p["ref"]: p for p in bysheet[sheet_name]}
+        ordered = []
+        for local_ref in local_order:
+            actual_ref = ref_for(sheet_name, local_ref)
+            if actual_ref in parts_by_ref:
+                ordered.append(parts_by_ref.pop(actual_ref))
+        ordered.extend(sorted(parts_by_ref.values(), key=lambda p: p["ref"]))
+        return ordered
 
-    # ── Col 2: TIA channels (x=13..36) ──
-    body.append(text("TIA (OPA380) x4",16,47.5,0.7,"Cmts.User"))
-    tia_refs = {"D1":"D","U1":"U","RV11":"RV","C1":"C","C2":"C","C11":"C","CB":"C","R1":"R","R2":"R","RB":"R","RT":"R"}
-    for i,wl in enumerate(WL):
-        sheet_name = f"TIA_{wl}"
-        row = rows[i]
-        by_ref = {
-            p["ref"]: p
-            for p in bysheet[sheet_name]
-            if not p["footprint"].startswith("OptoDevice")
-        }
-        tia_xy = {
-            # Keep the SFH2201 anode / OPA380 inverting input / feedback loop compact.
-            "U1": (10.0, row, 0),
-            "R2": (10.0, row - 2.5, 0),
-            "C1": (10.0, row, 0),
-            "C2": (14.0, row - 1.2, 0),
-            "RB": (4.8, row + 2.0, 180),
-            "CB": (4.3, row + 4.2, 0),
-            # VBIAS is lower bandwidth, but keep the RC output near OPA380 +IN.
-            "R1": (10.0, row + 3.2, 0),
-            "C11": (7.0, row + 3.9, 90),
-            "RV11": (17.0, row, 0),
-            "RT": (22.5, row + 1.0, 0),
-        }
-        for ref, (x, y, rot) in tia_xy.items():
-            emit_fp(pop_ref(by_ref, sheet_name, ref), x, y, rot, prefix=tia_refs[ref])
-        for j, p in enumerate(by_ref.values()):
-            emit_fp(p, 13 + (j % 4) * 4.5, row - 2 + (j // 4) * 3.5, 0, prefix=tia_refs.get(p["ref"], p["ref"]))
+    def stage_sheet(sheet_name, label, local_order, y, cols=10, dx=17.0, dy=14.0):
+        body.append(text(label, stage_x, y - 5.5, 1.2, "Cmts.User"))
+        ordered = ordered_parts(sheet_name, local_order)
+        for comp in ordered:
+            board_ref_by_comp[(comp["sheet"].strip("/"), comp["ref"])] = comp["ref"]
+        physical_parts = [comp for comp in ordered if comp["footprint"]]
+        for i, comp in enumerate(physical_parts):
+            x = stage_x + (i % cols) * dx
+            yy = y + (i // cols) * dy
+            emit_fp(comp, x, yy, 0)
+        rows = max(1, (len(physical_parts) + cols - 1) // cols)
+        return y + rows * dy + 12.0
 
-    # ── Col 3: Laser drivers (x=38..56) ──
-    body.append(text("LASER DRIVERS x4",40,47.5,0.7,"Cmts.User"))
-    laser_refs = {"Q1":"Q","U11":"U","C21":"C","C22":"C","CC":"C","R11":"R","R12":"R","R21":"R","R22":"R","R31":"R"}
-    for i,wl in enumerate(WL):
-        sheet_name = f"LASER_{wl}"
-        row = laser_rows[i]
-        by_ref = {p["ref"]: p for p in bysheet[sheet_name]}
-        laser_xy = {
-            # Current loop: TLV9001 -> gate resistor -> AO3400A -> source sense -> FB.
-            "U11": (39.5 + laser_x_shift, row, 0),
-            "R31": (41.6 + laser_x_shift, row - 2.3, 0),
-            "Q1": (44.0 + laser_x_shift, row, 0),
-            # The 2512 sense resistor pad must stay close to Q1 source while
-            # leaving Q1 drain a clear wide escape toward the laser harness.
-            "R11": (47.0 + laser_x_shift, row + 2.5, 0),
-            "R12": (45.5 + laser_x_shift, row + 4.0, 0),
-            "C22": (41.2 + laser_x_shift + laser_c22_dx, row - 0.2 + laser_c22_dy, laser_c22_rot),
-            # Command filter and limiter stay at TLV9001 IN+; rotate shunt parts vertical.
-            "R21": (36.0 + laser_x_shift, row + 2.0, 0),
-            "R22": (38.0 + laser_x_shift, row + 4.0, 90),
-            "C21": (40.0 + laser_x_shift, row + 3.0, 90),
-            # Compensation cap directly bridges TLV9001 OUT and FB pins.
-            "CC": (39.5 + laser_x_shift, row, 270),
-        }
-        if wl == "RED":
-            # Rotate the RED command resistor so its TLV9001-side pad stays
-            # beside U6.3 while the ESP32 PWM2 pad escapes above the input
-            # cluster instead of being trapped below it.
-            laser_xy["R21"] = (36.8 + laser_x_shift, row, 90)
-            # Keep the RED command-filter GND pad off the generated PWM3/PWM4
-            # inner-route corridor so it can dogbone into the GND plane.
-            laser_xy["C21"] = (36.5 + laser_x_shift, row + 3.0, 90)
-        for ref, (x, y, rot) in laser_xy.items():
-            emit_fp(pop_ref(by_ref, sheet_name, ref), x, y, rot, prefix=laser_refs[ref])
-        for j, p in enumerate(by_ref.values()):
-            emit_fp(p, 38 + (j % 4) * 4.5, row - 2 + (j // 4) * 3.5, 0, prefix=laser_refs.get(p["ref"], p["ref"]))
+    tia_order = ["D1", "RB", "CB", "U1", "R2", "C1", "C2", "RT", "RV11", "R1", "C11"]
+    laser_order = ["U11", "R31", "Q1", "R11", "R12", "C22", "R21", "R22", "C21", "CC", "LD"]
+    mcu_order = [
+        "U9", "C43", "C41", "C42", "C44", "R54", "R59", "R60",
+        "SW1", "SW2", "SW3", "Q5", "Q6", "R50", "R51",
+        "R52", "R53", "R58", "U10", "J1", "D7", "D8", "R55",
+        "R56", "R57", "C45", "C46", "C47", "J2", "D9", "D10",
+        "D11", "D12", "D13", "D14",
+    ]
+    power_io_order = [
+        "D10", "D11", "J2", "J5", "C50",
+        "U3V3", "C3V3IN", "C3V3OUT", "C3V3BULK",
+        "J1", "J4", "UMPD", "UREF", "CINA", "CREF", "RBIAS",
+        "RMPD1", "RADC1", "CMPD1", "RMPD2", "RADC2", "CMPD2", "RMPD3", "RADC3", "CMPD3",
+        "RMPD4", "RADC4", "CMPD4",
+    ]
 
-    # ── Col 4: MCU + ESP32 + Connectors (x=60..90) ──
-    body.append(text("MCU + ESP32-S3",62,47.5,0.7,"Cmts.User"))
-    mrest={}
-    for comp in bysheet["MCU_ESP32-S3"]:
-        fp = comp["footprint"]
-        if "USB" in fp and "ESP32" not in fp:
-            emit_fp(
-                comp,
-                env_float("LC_USB_CONN_X", 46.0),
-                env_float("LC_USB_CONN_Y", 4.1),
-                env_float("LC_USB_CONN_ROT", 0.0),
-                prefix="J",
-            )  # USB Mini-B at the top edge, left of the ESP32 module body
-        elif "ESP32" in fp:
-            emit_fp(comp, esp32_x, esp32_y, esp32_rot, prefix="U")  # ESP32-S3, antenna toward top edge
-        elif "PinHeader" in fp:
-            emit_fp(
-                comp,
-                env_float("LC_UART_HDR_X", 75.0),
-                env_float("LC_UART_HDR_Y", 34.0),
-                0,
-                prefix="J",
-            )  # UART/EN/BOOT header by ESP32 right-side pads
-        else:
-            mrest[comp["ref"]] = comp
-    # MCU support placement: protection at connector, series parts at ESP32 pins,
-    # regulator and decoupling at the ESP32 3V3/GND side, strap parts at pins.
-    mcu_xy = {
-        "U12": (env_float("LC_USBLC6_X", 47.7), env_float("LC_USBLC6_Y", 9.8), 0, "U"),  # USBLC6 beside Mini-B, with VBUS escape
-        "RUSBM": (52.7, 14.0, 0, "R"),    # D- series resistor at ESP32 GPIO19 side pad
-        "RUSBP": (52.7, 17.7, 0, "R"),    # D+ series resistor at ESP32 GPIO20 side pad
-        "U10": (
-            env_float("LC_AP2112_X", 80.0),
-            env_float("LC_AP2112_Y", 12.0),
-            env_float("LC_AP2112_ROT", 0.0),
-            "U",
-        ),  # AP2112 to the right of the module body
-        "C44": (
-            env_float("LC_AP2112_INCAP_X", 77.0),
-            env_float("LC_AP2112_INCAP_Y", 12.0),
-            env_float("LC_AP2112_INCAP_ROT", 90.0),
-            "C",
-        ),  # AP2112 input cap at VIN/GND pins
-        "C41": (
-            env_float("LC_AP2112_OUT100N_X", 83.2),
-            env_float("LC_AP2112_OUT100N_Y", 10.8),
-            env_float("LC_AP2112_OUT100N_ROT", 0.0),
-            "C",
-        ),  # AP2112 output 100n
-        "C42": (
-            env_float("LC_AP2112_OUTBULK_X", 83.2),
-            env_float("LC_AP2112_OUTBULK_Y", 13.6),
-            env_float("LC_AP2112_OUTBULK_ROT", 0.0),
-            "C",
-        ),  # AP2112 output bulk
-        "C43": (53.0, 2.8, 0, "C"),       # ESP32 3V3 local decap at module side pad
-        "CEN": (52.5, 4.2, 0, "C"),       # EN RC at ESP32 EN side pad
-        "REN": (50.5, 4.2, 0, "R"),       # EN pull-up at ESP32 EN side pad
-        "RBOOT": (75.5, 18.0, 180, "R"),  # BOOT pull-up at ESP32 GPIO0 side pad
-    }
-    for ref, (x, y, rot, pref) in mcu_xy.items():
-        actual_ref = ref_for("MCU_ESP32-S3", ref)
-        if actual_ref in mrest:
-            emit_fp(mrest.pop(actual_ref), x, y, rot, prefix=pref)
-    for i,p in enumerate(mrest.values()):
-        pref = "R" if p["ref"].startswith("R") else "C" if p["ref"].startswith("C") else "U"
-        emit_fp(p, 60+(i%3)*5, 6+(i//3)*4, 0, prefix=pref)
-
-    # ── Power / IO connectors (RIGHT edge) ──
-    body.append(text("I/O",82,47.5,0.7,"Cmts.User"))
-    prest=[]
-    for comp in bysheet["POWER_IO"]:
-        ref = comp["ref"]
-        if ref == ref_for("POWER_IO", "J1"):
-            emit_fp(comp, ad7606_x, ad7606_y, ad7606_rot, prefix="J")  # AD7606 out
-        elif ref == ref_for("POWER_IO", "J4"):
-            emit_fp(comp, j4_x, j4_y, j4_rot, prefix="J")  # LASER + monitor-PD out
-        elif ref == ref_for("POWER_IO", "J5"):
-            emit_fp(comp, j5_x, j5_y, j5_rot, prefix="J")  # LASER PSU
-        elif ref == ref_for("POWER_IO", "J2"):
-            emit_fp(comp, j6_x, j6_y, j6_rot, prefix="J")  # EXT 5V
-        else:
-            prest.append(comp)
-    # SS14 diodes + bulk cap + MPD sense/reference/filter/isolation passives.
-    # MPD front-end parts are placed by J4 pin so the raw monitor-PD node is short and quiet.
-    prest_by_ref = {p["ref"]: p for p in prest}
-    power_io_xy = {
-        "D10": (env_float("LC_D5_X", 80.0), env_float("LC_D5_Y", 8.5), 0, "D"),
-        "D11": (env_float("LC_D6_X", 80.0), env_float("LC_D6_Y", 4.5), 180, "D"),
-        # Rotate the +5 V bulk capacitor so pad 1 faces the OR-ing diode
-        # cathodes; otherwise the GND pad sits between D5/D6 and +5 V.
-        "C50": (env_float("LC_C34_X", 75.0), env_float("LC_C34_Y", 8.5), 180, "C"),
-    }
-    mpd_x_by_index = {1: 84.0, 2: 79.0, 3: 74.0, 4: 69.0}
-    radc_x_by_index = {3: 72.0, 4: 67.0}
-    for index, x in mpd_x_by_index.items():
-        power_io_xy[f"RMPD{index}"] = (x, 23.3, 180, "R")
-        power_io_xy[f"CMPD{index}"] = (x + 0.3, 27.4, 180, "C")
-        power_io_xy[f"RADC{index}"] = (radc_x_by_index.get(index, x), 29.0, 0, "R")
-    for ref, (x, y, rot, pref) in power_io_xy.items():
-        actual_ref = ref_for("POWER_IO", ref)
-        if actual_ref in prest_by_ref:
-            emit_fp(prest_by_ref.pop(actual_ref), x, y, rot, prefix=pref)
-    for i,p in enumerate(prest_by_ref.values()):
-        pref = "D" if p["ref"].startswith("D") else "R" if p["ref"].startswith("R") else "C"
-        emit_fp(p, 80+(i%2)*5, 44-(i//2)*4, 0, prefix=pref)
+    for wl in WL:
+        stage_y = stage_sheet(f"TIA_{wl}", f"TIA_{wl}", tia_order, stage_y, cols=11)
+    for wl in WL:
+        stage_y = stage_sheet(f"LASER_{wl}", f"LASER_{wl}", laser_order, stage_y, cols=10)
+    stage_y = stage_sheet("MCU_ESP32-S3", "MCU_ESP32-S3", mcu_order, stage_y, cols=8, dx=25.0, dy=33.0)
+    stage_sheet("POWER_IO", "POWER_IO", power_io_order, stage_y, cols=8, dx=25.0, dy=33.0)
 
     net_names, pad_nets_by_ref = build_pad_net_map(nets, board_ref_by_comp, sheets_by_ref)
     for i, net_name in enumerate(net_names, 1):
         P.append(f'  (net {i} "{net_name}")')
     P += emit_net_classes(net_names)
-    net_code_by_name = {name: i + 1 for i, name in enumerate(net_names)}
-    body.append(copper_zone(net_code_by_name["GND"], "GND", "In1.Cu", 0.5, 0.5, BW - 0.5, BH - 0.5))
-
     body = [
         add_pad_nets(block, pad_nets_by_ref.get(fp_ref(block), {}))
         for block in body
         if block
     ]
     if emit_routes:
+        raise RuntimeError("Routing is intentionally disabled for the placement-staging PCB.")
         routed_segment_state: list[dict[str, object]] = []
         pads_for_reservations = parse_pad_geometry_from_text("\n".join(body))
         c34_ref = board_ref_by_comp.get(("POWER_IO", ref_for("POWER_IO", "C50")))

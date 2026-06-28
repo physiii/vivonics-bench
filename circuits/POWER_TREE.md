@@ -33,11 +33,13 @@ DRC, and visual return-path review are still separate release requirements.
   802.11b TX at Espressif's 355 mA table value fails this regulator choice.
 - SS14 diodes D5/D6 are Schottky OR-ing parts. The schematic and PCB inventory assert
   anode-to-source and cathode-to-`+5V` polarity.
-- PLT5 520B has operating current up to 260 mA and monitor current around 150 uA at rated
-  optical output. That monitor current is specified at `VRPD = 5 V`; the current high-side
-  INA4180/LM4040 `MPD_RAWx` front end holds PLT5-style monitor diodes near that bias when
-  `LASER_V+` is 10.5 V. The laser current command limiter targets about 248 mA nominal;
-  `LASER_V+` must still be sized for actual selected diode voltage, duty cycle, and current.
+- D6505I, D7805I, and PLT5 520EB_P include internal monitor photodiodes that are
+  compatible with the high-side `MPD_RAWx -> INA4180/LM4040` bench front end
+  when the J4 harness follows the datasheet pin map. PLT5 450GB has no monitor
+  photodiode, so `MPD_RAW4` remains a spare/open monitor input. The laser current
+  command limiter targets about 248 mA nominal; `LASER_V+` and firmware clamps
+  must still be sized for each selected diode voltage, rated current, duty cycle,
+  and optical safety limit.
 - The current 10 ohm sense resistor dissipates about 0.61 W at the 248 mA command clamp.
   The 2512 2 W part is correctly upsized, but the AO3400A linear-pass dissipation is
   `I * (LASER_V+ - Vf - I*10 ohm)`. A common `LASER_V+` rail needs per-diode review,

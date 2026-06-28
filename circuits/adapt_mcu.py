@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """Compatibility wrapper for older bench-circuit workflows.
 
-The MCU sheet is now generated directly by gen_laser_controller.py.  This
-wrapper intentionally does not copy the access-controller MCU sheet wholesale;
-that old approach pulled unrelated GPIO labels, buttons, USB bridge circuitry,
-and stale nets into the bench design.
+The bench MCU sheet is now the imported access-controller page.  The main
+generator intentionally preserves ``mcu.kicad_sch`` instead of rebuilding it
+from the old synthetic MCU helper.
 """
 
-from gen_laser_controller import atomic_write, build_mcu
+from pathlib import Path
 
 
 if __name__ == "__main__":
-    atomic_write("mcu.kicad_sch", build_mcu())
-    print("wrote mcu.kicad_sch from clean bench MCU generator")
+    path = Path(__file__).resolve().parent / "mcu.kicad_sch"
+    if not path.exists():
+        raise SystemExit(f"missing imported MCU sheet: {path}")
+    print(f"kept imported MCU sheet: {path}")

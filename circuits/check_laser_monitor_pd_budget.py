@@ -23,8 +23,8 @@ MPD_BIAS_SINK_OHMS = 2_490.0
 LM4040_MIN_CATHODE_CURRENT_A = 80e-6
 LM4040_MAX_CATHODE_CURRENT_A = 15e-3
 MPD_CHANNELS = 4
-PLT5_MONITOR_CURRENT_TYP_A = 150e-6
-PLT5_MONITOR_REFERENCE_VRPD_V = 5.0
+PLT5_520EBP_MONITOR_CURRENT_TYP_A = 150e-6
+PLT5_520EBP_MONITOR_REFERENCE_VRPD_V = 5.0
 
 
 @dataclass(frozen=True)
@@ -38,24 +38,26 @@ class Policy:
 
 
 POLICIES = {
-    "plt5-520b-green-10v5": Policy(
-        name="plt5-520b-green-10v5",
+    "plt5-520ebp-green-10v5": Policy(
+        name="plt5-520ebp-green-10v5",
         laser_vplus_v=10.5,
-        monitor_current_typ_a=PLT5_MONITOR_CURRENT_TYP_A,
-        reference_vrpd_v=PLT5_MONITOR_REFERENCE_VRPD_V,
+        monitor_current_typ_a=PLT5_520EBP_MONITOR_CURRENT_TYP_A,
+        reference_vrpd_v=PLT5_520EBP_MONITOR_REFERENCE_VRPD_V,
         require_reference_bias=True,
         description=(
-            "PLT5 520B monitor-current reference case. The datasheet monitor "
-            "current is specified at VRPD=5V and is not guaranteed as an "
-            "accurate absolute power measurement. The bench circuit uses a "
-            "high-side INA4180 sense path and LM4040-derived MPD_BIAS node."
+            "PLT5 520EB_P monitor-current reference case. The datasheet "
+            "monitor current is specified at VRPD=5V and is not guaranteed as "
+            "an accurate absolute power measurement. The bench circuit uses a "
+            "high-side INA4180 sense path and LM4040-derived MPD_BIAS node. "
+            "PLT5 450GB has no monitor photodiode, so MPD_RAW4 is only a "
+            "spare/open front-end input."
         ),
     ),
     "adc-scale-only-10v5": Policy(
         name="adc-scale-only-10v5",
         laser_vplus_v=10.5,
-        monitor_current_typ_a=PLT5_MONITOR_CURRENT_TYP_A,
-        reference_vrpd_v=PLT5_MONITOR_REFERENCE_VRPD_V,
+        monitor_current_typ_a=PLT5_520EBP_MONITOR_CURRENT_TYP_A,
+        reference_vrpd_v=PLT5_520EBP_MONITOR_REFERENCE_VRPD_V,
         require_reference_bias=False,
         description=(
             "ADC headroom check only for the high-side monitor front end. This "
@@ -82,7 +84,7 @@ def policy_from_args(args: argparse.Namespace) -> Policy:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--policy", choices=sorted(POLICIES), default="plt5-520b-green-10v5")
+    parser.add_argument("--policy", choices=sorted(POLICIES), default="plt5-520ebp-green-10v5")
     parser.add_argument("--laser-vplus-v", type=float, help="Override laser anode/monitor cathode rail voltage.")
     parser.add_argument(
         "--vrpd-tolerance-v",

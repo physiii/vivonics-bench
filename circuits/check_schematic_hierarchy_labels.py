@@ -21,12 +21,42 @@ ROOT = PROJECT_DIR / "laser_controller.kicad_sch"
 
 TIA_CHILD_LABELS = {"V_OUT": "output"}
 LASER_CHILD_LABELS = {"PWM_IN": "input", "LASER_N": "output", "ISENSE": "output", "MPD_RAW": "output"}
+LASER_BLUE_CHILD_LABELS = {"PWM_IN": "input", "LASER_N": "output", "ISENSE": "output"}
 MCU_CHILD_LABELS = {
-    **{f"PWM{i}": "output" for i in range(1, 5)},
-    **{f"ISENSE{i}": "input" for i in range(1, 5)},
-    **{f"MPD{i}": "input" for i in range(1, 5)},
-    "CONVST": "output",
-    "VBUS_5V": "output",
+    "IO9": "input",
+    "IO10": "output",
+    "I2C_DATA": "input",
+    "IO6": "input",
+    "IO8": "input",
+    "IO11": "output",
+    "IO16": "output",
+    "I2C_CLK": "input",
+    "IO15": "output",
+    "IO7": "input",
+    "3V3": "input",
+    "IO2": "input",
+    "IO12": "output",
+    "IO5": "input",
+    "5V": "output",
+    "IO4": "input",
+    "IO3": "input",
+}
+MCU_ROOT_PINS = {
+    "IO10": "output",
+    "IO11": "output",
+    "IO12": "output",
+    "IO16": "output",
+    "IO4": "input",
+    "IO5": "input",
+    "IO6": "input",
+    "IO7": "input",
+    "IO2": "input",
+    "IO3": "input",
+    "IO8": "input",
+    "IO9": "input",
+    "IO15": "output",
+    "5V": "output",
+    "3V3": "input",
 }
 POWER_IO_CHILD_LABELS = {
     **{f"VOUT{i}": "input" for i in range(1, 5)},
@@ -41,7 +71,9 @@ POWER_IO_CHILD_LABELS = {
 EXPECTED_CHILD_LABELS = {
     **{f"tia_{color.lower()}.kicad_sch": TIA_CHILD_LABELS for color in WL},
     **{
-        f"laser_{color.lower()}.kicad_sch": LASER_CHILD_LABELS
+        f"laser_{color.lower()}.kicad_sch": (
+            LASER_BLUE_CHILD_LABELS if color == "BLUE" else LASER_CHILD_LABELS
+        )
         for color in WL
     },
     "mcu.kicad_sch": MCU_CHILD_LABELS,
@@ -57,11 +89,11 @@ EXPECTED_ROOT_SHEETS = {
     **{
         f"LASER_{color}": (
             f"laser_{color.lower()}.kicad_sch",
-            LASER_CHILD_LABELS,
+            LASER_BLUE_CHILD_LABELS if color == "BLUE" else LASER_CHILD_LABELS,
         )
         for color in WL
     },
-    "MCU_ESP32-S3": ("mcu.kicad_sch", MCU_CHILD_LABELS),
+    "MCU_ESP32-S3": ("mcu.kicad_sch", MCU_ROOT_PINS),
     "POWER_IO": ("power_io.kicad_sch", POWER_IO_CHILD_LABELS),
 }
 
@@ -72,10 +104,12 @@ EXPECTED_ROOT_GLOBAL_COUNTS = Counter(
         **{f"PWM{i}": 2 for i in range(1, 5)},
         **{f"ISENSE{i}": 2 for i in range(1, 5)},
         **{f"LASER_N{i}": 2 for i in range(1, 5)},
-        **{f"MPD_RAW{i}": 2 for i in range(1, 5)},
+        **{f"MPD_RAW{i}": 2 for i in range(1, 4)},
+        "MPD_RAW4": 1,
         **{f"MPD{i}": 2 for i in range(1, 5)},
         "CONVST": 2,
         "VBUS_5V": 2,
+        "+3V3": 1,
     }
 )
 

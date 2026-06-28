@@ -76,6 +76,38 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
         return "OPA380 TIA output and feedback high side to external AD7606 header."
     if net == "CONVST":
         return "ESP32 GPIO17 conversion-start output to external AD7606 header."
+    if net in {"/MCU_ESP32-S3/D-", "/MCU_ESP32-S3/D+"}:
+        return "CP2102 Mini-B USB data line through the copied MCU-sheet ESD protection into the CP2102N USB bridge."
+    if net in {"/MCU_ESP32-S3/IO19", "/MCU_ESP32-S3/IO20"}:
+        return "ESP32-S3 native USB D-/D+ line on the copied MCU-sheet second Mini-B connector with local ESD clamp."
+    if net == "/MCU_ESP32-S3/IO43":
+        return "ESP32-S3 UART0 TX into CP2102N RXD for USB-UART console/programming."
+    if net == "/MCU_ESP32-S3/IO44":
+        return "CP2102N TXD into ESP32-S3 UART0 RX for USB-UART console/programming."
+    if net == "/MCU_ESP32-S3/EN":
+        return "ESP32-S3 EN reset net with 10 k pull-up, reset button, POR capacitor, and CP2102 auto-reset transistor."
+    if net == "/MCU_ESP32-S3/PROG":
+        return "ESP32-S3 GPIO0/BOOT program-mode net with pull-up, program button, POR capacitor, and CP2102 auto-boot transistor."
+    if net == "/MCU_ESP32-S3/FACT":
+        return "Copied access-controller factory button net on ESP32-S3 GPIO1 with 10 k pull-up."
+    if net == "/MCU_ESP32-S3/RTS":
+        return "CP2102N RTS output feeding the copied auto-reset transistor network."
+    if net == "/MCU_ESP32-S3/DTR":
+        return "CP2102N DTR output feeding the copied auto-boot/reset transistor network."
+    if re.match(r"/MCU_ESP32-S3/IO(13|14)$", net):
+        return "Copied access-controller ESP32-S3 GPIO strap/support net with local 10 k pull-up."
+    if re.match(r"/MCU_ESP32-S3/IO(17|18|21|3[5-9]|4[0-8])$", net):
+        return "Copied access-controller ESP32-S3 spare/local GPIO net with no bench-sheet interface."
+    if net in {"Net-(D10-A)", "Net-(D13-A)"}:
+        return "Copied MCU-sheet Mini-B VBUS before 1N5819HW isolation diode into the board VBUS_5V net."
+    if net in {"Net-(Q5-B)", "Net-(Q6-B)"}:
+        return "Copied CP2102N RTS/DTR transistor base-drive node for ESP32 EN/GPIO0 auto-reset sequencing."
+    if net == "Net-(U10-VBUS)":
+        return "CP2102N VBUS sense/bias node with divider and bypass capacitor on the copied MCU sheet."
+    if net == "Net-(U10-~{RST})":
+        return "CP2102N reset pin pull-up node on the copied MCU sheet."
+    if net == "Net-(U10-~{SUSPEND})":
+        return "CP2102N active-low suspend status pull network on the copied MCU sheet."
     if net.startswith("PWM"):
         return "ESP32 PWM command into one laser-driver input resistor."
     if net.startswith("ISENSE"):
@@ -86,6 +118,8 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
         return "INA4180 monitor-PD current-sense amplifier output before the 1 k / 100 nF ADC filter."
     if "MPD_BIAS" in net:
         return "LM4040-derived monitor-PD anode bias node; holds LASER_V+ to MPD_BIAS near 5 V."
+    if net == "MPD_RAW4":
+        return "Spare/open blue-channel monitor input at J4 and INA4180 channel 4; PLT5 450GB has no monitor photodiode."
     if "MPD_RAW" in net:
         return "Raw internal monitor-photodiode anode node from J4 into the 750 ohm high-side sense resistor and INA4180 IN+ pin."
     if net.startswith("LASER_N"):
@@ -156,7 +190,7 @@ def pin_intent_for_node(
     if net_intent.startswith("Review required:"):
         return f"Review required: {ref}.{pin} has no pin-level intent because net `{net}` has no net intent."
     if net.startswith("unconnected-"):
-        if "no_connect" in pintype or function in {"NC", "ID"} or ref == "U9":
+        if "no_connect" in pintype or function in {"NC", "ID"} or ref == "U9" or (ref == "U10" and pin == "12"):
             return f"Intentional no-connect for {value or ref} pin {pin}" + (f" `{function}`." if function else ".")
         return f"Review required: {ref}.{pin} is on an unconnected net without a no-connect pin type."
 
@@ -185,6 +219,31 @@ def pin_intent_for_node(
             return "ESP32-S3 EN/CHIP_PU reset pin with pull-up, POR cap, and header access."
         if "ESP_BOOT" in net:
             return "ESP32-S3 GPIO0 boot strap with pull-up and header access."
+        if net == "/MCU_ESP32-S3/EN":
+            return "ESP32-S3 EN/CHIP_PU reset pin in the copied access-controller reset network."
+        if net == "/MCU_ESP32-S3/PROG":
+            return "ESP32-S3 GPIO0/BOOT pin in the copied access-controller program/reset network."
+        if net == "/MCU_ESP32-S3/FACT":
+            return "ESP32-S3 GPIO1 factory button input from the copied access-controller sheet."
+        if re.match(r"/MCU_ESP32-S3/IO(13|14|17|18|19|20|21|3[5-9]|4[0-8])$", net):
+            return "ESP32-S3 local GPIO pin from the copied access-controller MCU sheet."
+
+    if value == "CP2102N-Axx-xQFN28":
+        return {
+            "3": "CP2102N ground pin.",
+            "4": "CP2102N USB D+ pin on the copied Mini-B USB bridge path.",
+            "5": "CP2102N USB D- pin on the copied Mini-B USB bridge path.",
+            "6": "CP2102N VDD supply tied to board +3V3.",
+            "7": "CP2102N VREGIN tied to board +3V3 for self-powered operation.",
+            "8": "CP2102N VBUS sense input from the copied USB VBUS divider/bypass node.",
+            "9": "CP2102N reset input with pull-up.",
+            "11": "CP2102N active-low suspend status output with pull network.",
+            "24": "CP2102N RTS output into the ESP32 auto-reset transistor network.",
+            "25": "CP2102N RXD input from ESP32 UART0 TX.",
+            "26": "CP2102N TXD output into ESP32 UART0 RX.",
+            "28": "CP2102N DTR output into the ESP32 auto-boot/reset transistor network.",
+            "29": "CP2102N exposed-pad ground.",
+        }.get(pin, f"Intentional copied CP2102N support pin {pin}.")
 
     if value == "USBLC6":
         if pin in {"1", "6"} and "USB_DM" in net:
@@ -203,11 +262,11 @@ def pin_intent_for_node(
             "4": "AP2112 NC pin deliberately left unconnected.",
             "5": "AP2112 regulated +3V3 output.",
         }.get(pin, "Review required: AP2112 unknown pin.")
-    if value == "USB Mini-B":
+    if value in {"USB Mini-B", "USB_MINI_B"}:
         return {
-            "1": "USB Mini-B VBUS entry into VBUS_5V.",
-            "2": "USB Mini-B D- connector pin into USBLC6 IO1.",
-            "3": "USB Mini-B D+ connector pin into USBLC6 IO2.",
+            "1": "USB Mini-B VBUS entry into copied MCU-sheet VBUS isolation.",
+            "2": "USB Mini-B D- connector pin into the copied USB data path.",
+            "3": "USB Mini-B D+ connector pin into the copied USB data path.",
             "4": "USB Mini-B ID pin deliberately unused.",
             "5": "USB Mini-B signal ground.",
             "6": "USB Mini-B shield tied to board GND.",
@@ -230,6 +289,8 @@ def pin_intent_for_node(
     if value == "LASER+MPD out":
         if net.startswith("LASER_N"):
             return "Laser harness cathode sink output for one channel."
+        if net == "MPD_RAW4":
+            return "Spare/open blue-channel monitor input; PLT5 450GB has no monitor photodiode."
         if "MPD_RAW" in net:
             return "Laser harness internal monitor-PD anode input for one channel."
         if net == "LASER_V+":
@@ -253,7 +314,7 @@ def pin_intent_for_node(
             "9": "INA4180 channel 3 negative input on MPD_BIAS.",
             "10": "INA4180 channel 3 positive input on MPD_RAW3.",
             "11": "INA4180 ground reference for ADC output accuracy.",
-            "12": "INA4180 channel 4 positive input on MPD_RAW4.",
+            "12": "INA4180 channel 4 positive input on spare/open MPD_RAW4.",
             "13": "INA4180 channel 4 negative input on MPD_BIAS.",
             "14": "INA4180 channel 4 output to the MPD4 ADC RC filter.",
         }.get(pin, "Review required: INA4180 unknown pin.")
@@ -283,12 +344,22 @@ def pin_intent_for_node(
             "4": "TLV9001 inverting source-sense feedback input.",
             "5": "TLV9001 positive supply tied to +5V with local decoupling.",
         }.get(pin, "Review required: TLV9001 unknown pin.")
-    if value == "OFFBOARD LASER+MPD":
+    if value in {
+        "D7805I 780nm TO18 STYLE-A LASER+MPD",
+        "D6505I 650nm TO18 STYLE-A LASER+MPD",
+        "PLT5 520EB_P TO56 LASER+MPD",
+    }:
         return {
-            "1": "Off-board laser diode cathode tied to the board low-side current-sink net LASER_Nx.",
-            "2": "Off-board common laser anode / monitor-PD cathode / case tied to LASER_V+ for PLT/A-code cans.",
-            "3": "Off-board internal monitor-PD anode exported as MPD_RAWx into the INA4180/LM4040 monitor front end.",
-        }.get(pin, "Review required: off-board laser-can unknown pin.")
+            "1": "Direct TO-can / harness laser diode cathode tied to the board low-side current-sink net LASER_Nx.",
+            "2": "Direct TO-can / harness common laser anode / monitor-PD cathode / case tied to LASER_V+ for PLT/A-code cans.",
+            "3": "Direct TO-can / harness internal monitor-PD anode exported as MPD_RAWx into the INA4180/LM4040 monitor front end.",
+        }.get(pin, "Review required: laser-can unknown pin.")
+    if value == "PLT5 450GB TO56 LASER CASE":
+        return {
+            "1": "Direct TO-can / harness PLT5 450GB laser anode tied to LASER_V+.",
+            "2": "PLT5 450GB case pin intentionally not tied into the MPD_RAW4 monitor front end.",
+            "3": "Direct TO-can / harness PLT5 450GB laser cathode tied to the board low-side current-sink net LASER_N4.",
+        }.get(pin, "Review required: PLT5 450GB unknown pin.")
     if value == "AO3400A":
         return {
             "1": "AO3400A gate driven through 1k from TLV9001 loop output.",
@@ -305,6 +376,12 @@ def pin_intent_for_node(
             return "SS14 anode receives one pre-OR 5V source."
         if function == "K":
             return "SS14 cathode feeds the post-OR +5V rail."
+    if value == "D_1N5819HW":
+        return "1N5819HW USB VBUS isolation diode pin participating in the copied MCU-sheet VBUS path."
+    if value == "SW_PUSH":
+        return "Copied MCU pushbutton signal contact." if pin == "1" else "Copied MCU pushbutton ground contact."
+    if value in {"Q_L8050QLT1G", "Q_L8550HQLT1G"}:
+        return "Copied CP2102 RTS/DTR transistor-network pin for ESP32 EN/GPIO0 sequencing."
     if value.startswith("VBIAS 10k"):
         return {
             "1": "Bourns trimmer high-side VBIAS adjustment node.",
@@ -364,7 +441,10 @@ def board_intentional_unnetted_pad_count(board_path: Path, netlist_path: Path) -
         return None
     gen_pcb.NET = str(netlist_path)
     _, _, expected_board_ref_by_comp, _, _ = gen_pcb.build_board(emit_routes=False)
-    allowed = intentional_unnetted_pad_names(expected_board_ref_by_comp)
+    try:
+        allowed = intentional_unnetted_pad_names(expected_board_ref_by_comp)
+    except KeyError:
+        return None
     count = 0
     for ref, pads in parse_board_pad_inventory(board_path).items():
         allowed_for_ref = allowed.get(ref, set())
@@ -556,6 +636,8 @@ def board_laser_sense_return_detail(board_path: Path) -> list[tuple[str, str, st
     net_by_code = {code: name for name, code in net_table.items()}
     segments = parse_board_segments(board_path, net_by_code)
     vias = parse_board_vias(board_path, net_by_code)
+    if not segments and not vias:
+        return []
     geometry = parse_footprint_geometry(board_path)
     high_current_gnd_vias = [
         via
@@ -588,6 +670,11 @@ def board_laser_sense_return_detail(board_path: Path) -> list[tuple[str, str, st
 
     if rows or not pad_details:
         return rows
+    if not high_current_gnd_vias:
+        return [
+            (sheet, pad_name, "-", "-", "-", "BLOCKER: no high-current GND vias")
+            for sheet, pad_name, _ in pad_details
+        ]
 
     assignment: tuple[int, ...] | None = None
     assignment_distance = float("inf")
@@ -731,13 +818,18 @@ def board_critical_route_summary(board_path: Path, netlist_path: Path) -> tuple[
     }
     net_table = parse_board_net_table(board_path)
     segments = parse_board_segments(board_path, {code: name for name, code in net_table.items()})
+    if not segments:
+        return len(segments), 0, len(CRITICAL_ROUTE_LINKS)
     geometry = parse_footprint_geometry(board_path)
-    connected = count_connected_critical_route_links(
-        segments,
-        geometry,
-        expected_board_ref_by_comp,
-        expected_pad_nets,
-    )
+    try:
+        connected = count_connected_critical_route_links(
+            segments,
+            geometry,
+            expected_board_ref_by_comp,
+            expected_pad_nets,
+        )
+    except KeyError:
+        connected = 0
     return len(segments), connected, len(CRITICAL_ROUTE_LINKS)
 
 
@@ -753,6 +845,8 @@ def board_critical_route_details(board_path: Path, netlist_path: Path) -> list[t
     }
     net_table = parse_board_net_table(board_path)
     segments = parse_board_segments(board_path, {code: name for name, code in net_table.items()})
+    if not segments:
+        return []
     geometry = parse_footprint_geometry(board_path)
     graph_by_net: dict[str, dict[tuple[float, float], set[tuple[float, float]]]] = defaultdict(lambda: defaultdict(set))
     for segment in segments:
@@ -783,10 +877,14 @@ def board_critical_route_details(board_path: Path, netlist_path: Path) -> list[t
     rows: list[tuple[str, str]] = []
     for description, args, _ in CRITICAL_ROUTE_LINKS:
         sheet_a, ref_a, pin_a, sheet_b, ref_b, pin_b = args
-        board_a = expected_board_ref_by_comp[(sheet_a, ref_for(sheet_a, ref_a))]
-        board_b = expected_board_ref_by_comp[(sheet_b, ref_for(sheet_b, ref_b))]
-        net_a = expected_pad_nets[board_a][pin_a]
-        net_b = expected_pad_nets[board_b][pin_b]
+        try:
+            board_a = expected_board_ref_by_comp[(sheet_a, ref_for(sheet_a, ref_a))]
+            board_b = expected_board_ref_by_comp[(sheet_b, ref_for(sheet_b, ref_b))]
+            net_a = expected_pad_nets[board_a][pin_a]
+            net_b = expected_pad_nets[board_b][pin_b]
+        except KeyError as exc:
+            rows.append((description, f"MISSING REF/PAD: {exc}"))
+            continue
         if net_a != net_b:
             rows.append((description, "NET MISMATCH"))
             continue
@@ -1103,7 +1201,7 @@ def main() -> int:
         if state["pad_net_lines"] == 0:
             lines.append("Trace-level electrical review is blocked until schematic annotation/update-from-schematic or the PCB generator creates pad net assignments and copper routing. Current board evidence has no routed segments, no vias, and no pad net lines.")
         elif state["segments"] == 0 and state["vias"] == 0:
-            lines.append("PCB pad-net assignment, stackup, net classes, antenna keepout, and In1.Cu GND reference-zone definition are present and auditable, but trace-level electrical review is still blocked until copper routing and zone refill exist. Current board evidence has no routed segments and no vias.")
+            lines.append("PCB pad-net assignment, stackup, net classes, and footprint-internal keepouts are present and auditable, but trace-level electrical review is still blocked until placement, routing, board-level zones, and KiCad DRC exist. Current board evidence has no routed segments, no vias, and no board-level zones.")
         else:
             unrouted_rows = [
                 row for row in full_route_rows

@@ -20,7 +20,7 @@ PART_NOTES_DIR = REPO_DIR / "docs" / "part-notes"
 
 
 CRITICAL_PART_NOTES = [
-    "ESP32-S3-WROOM-1-N16R8.md",
+    "ESP32-S3-WROOM-1-N16.md",
     "OPA380AID.md",
     "TLV9001IDBVR.md",
     "AP2112K-3.3TRG1.md",
@@ -81,7 +81,7 @@ DOCUMENTATION_DESIGNATOR_GUARDS = [
         ],
     ),
     (
-        PART_NOTES_DIR / "ESP32-S3-WROOM-1-N16R8.md",
+        PART_NOTES_DIR / "ESP32-S3-WROOM-1-N16.md",
         [
             "GPIO0/BOOT has a pull-up and is exposed on J2",
         ],
@@ -165,10 +165,12 @@ def main() -> int:
         "sustained Wi-Fi/BLE",
         "Laser current-loop thermal policy",
         "common high `LASER_V+` rail",
-        "L785P090",
-        "C-code",
-        "L450G2",
+        "D7805I",
+        "D6505I",
+        "PLT5 520EB_P",
+        "PLT5 450GB",
         "no monitor photodiode",
+        "MPD_RAW4",
         "Part-note completeness guardrail",
         "Review/CI wrapper",
     ]:
