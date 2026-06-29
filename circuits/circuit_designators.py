@@ -136,7 +136,6 @@ MCU_REF_MAP = {
 }
 
 POWER_REF_MAP = {
-    "J1": "J3",
     "UADC": "U14",
     "CADCAV1": "C51",
     "CADCAV2": "C52",

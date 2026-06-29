@@ -48,10 +48,9 @@ The generator now emits 1260 checked copper segments and 141 vias.
 The whole-board audit is not release-clean: the stricter release gate currently reports
 pending `+5V` and `GND` rail/zone routing only.
 Zones, DRC, and return-path review still require KiCad.
-Simple J3 vertical shifts on the right-edge connector stack were checked first and still left
-`VOUT3` boxed in. The generator now places J3 at x=28 mm, y=42 mm near the TIA column,
-which routes `VOUT1..4` and `CONVST`. This does not clear the current whole-board
-release blockers: `+5V` and `GND` remain rail/zone pending.
+The old J3 AD7606 debug/output header has been removed now that U14 is on-board.
+This does not clear the current whole-board release blockers: `+5V` and `GND`
+remain rail/zone pending.
 
 ## Board
 
@@ -65,7 +64,6 @@ release blockers: `+5V` and `GND` remain rail/zone pending.
   - **Centre** (x≈37–55mm) — Laser drivers ×4 (TLV9001 + AO3400A + passives).
   - **Right** (x≈58–85mm) — ESP32-S3-WROOM-1 (rotated 90°, antenna toward top edge)
     + AP2112K LDO + USBLC6 ESD + USB series resistors + decoupling.
-  - **Top/left-centre** — J3 AD7606 outputs near the TIA column so `VOUT1..4` stay short.
   - **Right edge** — J4 laser + monitor-PD outputs, J5 laser PSU, J6 external 5V.
   - **Bottom edge** — J1 USB Mini-B.
   - **Top edge** — J2 UART.
@@ -76,7 +74,6 @@ release blockers: `+5V` and `GND` remain rail/zone pending.
 |-----|----------|------|------|
 | J1  | USB Mini-B (Würth 65100516121) | 5 | SMD horizontal, JLCPCB assembly |
 | J2  | ESP_TX, ESP_RX, EN, BOOT, GND → Raspberry Pi / bring-up | 5 | TH pin header, hand-solder |
-| J3  | AD7606 out (VOUT1..4 + CONVST + GND) | 6 | TH pin header, hand-solder |
 | J4  | LASER + monitor PD out | 10 | TH pin header, hand-solder |
 | J5  | LASER PSU input (`LASER_V+` + GND) | 2 | TH pin header, hand-solder |
 | J6  | EXT 5V in (optional) | 2 | TH pin header, hand-solder |

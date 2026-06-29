@@ -184,7 +184,7 @@ def intentional_unnetted_pad_names(
     for color in WL:
         allowed[board_ref(f"TIA_{color}", "D1")].add("")  # SFH2201 paste-only pads.
         allowed[board_ref(f"TIA_{color}", "U1")].update({"1", "5", "8"})  # OPA380 NC.
-    allowed[board_ref("MCU_ESP32-S3", "J6")].update({"", "4"})  # Mini-B NPTH + USB ID.
+    allowed[board_ref("MCU_ESP32-S3", "J1")].update({"", "4"})  # Mini-B NPTH + USB ID.
     allowed[board_ref("MCU_ESP32-S3", "U10")].add("4")  # AP2112 NC.
     allowed[board_ref("MCU_ESP32-S3", "U9")].update(
         {
@@ -1532,8 +1532,8 @@ def parse_zone_summaries(board_path: Path) -> list[dict[str, object]]:
 
 
 PLACEMENT_CHECKS = [
-    ("USB D- connector to USBLC6", ("MCU_ESP32-S3", "J6", "2", "MCU_ESP32-S3", "U12", "1"), 7.5),
-    ("USB D+ connector to USBLC6", ("MCU_ESP32-S3", "J6", "3", "MCU_ESP32-S3", "U12", "3"), 9.5),
+    ("USB D- connector to USBLC6", ("MCU_ESP32-S3", "J1", "2", "MCU_ESP32-S3", "U12", "1"), 7.5),
+    ("USB D+ connector to USBLC6", ("MCU_ESP32-S3", "J1", "3", "MCU_ESP32-S3", "U12", "3"), 9.5),
     ("USBLC6 D- to 22R series", ("MCU_ESP32-S3", "U12", "6", "MCU_ESP32-S3", "RUSBM", "1"), 10.0),
     ("USBLC6 D+ to 22R series", ("MCU_ESP32-S3", "U12", "4", "MCU_ESP32-S3", "RUSBP", "1"), 10.0),
     ("USB D- series to ESP32 GPIO19", ("MCU_ESP32-S3", "RUSBM", "2", "MCU_ESP32-S3", "U9", "13"), 4.5),

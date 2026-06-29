@@ -243,7 +243,6 @@ def main() -> int:
         "C3V3BULK": ("10uF", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
         "D10": ("SS14", "Diode_SMD:D_SMA", "SS14", "C2480"),
         "D11": ("SS14", "Diode_SMD:D_SMA", "SS14", "C2480"),
-        "J1": ("ADC debug", "Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical", "", ""),
         "J2": ("EXT 5V", "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical", "", ""),
         "J4": ("LASER+MPD out", "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical", "", ""),
         "J5": ("LASER PSU", "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical", "", ""),
@@ -516,7 +515,6 @@ def main() -> int:
     usb_uart_j = "J1"
     usb_native_j = "J2"
     cp2102 = "U10"
-    adc_debug_j = ref_for("POWER_IO", "J1")
     adc = ref_for("POWER_IO", "UADC")
     ext5_j = ref_for("POWER_IO", "J2")
     d_usb = ref_for("POWER_IO", "D10")
@@ -637,20 +635,19 @@ def main() -> int:
     for index, (color, esp_pin) in enumerate(zip(WL, ["18", "19", "20", "9"]), 1):
         exact(f"PWM{index}", [(ref_for(f"LASER_{color}", "R21"), "1"), ("U9", esp_pin)])
 
-    # Board interfaces: on-board signal ADC, debug header, laser harness,
-    # laser PSU, and 5V input OR-ing.
+    # Board interfaces: on-board signal ADC, laser harness, laser PSU,
+    # and 5V input OR-ing.
     adc_input_pin = {1: "49", 2: "51", 3: "57", 4: "59"}
-    for index, (color, j1_pin) in enumerate(zip(WL, ["1", "2", "3", "4"]), 1):
+    for index, color in enumerate(WL, 1):
         sheet = f"TIA_{color}"
         exact(f"VOUT{index}", [
             (ref_for(sheet, "C1"), "2"),
-            (adc_debug_j, j1_pin),
             (ref_for(sheet, "RVFB"), "2"),
             (ref_for(sheet, "RVFB"), "3"),
             (ref_for(sheet, "U1"), "6"),
             (adc, adc_input_pin[index]),
         ])
-    exact("CONVST", [(adc_debug_j, "5"), (adc, "9"), (adc, "10"), ("U9", "8")])
+    exact("CONVST", [(adc, "9"), (adc, "10"), ("U9", "8")])
     exact("ADC_SCLK", [(adc, "12"), ("U9", "10")])
     exact("ADC_CS", [(adc, "13"), ("U9", "11")])
     exact("ADC_MISO_A", [(adc, "24"), ("U9", "23")])
@@ -721,7 +718,6 @@ def main() -> int:
         (cp2102, "3"),
         (cp2102, "29"),
         (ldo, "2"),
-        (adc_debug_j, "6"),
         (ext5_j, "2"),
         ("J4", "10"),
         ("J5", "2"),
@@ -938,7 +934,7 @@ def main() -> int:
     }
     checks.append((not multi_net_pins, "physical pin appears on one net only", f"{multi_net_pins}"))
 
-    hand_add_refs = {adc_debug_j, "J4", "J5", ext5_j} | {
+    hand_add_refs = {"J4", "J5", ext5_j} | {
         ref_for(f"LASER_{color}", "LD") for color in WL
     }
     assembled = [comp for comp in comps if comp["ref"] not in hand_add_refs]
@@ -947,13 +943,13 @@ def main() -> int:
         for comp in assembled
         if not comp["lcsc"] or not comp["mpn"] or not comp["footprint"]
     ]
-    hand_refs_without_laser_mpns = {adc_debug_j, "J4", "J5", ext5_j}
+    hand_refs_without_laser_mpns = {"J4", "J5", ext5_j}
     hand_with_fields = [
         comp
         for comp in comps
         if comp["ref"] in hand_refs_without_laser_mpns and (comp["lcsc"] or comp["mpn"])
     ]
-    checks.append((len(comps) == 162, "component count", f"got {len(comps)}, expected 162"))
+    checks.append((len(comps) == 161, "component count", f"got {len(comps)}, expected 161"))
     checks.append((len(assembled) == 154, "assembled component count", f"got {len(assembled)}, expected 154"))
     checks.append((not missing_fields, "assembled component fields", f"missing {missing_fields}"))
     checks.append((not hand_with_fields, "hand-add field exclusion", f"unexpected fields {hand_with_fields}"))

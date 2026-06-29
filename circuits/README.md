@@ -52,7 +52,7 @@ python3 gen_laser_controller.py
 | `tia_ir.kicad_sch`, `tia_red.kicad_sch`, `tia_green.kicad_sch`, `tia_blue.kicad_sch` | Four on-board PD + OPA380 TIA sheets with globally unique designators. |
 | `laser_ir.kicad_sch`, `laser_red.kicad_sch`, `laser_green.kicad_sch`, `laser_blue.kicad_sch` | Four constant-current laser sink sheets with globally unique designators; each sheet has a direct through-hole TO-can footprint in parallel with the J4 harness option so `LD_K`, common `LD_A/PD_K/case`, and `PD_A -> MPD_RAW` are visible. |
 | `mcu.kicad_sch` | ESP32-S3-WROOM-1 + AP2112K-3.3 LDO + USB Mini-B + USBLC6 ESD + EN R/C + UART header. |
-| `power_io.kicad_sch` | 5V OR-ing, laser supply, on-board AD7606-4 signal ADC, ADC debug header, laser + monitor-PD output header, and shared INA4180/LM4040 monitor-PD front end. |
+| `power_io.kicad_sch` | 5V OR-ing, laser supply, on-board AD7606-4 signal ADC, laser + monitor-PD output header, and shared INA4180/LM4040 monitor-PD front end. |
 | `laser_controller_bom_jlcpcb.csv` | Full generated JLCPCB BOM (Comment, Designator, Footprint, LCSC). |
 | `laser_controller.kicad_pro` | KiCad 7 project file. |
 | `LASER_MONITOR_PD_FEEDBACK.md` | Design note for the internal laser monitor photodiode feedback path and production APC implications. |
@@ -73,7 +73,7 @@ PD + TIA CHANNEL (×4 = IR / RED / GREEN / BLUE)  — on-board, no off-board opt
   Osram SFH2201 clear Si PIN PD (D1):  cathode → +5V via RB(1k)+CB bypass = reverse bias
         anode → OPA380AID −IN (summing node)
   Rf = RVFB (2M feedback trim, wiper tied to output side) ∥ Cf = C1 (10pF) ;  +IN = VBIAS (RV11 10k trim + RC)
-  V_OUT = VBIAS + I_pd·Rf  →  U14 AD7606BSTZ-4 on-board ADC, mirrored on J3 debug header
+  V_OUT = VBIAS + I_pd·Rf  →  U14 AD7606BSTZ-4 on-board ADC
 
 LASER DRIVER (×4, one per wavelength)
   PWM_IN → 10k/1µF filter with 30k pulldown limiter → TLV9001(+) ; TLV9001 OUT →
@@ -97,7 +97,6 @@ POWER / IO
   +5V  = USB VBUS  ‖  J6 external 5V, OR-ed via SS14 Schottkys (D5/D6) ; PWR_FLAGs declare sources
   +3V3 = AP2112K-3.3   ·   LASER_V+ = J5 (separate laser-anode rail)
   U14 AD7606BSTZ-4RL → VOUT1..4, CONVST, SCLK, CS, BUSY, RESET, DOUTA, DOUTB
-  J3 (1×06) → ADC debug mirror (VOUT1..4 + CONVST + GND)
   J4 (1×10) → laser diodes + monitor PDs: LASER_N/MPD_RAW pairs + LASER_V+ + GND
   MPD_RAWx -> 750R sense -> MPD_BIAS ; INA4180A1 gain 20 -> 1k/100nF -> MPDx ESP32 ADC
   LM4040C50 holds LASER_V+ - MPD_BIAS near 5V for PLT5-style/A-code monitor diodes
@@ -156,7 +155,6 @@ hand-added through-hole headers and direct laser-can footprints.
 | LD2 | D6505I, `OptoDevice:LaserDiode_TO18-D5.6-3` | Direct red laser can option; electrically in parallel with J4 channel 2. |
 | LD3 | PLT5 520EB_P, `OptoDevice:LaserDiode_TO56-3` | Direct green laser can option; electrically in parallel with J4 channel 3. |
 | LD4 | PLT5 450GB, `OptoDevice:LaserDiode_TO56-3` | Direct blue laser can option; case pad is intentionally no-connect; electrically in parallel with J4 channel 4 except `MPD_RAW4` stays spare/open. |
-| J3 | 1×06 THT header | ADC debug mirror: VOUT1..4 + CONVST + GND. |
 | J4 | 1×10 THT header | laser + monitor out: LASER_N/MPD_RAW pairs + LASER_V+ + GND. |
 | J6 | 1×02 THT header | external +5V in. |
 | J5 | 1×02 THT header | laser-anode supply (LASER_V+). |

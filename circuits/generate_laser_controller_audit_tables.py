@@ -73,9 +73,9 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
     if net == "/POWER_IO/EXT5V":
         return "External 5 V input from J6 pin 1 to D6 anode into +5V OR-ing."
     if net.startswith("VOUT"):
-        return "OPA380 TIA output and feedback high side into the on-board AD7606-4 signal ADC, mirrored on the debug header."
+        return "OPA380 TIA output and feedback high side into the on-board AD7606-4 signal ADC."
     if net == "CONVST":
-        return "ESP32 GPIO15 conversion-start output to the on-board AD7606-4 CONVSTA/CONVSTB pins and debug header."
+        return "ESP32 GPIO15 conversion-start output to the on-board AD7606-4 CONVSTA/CONVSTB pins."
     if net == "ADC_SCLK":
         return "ESP32 GPIO17 serial clock into the on-board AD7606-4 RD/SCLK pin."
     if net == "ADC_CS":
@@ -309,13 +309,6 @@ def pin_intent_for_node(
             "4": "Bring-up header ESP32 GPIO0/BOOT access.",
             "5": "Bring-up header ground reference.",
         }.get(pin, "Review required: UART header unknown pin.")
-    if value == "ADC debug":
-        if net.startswith("VOUT"):
-            return "Debug header pin carrying one OPA380 TIA output already digitized by the on-board AD7606-4."
-        if net == "CONVST":
-            return "Debug header mirror of the AD7606-4 conversion-start control pin."
-        if net == "GND":
-            return "Debug header ground reference."
     if value == "AD7606BSTZ-4":
         if net.startswith("VOUT"):
             return "AD7606-4 analog input pin for one OPA380 TIA output channel."
@@ -391,7 +384,7 @@ def pin_intent_for_node(
             "3": "OPA380 non-inverting VBIAS input.",
             "4": "OPA380 negative supply tied to board GND.",
             "5": "OPA380 datasheet NC pad left unconnected.",
-            "6": "OPA380 TIA output to feedback high side and AD7606 header.",
+            "6": "OPA380 TIA output to feedback high side and on-board AD7606 input.",
             "7": "OPA380 positive supply tied to +5V with local decoupling.",
             "8": "OPA380 datasheet NC pad left unconnected.",
         }.get(pin, "Review required: OPA380 unknown pin.")
@@ -451,7 +444,7 @@ def pin_intent_for_node(
         return {
             "1": "Bourns feedback trimmer low side tied to the OPA380 summing node.",
             "2": "Bourns feedback trimmer wiper tied to the OPA380 output side for rheostat fail-safe behavior.",
-            "3": "Bourns feedback trimmer output-side terminal tied to OPA380 output and AD7606 header.",
+            "3": "Bourns feedback trimmer output-side terminal tied to OPA380 output and on-board AD7606 input.",
         }.get(pin, "Review required: feedback trimmer unknown pin.")
 
     if value.startswith("10R 2W"):

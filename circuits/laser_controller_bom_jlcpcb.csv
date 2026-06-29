@@ -44,7 +44,6 @@ Comment,Designator,Footprint,LCSC
 "CP2102N-Axx-xQFN28","U10","Package_DFN_QFN:QFN-28-1EP_5x5mm_P0.5mm_EP3.35x3.35mm","C964632"
 #
 # Hand-add / not in SMT assembly:
-#   1x ADC debug  ()
 #   1x D6505I 650nm TO18 STYLE-A LASER+MPD  (D6505I)
 #   1x D7805I 780nm TO18 STYLE-A LASER+MPD  (D7805I)
 #   1x EXT 5V  ()

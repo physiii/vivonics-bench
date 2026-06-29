@@ -904,7 +904,6 @@ def build_power_io():
         "C3V3IN":("C_V","1uF",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,116,64),
         "C3V3OUT":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,148,60),
         "C3V3BULK":("C_V","10uF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,162,60),
-        "J1":("CONN6","ADC debug",FP_H6,"","",250,70),
         "UADC":("AD7606_4","AD7606BSTZ-4",FP_AD7606,"AD7606BSTZ-4RL",LCSC_AD7606,250,205),
         "CADCAV1":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,220,170),
         "CADCAV2":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,230,170),
@@ -955,10 +954,6 @@ def build_power_io():
     add_rail(power,wires,"GND",pin(parts,"C3V3BULK","2"))
     # laser supply rail
     add_rail(power,wires,"LASER_VP",pin(parts,"J5","1")); add_rail(power,wires,"GND",pin(parts,"J5","2"))
-    # ADC debug header mirrors the signal-PD ADC analog inputs and conversion trigger.
-    for jp,net in [("1","VOUT1"),("2","VOUT2"),("3","VOUT3"),("4","VOUT4"),("5","CONVST")]:
-        add_stub(wires,labels,pin(parts,"J1",jp),"left",f"H:{net}",dist=9,shape="input")
-    add_rail_dn(power,wires,"GND",pin(parts,"J1","6"))
     # On-board AD7606-4: four OPA380 TIA outputs into V1/V2/V3/V4, serial data back to ESP32.
     adc_input_pins = {"VOUT1":"49", "VOUT2":"51", "VOUT3":"57", "VOUT4":"59"}
     for net, adc_pin in adc_input_pins.items():
@@ -1055,7 +1050,7 @@ def build_power_io():
     texts=[
         ("Power & I/O  —  USB‖external 5V OR-ing, AP2112 +3V3 source, separate laser supply, on-board AD7606-4 ADC, laser + monitor-PD outputs",36,16,2.2),
         ("J6 = ext +5V in;  USB VBUS (from MCU J1) ‖ J6 OR-ed via SS14 Schottkys (D5/D6) → +5V; U11 AP2112K-3.3 → +3V3.",36,22,1.3),
-        ("U14 AD7606BSTZ-4 digitizes VOUT1..4 on-board; ESP32 drives CONVST/SCLK/CS/RESET and reads BUSY + DOUTA/DOUTB.  J3 is debug only.",36,28,1.3),
+        ("U14 AD7606BSTZ-4 digitizes VOUT1..4 on-board; ESP32 drives CONVST/SCLK/CS/RESET and reads BUSY + DOUTA/DOUTB.",36,28,1.3),
         ("MPD_RAWx -> 750R sense to MPD_BIAS; INA4180A1 gain=20 -> 1k/100nF -> MPDx ESP32 ADC.",36,34,1.3),
         ("LM4040C50 holds LASER_V+ - MPD_BIAS near 5V; PLT5 typ 150uA -> about 2.25V ADC and about 4.89V monitor-PD reverse bias.",36,40,1.3),
         ("ISENSE headroom: keep I_laser <= 250 mA so V_sense (=I*10ohm) stays inside the ESP32 ADC range with margin.",36,46,1.3),

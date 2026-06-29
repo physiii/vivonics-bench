@@ -14,8 +14,8 @@ from circuit_designators import ref_for
 
 
 CRITICAL_ROUTE_LINKS = [
-    ("USB D- connector to USBLC6", ("MCU_ESP32-S3", "J6", "2", "MCU_ESP32-S3", "U12", "1"), 7.5),
-    ("USB D+ connector to USBLC6", ("MCU_ESP32-S3", "J6", "3", "MCU_ESP32-S3", "U12", "3"), 9.5),
+    ("USB D- connector to USBLC6", ("MCU_ESP32-S3", "J1", "2", "MCU_ESP32-S3", "U12", "1"), 7.5),
+    ("USB D+ connector to USBLC6", ("MCU_ESP32-S3", "J1", "3", "MCU_ESP32-S3", "U12", "3"), 9.5),
     ("USBLC6 D- to 22R series", ("MCU_ESP32-S3", "U12", "6", "MCU_ESP32-S3", "RUSBM", "1"), 10.0),
     ("USBLC6 D+ to 22R series", ("MCU_ESP32-S3", "U12", "4", "MCU_ESP32-S3", "RUSBP", "1"), 10.0),
     ("USB D- series to ESP32 GPIO19", ("MCU_ESP32-S3", "RUSBM", "2", "MCU_ESP32-S3", "U9", "13"), 4.5),
@@ -87,7 +87,7 @@ EXTRA_SIGNAL_ROUTE_LINKS = [
     ("LASER_IR cathode sink to J4", ("LASER_IR", "Q1", "3", "POWER_IO", "J4", "1")),
     ("LASER_BLUE cathode sink to J4", ("LASER_BLUE", "Q1", "3", "POWER_IO", "J4", "7")),
     ("ESP32 BOOT to bring-up header", ("MCU_ESP32-S3", "U9", "27", "MCU_ESP32-S3", "J3", "4")),
-    ("AD7606 CONVST from ESP32 to header", ("MCU_ESP32-S3", "U9", "10", "POWER_IO", "J1", "5")),
+    ("AD7606 CONVST from ESP32 to U14", ("MCU_ESP32-S3", "U9", "8", "POWER_IO", "UADC", "9")),
     ("TIA_IR trim upper node", ("TIA_IR", "RT", "2", "TIA_IR", "RV11", "1")),
     ("TIA_RED trim upper node", ("TIA_RED", "RT", "2", "TIA_RED", "RV11", "1")),
     ("TIA_GREEN trim upper node", ("TIA_GREEN", "RT", "2", "TIA_GREEN", "RV11", "1")),
@@ -106,7 +106,7 @@ BOTTOM_SIGNAL_ROUTE_LINKS = [
     ("LASER_RED PWM command route", ("MCU_ESP32-S3", "U9", "31", "LASER_RED", "R21", "1")),
     ("LASER_GREEN PWM command route", ("MCU_ESP32-S3", "U9", "21", "LASER_GREEN", "R21", "1")),
     ("LASER_BLUE PWM command route", ("MCU_ESP32-S3", "U9", "22", "LASER_BLUE", "R21", "1")),
-    ("AD7606 CONVST bottom route", ("MCU_ESP32-S3", "U9", "10", "POWER_IO", "J1", "5")),
+    ("AD7606 CONVST bottom route", ("MCU_ESP32-S3", "U9", "8", "POWER_IO", "UADC", "9")),
     ("MPD1 telemetry route", ("POWER_IO", "RADC1", "1", "MCU_ESP32-S3", "U9", "38")),
     ("MPD2 telemetry route", ("POWER_IO", "RADC2", "1", "MCU_ESP32-S3", "U9", "39")),
     ("MPD3 telemetry route", ("POWER_IO", "RADC3", "1", "MCU_ESP32-S3", "U9", "12")),
@@ -115,10 +115,10 @@ BOTTOM_SIGNAL_ROUTE_LINKS = [
     ("LASER_RED ISENSE telemetry route", ("LASER_RED", "R12", "2", "MCU_ESP32-S3", "U9", "5")),
     ("LASER_GREEN ISENSE telemetry route", ("LASER_GREEN", "R12", "2", "MCU_ESP32-S3", "U9", "6")),
     ("LASER_BLUE ISENSE telemetry route", ("LASER_BLUE", "R12", "2", "MCU_ESP32-S3", "U9", "7")),
-    ("VOUT4 TIA output to AD7606 header", ("TIA_BLUE", "U1", "6", "POWER_IO", "J1", "4")),
-    ("VOUT1 TIA output to AD7606 header", ("TIA_IR", "U1", "6", "POWER_IO", "J1", "1")),
-    ("VOUT2 TIA output to AD7606 header", ("TIA_RED", "U1", "6", "POWER_IO", "J1", "2")),
-    ("VOUT3 TIA output to AD7606 header", ("TIA_GREEN", "U1", "6", "POWER_IO", "J1", "3")),
+    ("VOUT4 TIA output to AD7606", ("TIA_BLUE", "U1", "6", "POWER_IO", "UADC", "59")),
+    ("VOUT1 TIA output to AD7606", ("TIA_IR", "U1", "6", "POWER_IO", "UADC", "49")),
+    ("VOUT2 TIA output to AD7606", ("TIA_RED", "U1", "6", "POWER_IO", "UADC", "51")),
+    ("VOUT3 TIA output to AD7606", ("TIA_GREEN", "U1", "6", "POWER_IO", "UADC", "57")),
     ("TIA_IR VBIAS wiper route", ("TIA_IR", "RV11", "2", "TIA_IR", "R1", "1")),
     ("TIA_RED VBIAS wiper route", ("TIA_RED", "RV11", "2", "TIA_RED", "R1", "1")),
     ("TIA_GREEN VBIAS wiper route", ("TIA_GREEN", "RV11", "2", "TIA_GREEN", "R1", "1")),
@@ -130,7 +130,7 @@ INNER_SIGNAL_ROUTE_LINKS = [
     ("ESP32 EN forced inner route", ("MCU_ESP32-S3", "U9", "3", "MCU_ESP32-S3", "J3", "3")),
     ("MPD4 telemetry inner route", ("POWER_IO", "RADC4", "1", "MCU_ESP32-S3", "U9", "17")),
     ("MPD3 telemetry inner route", ("POWER_IO", "RADC3", "1", "MCU_ESP32-S3", "U9", "12")),
-    ("AD7606 CONVST inner route", ("MCU_ESP32-S3", "U9", "10", "POWER_IO", "J1", "5")),
+    ("AD7606 CONVST inner route", ("MCU_ESP32-S3", "U9", "8", "POWER_IO", "UADC", "9")),
     ("LASER_IR PWM inner route", ("MCU_ESP32-S3", "U9", "9", "LASER_IR", "R21", "1")),
     ("LASER_RED PWM inner route", ("MCU_ESP32-S3", "U9", "31", "LASER_RED", "R21", "1")),
     ("LASER_IR ISENSE inner route", ("LASER_IR", "R12", "2", "MCU_ESP32-S3", "U9", "4")),
@@ -181,7 +181,7 @@ VIA_IN_PAD_INNER_ROUTE_DESCRIPTIONS = {
 VIA_IN_PAD_SIGNAL_FALLBACK_ROUTE_DESCRIPTIONS = set(VIA_IN_PAD_INNER_ROUTE_DESCRIPTIONS)
 LAST_RESORT_GND_PLANE_ROUTE_DESCRIPTIONS: set[str] = set()
 POWER_ROUTE_LINKS = [
-    ("VBUS connector to USBLC6 VBUS reference", ("MCU_ESP32-S3", "J6", "1", "MCU_ESP32-S3", "U12", "5"), 0.50),
+    ("VBUS connector to USBLC6 VBUS reference", ("MCU_ESP32-S3", "J1", "1", "MCU_ESP32-S3", "U12", "5"), 0.50),
     ("VBUS USBLC6 reference to USB OR-ing diode", ("MCU_ESP32-S3", "U12", "5", "POWER_IO", "D10", "1"), 0.50),
     ("EXT 5V header to OR-ing diode", ("POWER_IO", "J2", "1", "POWER_IO", "D11", "1"), 0.60),
     ("USB OR-ing diode cathode to +5V bulk", ("POWER_IO", "D10", "2", "POWER_IO", "C50", "1"), 0.60),
