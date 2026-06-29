@@ -466,6 +466,39 @@ def add_rail_dn(power,wires,kind,p):
     p = snap_point(p)
     sp=snap_point((p[0], p[1]+6.35)); power.append((kind,sp[0],sp[1])); wires.append([p,sp])
 
+def add_bus_rail(power,wires,kind,pins,bus_y=None,bus_x=None,symbol_at=None):
+    """Tie a group of pins to one visible power symbol through a shared bus."""
+    points = [snap_point(point) for point in pins]
+    if not points:
+        return
+    if (bus_y is None) == (bus_x is None):
+        raise ValueError("add_bus_rail needs exactly one of bus_y or bus_x")
+    if bus_y is not None:
+        bus_y = snap(bus_y)
+        symbol = snap_point(symbol_at) if symbol_at else snap_point((
+            (min(point[0] for point in points) + max(point[0] for point in points)) / 2,
+            bus_y + (5.08 if kind == "GND" else -5.08),
+        ))
+        tap = snap_point((symbol[0], bus_y))
+        bus_points = sorted({(point[0], bus_y) for point in points} | {tap})
+        wires.append(bus_points)
+        for point in points:
+            wires.append([point, (point[0], bus_y)])
+        wires.append([tap, symbol])
+    else:
+        bus_x = snap(bus_x)
+        symbol = snap_point(symbol_at) if symbol_at else snap_point((
+            bus_x + (5.08 if kind != "GND" else -5.08),
+            (min(point[1] for point in points) + max(point[1] for point in points)) / 2,
+        ))
+        tap = snap_point((bus_x, symbol[1]))
+        bus_points = sorted({(bus_x, point[1]) for point in points} | {tap}, key=lambda point: point[1])
+        wires.append(bus_points)
+        for point in points:
+            wires.append([point, (bus_x, point[1])])
+        wires.append([tap, symbol])
+    power.append((kind, symbol[0], symbol[1]))
+
 def declare_source(power,wires,kind,x,y):
     """Isolated rail-symbol + PWR_FLAG pair → tells ERC this externally-supplied net has a source."""
     x, y = snap(x), snap(y)
@@ -911,14 +944,14 @@ def build_power_io():
         "C3V3OUT":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,148,60),
         "C3V3BULK":("C_V","10uF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,162,60),
         "UADC":("AD7606_4","AD7606BSTZ-4",FP_AD7606,"AD7606BSTZ-4RL",LCSC_AD7606,250,205),
-        "CADCAV1":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,220,170),
-        "CADCAV2":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,230,170),
-        "CADCAV3":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,240,170),
-        "CADCAV4":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,250,170),
+        "CADCAV1":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,220,158),
+        "CADCAV2":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,235,158),
+        "CADCAV3":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,250,158),
+        "CADCAV4":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,265,158),
         # Keep this off UADC pin 7's x-coordinate so the decoupler GND stub
         # cannot merge with the STBY high strap in the generated schematic.
-        "CADCDRV":("C_V","100nF ADC VDRIVE",FP_402,"0402B104K160CT",LCSC_100NF,285,170),
-        "CADCBULK":("C_V","10uF ADC AVCC",FP_805,"CL21A106KAYNNNG",LCSC_10UF,205,170),
+        "CADCDRV":("C_V","100nF ADC VDRIVE",FP_402,"0402B104K160CT",LCSC_100NF,285,158),
+        "CADCBULK":("C_V","10uF ADC AVCC",FP_805,"CL21A106KAYNNNG",LCSC_10UF,205,158),
         "CREG1":("C_V","1uF ADC REGCAP",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,205,215),
         "CREG2":("C_V","1uF ADC REGCAP",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,195,220),
         "CREFIN":("C_V","10uF ADC REF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,185,225),
@@ -978,16 +1011,40 @@ def build_power_io():
     ]:
         add_stub(wires,labels,pin(parts,"UADC",adc_pin),"right",f"H:{net}",dist=10,shape=shape)
     ncs.append(pin(parts,"UADC","15"))
-    for adc_pin in ["1","37","38","48"]:
-        add_rail(power,wires,"+5V",pin(parts,"UADC",adc_pin))
+    add_bus_rail(
+        power,
+        wires,
+        "+5V",
+        [pin(parts,"UADC",adc_pin) for adc_pin in ["1","37","38","48"]]
+        + [pin(parts,cap,"1") for cap in ["CADCBULK","CADCAV1","CADCAV2","CADCAV3","CADCAV4"]],
+        bus_y=155,
+        symbol_at=(235,150),
+    )
     for adc_pin in ["6","7","23","34"]:
         add_rail(power,wires,"+3V3",pin(parts,"UADC",adc_pin))
-    for adc_pin in ["3","4","5","8","16","17","18","19","20","21","22","27","28","29","30","31","32","33",
-                    "2","26","35","40","41","43","46","47","50","52","53","54","55","56","58","60","61","62","63","64"]:
-        add_rail(power,wires,"GND",pin(parts,"UADC",adc_pin))
-    for cap in ["CADCAV1","CADCAV2","CADCAV3","CADCAV4","CADCBULK"]:
-        add_rail(power,wires,"+5V",pin(parts,cap,"1")); add_rail(power,wires,"GND",pin(parts,cap,"2"))
-    add_rail(power,wires,"+3V3",pin(parts,"CADCDRV","1")); add_rail(power,wires,"GND",pin(parts,"CADCDRV","2"))
+    add_bus_rail(
+        power,
+        wires,
+        "GND",
+        [pin(parts,"UADC",adc_pin) for adc_pin in [
+            "3","4","5","8","16","17","18","19","20","21","22","27","28","29","30","31","32","33",
+            "2","26","35","40","41","43","46","47","50","52","53","54","55","56","58","60","61","62","63","64",
+        ]],
+        bus_y=247,
+        symbol_at=(250,254),
+    )
+    cadcdrv_top = pin(parts,"CADCDRV","1")
+    cadcdrv_3v3 = snap_point((cadcdrv_top[0] + 7.62, cadcdrv_top[1]))
+    wires.append([cadcdrv_top, cadcdrv_3v3])
+    power.append(("+3V3", cadcdrv_3v3[0], cadcdrv_3v3[1]))
+    add_bus_rail(
+        power,
+        wires,
+        "GND",
+        [pin(parts,cap,"2") for cap in ["CADCBULK","CADCAV1","CADCAV2","CADCAV3","CADCAV4","CADCDRV"]],
+        bus_y=166,
+        symbol_at=(245,171),
+    )
     for cap, adc_pin in [("CREG1","36"),("CREG2","39"),("CREFIN","42")]:
         cap_top = pin(parts,cap,"1")
         adc_ref_pin = pin(parts,"UADC",adc_pin)
@@ -1037,7 +1094,14 @@ def build_power_io():
         mpd_label = (cmpd_top[0] + 10, cmpd_top[1])
         wires.append([radc_out, cmpd_top, mpd_label])
         add_label(labels,mpd_label,f"H:MPD{i}",justify="left",shape="output")
-        add_rail(power,wires,"GND",pin(parts,f"CMPD{i}","2"))
+    add_bus_rail(
+        power,
+        wires,
+        "GND",
+        [pin(parts,f"CMPD{i}","2") for i in range(1,5)],
+        bus_x=322,
+        symbol_at=(327,142),
+    )
     # PWR_FLAGs — declare the externally-supplied rails as sources (silences ERC)
     junctions=[]
     declare_source(power,wires,"+5V",60,138)
