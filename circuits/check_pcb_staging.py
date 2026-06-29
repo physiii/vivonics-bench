@@ -15,7 +15,7 @@ from __future__ import annotations
 import re
 import sys
 from collections import Counter, defaultdict
-from math import cos, radians, sin
+from math import cos, hypot, radians, sin
 from pathlib import Path
 
 import gen_pcb
@@ -158,6 +158,20 @@ def footprint_bbox(block: str) -> BBox | None:
     for match in line_pattern.finditer(block):
         points.append(transform_point(float(match.group(1)), float(match.group(2)), ox, oy, rot))
         points.append(transform_point(float(match.group(3)), float(match.group(4)), ox, oy, rot))
+
+    circle_pattern = re.compile(
+        r'\(fp_circle\s+\(center\s+([-\d.]+)\s+([-\d.]+)\)\s+'
+        r'\(end\s+([-\d.]+)\s+([-\d.]+)\)[\s\S]*?\(layer\s+"?[FB]\.CrtYd"?\)'
+    )
+    for match in circle_pattern.finditer(block):
+        cx = float(match.group(1))
+        cy = float(match.group(2))
+        ex = float(match.group(3))
+        ey = float(match.group(4))
+        radius = hypot(ex - cx, ey - cy)
+        gx, gy = transform_point(cx, cy, ox, oy, rot)
+        points.append((gx - radius, gy - radius))
+        points.append((gx + radius, gy + radius))
 
     if points:
         return bbox_from_points(points)
@@ -348,20 +362,34 @@ def main() -> int:
         if detached:
             failures.append(f"{ref} ESP32 antenna keepout detached from footprint bbox: {detached}")
 
-    sheet_ranges: dict[str, tuple[float, float]] = {}
+    sheet_bboxes: dict[str, BBox] = {}
     for sheet in SHEET_ORDER:
         sheet_refs = refs_by_sheet.get(sheet, set()) & actual_ref_set
         if not sheet_refs:
             failures.append(f"sheet has no staged physical footprints: {sheet}")
             continue
-        sheet_min = min(bboxes[ref][1] for ref in sheet_refs if ref in bboxes)
-        sheet_max = max(bboxes[ref][3] for ref in sheet_refs if ref in bboxes)
-        sheet_ranges[sheet] = (sheet_min, sheet_max)
-    for first, second in zip(SHEET_ORDER, SHEET_ORDER[1:]):
-        if first in sheet_ranges and second in sheet_ranges and sheet_ranges[first][1] > sheet_ranges[second][0]:
-            failures.append(
-                f"sheet staging bands overlap vertically: {first} {sheet_ranges[first]} vs {second} {sheet_ranges[second]}"
-            )
+        present_bboxes = [bboxes[ref] for ref in sheet_refs if ref in bboxes]
+        if not present_bboxes:
+            continue
+        sheet_bboxes[sheet] = (
+            min(bbox[0] for bbox in present_bboxes),
+            min(bbox[1] for bbox in present_bboxes),
+            max(bbox[2] for bbox in present_bboxes),
+            max(bbox[3] for bbox in present_bboxes),
+        )
+    sheet_overlap_failures: list[str] = []
+    for index, first in enumerate(SHEET_ORDER):
+        for second in SHEET_ORDER[index + 1 :]:
+            if (
+                first in sheet_bboxes
+                and second in sheet_bboxes
+                and bboxes_overlap(sheet_bboxes[first], sheet_bboxes[second])
+            ):
+                first_bbox = tuple(round(value, 3) for value in sheet_bboxes[first])
+                second_bbox = tuple(round(value, 3) for value in sheet_bboxes[second])
+                sheet_overlap_failures.append(f"{first} {first_bbox} vs {second} {second_bbox}")
+    if sheet_overlap_failures:
+        failures.append("sheet staging groups overlap: " + "; ".join(sheet_overlap_failures[:20]))
 
     if failures:
         print("FAIL PCB staging")
