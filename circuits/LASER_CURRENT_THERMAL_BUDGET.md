@@ -75,8 +75,8 @@ Current bench board:
 - Treat the 247.5 mA clamp as an upper bound, not the default operating point.
 - Do not run all four colors at the clamp from one high rail without thermal
   measurement.
-- Build the J4 harness only after checking each actual laser MPN pin table and
-  can/common-node polarity.
+- Solder direct laser cans only after checking each actual laser MPN pin table
+  and can/common-node polarity.
 - Do not treat the 247.5 mA hardware clamp as safe for the selected Digikey-cart
   D6505I, D7805I, PLT5 520EB_P, or PLT5 450GB without per-channel current
   limits and optical safety signoff.

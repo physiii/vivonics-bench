@@ -244,7 +244,6 @@ def main() -> int:
         "D10": ("SS14", "Diode_SMD:D_SMA", "SS14", "C2480"),
         "D11": ("SS14", "Diode_SMD:D_SMA", "SS14", "C2480"),
         "J2": ("EXT 5V", "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical", "", ""),
-        "J4": ("LASER+MPD out", "Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical", "", ""),
         "J5": ("LASER PSU", "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical", "", ""),
         "UADC": ("AD7606BSTZ-4", "Package_QFP:LQFP-64_10x10mm_P0.5mm", "AD7606BSTZ-4RL", "C51512"),
         "CADCAV1": ("100nF ADC AVCC", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
@@ -507,6 +506,7 @@ def main() -> int:
             ("3", "D+", "passive"),
             ("4", "ID", "passive"),
             ("5", "GND", "power_out"),
+            ("6", "GND", "power_out"),
         ]:
             expect_pin(ref, pin, function, pintype)
 
@@ -558,9 +558,8 @@ def main() -> int:
         ])
 
     laser_cathode_pin = {1: "1", 2: "1", 3: "1", 4: "3"}
-    for index, (color, j4_pin) in enumerate(zip(WL, ["1", "3", "5", "7"]), 1):
+    for index, color in enumerate(WL, 1):
         exact(f"LASER_N{index}", [
-            ("J4", j4_pin),
             (ref_for(f"LASER_{color}", "LD"), laser_cathode_pin[index]),
             (ref_for(f"LASER_{color}", "Q1"), "3"),
         ])
@@ -592,9 +591,8 @@ def main() -> int:
     ina_in_plus = {1: "3", 2: "5", 3: "10", 4: "12"}
     ina_in_minus = {1: "2", 2: "6", 3: "9", 4: "13"}
     ina_out = {1: "1", 2: "7", 3: "8", 4: "14"}
-    for index, j4_pin in enumerate(["2", "4", "6", "8"], 1):
+    for index in range(1, 5):
         raw_nodes = [
-            ("J4", j4_pin),
             (ref_for("POWER_IO", f"RMPD{index}"), "1"),
             (ina_mpd, ina_in_plus[index]),
         ]
@@ -635,8 +633,7 @@ def main() -> int:
     for index, (color, esp_pin) in enumerate(zip(WL, ["18", "19", "20", "9"]), 1):
         exact(f"PWM{index}", [(ref_for(f"LASER_{color}", "R21"), "1"), ("U9", esp_pin)])
 
-    # Board interfaces: on-board signal ADC, laser harness, laser PSU,
-    # and 5V input OR-ing.
+    # Board interfaces: on-board signal ADC, laser PSU, and 5V input OR-ing.
     adc_input_pin = {1: "49", 2: "51", 3: "57", 4: "59"}
     for index, color in enumerate(WL, 1):
         sheet = f"TIA_{color}"
@@ -658,7 +655,7 @@ def main() -> int:
     exact(f"Net-({ref_for('POWER_IO', 'CREG2')}-Pad1)", [(ref_for("POWER_IO", "CREG2"), "1"), (adc, "39")])
     exact(f"Net-({adc}-REFIN{{slash}}REFOUT)", [(ref_for("POWER_IO", "CREFIN"), "1"), (adc, "42")])
     exact(f"Net-({adc}-REFCAPA)", [(ref_for("POWER_IO", "CREFCAP"), "1"), (adc, "44"), (adc, "45")])
-    laser_vplus_nodes = [("J4", "9"), ("J5", "1"), (mpd_ref, "1"), (ref_for("POWER_IO", "CREF"), "1")]
+    laser_vplus_nodes = [("J5", "1"), (mpd_ref, "1"), (ref_for("POWER_IO", "CREF"), "1")]
     for color in ("IR", "RED", "GREEN"):
         laser_vplus_nodes.append((ref_for(f"LASER_{color}", "LD"), "2"))
     laser_vplus_nodes.append((ref_for("LASER_BLUE", "LD"), "1"))
@@ -711,7 +708,9 @@ def main() -> int:
     }
     gnd_nodes: set[tuple[str, str]] = {
         (usb_uart_j, "5"),
+        (usb_uart_j, "6"),
         (usb_native_j, "5"),
+        (usb_native_j, "6"),
         ("U9", "1"),
         ("U9", "40"),
         ("U9", "41"),
@@ -719,7 +718,6 @@ def main() -> int:
         (cp2102, "29"),
         (ldo, "2"),
         (ext5_j, "2"),
-        ("J4", "10"),
         ("J5", "2"),
         (ref_for("POWER_IO", "C50"), "2"),
         (ref_for("POWER_IO", "C3V3IN"), "2"),
@@ -934,7 +932,7 @@ def main() -> int:
     }
     checks.append((not multi_net_pins, "physical pin appears on one net only", f"{multi_net_pins}"))
 
-    hand_add_refs = {"J4", "J5", ext5_j} | {
+    hand_add_refs = {"J5", ext5_j} | {
         ref_for(f"LASER_{color}", "LD") for color in WL
     }
     assembled = [comp for comp in comps if comp["ref"] not in hand_add_refs]
@@ -943,13 +941,13 @@ def main() -> int:
         for comp in assembled
         if not comp["lcsc"] or not comp["mpn"] or not comp["footprint"]
     ]
-    hand_refs_without_laser_mpns = {"J4", "J5", ext5_j}
+    hand_refs_without_laser_mpns = {"J5", ext5_j}
     hand_with_fields = [
         comp
         for comp in comps
         if comp["ref"] in hand_refs_without_laser_mpns and (comp["lcsc"] or comp["mpn"])
     ]
-    checks.append((len(comps) == 161, "component count", f"got {len(comps)}, expected 161"))
+    checks.append((len(comps) == 160, "component count", f"got {len(comps)}, expected 160"))
     checks.append((len(assembled) == 154, "assembled component count", f"got {len(assembled)}, expected 154"))
     checks.append((not missing_fields, "assembled component fields", f"missing {missing_fields}"))
     checks.append((not hand_with_fields, "hand-add field exclusion", f"unexpected fields {hand_with_fields}"))

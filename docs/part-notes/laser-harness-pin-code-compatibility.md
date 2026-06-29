@@ -1,4 +1,4 @@
-# Laser Harness Pin-Code Compatibility
+# Direct Laser Pin-Code Compatibility
 
 Sources:
 - Digikey cart text captured in the 2026-06-28 review:
@@ -27,41 +27,36 @@ Digikey cart pin-code result:
 - IR `D7805I`, Digikey `38-1028-ND`: US-Lasers Style A, 5.6 mm can,
   built-in monitor diode. Pin 1 is laser cathode, pin 2 is common case, and
   pin 3 is monitor diode anode. Direct footprint `LD1` is
-  `OptoDevice:LaserDiode_TO18-D5.6-3`; J4 harness mapping is pin 1 ->
-  `LASER_N1`, pin 2 -> `LASER_V+`, pin 3 -> `MPD_RAW1`.
+  `OptoDevice:LaserDiode_TO18-D5.6-3`; pin 1 -> `LASER_N1`,
+  pin 2 -> `LASER_V+`, and pin 3 -> `MPD_RAW1`.
 - Red `D6505I`, Digikey `38-1007-ND`: US-Lasers Style A, 5.6 mm can,
   built-in monitor diode. Pin 1 is laser cathode, pin 2 is common case, and
   pin 3 is monitor diode anode. Direct footprint `LD2` is
-  `OptoDevice:LaserDiode_TO18-D5.6-3`; J4 harness mapping is pin 1 ->
-  `LASER_N2`, pin 2 -> `LASER_V+`, pin 3 -> `MPD_RAW2`.
+  `OptoDevice:LaserDiode_TO18-D5.6-3`; pin 1 -> `LASER_N2`,
+  pin 2 -> `LASER_V+`, and pin 3 -> `MPD_RAW2`.
 - Green `PLT5 520EB_P`, Digikey `475-PLT5520EB_P-ND`: TO56 with photo diode.
   Pin 1 = LD Cathode; pin 2 = LD Anode, PD Cathode (case); pin 3 = PD Anode.
-  Direct footprint `LD3` is `OptoDevice:LaserDiode_TO56-3`; J4 harness mapping
-  is pin 1 -> `LASER_N3`, pin 2 -> `LASER_V+`, pin 3 -> `MPD_RAW3`.
+  Direct footprint `LD3` is `OptoDevice:LaserDiode_TO56-3`; pin 1 ->
+  `LASER_N3`, pin 2 -> `LASER_V+`, and pin 3 -> `MPD_RAW3`.
 - Blue `PLT5 450GB`, Digikey `475-PLT5450GB-ND`: TO56 package with no monitor
-  photodiode. Pin 1 = LD Anode; pin 2 = Case; pin 3 = LD Cathode. Harness
-  mapping: direct footprint `LD4` is `OptoDevice:LaserDiode_TO56-3`; pin 1 ->
+  photodiode. Pin 1 = LD Anode; pin 2 = Case; pin 3 = LD Cathode. Direct
+  footprint `LD4` is `OptoDevice:LaserDiode_TO56-3`; pin 1 ->
   `LASER_V+`, pin 3 -> `LASER_N4`; pin 2 case is not tied into `MPD_RAW4`.
   `MPD_RAW4` is spare/open unless a different blue source with a compatible
   monitor photodiode is selected.
 
 Design implication:
-- LD1, LD2, and LD3 use the same Style-A/PLT monitor-can model for both the
-  direct through-hole footprint and the J4 harness:
+- LD1, LD2, and LD3 use the same Style-A/PLT monitor-can model:
   `LD_K -> LASER_Nx`, common `LD_A/PD_K/case -> LASER_V+`, and `PD_A ->
   MPD_RAWx`.
-- LD4 uses the same diode/case model for both the direct through-hole footprint
-  and the J4 harness: `LD_A -> LASER_V+`, `LD_K -> LASER_N4`, and `CASE` is an
-  intentional no-connect in the generated schematic.
-- The board supports both direct soldered TO-can footprints and a harness:
-  populate either `LD1..LD4` or J4 wiring for each channel. Do not populate both
-  on one channel unless intentionally paralleling two laser sources. J4 remains
-  `Connector_PinHeader_2.54mm:PinHeader_1x10_P2.54mm_Vertical`; J5 remains the
-  external laser supply input.
+- LD4 uses the laser-only diode/case model: `LD_A -> LASER_V+`, `LD_K ->
+  LASER_N4`, and `CASE` is an intentional no-connect in the generated schematic.
+- The board uses direct soldered TO-can footprints `LD1..LD4`; the old
+  laser/MPD harness header is removed. J5 remains the external laser supply input.
 
 Required action before laser bring-up:
-- Build a documented harness/adapter matching the exact per-MPN mapping above,
-  or solder the diode directly into the matching `LDx` TO-can footprint.
+- Solder each diode directly into the matching `LDx` TO-can footprint after
+  checking the exact per-MPN pin table above.
 - Do not connect PLT5 450GB case pin 2 to `MPD_RAW4`; that net is an analog
   monitor input, not a case/shield node.
 - Do not rely on `MPD4` optical telemetry for PLT5 450GB. Use laser current

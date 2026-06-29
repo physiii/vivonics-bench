@@ -592,7 +592,31 @@
       },
       {
         "netclass": "Power_Rails",
+        "pattern": "Net-(D10-A)"
+      },
+      {
+        "netclass": "Power_Rails",
+        "pattern": "Net-(D13-A)"
+      },
+      {
+        "netclass": "Power_Rails",
         "pattern": "VBUS_5V"
+      },
+      {
+        "netclass": "USB",
+        "pattern": "/MCU_ESP32-S3/D+"
+      },
+      {
+        "netclass": "USB",
+        "pattern": "/MCU_ESP32-S3/D-"
+      },
+      {
+        "netclass": "USB",
+        "pattern": "/MCU_ESP32-S3/IO19"
+      },
+      {
+        "netclass": "USB",
+        "pattern": "/MCU_ESP32-S3/IO20"
       },
       {
         "netclass": "TIA_Sensitive",
@@ -692,6 +716,26 @@
       },
       {
         "netclass": "Monitor_ADC",
+        "pattern": "/POWER_IO/MPD_AMP1"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "/POWER_IO/MPD_AMP2"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "/POWER_IO/MPD_AMP3"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "/POWER_IO/MPD_AMP4"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "/POWER_IO/MPD_BIAS"
+      },
+      {
+        "netclass": "Monitor_ADC",
         "pattern": "ISENSE1"
       },
       {
@@ -737,6 +781,22 @@
       {
         "netclass": "Monitor_ADC",
         "pattern": "MPD_RAW4"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "Net-(C57-Pad1)"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "Net-(C58-Pad1)"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "Net-(U14-REFCAPA)"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "Net-(U14-REFIN{slash}REFOUT)"
       },
       {
         "netclass": "Laser_Control",
@@ -804,166 +864,122 @@
       },
       {
         "netclass": "Digital_Control",
-        "pattern": "CONVST"
-      },
-      {
-        "netclass": "Default",
-        "pattern": "/MCU_ESP32-S3/D+"
-      },
-      {
-        "netclass": "Default",
-        "pattern": "/MCU_ESP32-S3/D-"
-      },
-      {
-        "netclass": "Default",
         "pattern": "/MCU_ESP32-S3/DTR"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/EN"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/FACT"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/IO13"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/IO14"
       },
       {
-        "netclass": "Default",
-        "pattern": "/MCU_ESP32-S3/IO17"
-      },
-      {
-        "netclass": "Default",
-        "pattern": "/MCU_ESP32-S3/IO18"
-      },
-      {
-        "netclass": "Default",
-        "pattern": "/MCU_ESP32-S3/IO19"
-      },
-      {
-        "netclass": "Default",
-        "pattern": "/MCU_ESP32-S3/IO20"
-      },
-      {
-        "netclass": "Default",
-        "pattern": "/MCU_ESP32-S3/IO21"
-      },
-      {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/IO35"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/IO36"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/IO37"
       },
       {
-        "netclass": "Default",
-        "pattern": "/MCU_ESP32-S3/IO38"
-      },
-      {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/IO39"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/IO40"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/IO41"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/IO42"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/IO43"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/IO44"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/IO45"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/IO46"
       },
       {
-        "netclass": "Default",
-        "pattern": "/MCU_ESP32-S3/IO47"
-      },
-      {
-        "netclass": "Default",
-        "pattern": "/MCU_ESP32-S3/IO48"
-      },
-      {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/PROG"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/RTS"
       },
       {
-        "netclass": "Default",
-        "pattern": "/POWER_IO/MPD_AMP1"
+        "netclass": "Digital_Control",
+        "pattern": "ADC_BUSY"
       },
       {
-        "netclass": "Default",
-        "pattern": "/POWER_IO/MPD_AMP2"
+        "netclass": "Digital_Control",
+        "pattern": "ADC_CS"
       },
       {
-        "netclass": "Default",
-        "pattern": "/POWER_IO/MPD_AMP3"
+        "netclass": "Digital_Control",
+        "pattern": "ADC_MISO_A"
       },
       {
-        "netclass": "Default",
-        "pattern": "/POWER_IO/MPD_AMP4"
+        "netclass": "Digital_Control",
+        "pattern": "ADC_MISO_B"
       },
       {
-        "netclass": "Default",
-        "pattern": "/POWER_IO/MPD_BIAS"
+        "netclass": "Digital_Control",
+        "pattern": "ADC_RESET"
       },
       {
-        "netclass": "Default",
-        "pattern": "Net-(D10-A)"
+        "netclass": "Digital_Control",
+        "pattern": "ADC_SCLK"
       },
       {
-        "netclass": "Default",
-        "pattern": "Net-(D13-A)"
+        "netclass": "Digital_Control",
+        "pattern": "CONVST"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "Net-(Q5-B)"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "Net-(Q6-B)"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "Net-(U10-VBUS)"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "Net-(U10-~{RST})"
       },
       {
-        "netclass": "Default",
+        "netclass": "Digital_Control",
         "pattern": "Net-(U10-~{SUSPEND})"
       }
     ]

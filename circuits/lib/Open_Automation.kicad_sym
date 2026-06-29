@@ -38658,6 +38658,10 @@
         (name "GND" (effects (font (size 1.27 1.27))))
         (number "5" (effects (font (size 1.27 1.27))))
       )
+      (pin power_out line (at -7.62 -5.08 0) (length 2.54) hide
+        (name "GND" (effects (font (size 1.27 1.27))))
+        (number "6" (effects (font (size 1.27 1.27))))
+      )
     )
   )
   (symbol "USB_MINI_B_SMD" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
@@ -38797,6 +38801,10 @@
       (pin power_out line (at -7.62 -5.08 0) (length 2.54)
         (name "GND" (effects (font (size 1.27 1.27))))
         (number "5" (effects (font (size 1.27 1.27))))
+      )
+      (pin power_out line (at -7.62 -5.08 0) (length 2.54) hide
+        (name "GND" (effects (font (size 1.27 1.27))))
+        (number "6" (effects (font (size 1.27 1.27))))
       )
     )
   )

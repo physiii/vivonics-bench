@@ -1307,6 +1307,10 @@
           (name "GND" (effects (font (size 1.27 1.27))))
           (number "5" (effects (font (size 1.27 1.27))))
         )
+        (pin power_out line (at -7.62 -5.08 0) (length 2.54) hide
+          (name "GND" (effects (font (size 1.27 1.27))))
+          (number "6" (effects (font (size 1.27 1.27))))
+        )
       )
     )
     (symbol "power:GND" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
@@ -1612,6 +1616,10 @@
   (wire (pts (xy 125.8316 163.6014) (xy 126.8476 163.6014))
     (stroke (width 0) (type default))
     (uuid 5754b63f-d41c-4134-afa8-aeee4012c415)
+  )
+  (wire (pts (xy 124.3076 163.6014) (xy 125.8316 163.6014))
+    (stroke (width 0) (type default))
+    (uuid 4a8f5d5e-9981-4318-bbfc-c48976245c5d)
   )
   (wire (pts (xy 69.215 80.645) (xy 70.485 80.645))
     (stroke (width 0) (type default))
@@ -1960,6 +1968,10 @@
   (wire (pts (xy 123.5456 204.2414) (xy 124.8156 204.2414))
     (stroke (width 0) (type default))
     (uuid e5128eee-d3a5-42ae-9bf5-b5738cba63fd)
+  )
+  (wire (pts (xy 122.2756 204.2414) (xy 123.5456 204.2414))
+    (stroke (width 0) (type default))
+    (uuid a3b0d7de-dac6-490e-af9f-b46b17d25023)
   )
   (wire (pts (xy 252.4506 227.1014) (xy 252.4506 227.9904))
     (stroke (width 0) (type default))
@@ -3560,6 +3572,7 @@
     (pin "3" (uuid 873e35e4-1f26-4175-9f45-bc1813afefc5))
     (pin "4" (uuid 56b6e343-895b-4ab0-93bc-c6131506bad1))
     (pin "5" (uuid 976cbe8b-bcf5-4a71-bed7-e33c59be8ffe))
+    (pin "6" (uuid 5eb0c05d-1f90-4e51-8a49-f3b7a5d83a18))
     (instances
       (project "thermostat"
         (path "/873dfd6d-bfce-439c-8452-640e127a5158/d04ab3a7-daa3-4707-a16d-141e2843a874"
@@ -3789,6 +3802,7 @@
     (pin "3" (uuid 42ed0ecc-864f-4491-a794-3056486c2051))
     (pin "4" (uuid c52a47fa-3fb8-42cc-bab8-b41627749267))
     (pin "5" (uuid 94250fc2-a48b-4c09-8561-d61b34e08cab))
+    (pin "6" (uuid b1e3d3c4-f65b-421f-bcf8-c09d545a58ab))
     (instances
       (project "thermostat"
         (path "/873dfd6d-bfce-439c-8452-640e127a5158/d04ab3a7-daa3-4707-a16d-141e2843a874"

@@ -147,7 +147,6 @@ POWER_REF_MAP = {
     "CREG2": "C58",
     "CREFIN": "C59",
     "CREFCAP": "C60",
-    "J4": "J4",
     "J5": "J5",
     "J2": "J6",
     "D10": "D5",

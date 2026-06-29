@@ -31,19 +31,19 @@ from pcb_critical_routes import CRITICAL_ROUTE_LINKS, _point_in_pad, parse_pad_g
 
 
 ZONE_OR_RAIL_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "LASER_V+", "/POWER_IO/EXT5V"}
-EXPECTED_ZONE_OR_RAIL_PENDING_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "LASER_V+"}
+EXPECTED_ZONE_OR_RAIL_PENDING_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "LASER_V+", "/POWER_IO/EXT5V"}
 LASER_CATHODE_MIN_WIDTH_MM = 0.60
 LASER_CATHODE_MAX_LENGTH_MM = 70.0
 LASER_SUPPLY_MIN_WIDTH_MM = 0.80
 LASER_SUPPLY_MAX_LENGTH_MM = 45.0
 LASER_SENSE_RETURN_MAX_PATH_MM = 6.0
 RAIL_PENDING_RELEASE_ACTION = {
-    "VBUS_5V": "Route protected USB power-entry copper from J1 VBUS to USBLC6 VBUS and D5 anode; keep ESD return short.",
+    "VBUS_5V": "Route protected USB power-entry copper from the copied MCU-sheet VBUS isolation diodes to D5 anode; keep ESD return short.",
     "+5V": "Route or pour the post-OR board 5 V rail to every analog, laser-driver, and LDO input load; verify diode drop and current.",
     "+3V3": "Route the AP2112 output rail to ESP32-S3 and strap/decoupling loads; verify LDO thermal margin under radio bursts.",
-    "LASER_V+": "Manual wide laser-anode rail from J5 to J4 pin 9; size for actual laser current and keep away from TIA/MPD analog nodes.",
+    "LASER_V+": "Manual wide laser-anode rail from J5 to the direct LDx footprints; size for actual laser current and keep away from TIA/MPD analog nodes.",
     "GND": "Refill the In1.Cu GND zone, inspect islands/stitching, and keep laser-current return paths out of TIA summing-node returns.",
-    "/POWER_IO/EXT5V": "Should stay explicitly routed from J6 to D6; if this appears pending, treat it as a routing regression.",
+    "/POWER_IO/EXT5V": "Route J6 pin 1 to D6 anode; if this appears pending, treat it as an open external-5V input route.",
 }
 
 
@@ -67,9 +67,9 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
     if net == "GND":
         return "Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths."
     if net == "LASER_V+":
-        return "External laser anode / monitor-PD cathode common supply from J5 to laser harness J4."
+        return "External laser anode / monitor-PD cathode common supply from J5 to the direct LDx footprints."
     if net == "VBUS_5V":
-        return "USB connector VBUS, USBLC6 VBUS clamp reference, and D5 anode into +5V OR-ing."
+        return "Joined USB VBUS after the copied MCU-sheet 1N5819HW isolation diodes, local VBUS ESD/bulk parts, and D5 anode into +5V OR-ing."
     if net == "/POWER_IO/EXT5V":
         return "External 5 V input from J6 pin 1 to D6 anode into +5V OR-ing."
     if net.startswith("VOUT"):
@@ -137,27 +137,27 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
     if "MPD_BIAS" in net:
         return "LM4040-derived monitor-PD anode bias node; holds LASER_V+ to MPD_BIAS near 5 V."
     if net == "MPD_RAW4":
-        return "Spare/open blue-channel monitor input at J4 and INA4180 channel 4; PLT5 450GB has no monitor photodiode."
+        return "Spare/open blue-channel monitor input at INA4180 channel 4; PLT5 450GB has no monitor photodiode."
     if "MPD_RAW" in net:
-        return "Raw internal monitor-photodiode anode node from J4 into the 750 ohm high-side sense resistor and INA4180 IN+ pin."
+        return "Raw internal monitor-photodiode anode node from the direct LDx footprint into the 750 ohm high-side sense resistor and INA4180 IN+ pin."
     if net.startswith("LASER_N"):
-        return "Laser cathode sink path from harness J4 to AO3400A drain."
+        return "Laser cathode sink path from the direct LDx footprint to AO3400A drain."
     if net.endswith("/FB"):
         return "Laser current-loop feedback: AO3400A source / 10 ohm sense high side / TLV9001 inverting input."
     if net.endswith("/LOUT"):
         return "TLV9001 output and compensation node before the 1 k MOSFET gate resistor."
     if "USB_DM_CONN" in net:
-        return "USB D- connector side into USBLC6 ESD device."
+        return "Legacy USB D- connector-side net from the pre-copied local MCU generator."
     if "USB_DM_ESD" in net:
-        return "Protected USB D- node between USBLC6 and 22 ohm series resistor."
+        return "Legacy protected USB D- net from the pre-copied local MCU generator."
     if "USB_DM" in net:
-        return "USB D- after 22 ohm series resistor to ESP32-S3 GPIO19 / module pin 13."
+        return "Legacy native USB D- net to ESP32-S3 GPIO19 / module pin 13."
     if "USB_DP_CONN" in net:
-        return "USB D+ connector side into USBLC6 ESD device."
+        return "Legacy USB D+ connector-side net from the pre-copied local MCU generator."
     if "USB_DP_ESD" in net:
-        return "Protected USB D+ node between USBLC6 and 22 ohm series resistor."
+        return "Legacy protected USB D+ net from the pre-copied local MCU generator."
     if "USB_DP" in net:
-        return "USB D+ after 22 ohm series resistor to ESP32-S3 GPIO20 / module pin 14."
+        return "Legacy native USB D+ net to ESP32-S3 GPIO20 / module pin 14."
     if "ESP_EN" in net:
         return "ESP32 EN / CHIP_PU reset net: header, 10 k pull-up, POR capacitor, MCU EN pin."
     if "ESP_BOOT" in net:
@@ -275,15 +275,6 @@ def pin_intent_for_node(
             "29": "CP2102N exposed-pad ground.",
         }.get(pin, f"Intentional copied CP2102N support pin {pin}.")
 
-    if value == "USBLC6":
-        if pin in {"1", "6"} and "USB_DM" in net:
-            return "USBLC6 IO1 side of the protected USB D- path."
-        if pin in {"3", "4"} and "USB_DP" in net:
-            return "USBLC6 IO2 side of the protected USB D+ path."
-        if pin == "5" and net == "VBUS_5V":
-            return "USBLC6 VBUS clamp reference tied to USB VBUS."
-        if pin == "2" and net == "GND":
-            return "USBLC6 ESD return pin to board GND."
     if value == "AP2112K-3.3":
         return {
             "1": "AP2112 VIN from post-OR +5V rail.",
@@ -338,17 +329,6 @@ def pin_intent_for_node(
             return "AD7606-4 internal/reference output pin decoupled by the local reference capacitor."
         if "REFCAP" in function:
             return "AD7606-4 reference-buffer capacitor pin."
-    if value == "LASER+MPD out":
-        if net.startswith("LASER_N"):
-            return "Laser harness cathode sink output for one channel."
-        if net == "MPD_RAW4":
-            return "Spare/open blue-channel monitor input; PLT5 450GB has no monitor photodiode."
-        if "MPD_RAW" in net:
-            return "Laser harness internal monitor-PD anode input for one channel."
-        if net == "LASER_V+":
-            return "Laser harness common laser anode / monitor-PD cathode supply."
-        if net == "GND":
-            return "Laser harness shield/return ground."
     if value == "LASER PSU":
         return "External laser-anode supply input." if net == "LASER_V+" else "Laser supply connector return ground."
     if value == "EXT 5V":
@@ -402,15 +382,15 @@ def pin_intent_for_node(
         "PLT5 520EB_P TO56 LASER+MPD",
     }:
         return {
-            "1": "Direct TO-can / harness laser diode cathode tied to the board low-side current-sink net LASER_Nx.",
-            "2": "Direct TO-can / harness common laser anode / monitor-PD cathode / case tied to LASER_V+ for PLT/A-code cans.",
-            "3": "Direct TO-can / harness internal monitor-PD anode exported as MPD_RAWx into the INA4180/LM4040 monitor front end.",
+            "1": "Direct TO-can laser diode cathode tied to the board low-side current-sink net LASER_Nx.",
+            "2": "Direct TO-can common laser anode / monitor-PD cathode / case tied to LASER_V+ for PLT/A-code cans.",
+            "3": "Direct TO-can internal monitor-PD anode exported as MPD_RAWx into the INA4180/LM4040 monitor front end.",
         }.get(pin, "Review required: laser-can unknown pin.")
     if value == "PLT5 450GB TO56 LASER CASE":
         return {
-            "1": "Direct TO-can / harness PLT5 450GB laser anode tied to LASER_V+.",
+            "1": "Direct TO-can PLT5 450GB laser anode tied to LASER_V+.",
             "2": "PLT5 450GB case pin intentionally not tied into the MPD_RAW4 monitor front end.",
-            "3": "Direct TO-can / harness PLT5 450GB laser cathode tied to the board low-side current-sink net LASER_N4.",
+            "3": "Direct TO-can PLT5 450GB laser cathode tied to the board low-side current-sink net LASER_N4.",
         }.get(pin, "Review required: PLT5 450GB unknown pin.")
     if value == "AO3400A":
         return {
@@ -449,12 +429,10 @@ def pin_intent_for_node(
 
     if value.startswith("10R 2W"):
         return "Laser current-sense resistor high side." if net.endswith("/FB") else "Laser current-sense resistor low-side GND return."
-    if value.startswith("22R USB"):
-        return "USB series resistor connector/ESD side." if net.endswith("_ESD") else "USB series resistor ESP32 module side."
     if value.startswith("30k LIMIT"):
         return "PWM command limiter node." if re.match(r"Net-\(U[5-8]-\+\)$", net) else "PWM command limiter ground leg."
     if value.startswith("750R MPD sense"):
-        return "Monitor-PD sense resistor raw laser-harness side." if "MPD_RAW" in net else "Monitor-PD sense resistor MPD_BIAS side."
+        return "Monitor-PD sense resistor raw direct-laser side." if "MPD_RAW" in net else "Monitor-PD sense resistor MPD_BIAS side."
     if value.startswith("2.49k MPD bias"):
         return "MPD_BIAS sink resistor high side." if "MPD_BIAS" in net else "MPD_BIAS sink resistor ground return."
     if value.startswith("1k ADC"):
@@ -620,7 +598,7 @@ def board_laser_current_trace_detail(board_path: Path) -> list[tuple[str, str, s
             role = "laser cathode load path"
             length = float(values["length"])
             if width < LASER_CATHODE_MIN_WIDTH_MM:
-                status = "BLOCKER: generated harness route is below the 0.60 mm current-path target"
+                status = "BLOCKER: generated direct-laser route is below the 0.60 mm current-path target"
             elif length > LASER_CATHODE_MAX_LENGTH_MM:
                 status = "BLOCKER: generated route is wide enough but too long for the cathode current path"
             else:
@@ -1210,8 +1188,8 @@ def main() -> int:
             lines.append("### USB Route Detail")
             lines.append("")
             lines.append(
-                "Native ESP32-S3 USB is checked as the connector-to-USBLC6, USBLC6-to-series, "
-                "and series-to-module routed copper chain for each D+/D- leg. The PCB checker "
+                "USB is checked as the copied MCU-sheet connector-to-endpoint routed copper "
+                "chain for each D+/D- leg. The PCB checker "
                 "fails if either chain exceeds the generated-board length limit, uses vias, "
                 "leaves F.Cu, changes width, or exceeds the pair-skew limit."
             )
@@ -1295,7 +1273,7 @@ def main() -> int:
                 lines.append("### Reviewed Rail/Zone Pending Nets")
                 lines.append("")
                 lines.append(
-                    "These are the only multi-pad nets currently allowed to remain split by explicit routed copper. "
+                    "These are the only multi-pad nets currently allowed to remain route/zone pending in the current unrouted PCB. "
                     "The PCB checker fails if a different rail or any signal/control net enters this state."
                 )
                 lines.append("")

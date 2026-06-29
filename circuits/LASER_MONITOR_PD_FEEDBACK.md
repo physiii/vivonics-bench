@@ -23,19 +23,16 @@ Do not use it as the film/readout detector.
 - `laser_ir/red/green/blue.kicad_sch` are current-regulated low-side sinks:
   `PWM_IN -> RC + 30k limiter -> TLV9001 -> AO3400A gate`, with `10 ohm`
   2512 2 W source-sense feedback.
-- Each laser sheet now includes a non-SMT direct TO-can footprint in parallel
-  with the J4 harness option: `LD_K -> LASER_N`, common `LD_A/PD_K/case ->
-  LASER_V+`, and `PD_A -> MPD_RAW` for monitor-capable cans.
-- `power_io.kicad_sch` exposes each laser cathode and monitor photodiode node
-  on J4 as the alternate harness connection, plus common `LASER_V+` and a
-  shield/return `GND`.
+- Each laser sheet includes a non-SMT direct TO-can footprint:
+  `LD_K -> LASER_N`, common `LD_A/PD_K/case -> LASER_V+`, and `PD_A ->
+  MPD_RAW` for monitor-capable cans.
 - Each monitor input uses a high-side current-sense front end:
   `MPD_RAWx -> 750R sense -> MPD_BIAS`; INA4180A1 gain 20 drives
   `MPD_AMPx -> 1k -> MPDx`, with `100nF` ADC-side filtering.
 - LM4040C50 holds `LASER_V+ - MPD_BIAS` near 5 V through a 2.49 k sink, so
   PLT5-style monitor diodes see about the datasheet monitor-current bias.
-- `mcu.kicad_sch` routes `MPD1..4` to ESP32-S3 ADC1 pins:
-  GPIO2, GPIO1, GPIO8, and GPIO9.
+- `mcu.kicad_sch` routes `MPD1..4` to ESP32-S3 ADC pins:
+  GPIO2, GPIO3, GPIO8, and GPIO9. GPIO1 is the copied factory-button net.
 - `tia_ir/red/green/blue.kicad_sch` use separate on-board SFH2201 photodiodes and OPA380
   TIAs for the optical readout path.
 
@@ -43,34 +40,22 @@ So the bench board measures all three quantities per source: laser electrical
 current (`ISENSE`), internal source monitor (`MPD`), and external/sample optical
 signal (`VOUT1..4`).
 
-## Bench connector and front end
+## Direct Laser Footprints
 
-J4 is now a 1x10 laser/monitor header:
-
-| Pin | Net |
-|---:|---|
-| 1 | `LASER_N1` |
-| 2 | `MPD_RAW1` |
-| 3 | `LASER_N2` |
-| 4 | `MPD_RAW2` |
-| 5 | `LASER_N3` |
-| 6 | `MPD_RAW3` |
-| 7 | `LASER_N4` |
-| 8 | `MPD_RAW4` |
-| 9 | `LASER_V+` |
-| 10 | `GND` shield/return |
+The old laser/monitor header has been removed. Laser sources are mounted in
+the direct `LD1..LD4` through-hole footprints.
 
 Do not assume all 3-pin cans share the same common terminal. The selected
 Digikey-cart sources are mapped as:
 
 | Channel | MPN | Diode pin mapping |
 |---|---|---|
-| IR | D7805I | `LD1` TO18 footprint/J4: pin 1 laser cathode to `LASER_N1`; pin 2 common case to `LASER_V+`; pin 3 monitor anode to `MPD_RAW1` |
-| Red | D6505I | `LD2` TO18 footprint/J4: pin 1 laser cathode to `LASER_N2`; pin 2 common case to `LASER_V+`; pin 3 monitor anode to `MPD_RAW2` |
-| Green | PLT5 520EB_P | `LD3` TO56 footprint/J4: pin 1 laser cathode to `LASER_N3`; pin 2 LD anode / PD cathode / case to `LASER_V+`; pin 3 monitor anode to `MPD_RAW3` |
-| Blue | PLT5 450GB | `LD4` TO56 footprint/J4: pin 1 laser anode to `LASER_V+`; pin 3 laser cathode to `LASER_N4`; pin 2 case no-connect |
+| IR | D7805I | `LD1` TO18 footprint: pin 1 laser cathode to `LASER_N1`; pin 2 common case to `LASER_V+`; pin 3 monitor anode to `MPD_RAW1` |
+| Red | D6505I | `LD2` TO18 footprint: pin 1 laser cathode to `LASER_N2`; pin 2 common case to `LASER_V+`; pin 3 monitor anode to `MPD_RAW2` |
+| Green | PLT5 520EB_P | `LD3` TO56 footprint: pin 1 laser cathode to `LASER_N3`; pin 2 LD anode / PD cathode / case to `LASER_V+`; pin 3 monitor anode to `MPD_RAW3` |
+| Blue | PLT5 450GB | `LD4` TO56 footprint: pin 1 laser anode to `LASER_V+`; pin 3 laser cathode to `LASER_N4`; pin 2 case no-connect |
 
-`MPD_RAW4` stays available on J4 and the INA4180 monitor front end, but it is
+`MPD_RAW4` stays available at the INA4180 monitor front end, but it is
 spare/open for PLT5 450GB because that diode has no monitor photodiode. Do not
 wire the PLT5 450GB case to `MPD_RAW4`.
 

@@ -1,4 +1,4 @@
-# ams OSRAM PLT5 Harness Reference Note
+# ams OSRAM PLT5 Direct-Footprint Reference Note
 
 Sources:
 - ams OSRAM `PLT5 520EB_P` datasheet:
@@ -9,8 +9,8 @@ Sources:
 Current bench assumption for monitor-capable cans:
 - Compatible 3-pin monitor cans use one laser cathode, one common laser anode /
   monitor-PD cathode node, and one monitor-PD anode.
-- The direct `LDx` through-hole footprints and J4 expose the same
-  `LASER_Nx`, `MPD_RAWx`, common `LASER_V+`, and GND nets.
+- The direct `LDx` through-hole footprints expose the same `LASER_Nx`,
+  `MPD_RAWx`, and common `LASER_V+` laser/monitor nodes.
 
 PLT5 520EB_P result:
 - The datasheet pin table says pin 1 = LD Cathode, pin 2 = LD Anode, PD
@@ -18,8 +18,8 @@ PLT5 520EB_P result:
 - This is compatible with the bench Style-A/PLT monitor model:
   `LD_K -> LASER_N3`, common `LD_A/PD_K/case -> LASER_V+`, and `PD_A ->
   MPD_RAW3`.
-- Direct footprint `LD3` is `OptoDevice:LaserDiode_TO56-3`; the J4 harness
-  pins are electrically in parallel with that footprint.
+- Direct footprint `LD3` is `OptoDevice:LaserDiode_TO56-3`; pin 1 ->
+  `LASER_N3`, pin 2 -> `LASER_V+`, and pin 3 -> `MPD_RAW3`.
 - PLT5 520EB_P monitor current is specified at `VRPD = 5 V` as a short-time
   power reference, not as an accurate absolute power measurement.
 - The bench schematic uses a high-side INA4180/LM4040 monitor front end:
@@ -35,12 +35,11 @@ PLT5 450GB result:
   `LD_A/PD_K/case` plus `PD_A`.
 - Direct footprint `LD4` is `OptoDevice:LaserDiode_TO56-3`. The bench mapping
   is `LD_A -> LASER_V+`, `LD_K -> LASER_N4`, and `CASE` deliberately left
-  unconnected. `MPD_RAW4` remains a spare/open monitor front-end input at J4
-  and U12.
+  unconnected. `MPD_RAW4` remains a spare/open monitor front-end input at U12.
 
 Release blocker:
 - Every actual laser MPN must be checked against its own pin table and can/common
-  polarity before building the J4 harness or soldering the diode into `LDx`.
+  polarity before soldering the diode into `LDx`.
 - Direct `MPD_RAWx` telemetry is approved only for the three compatible
   monitor-PD parts in this Digikey set: `D7805I`, `D6505I`, and
   `PLT5 520EB_P`.

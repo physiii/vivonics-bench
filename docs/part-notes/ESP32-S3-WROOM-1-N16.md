@@ -15,12 +15,14 @@ Current design:
 - `+3V3` connects only module pin 2, AP2112 output, local/bulk decoupling, EN
   pull-up, and BOOT pull-up.
 - Native USB: GPIO19/pin 13 = D-, GPIO20/pin 14 = D+.
-- ADC telemetry is on ADC1-capable pins: `ISENSE1..4` on GPIO4/5/6/7 and
-  `MPD1..4` on GPIO2/1/8/9.
-- Laser PWM outputs use GPIO16/38/13/14. GPIO38 is used for `PWM2` to keep the
-  red command route off the GND reference plane while avoiding strapping pins.
-- GPIO0/BOOT has a pull-up and is exposed on J2; EN has a pull-up and 100 nF
-  POR capacitor.
+- ADC telemetry is on ADC1-capable pins where possible: `ISENSE1..4` on
+  GPIO4/5/6/7 and `MPD1..4` on GPIO2/3/8/9. GPIO1 is the copied factory-button
+  net, not MPD2.
+- Laser PWM outputs use GPIO10/11/12/16 through the copied MCU sheet pins
+  `IO10/IO11/IO12/IO16`.
+- GPIO0/BOOT has a pull-up and local PROG button; EN has a pull-up and 100 nF
+  POR capacitor plus a local reset button. The copied MCU sheet also includes the
+  factory button and CP2102N USB-UART auto-reset network.
 - Bench power policy assumes native USB/UART control with Wi-Fi/BLE disabled.
   Espressif RF peak-current modes exceed the AP2112 SOT25 thermal budget from
   a 5 V source.

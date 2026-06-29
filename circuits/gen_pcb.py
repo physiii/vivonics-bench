@@ -16,6 +16,7 @@ Pad net assignments are resolved from the exported KiCad netlist using the known
 Run:  kicad-cli sch export netlist laser_controller.kicad_sch -o /tmp/lc.net
       python3 gen_pcb.py
 """
+import argparse
 import re, os
 from collections import OrderedDict, defaultdict
 from math import cos, radians, sin
@@ -46,6 +47,9 @@ from pcb_critical_routes import (
 FPROOT = Path("/usr/share/kicad/footprints")
 NET="/tmp/lc.net"
 OUT_DIR=Path(__file__).resolve().parent
+DEFAULT_OUT_PATH = OUT_DIR / "laser_controller.kicad_pcb"
+BOARD_W_MM = 90
+BOARD_H_MM = 50
 _uu=[0]
 def uuid(): _uu[0]+=1; return f"b0b0b0b0-0000-4000-a000-{_uu[0]:012d}"
 
@@ -123,6 +127,45 @@ def place(libid, ref, val, x, y, rot=0):
 def fp_ref(block):
     match = re.search(r'\(fp_text reference "?([^"\s\)]+)"?', block)
     return match.group(1) if match else ""
+
+def footprint_positions(board_text):
+    starts = [match.start() for match in re.finditer(r'(?m)^\s*\(footprint\s+', board_text)]
+    positions = []
+    for index, start in enumerate(starts):
+        end = starts[index + 1] if index + 1 < len(starts) else len(board_text)
+        block = board_text[start:end]
+        ref = fp_ref(block)
+        at_match = re.search(
+            r'(?m)^\s*\(at\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)(?:\s+-?\d+(?:\.\d+)?)?\)',
+            block,
+        )
+        if ref and at_match:
+            positions.append((ref, float(at_match.group(1)), float(at_match.group(2))))
+    return positions
+
+def hand_placed_footprints(board_text):
+    """Return footprints near the board area, which means user placement exists."""
+    placed = []
+    for ref, x, y in footprint_positions(board_text):
+        if -5.0 <= x <= BOARD_W_MM + 5.0 and -5.0 <= y <= BOARD_H_MM + 25.0:
+            placed.append((ref, x, y))
+    return placed
+
+def assert_safe_to_write(output_path, force):
+    if force or os.environ.get("LC_ALLOW_PCB_OVERWRITE") == "1":
+        return
+    if output_path.resolve() != DEFAULT_OUT_PATH.resolve() or not output_path.exists():
+        return
+    placed = hand_placed_footprints(output_path.read_text())
+    if not placed:
+        return
+    sample = ", ".join(f"{ref}@{x:.2f},{y:.2f}" for ref, x, y in placed[:12])
+    raise SystemExit(
+        "ERROR: refusing to overwrite hand-placed laser_controller.kicad_pcb. "
+        f"Found {len(placed)} footprint(s) near the board area: {sample}. "
+        "Write to --output /tmp/generated.kicad_pcb for review output, or set "
+        "LC_ALLOW_PCB_OVERWRITE=1 / pass --force only when intentionally resetting placement."
+    )
 
 def add_pad_nets(block, pad_nets):
     """Attach `(net n "name")` entries to every matching pad line in a footprint."""
@@ -228,16 +271,31 @@ for sheet in LASER_CHANNEL_SHEETS:
 def classify_net(net_name):
     if re.match(r"LASER_N[1-4]$", net_name) or net_name == "LASER_V+" or net_name.endswith("/FB"):
         return "Laser_Current"
-    if net_name in {"+5V", "+3V3", "GND", "VBUS_5V", "/POWER_IO/EXT5V"}:
+    if (
+        net_name in {"+5V", "+3V3", "GND", "VBUS_5V", "/POWER_IO/EXT5V"}
+        or net_name in {"Net-(D10-A)", "Net-(D13-A)"}
+    ):
         return "Power_Rails"
-    if "/USB_D" in net_name:
+    if net_name in {
+        "/MCU_ESP32-S3/D-",
+        "/MCU_ESP32-S3/D+",
+        "/MCU_ESP32-S3/IO19",
+        "/MCU_ESP32-S3/IO20",
+    }:
         return "USB"
     if (
         net_name.startswith("VOUT")
         or net_name in TIA_SENSITIVE_AUTO_NETS
     ):
         return "TIA_Sensitive"
-    if re.match(r"(MPD|ISENSE)[1-4]$", net_name) or "MPD_RAW" in net_name:
+    if (
+        re.match(r"(MPD|ISENSE)[1-4]$", net_name)
+        or "MPD_RAW" in net_name
+        or re.match(r"/POWER_IO/MPD_AMP[1-4]$", net_name)
+        or net_name == "/POWER_IO/MPD_BIAS"
+        or re.match(r"Net-\(C5[78]-Pad1\)$", net_name)
+        or net_name in {"Net-(U14-REFIN{slash}REFOUT)", "Net-(U14-REFCAPA)"}
+    ):
         return "Monitor_ADC"
     if (
         re.match(r"PWM[1-4]$", net_name)
@@ -245,8 +303,28 @@ def classify_net(net_name):
         or net_name.endswith("/LOUT")
     ):
         return "Laser_Control"
-    if net_name in {"CONVST", "ADC_SCLK", "ADC_CS", "ADC_MISO_A", "ADC_MISO_B", "ADC_BUSY", "ADC_RESET",
-                    "/MCU_ESP32-S3/ESP_BOOT", "/MCU_ESP32-S3/ESP_EN", "/MCU_ESP32-S3/ESP_RX", "/MCU_ESP32-S3/ESP_TX"}:
+    if (
+        net_name in {
+            "CONVST",
+            "ADC_SCLK",
+            "ADC_CS",
+            "ADC_MISO_A",
+            "ADC_MISO_B",
+            "ADC_BUSY",
+            "ADC_RESET",
+            "/MCU_ESP32-S3/DTR",
+            "/MCU_ESP32-S3/EN",
+            "/MCU_ESP32-S3/FACT",
+            "/MCU_ESP32-S3/PROG",
+            "/MCU_ESP32-S3/RTS",
+            "Net-(Q5-B)",
+            "Net-(Q6-B)",
+            "Net-(U10-VBUS)",
+            "Net-(U10-~{RST})",
+            "Net-(U10-~{SUSPEND})",
+        }
+        or re.match(r"/MCU_ESP32-S3/IO(?:1[34]|3[5-9]|4[0-6])$", net_name)
+    ):
         return "Digital_Control"
     return "Default"
 
@@ -428,7 +506,7 @@ def build_board(emit_routes=False):
     body=[]
 
     # ===== FLOORPLAN: 90 x 50 mm outline, footprints staged outside =====
-    BW,BH=90,50
+    BW,BH=BOARD_W_MM,BOARD_H_MM
     body.append(outline(0,0,BW,BH))
 
     def emit_fp(comp, x, y, rot=0, prefix=None):
@@ -483,7 +561,7 @@ def build_board(emit_routes=False):
         "U3V3", "C3V3IN", "C3V3OUT", "C3V3BULK",
         "J1", "UADC", "CADCBULK", "CADCAV1", "CADCAV2", "CADCAV3", "CADCAV4", "CADCDRV",
         "CREG1", "CREG2", "CREFIN", "CREFCAP",
-        "J4", "UMPD", "UREF", "CINA", "CREF", "RBIAS",
+        "UMPD", "UREF", "CINA", "CREF", "RBIAS",
         "RMPD1", "RADC1", "CMPD1", "RMPD2", "RADC2", "CMPD2", "RMPD3", "RADC3", "CMPD3",
         "RMPD4", "RADC4", "CMPD4",
     ]
@@ -600,7 +678,7 @@ def build_board(emit_routes=False):
             uuid,
         )
         body += usb_route_segments + pre_power_route_segments + preroute_segments + cathode_route_segments + pre_inner_route_segments + route_segments + extra_route_segments + bottom_route_segments + inner_route_segments + power_route_segments + gnd_fanout_segments
-        body.append(text(f"Generated critical local routes: {len(routed_descriptions)}/109 links",4,BH-3.0,0.8,"Cmts.User"))
+        body.append(text(f"Generated critical local routes: {len(routed_descriptions)}/{len(CRITICAL_ROUTE_LINKS)} links",4,BH-3.0,0.8,"Cmts.User"))
         body.append(text(f"Generated cathode/extra routes: {len(cathode_routed_descriptions)}/{len(extra_routed_descriptions)} links",4,BH-1.8,0.8,"Cmts.User"))
         body.append(text(f"Generated bottom/inner/power routes: {len(bottom_routed_descriptions)}/{len(pre_inner_routed_descriptions) + len(inner_routed_descriptions)}/{len(pre_power_routed_descriptions) + len(power_routed_descriptions)} links",4,BH-0.6,0.8,"Cmts.User"))
         body.append(text(f"Generated GND fanouts: {len(gnd_fanout_descriptions)} pads to In1.Cu",4,BH-4.2,0.8,"Cmts.User"))
@@ -611,14 +689,29 @@ def build_board(emit_routes=False):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--output",
+        default=str(DEFAULT_OUT_PATH),
+        help="PCB file to write. Defaults to circuits/laser_controller.kicad_pcb.",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Allow overwriting an existing hand-placed default PCB file.",
+    )
+    args = parser.parse_args()
+    output_path = Path(args.output)
+    assert_safe_to_write(output_path, args.force)
     pcb_text, body, _, _, _ = build_board()
-    (OUT_DIR / "laser_controller.kicad_pcb").write_text(pcb_text)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(pcb_text)
     import collections
     all_refs=collections.Counter()
     for b in body:
         m=re.search(r'\(fp_text reference "?([^")]+)"?', b)
         if m: all_refs[m.group(1)]+=1
-    print(f"  wrote laser_controller.kicad_pcb  ({len(body)} blocks, {sum(all_refs.values())} ref instances)")
+    print(f"  wrote {output_path}  ({len(body)} blocks, {sum(all_refs.values())} ref instances)")
     print(f"  refs: {len(all_refs)} unique")
 
 if __name__=="__main__": main()

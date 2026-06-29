@@ -3,7 +3,7 @@
 
 This checks the analog current-command limit, the 10 ohm sense resistor power,
 and the AO3400A linear-pass MOSFET dissipation for a selected laser supply and
-diode forward-voltage assumption.  It does not approve a real laser harness;
+diode forward-voltage assumption.  It does not approve a real laser pinout;
 each diode MPN still needs its own pin table, forward-voltage range, current
 limit, optical safety limit, and monitor-PD polarity checked.
 """
@@ -166,7 +166,7 @@ def main() -> int:
 
     print(
         "PASS laser current-loop policy for this diode/supply assumption. "
-        "Actual laser MPN and harness pinout still require release review."
+        "Actual laser MPN and direct-footprint pinout still require release review."
     )
     return 0
 

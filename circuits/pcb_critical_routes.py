@@ -14,28 +14,30 @@ from circuit_designators import ref_for
 
 
 CRITICAL_ROUTE_LINKS = [
-    ("USB D- connector to USBLC6", ("MCU_ESP32-S3", "J1", "2", "MCU_ESP32-S3", "U12", "1"), 7.5),
-    ("USB D+ connector to USBLC6", ("MCU_ESP32-S3", "J1", "3", "MCU_ESP32-S3", "U12", "3"), 9.5),
-    ("USBLC6 D- to 22R series", ("MCU_ESP32-S3", "U12", "6", "MCU_ESP32-S3", "RUSBM", "1"), 10.0),
-    ("USBLC6 D+ to 22R series", ("MCU_ESP32-S3", "U12", "4", "MCU_ESP32-S3", "RUSBP", "1"), 10.0),
-    ("USB D- series to ESP32 GPIO19", ("MCU_ESP32-S3", "RUSBM", "2", "MCU_ESP32-S3", "U9", "13"), 4.5),
-    ("USB D+ series to ESP32 GPIO20", ("MCU_ESP32-S3", "RUSBP", "2", "MCU_ESP32-S3", "U9", "14"), 4.5),
-    ("AP2112 input cap at VIN", ("MCU_ESP32-S3", "C44", "1", "MCU_ESP32-S3", "U10", "1"), 4.0),
-    ("AP2112 100n output cap at VOUT", ("MCU_ESP32-S3", "C41", "1", "MCU_ESP32-S3", "U10", "5"), 4.0),
-    ("AP2112 bulk output cap at VOUT", ("MCU_ESP32-S3", "C42", "1", "MCU_ESP32-S3", "U10", "5"), 4.0),
+    ("USB UART D- connector to ESD", ("MCU_ESP32-S3", "J1", "2", "MCU_ESP32-S3", "D7", "2"), 7.5),
+    ("USB UART D+ connector to ESD", ("MCU_ESP32-S3", "J1", "3", "MCU_ESP32-S3", "D8", "2"), 9.5),
+    ("USB UART D- ESD to CP2102N", ("MCU_ESP32-S3", "D7", "2", "MCU_ESP32-S3", "U10", "5"), 10.0),
+    ("USB UART D+ ESD to CP2102N", ("MCU_ESP32-S3", "D8", "2", "MCU_ESP32-S3", "U10", "4"), 10.0),
+    ("Native USB D- connector to ESD", ("MCU_ESP32-S3", "J2", "2", "MCU_ESP32-S3", "D12", "2"), 7.5),
+    ("Native USB D+ connector to ESD", ("MCU_ESP32-S3", "J2", "3", "MCU_ESP32-S3", "D11", "2"), 9.5),
+    ("Native USB D- ESD to ESP32 GPIO19", ("MCU_ESP32-S3", "D12", "2", "MCU_ESP32-S3", "U9", "13"), 4.5),
+    ("Native USB D+ ESD to ESP32 GPIO20", ("MCU_ESP32-S3", "D11", "2", "MCU_ESP32-S3", "U9", "14"), 4.5),
+    ("AP2112 input cap at VIN", ("POWER_IO", "C3V3IN", "1", "POWER_IO", "U3V3", "1"), 4.0),
+    ("AP2112 100n output cap at VOUT", ("POWER_IO", "C3V3OUT", "1", "POWER_IO", "U3V3", "5"), 4.0),
+    ("AP2112 bulk output cap at VOUT", ("POWER_IO", "C3V3BULK", "1", "POWER_IO", "U3V3", "5"), 4.0),
     ("ESP32 local 3V3 decap", ("MCU_ESP32-S3", "C43", "1", "MCU_ESP32-S3", "U9", "2"), 3.0),
-    ("ESP32 EN capacitor", ("MCU_ESP32-S3", "CEN", "1", "MCU_ESP32-S3", "U9", "3"), 4.0),
-    ("ESP32 EN pull-up", ("MCU_ESP32-S3", "REN", "2", "MCU_ESP32-S3", "U9", "3"), 5.0),
-    ("ESP32 BOOT pull-up", ("MCU_ESP32-S3", "RBOOT", "2", "MCU_ESP32-S3", "U9", "27"), 4.0),
+    ("ESP32 EN capacitor", ("MCU_ESP32-S3", "C44", "1", "MCU_ESP32-S3", "U9", "3"), 4.0),
+    ("ESP32 EN pull-up", ("MCU_ESP32-S3", "R54", "2", "MCU_ESP32-S3", "U9", "3"), 5.0),
+    ("ESP32 BOOT pull-up", ("MCU_ESP32-S3", "R53", "2", "MCU_ESP32-S3", "U9", "27"), 4.0),
 ]
 
 for _color in ["IR", "RED", "GREEN", "BLUE"]:
     _sheet = f"TIA_{_color}"
     CRITICAL_ROUTE_LINKS += [
         (f"{_sheet} photodiode anode to OPA380 -IN", (_sheet, "D1", "2", _sheet, "U1", "2"), 5.5),
-        (f"{_sheet} feedback resistor at OPA380 -IN", (_sheet, "U1", "2", _sheet, "R2", "1"), 3.5),
+        (f"{_sheet} feedback trimmer at OPA380 -IN", (_sheet, "U1", "2", _sheet, "RVFB", "1"), 3.5),
         (f"{_sheet} feedback capacitor at OPA380 -IN", (_sheet, "U1", "2", _sheet, "C1", "1"), 2.5),
-        (f"{_sheet} feedback resistor at OPA380 OUT", (_sheet, "R2", "2", _sheet, "U1", "6"), 4.5),
+        (f"{_sheet} feedback trimmer at OPA380 OUT", (_sheet, "RVFB", "2", _sheet, "U1", "6"), 4.5),
         (f"{_sheet} feedback capacitor at OPA380 OUT", (_sheet, "C1", "2", _sheet, "U1", "6"), 2.5),
         (f"{_sheet} OPA380 supply decoupling", (_sheet, "C2", "1", _sheet, "U1", "7"), 2.5),
         (f"{_sheet} PD bias resistor at cathode", (_sheet, "RB", "2", _sheet, "D1", "1"), 4.5),
@@ -60,33 +62,41 @@ for _color in ["IR", "RED", "GREEN", "BLUE"]:
         (f"{_sheet} compensation cap at TLV9001 OUT", (_sheet, "CC", "2", _sheet, "U11", "1"), 3.0),
     ]
 
-for _index, _j4_pin in enumerate(["2", "4", "6", "8"], 1):
+_ina_in_plus_pins = {1: "3", 2: "5", 3: "10", 4: "12"}
+_ina_out_pins = {1: "1", 2: "7", 3: "8", 4: "14"}
+for _index, _color in enumerate(["IR", "RED", "GREEN"], 1):
     CRITICAL_ROUTE_LINKS += [
-        (f"MPD_RAW{_index} sense resistor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"RMPD{_index}", "1"), 4.0),
-        (f"MPD{_index} ADC filter capacitor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"CMPD{_index}", "1"), 2.5),
-        (f"MPD_RAW{_index} ADC isolation resistor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"RADC{_index}", "2"), 4.0),
+        (f"MPD_RAW{_index} direct LD monitor to sense resistor", (f"LASER_{_color}", "LD", "3", "POWER_IO", f"RMPD{_index}", "1"), 4.0),
+        (f"MPD_RAW{_index} sense resistor to INA input", ("POWER_IO", f"RMPD{_index}", "1", "POWER_IO", "UMPD", _ina_in_plus_pins[_index]), 4.0),
+        (f"MPD{_index} ADC resistor to filter capacitor", ("POWER_IO", f"RADC{_index}", "2", "POWER_IO", f"CMPD{_index}", "1"), 2.5),
     ]
+CRITICAL_ROUTE_LINKS += [
+    ("MPD_RAW4 spare sense resistor to INA input", ("POWER_IO", "RMPD4", "1", "POWER_IO", "UMPD", _ina_in_plus_pins[4]), 4.0),
+    ("MPD_AMP4 INA output to ADC resistor", ("POWER_IO", "UMPD", _ina_out_pins[4], "POWER_IO", "RADC4", "1"), 4.0),
+    ("MPD4 ADC resistor to filter capacitor", ("POWER_IO", "RADC4", "2", "POWER_IO", "CMPD4", "1"), 2.5),
+]
 
 MIN_ROUTED_CRITICAL_LINKS = 109
 PREROUTE_ROUTE_DESCRIPTIONS = {
-    "MPD_RAW2 sense resistor at J4",
-    "MPD_RAW3 sense resistor at J4",
-    "MPD_RAW4 sense resistor at J4",
+    "MPD_RAW2 direct LD monitor to sense resistor",
+    "MPD_RAW3 direct LD monitor to sense resistor",
+    "MPD_RAW4 spare sense resistor to INA input",
 }
 PREROUTE_USB_ROUTE_DESCRIPTIONS = {
-    "USB D- connector to USBLC6",
-    "USB D+ connector to USBLC6",
-    "USBLC6 D- to 22R series",
-    "USBLC6 D+ to 22R series",
-    "USB D- series to ESP32 GPIO19",
-    "USB D+ series to ESP32 GPIO20",
+    "USB UART D- connector to ESD",
+    "USB UART D+ connector to ESD",
+    "USB UART D- ESD to CP2102N",
+    "USB UART D+ ESD to CP2102N",
+    "Native USB D- connector to ESD",
+    "Native USB D+ connector to ESD",
+    "Native USB D- ESD to ESP32 GPIO19",
+    "Native USB D+ ESD to ESP32 GPIO20",
 }
 EXTRA_SIGNAL_ROUTE_LINKS = [
-    ("LASER_RED cathode sink to J4", ("LASER_RED", "Q1", "3", "POWER_IO", "J4", "3")),
-    ("LASER_GREEN cathode sink to J4", ("LASER_GREEN", "Q1", "3", "POWER_IO", "J4", "5")),
-    ("LASER_IR cathode sink to J4", ("LASER_IR", "Q1", "3", "POWER_IO", "J4", "1")),
-    ("LASER_BLUE cathode sink to J4", ("LASER_BLUE", "Q1", "3", "POWER_IO", "J4", "7")),
-    ("ESP32 BOOT to bring-up header", ("MCU_ESP32-S3", "U9", "27", "MCU_ESP32-S3", "J3", "4")),
+    ("LASER_RED cathode sink to direct LD", ("LASER_RED", "Q1", "3", "LASER_RED", "LD", "1")),
+    ("LASER_GREEN cathode sink to direct LD", ("LASER_GREEN", "Q1", "3", "LASER_GREEN", "LD", "1")),
+    ("LASER_IR cathode sink to direct LD", ("LASER_IR", "Q1", "3", "LASER_IR", "LD", "1")),
+    ("LASER_BLUE cathode sink to direct LD", ("LASER_BLUE", "Q1", "3", "LASER_BLUE", "LD", "3")),
     ("AD7606 CONVST from ESP32 to U14", ("MCU_ESP32-S3", "U9", "8", "POWER_IO", "UADC", "9")),
     ("TIA_IR trim upper node", ("TIA_IR", "RT", "2", "TIA_IR", "RV11", "1")),
     ("TIA_RED trim upper node", ("TIA_RED", "RT", "2", "TIA_RED", "RV11", "1")),
@@ -98,17 +108,13 @@ EXTRA_SIGNAL_ROUTE_LINKS = [
     ("TIA_BLUE VBIAS wiper route", ("TIA_BLUE", "RV11", "2", "TIA_BLUE", "R1", "1")),
 ]
 BOTTOM_SIGNAL_ROUTE_LINKS = [
-    ("ESP32 BOOT header route", ("MCU_ESP32-S3", "U9", "27", "MCU_ESP32-S3", "J3", "4")),
-    ("ESP32 EN header route", ("MCU_ESP32-S3", "U9", "3", "MCU_ESP32-S3", "J3", "3")),
-    ("ESP32 UART TX header route", ("MCU_ESP32-S3", "U9", "37", "MCU_ESP32-S3", "J3", "1")),
-    ("ESP32 UART RX header route", ("MCU_ESP32-S3", "U9", "36", "MCU_ESP32-S3", "J3", "2")),
-    ("LASER_IR PWM command route", ("MCU_ESP32-S3", "U9", "9", "LASER_IR", "R21", "1")),
-    ("LASER_RED PWM command route", ("MCU_ESP32-S3", "U9", "31", "LASER_RED", "R21", "1")),
-    ("LASER_GREEN PWM command route", ("MCU_ESP32-S3", "U9", "21", "LASER_GREEN", "R21", "1")),
-    ("LASER_BLUE PWM command route", ("MCU_ESP32-S3", "U9", "22", "LASER_BLUE", "R21", "1")),
+    ("LASER_IR PWM command route", ("MCU_ESP32-S3", "U9", "18", "LASER_IR", "R21", "1")),
+    ("LASER_RED PWM command route", ("MCU_ESP32-S3", "U9", "19", "LASER_RED", "R21", "1")),
+    ("LASER_GREEN PWM command route", ("MCU_ESP32-S3", "U9", "20", "LASER_GREEN", "R21", "1")),
+    ("LASER_BLUE PWM command route", ("MCU_ESP32-S3", "U9", "9", "LASER_BLUE", "R21", "1")),
     ("AD7606 CONVST bottom route", ("MCU_ESP32-S3", "U9", "8", "POWER_IO", "UADC", "9")),
     ("MPD1 telemetry route", ("POWER_IO", "RADC1", "1", "MCU_ESP32-S3", "U9", "38")),
-    ("MPD2 telemetry route", ("POWER_IO", "RADC2", "1", "MCU_ESP32-S3", "U9", "39")),
+    ("MPD2 telemetry route", ("POWER_IO", "RADC2", "1", "MCU_ESP32-S3", "U9", "15")),
     ("MPD3 telemetry route", ("POWER_IO", "RADC3", "1", "MCU_ESP32-S3", "U9", "12")),
     ("MPD4 telemetry route", ("POWER_IO", "RADC4", "1", "MCU_ESP32-S3", "U9", "17")),
     ("LASER_IR ISENSE telemetry route", ("LASER_IR", "R12", "2", "MCU_ESP32-S3", "U9", "4")),
@@ -126,8 +132,6 @@ BOTTOM_SIGNAL_ROUTE_LINKS = [
 ]
 INNER_SIGNAL_ROUTE_LINKS = [
     ("LASER_BLUE PWM inner route", ("MCU_ESP32-S3", "U9", "22", "LASER_BLUE", "R21", "1")),
-    ("ESP32 UART TX forced inner route", ("MCU_ESP32-S3", "U9", "37", "MCU_ESP32-S3", "J3", "1")),
-    ("ESP32 EN forced inner route", ("MCU_ESP32-S3", "U9", "3", "MCU_ESP32-S3", "J3", "3")),
     ("MPD4 telemetry inner route", ("POWER_IO", "RADC4", "1", "MCU_ESP32-S3", "U9", "17")),
     ("MPD3 telemetry inner route", ("POWER_IO", "RADC3", "1", "MCU_ESP32-S3", "U9", "12")),
     ("AD7606 CONVST inner route", ("MCU_ESP32-S3", "U9", "8", "POWER_IO", "UADC", "9")),
@@ -154,8 +158,6 @@ INNER_LAYER_ROUTE_OVERRIDES = {
 }
 BOTTOM_ROUTE_SKIP_DESCRIPTIONS = {
     "AD7606 CONVST bottom route",
-    "ESP32 EN header route",
-    "ESP32 UART TX header route",
     "LASER_IR PWM command route",
     "LASER_RED PWM command route",
     "LASER_IR ISENSE telemetry route",
@@ -181,13 +183,15 @@ VIA_IN_PAD_INNER_ROUTE_DESCRIPTIONS = {
 VIA_IN_PAD_SIGNAL_FALLBACK_ROUTE_DESCRIPTIONS = set(VIA_IN_PAD_INNER_ROUTE_DESCRIPTIONS)
 LAST_RESORT_GND_PLANE_ROUTE_DESCRIPTIONS: set[str] = set()
 POWER_ROUTE_LINKS = [
-    ("VBUS connector to USBLC6 VBUS reference", ("MCU_ESP32-S3", "J1", "1", "MCU_ESP32-S3", "U12", "5"), 0.50),
-    ("VBUS USBLC6 reference to USB OR-ing diode", ("MCU_ESP32-S3", "U12", "5", "POWER_IO", "D10", "1"), 0.50),
+    ("USB-UART VBUS connector to isolation diode", ("MCU_ESP32-S3", "J1", "1", "MCU_ESP32-S3", "D10", "2"), 0.50),
+    ("USB-UART isolation diode to board VBUS", ("MCU_ESP32-S3", "D10", "1", "POWER_IO", "D10", "1"), 0.50),
+    ("Native USB VBUS connector to isolation diode", ("MCU_ESP32-S3", "J2", "1", "MCU_ESP32-S3", "D13", "2"), 0.50),
+    ("Native USB isolation diode to board VBUS", ("MCU_ESP32-S3", "D13", "1", "POWER_IO", "D10", "1"), 0.50),
     ("EXT 5V header to OR-ing diode", ("POWER_IO", "J2", "1", "POWER_IO", "D11", "1"), 0.60),
     ("USB OR-ing diode cathode to +5V bulk", ("POWER_IO", "D10", "2", "POWER_IO", "C50", "1"), 0.60),
     ("EXT 5V OR-ing diode cathode to +5V bulk", ("POWER_IO", "D11", "2", "POWER_IO", "C50", "1"), 0.60),
-    ("+5V bulk to AP2112 VIN", ("POWER_IO", "C50", "1", "MCU_ESP32-S3", "U10", "1"), 0.50),
-    ("+5V AP2112 VIN to EN", ("MCU_ESP32-S3", "U10", "1", "MCU_ESP32-S3", "U10", "3"), 0.25),
+    ("+5V bulk to AP2112 VIN", ("POWER_IO", "C50", "1", "POWER_IO", "U3V3", "1"), 0.50),
+    ("+5V AP2112 VIN to EN", ("POWER_IO", "U3V3", "1", "POWER_IO", "U3V3", "3"), 0.25),
     ("+5V bulk to laser IR op amp rail", ("POWER_IO", "C50", "1", "LASER_IR", "C22", "1"), 0.25),
     ("+5V laser IR to RED op amp rail", ("LASER_IR", "C22", "1", "LASER_RED", "C22", "1"), 0.25),
     ("+5V laser RED to GREEN op amp rail", ("LASER_RED", "C22", "1", "LASER_GREEN", "C22", "1"), 0.25),
@@ -204,24 +208,26 @@ POWER_ROUTE_LINKS = [
     ("+5V TIA RED rail to trim top", ("TIA_RED", "U1", "7", "TIA_RED", "RT", "1"), 0.25),
     ("+5V TIA GREEN rail to trim top", ("TIA_GREEN", "U1", "7", "TIA_GREEN", "RT", "1"), 0.25),
     ("+5V TIA BLUE rail to trim top", ("TIA_BLUE", "U1", "7", "TIA_BLUE", "RT", "1"), 0.25),
-    ("AP2112 3V3 output to 100n cap", ("MCU_ESP32-S3", "U10", "5", "MCU_ESP32-S3", "C41", "1"), 0.50),
-    ("AP2112 3V3 output to bulk cap", ("MCU_ESP32-S3", "U10", "5", "MCU_ESP32-S3", "C42", "1"), 0.50),
-    ("3V3 AP2112 output decap to ESP32 local decap", ("MCU_ESP32-S3", "C41", "1", "MCU_ESP32-S3", "C43", "1"), 0.35),
+    ("AP2112 3V3 output to 100n cap", ("POWER_IO", "U3V3", "5", "POWER_IO", "C3V3OUT", "1"), 0.50),
+    ("AP2112 3V3 output to bulk cap", ("POWER_IO", "U3V3", "5", "POWER_IO", "C3V3BULK", "1"), 0.50),
+    ("3V3 AP2112 output decap to ESP32 local decap", ("POWER_IO", "C3V3OUT", "1", "MCU_ESP32-S3", "C43", "1"), 0.35),
     ("ESP32 3V3 pin to local decap", ("MCU_ESP32-S3", "U9", "2", "MCU_ESP32-S3", "C43", "1"), 0.25),
-    ("ESP32 local 3V3 decap to EN pull-up", ("MCU_ESP32-S3", "C43", "1", "MCU_ESP32-S3", "REN", "1"), 0.25),
-    ("3V3 bulk cap to BOOT pull-up", ("MCU_ESP32-S3", "C42", "1", "MCU_ESP32-S3", "RBOOT", "1"), 0.25),
-    ("Laser anode supply input to harness", ("POWER_IO", "J5", "1", "POWER_IO", "J4", "9"), 0.80),
+    ("ESP32 local 3V3 decap to EN pull-up", ("MCU_ESP32-S3", "C43", "1", "MCU_ESP32-S3", "R54", "1"), 0.25),
+    ("3V3 bulk cap to BOOT pull-up", ("POWER_IO", "C3V3BULK", "1", "MCU_ESP32-S3", "R53", "1"), 0.25),
+    ("Laser anode supply input to direct LD rail", ("POWER_IO", "J5", "1", "LASER_BLUE", "LD", "1"), 0.80),
 ]
 GND_LOCAL_ROUTE_LINKS = [
     ("ESP32 pin 1 ground to local decap ground", ("MCU_ESP32-S3", "U9", "1", "MCU_ESP32-S3", "C43", "2"), 0.20),
     ("MPD4 filter ground to sense-bias return", ("POWER_IO", "CMPD4", "2", "POWER_IO", "RMPD4", "2"), 0.20),
 ]
 PREROUTE_POWER_ROUTE_DESCRIPTIONS = {
-    "VBUS connector to USBLC6 VBUS reference",
-    "VBUS USBLC6 reference to USB OR-ing diode",
+    "USB-UART VBUS connector to isolation diode",
+    "USB-UART isolation diode to board VBUS",
+    "Native USB VBUS connector to isolation diode",
+    "Native USB isolation diode to board VBUS",
     "3V3 AP2112 output decap to ESP32 local decap",
     "ESP32 local 3V3 decap to EN pull-up",
-    "Laser anode supply input to harness",
+    "Laser anode supply input to direct LD rail",
 }
 DEFERRED_POWER_ROUTE_DESCRIPTIONS: set[str] = set()
 LOW_CURRENT_POWER_DOGBONE_ROUTE_DESCRIPTIONS = {
@@ -231,8 +237,10 @@ LOW_CURRENT_POWER_DOGBONE_ROUTE_DESCRIPTIONS = {
     "+5V laser GREEN to BLUE op amp rail",
 }
 POWER_LAYER_ROUTE_OVERRIDES = {
-    "VBUS connector to USBLC6 VBUS reference": "B.Cu",
-    "VBUS USBLC6 reference to USB OR-ing diode": "B.Cu",
+    "USB-UART VBUS connector to isolation diode": "B.Cu",
+    "USB-UART isolation diode to board VBUS": "B.Cu",
+    "Native USB VBUS connector to isolation diode": "B.Cu",
+    "Native USB isolation diode to board VBUS": "B.Cu",
     "EXT 5V OR-ing diode cathode to +5V bulk": "In2.Cu",
     "+5V bulk to AP2112 VIN": "In2.Cu",
     "+5V bulk to laser IR op amp rail": "In2.Cu",
@@ -254,7 +262,7 @@ POWER_LAYER_ROUTE_OVERRIDES = {
     "ESP32 3V3 pin to local decap": "In2.Cu",
     "ESP32 local 3V3 decap to EN pull-up": "In2.Cu",
     "3V3 bulk cap to BOOT pull-up": "In2.Cu",
-    "Laser anode supply input to harness": "In2.Cu",
+    "Laser anode supply input to direct LD rail": "In2.Cu",
 }
 VIA_SIZE = 0.60
 VIA_DRILL = 0.30
@@ -277,19 +285,16 @@ FORCED_DIRECT_ROUTE_DESCRIPTIONS = {
 FORCED_ROUTE_SHAPES = {
 }
 LASER_CATHODE_INNER_LAYER_NETS = {
-    # J4's 2.54 mm mixed laser/MPD pin row and nearby MPD feedback passives
-    # cannot safely carry every 0.60 mm cathode trunk on F.Cu. Keep the crowded
-    # current sinks off the GND reference layer. Most cathodes use the
-    # otherwise-unpoured In2.Cu layer; LASER_N2 uses B.Cu so it does not form a
-    # horizontal barrier across the lower J4 cathode escapes.
+    # The direct laser footprints sit near the MPD feedback passives, so keep
+    # the crowded current sinks off the GND reference layer. Most cathodes use
+    # the otherwise-unpoured In2.Cu layer; LASER_N2 uses B.Cu so it does not
+    # form a horizontal barrier across lower cathode escapes.
     "LASER_N1": "In2.Cu",
     "LASER_N2": "B.Cu",
     "LASER_N3": "In2.Cu",
     "LASER_N4": "In2.Cu",
 }
-EXTRA_LAYER_ROUTE_OVERRIDES = {
-    "ESP32 BOOT to bring-up header": "In2.Cu",
-}
+EXTRA_LAYER_ROUTE_OVERRIDES = {}
 
 
 def fp_ref(block: str) -> str:
@@ -385,7 +390,7 @@ def _pad_on_layer(pad: dict[str, float | str], route_layer: str) -> bool:
 
 
 def route_width_for_link(description: str, net_name: str) -> float:
-    if net_name.startswith("LASER_N") and "cathode sink to J4" in description:
+    if net_name.startswith("LASER_N") and "cathode sink to direct LD" in description:
         return 0.60
     if net_name.startswith("LASER_N"):
         return 0.60
@@ -1204,7 +1209,7 @@ def _forced_power_front_pad_to_front_pad_layer(
     list[tuple[float, float]],
     list[tuple[float, float]],
 ] | None:
-    if description == "VBUS connector to USBLC6 VBUS reference":
+    if description == "USB-UART VBUS connector to isolation diode":
         start_via = (round(start[0], 4), round(start[1] + 1.2, 4))
         end_via = (round(end[0] + 1.2, 4), round(end[1], 4))
         corridor_y = round(start_via[1], 4)
@@ -1215,7 +1220,7 @@ def _forced_power_front_pad_to_front_pad_layer(
             [start_via, (round(start_via[0] + 0.6, 4), corridor_y), (end_via[0], corridor_y), end_via],
             [end_via, end],
         )
-    if description == "VBUS USBLC6 reference to USB OR-ing diode":
+    if description == "USB-UART isolation diode to board VBUS":
         start_via = (round(start[0] + 2.5, 4), round(start[1], 4))
         end_via = (round(end[0] - 1.0, 4), round(end[1] - 1.5, 4))
         corridor_y = 3.5
@@ -1226,9 +1231,9 @@ def _forced_power_front_pad_to_front_pad_layer(
             [start_via, (round(start_via[0] + 0.2, 4), corridor_y), (end_via[0], corridor_y), end_via],
             [end_via, (round(end[0] - 0.75, 4), round(end[1] - 0.5, 4)), (round(end[0] - 0.75, 4), end[1]), end],
         )
-    if description == "Laser anode supply input to harness":
+    if description == "Laser anode supply input to direct LD rail":
         # Keep the shared laser anode rail off the raw monitor-PD fanout
-        # corridor at the J4 header. It still uses In2.Cu, but the trunk now
+        # corridor at the direct laser footprint cluster. It still uses In2.Cu, but the trunk now
         # runs below the MPD_RAW vertical escapes rather than underneath them.
         start_via = (round(start[0] - 1.0, 4), round(start[1] + 1.25, 4))
         end_via = (round(end[0] - 0.25, 4), round(end[1] - 1.75, 4))
@@ -1248,64 +1253,7 @@ def _forced_extra_front_pad_to_layer(
     start: tuple[float, float],
     end: tuple[float, float],
 ) -> tuple[tuple[float, float], list[tuple[float, float]], list[tuple[float, float]]] | None:
-    if description == "ESP32 UART TX to bring-up header":
-        return (
-            start,
-            [start],
-            [
-                start,
-                (72.75, 5.5),
-                (72.75, 8.75),
-                (75.25, 8.75),
-                (75.25, 12.5),
-                (79.5, 12.5),
-                (79.5, 12.75),
-                (82.75, 12.75),
-                (82.75, 11.75),
-                (89.75, 11.75),
-                (89.75, 34.0),
-                end,
-            ],
-        )
-    if description == "ESP32 EN to bring-up header":
-        start_via = (59.1391, 7.9191)
-        return (
-            start_via,
-            [
-                start,
-                (55.5, 4.0),
-                (59.25, 4.0),
-                (59.25, 7.75),
-                start_via,
-            ],
-            [
-                start_via,
-                (59.25, 7.75),
-                (59.25, 4.25),
-                (35.5, 4.25),
-                (35.5, 41.5),
-                (73.75, 41.5),
-                (73.75, 39.0),
-                (74.75, 39.0),
-                end,
-            ],
-        )
-    if description == "ESP32 BOOT to bring-up header":
-        return (
-            start,
-            [start],
-            [
-                start,
-                (72.75, 24.5),
-                (83.75, 24.5),
-                (83.75, 32.75),
-                (73.75, 32.75),
-                (73.75, 41.5),
-                (74.75, 41.5),
-                end,
-            ],
-        )
-    if description == "LASER_IR cathode sink to J4":
+    if description == "LASER_IR cathode sink to direct LD":
         start_via = (50.4375, round(start[1], 4))
         return (
             start_via,
@@ -1326,7 +1274,7 @@ def _forced_extra_front_pad_to_layer(
                 end,
             ],
         )
-    if description == "LASER_RED cathode sink to J4":
+    if description == "LASER_RED cathode sink to direct LD":
         start_via = (49.1375, round(start[1], 4))
         return (
             start_via,
@@ -1345,7 +1293,7 @@ def _forced_extra_front_pad_to_layer(
                 end,
             ],
         )
-    if description == "LASER_GREEN cathode sink to J4":
+    if description == "LASER_GREEN cathode sink to direct LD":
         start_via = (44.0, round(start[1], 4))
         return (
             start_via,
@@ -1360,7 +1308,7 @@ def _forced_extra_front_pad_to_layer(
                 end,
             ],
         )
-    if description == "LASER_BLUE cathode sink to J4":
+    if description == "LASER_BLUE cathode sink to direct LD":
         start_via = (42.75, round(start[1], 4))
         return (
             start_via,
@@ -1586,7 +1534,7 @@ def emit_extra_signal_route_segments(
     route_items: list[tuple[float, float, str, tuple[str, str, str, str, str, str]]] = []
 
     for description, args in EXTRA_SIGNAL_ROUTE_LINKS:
-        is_cathode_route = "cathode sink to J4" in description
+        is_cathode_route = "cathode sink to direct LD" in description
         if cathode_only and not is_cathode_route:
             continue
         if skip_cathodes and is_cathode_route:
@@ -1601,9 +1549,9 @@ def emit_extra_signal_route_segments(
         start_pad = pads[board_a][pin_a][0]
         end_pad = pads[board_b][pin_b][0]
         start = (float(start_pad["x"]), float(start_pad["y"]))
-        priority = 0.0 if "cathode sink to J4" in description else 10.0
+        priority = 0.0 if "cathode sink to direct LD" in description else 10.0
         cathode_order = {"LASER_N4": 0.0, "LASER_N3": 1.0, "LASER_N2": 2.0, "LASER_N1": 3.0}
-        secondary = cathode_order.get(net_a, -start[1]) if "cathode sink to J4" in description else -start[1]
+        secondary = cathode_order.get(net_a, -start[1]) if "cathode sink to direct LD" in description else -start[1]
         route_items.append((priority, secondary, description, args))
 
     for _, _, description, args in sorted(route_items):
@@ -1652,7 +1600,7 @@ def emit_extra_signal_route_segments(
                 _emit_segment(emitted, existing_segments, a, b, width, extra_layer, code_a, net_a, uuid_func)
             continue
 
-        inner_layer = LASER_CATHODE_INNER_LAYER_NETS.get(net_a) if "cathode sink to J4" in description else None
+        inner_layer = LASER_CATHODE_INNER_LAYER_NETS.get(net_a) if "cathode sink to direct LD" in description else None
         if inner_layer:
             forced_layer_route = _forced_extra_front_pad_to_layer(description, start, end)
             if forced_layer_route is not None:
@@ -1726,7 +1674,7 @@ def emit_bottom_signal_route_segments(
         end_pad = pads[board_b][pin_b][0]
         start = (float(start_pad["x"]), float(start_pad["y"]))
         end = (float(end_pad["x"]), float(end_pad["y"]))
-        if "cathode sink to J4" in description:
+        if "cathode sink to direct LD" in description:
             priority = -1.0
         elif "ISENSE" in description:
             priority = 0.0
@@ -1755,44 +1703,6 @@ def emit_bottom_signal_route_segments(
         start = (float(start_pad["x"]), float(start_pad["y"]))
         end = (float(end_pad["x"]), float(end_pad["y"]))
         width = route_width_for_link(description, net_a)
-        if description == "ESP32 UART RX header route":
-            start_via = (72.75, 9.77)
-            start_escape = [
-                start,
-                (72.75, 6.75),
-                (72.75, 9.5),
-                start_via,
-            ]
-            inner_route = [
-                start_via,
-                (73.0, 10.5),
-                (73.0, 12.0),
-                (79.0, 12.0),
-                (79.0, 11.0),
-                (84.0, 11.0),
-                (84.0, 11.5),
-                (89.75, 11.5),
-                (89.75, 36.5),
-                (75.5, 36.5),
-                end,
-            ]
-            temp_after_start = existing_segments + [
-                {"net": net_a, "a": a, "b": b, "w": width, "layer": "F.Cu"}
-                for a, b in zip(start_escape, start_escape[1:])
-                if a != b
-            ] + [{"net": net_a, "a": start_via, "b": start_via, "w": VIA_SIZE, "layer": "*.Cu"}]
-            if (
-                _via_clear(pads, existing_segments, start_via, net_a)
-                and _route_shape_clear(pads, existing_segments, net_a, start_escape, width, "F.Cu")
-                and _route_shape_clear(pads, temp_after_start, net_a, inner_route, width, "In2.Cu")
-            ):
-                routed_descriptions.append(description)
-                for a, b in zip(start_escape, start_escape[1:]):
-                    _emit_segment(emitted, existing_segments, a, b, width, "F.Cu", code_a, net_a, uuid_func)
-                _emit_via(emitted, existing_segments, start_via, code_a, net_a, uuid_func)
-                for a, b in zip(inner_route, inner_route[1:]):
-                    _emit_segment(emitted, existing_segments, a, b, width, "In2.Cu", code_a, net_a, uuid_func)
-                continue
         start_candidates = _via_candidates(pads, existing_segments, start, end, net_a)[:10]
         end_candidates = _via_candidates(pads, existing_segments, end, start, net_a)[:10]
         committed: tuple[

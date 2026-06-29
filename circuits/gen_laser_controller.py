@@ -17,8 +17,10 @@ on-board single clear Si PIN photodiode (Osram SFH2201, 300–1100 nm — covers
 reverse-biased into an OPA380 TIA → on-board AD7606-4 ADC read by the ESP32. (Single-PD
 intensity read = the bench proxy for the
 production Gpixel per-pixel intensity reader; see DUAL_PINHOLE / INDEX_READ_PRODUCTION
-docs.) Control: ESP32-S3-WROOM-1 (matches access-controller), native USB Mini-B + USBLC6
-ESD; 4× PWM → 4 laser drivers; 4 laser I-sense + 4 monitor-PD current-sense outputs → ESP32 ADC pins.
+docs.) Control: copied access-controller ESP32-S3-WROOM-1 MCU sheet with
+CP2102N USB-UART, native USB Mini-B, reset/program/factory buttons, and
+discrete USB/VBUS ESD/isolation; 4× PWM → 4 laser drivers; 4 laser I-sense
+and 4 monitor-PD current-sense outputs → ESP32 ADC pins.
 Power: USB VBUS (5V) ‖ external J6 5V OR-ed via SS14 Schottkys → +5V; AP2112K-3.3 → +3V3;
 laser anode supply LASER_V+ (J5) is a separate rail.  Every SMT part carries visible-on-
 click LCSC + Part Number fields (same convention as the access-controller project).
@@ -131,13 +133,12 @@ ESP_PIN = {}; _ep = {}
 ESP_PIN.update({
     "EN":"3", "U0TXD":"37", "U0RXD":"36", "GPIO21":"23", "GPIO0":"27", "BOOT":"27",
     "USB_DM":"13", "USB_DP":"14",
-    # Keep all analog telemetry on ADC1 (GPIO1..GPIO10). PWM uses documented,
-    # non-strapping GPIOs so Wi-Fi/ADC2 behavior cannot disturb current/monitor
-    # readings. PWM2 uses GPIO38 because GPIO18 is physically trapped by the
-    # dense USB/ADC escape corridor on this 90 x 50 mm bench layout.
-    "PWM1":"9", "PWM2":"31", "PWM3":"21", "PWM4":"22",
+    # Keep analog telemetry on ADC1-capable pins where possible. The copied
+    # access-controller MCU sheet exposes generic IO labels; the root sheet maps
+    # bench PWM to IO10/IO11/IO12/IO16.
+    "PWM1":"18", "PWM2":"19", "PWM3":"20", "PWM4":"9",
     "ISENSE1":"4", "ISENSE2":"5", "ISENSE3":"6", "ISENSE4":"7",
-    "MPD1":"38", "MPD2":"39", "MPD3":"12", "MPD4":"17",
+    "MPD1":"38", "MPD2":"15", "MPD3":"12", "MPD4":"17",
     "CONVST":"10", "VDD3P3":"2", "GND":"1",
 })
 # Actual pin positions from the Espressif library symbol (used by pin() for wiring)
@@ -201,7 +202,9 @@ S("USB_MINIB",{"1":(-7.62,5.08,0,"VBUS","passive",2.54),"2":(-7.62,2.54,0,"D-","
                "3":(-7.62,0,0,"D+","passive",2.54),"4":(-7.62,-2.54,0,"ID","passive",2.54),
                "5":(-7.62,-5.08,0,"GND","passive",2.54),"6":(-7.62,-8.89,0,"SHLD","passive",2.54)},
   [[(-5.08,7.62),(2.54,7.62),(2.54,-11.43),(-5.08,-11.43),(-5.08,7.62)]],[("USB",-1.27,0,1.4)])
-# USBLC6-2SC6 ESD (SOT-23-6): 1,6 = IO line A ; 3,4 = IO line B ; 2=GND ; 5=VBUS
+# Legacy local USBLC6 symbol kept only so old generated schematics can still be parsed.
+# The active bench schematic uses the copied access-controller MCU sheet with
+# discrete LESD5D5.0CT1G clamps and 1N5819HW VBUS isolation diodes.
 S("ESD_USB",{"1":(-7.62,2.54,0,"IO1","passive",2.54),"6":(7.62,2.54,180,"IO1","passive",2.54),
              "3":(-7.62,-2.54,0,"IO2","passive",2.54),"4":(7.62,-2.54,180,"IO2","passive",2.54),
              "5":(0,7.62,270,"VBUS","passive",2.54),"2":(0,-7.62,90,"GND","passive",2.54)},
@@ -388,7 +391,7 @@ LCSC_INA4180="C2057528" # INA4180A1IPWR quad current-sense amplifier, TSSOP-14
 LCSC_LM4040="C69316"    # LM4040C50IDBZR 5.0V shunt reference, SOT-23-3
 LCSC_ESP="C2913199"  # ESP32-S3-WROOM-1 (exact C-number used on the access-controller); native USB D-=GPIO19 D+=GPIO20
 LCSC_LDO="C51118"    # AP2112K-3.3 SOT-23-5, 250mV dropout (was AMS1117 C6186 — too much dropout off USB VBUS)
-LCSC_ESD="C7519"     # USBLC6-2SC6
+LCSC_ESD="C7519"     # legacy inactive USBLC6-2SC6 local-MCU generator path
 LCSC_SCH="C2480"     # SS14 SMA Schottky 40V/1A (Basic)
 LCSC_USB="C5120592"     # Würth 65100516121 USB Mini-B horizontal SMD (same as access-controller)
 LCSC_PD="C2900216"   # Osram SFH2201 clear broadband Si PIN PD (Extended); 300–1100nm covers 450/520/650/780nm
@@ -695,7 +698,7 @@ def build_laser_driver(sheet_name: str):
     junctions=[pnode,sense,OUT]
     add_stub(wires,labels,pin(parts,"R21","1"),"left","H:PWM_IN",shape="input")
     add_stub(wires,labels,pin(parts,"R12","2"),"right","H:ISENSE",shape="output")
-    cN=pin(parts,"Q1","3"); top=snap_point((cN[0],cN[1]-6.35))            # drain → LASER_N and direct/harness LD cathode
+    cN=pin(parts,"Q1","3"); top=snap_point((cN[0],cN[1]-6.35))            # drain -> LASER_N and direct LD cathode
     ld_k=pin(parts,"LD",laser["ld_k"])
     wires.append([cN,top,(ld_k[0],top[1]),ld_k]); labels.append(("H:LASER_N",top[0],top[1],"left","output"))
     add_rail_dn(power,wires,"LASER_VP",pin(parts,"LD",laser["ld_a"]))
@@ -719,7 +722,7 @@ def build_laser_driver(sheet_name: str):
         ("Laser Driver  —  TLV9001 + AO3400A constant-current sink  ·  I = V_ctrl / 10Ω  ·  reused 4× (IR / RED / GREEN / BLUE)",150,114,2.0),
         ("PWM_IN → R21/C21 with R22 30k limiter → +IN (full-scale ≈2.48V, ≈248mA) ;  −IN = FB (sense top).",150,120,1.3),
         ("TLV9001 out → R31 → Q1 gate ; source → 10Ω 2W sense → GND.  CC = loop comp (FB↔LOUT, tune in bring-up).",150,125,1.3),
-        ("Direct TO-can footprint is in parallel with the J4 harness option. Use one population path per channel unless intentionally paralleling sources.",150,130,1.3),
+        ("Direct TO-can footprint is the board-mounted laser source connection; no separate laser/MPD harness header is populated.",150,130,1.3),
         ("Digikey-cart MPNs: IR/red are US-Lasers Style-A TO18 monitor cans; green is PLT5 520EB_P TO56 monitor can; blue PLT5 450GB has no monitor PD.",150,135,1.3),
     ]
     color = sheet_name.removeprefix("LASER_")
@@ -737,7 +740,10 @@ def build_laser_driver(sheet_name: str):
         ncs=ncs,
     )
 
-# ═══ SUB-SHEET: mcu.kicad_sch  (ESP32-S3 + LDO + USB Mini-B + ESD) ═══
+# ═══ LEGACY INACTIVE LOCAL MCU GENERATOR ═══
+# The active `mcu.kicad_sch` is copied from the access-controller project and
+# is not produced by this helper. Keep the helper out of `main()` so the copied
+# CP2102N/buttons/discrete-ESD topology is not overwritten.
 def build_mcu():
     # ESP32 centered on page (A3=420x297), large 91x81mm symbol needs room
     ex,ey = 230, 180
@@ -873,9 +879,9 @@ def build_mcu():
         ncs.append(pin(parts,"U9",pin_num))
     texts=[
         ("Microcontroller — ESP32-S3-WROOM-1 (2.4GHz Wi-Fi b/g/n + Bluetooth LE + native USB) + USB Mini-B + AP2112K-3.3 LDO",30,50,2.2),
-        ("USB Mini-B (J1) → USBLC6 ESD (U10) → 22R series resistors → ESP32: D+=GPIO20, D−=GPIO19.  VBUS → power_io.",30,56,1.3),
-        ("PWM1-4 -> GPIO16/38/13/14 (LEDC). ISENSE1-4 -> GPIO4/5/6/7 (ADC1_CH3/4/5/6), keeping current telemetry off ADC2.",30,62,1.3),
-        ("MPD1-4 -> GPIO2/1/8/9 (ADC1_CH1/0/7/8). CONVST -> GPIO17. UART/EN/BOOT -> J2.",30,68,1.3),
+        ("USB Mini-B entries use copied-sheet discrete LESD clamps and 1N5819HW VBUS isolation; native USB D+=GPIO20, D−=GPIO19.",30,56,1.3),
+        ("PWM1-4 -> GPIO10/11/12/16. ISENSE1-4 -> GPIO4/5/6/7.",30,62,1.3),
+        ("MPD1-4 -> GPIO2/3/8/9. CONVST -> GPIO15. UART/EN/BOOT follow the copied MCU sheet.",30,68,1.3),
         ("EN pulled up (REN=10k→+3V3) + POR cap (CEN=100nF). GPIO0/BOOT pulled up and exposed on J2. LDO: AP2112K-3.3, 5V→3V3.",30,74,1.3),
     ]
     return build_sch_content(
@@ -917,7 +923,6 @@ def build_power_io():
         "CREG2":("C_V","1uF ADC REGCAP",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,195,220),
         "CREFIN":("C_V","10uF ADC REF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,185,225),
         "CREFCAP":("C_V","10uF ADC REFCAP",FP_805,"CL21A106KAYNNNG",LCSC_10UF,175,230),
-        "J4":("CONN10","LASER+MPD out",FP_H10,"","",360,135),
         "UMPD":("INA4180_TSSOP14","INA4180A1",FP_TSSOP14,"INA4180A1IPWR",LCSC_INA4180,178,132),
         "UREF":("LM4040_DBZ","LM4040C50 5V",FP_SOT23,"LM4040C50IDBZR",LCSC_LM4040,114,122),
         "CINA":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,172,88),
@@ -996,13 +1001,6 @@ def build_power_io():
     wires.append([refcap_a, refcap_jog, (refcap_jog[0], refcap_b[1]), refcap_b])
     wires.append([refcap_jog, (refcap_jog[0], refcap_top[1]), refcap_top])
     add_rail(power,wires,"GND",pin(parts,"CREFCAP","2"))
-    # laser outputs: cathode/monitor pairs + common laser anode supply + shield/return ground
-    for jp,net in [("1","LASER_N1"),("3","LASER_N2"),("5","LASER_N3"),("7","LASER_N4")]:
-        add_stub(wires,labels,pin(parts,"J4",jp),"left",f"H:{net}",dist=9,shape="input")
-    for jp,net in [("2","MPD_RAW1"),("4","MPD_RAW2"),("6","MPD_RAW3"),("8","MPD_RAW4")]:
-        add_stub(wires,labels,pin(parts,"J4",jp),"left",f"H:{net}",dist=9,shape="input")
-    add_rail_dn(power,wires,"LASER_VP",pin(parts,"J4","9"))
-    add_rail_dn(power,wires,"GND",pin(parts,"J4","10"))
     # monitor PD telemetry: hold PD cathode-to-anode bias near 5V, sense monitor current high-side,
     # then feed a low-impedance filtered voltage into the ESP32 ADC.
     add_rail(power,wires,"+3V3",pin(parts,"UMPD","4"))
@@ -1028,7 +1026,7 @@ def build_power_io():
     for i in range(1,5):
         raw = f"MPD_RAW{i}"
         amp = f"MPD_AMP{i}"
-        add_stub(wires,labels,pin(parts,f"RMPD{i}","1"),"left",raw,dist=14)
+        add_stub(wires,labels,pin(parts,f"RMPD{i}","1"),"left",f"H:{raw}",dist=14,shape="input")
         add_stub(wires,labels,pin(parts,f"RMPD{i}","2"),"right","MPD_BIAS",dist=11)
         add_stub(wires,labels,pin(parts,"UMPD",ina_in_plus[i]),"left",raw,dist=8.89)
         add_stub(wires,labels,pin(parts,"UMPD",ina_in_minus[i]),"left","MPD_BIAS",dist=8.89)
@@ -1048,7 +1046,7 @@ def build_power_io():
     da=pin(parts,"D10","1")                         # D10 anode = VBUS_5V net
     power.append(("PWR_FLAG",da[0],da[1]+9)); wires.append([da,(da[0],da[1]+9)]); junctions.append(da)
     texts=[
-        ("Power & I/O  —  USB‖external 5V OR-ing, AP2112 +3V3 source, separate laser supply, on-board AD7606-4 ADC, laser + monitor-PD outputs",36,16,2.2),
+        ("Power & I/O  —  USB‖external 5V OR-ing, AP2112 +3V3 source, separate laser supply, on-board AD7606-4 ADC, monitor-PD front end",36,16,2.2),
         ("J6 = ext +5V in;  USB VBUS (from MCU J1) ‖ J6 OR-ed via SS14 Schottkys (D5/D6) → +5V; U11 AP2112K-3.3 → +3V3.",36,22,1.3),
         ("U14 AD7606BSTZ-4 digitizes VOUT1..4 on-board; ESP32 drives CONVST/SCLK/CS/RESET and reads BUSY + DOUTA/DOUTB.",36,28,1.3),
         ("MPD_RAWx -> 750R sense to MPD_BIAS; INA4180A1 gain=20 -> 1k/100nF -> MPDx ESP32 ADC.",36,34,1.3),
@@ -1146,7 +1144,6 @@ def build_root():
     # POWER_IO (column 3, bottom)
     pio_pins=[(f"VOUT{i+1}","input","left",f"VOUT{i+1}") for i in range(4)]+[
         ("CONVST","input","left","CONVST"),("VBUS_5V","input","left","VBUS_5V")]+[
-        (f"LASER_N{i+1}","input","left",f"LASER_N{i+1}") for i in range(4)]+[
         (f"MPD_RAW{i+1}","input","left",f"MPD_RAW{i+1}") for i in range(4)]+[
         (f"MPD{i+1}","output","left",f"MPD{i+1}") for i in range(4)]+[
         ("ADC_SCLK","input","right","ADC_SCLK"),
@@ -1160,7 +1157,7 @@ def build_root():
 
     P+=extra
     P.append(f'  (text "LASER CONTROLLER  ·  Vivonics  ·  rev v9   —   1 channel x 4 wavelengths (IR / RED / GREEN / BLUE)  ·  TIA x4  ·  laser_driver x4  ·  AD7606-4 signal ADC  ·  monitor PD ADC x3+spare  ·  mcu  ·  power_io" (at 40 30 0) (effects (font (size 2.4 2.4)) (justify left)) (uuid {uid()}))')
-    P.append(f'  (text "Global-label nets join sheet pins (VOUT1..4, ADC_SCLK/CS/MISO_A/MISO_B/BUSY/RESET, PWM1..4, ISENSE1..4, MPD_RAW1..3 plus open MPD_RAW4, MPD1..4, LASER_N1..4, CONVST, VBUS_5V, +3V3)." (at 40 36 0) (effects (font (size 1.6 1.6)) (justify left)) (uuid {uid()}))')
+    P.append(f'  (text "Global-label nets join sheet pins (VOUT1..4, ADC_SCLK/CS/MISO_A/MISO_B/BUSY/RESET, PWM1..4, ISENSE1..4, MPD_RAW1..3 plus spare MPD_RAW4, MPD1..4, LASER_N1..4, CONVST, VBUS_5V, +3V3)." (at 40 36 0) (effects (font (size 1.6 1.6)) (justify left)) (uuid {uid()}))')
     P+=['  (sheet_instances','    (path "/" (page "1"))',"  )",")"]
     txt="\n".join(P)+"\n"
     assert sum((c=="(")-(c==")") for c in txt)==0,"paren imbalance in root"
@@ -1222,12 +1219,7 @@ def build_bom():
     rows=["Comment,Designator,Footprint,LCSC"]; n=0
     for (val,fp,lcsc),refs in sorted(groups.items(), key=lambda kv:(kv[0][2],kv[0][0])):
         n+=len(refs); rows.append(f'"{val}","{",".join(refs)}","{fp}","{lcsc}"')
-    out="\n".join(rows)+"\n#\n# Hand-add / not in SMT assembly:\n"
-    for (val,mpn),qty in sorted(hand.items()): out+=f"#   {qty}x {val}  ({mpn})\n"
-    out+=f"# SMT placements: {n}.  Designators are generated uniquely by the schematic generator.\n"
-    out+="# NOTE: BOM LCSC codes were refreshed against live LCSC product pages on 2026-06-28.\n"
-    out+="# NOTE: SFH2201 (C2900216) clear broadband Si PIN PD — covers blue/green/red/IR; JLCPCB Extended (one-time feeder fee).\n"
-    return out
+    return "\n".join(rows) + "\n"
 
 KICAD_PRO='{\n  "board": {"design_settings": {"rules": {}}},\n  "meta": {"filename": "laser_controller.kicad_pro", "version": 1},\n  "schematic": {"legacy_lib_dir": "", "legacy_lib_list": []},\n  "sheets": [],\n  "libraries": {"pinned_footprint_libs": [], "pinned_symbol_libs": []}\n}\n'
 

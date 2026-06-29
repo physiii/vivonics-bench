@@ -25,8 +25,8 @@ Current verification:
 - The passive derating checker asserts that every assembled capacitor, resistor,
   and SMD trimmer MPN has an explicit bench rating entry and stays below the
   local steady-state voltage/power policy. Current worst cases are the
-  `100nF MPD bias` capacitor at 31.6% of 16 V and the 10 ohm 2512 laser
-  sense resistors at 30.6% of 2 W.
+  `100nF MPD bias` capacitor at 31.6% of 16 V, `R57` 1 k at 40.0% power,
+  and `R60` 10 k at 10.0% voltage.
 - The PCB checker verifies pad-net assignment, proximity, copper clearance, and
   route class membership.
 

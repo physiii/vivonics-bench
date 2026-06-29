@@ -530,7 +530,7 @@
   (text "Laser Driver  —  TLV9001 + AO3400A constant-current sink  ·  I = V_ctrl / 10Ω  ·  reused 4× (IR / RED / GREEN / BLUE)" (at 150 114 0) (effects (font (size 2.0 2.0)) (justify left)) (uuid c1d2e3f4-6000-4000-a000-000000000513))
   (text "PWM_IN → R21/C21 with R22 30k limiter → +IN (full-scale ≈2.48V, ≈248mA) ;  −IN = FB (sense top)." (at 150 120 0) (effects (font (size 1.3 1.3)) (justify left)) (uuid c1d2e3f4-6000-4000-a000-000000000514))
   (text "TLV9001 out → R31 → Q1 gate ; source → 10Ω 2W sense → GND.  CC = loop comp (FB↔LOUT, tune in bring-up)." (at 150 125 0) (effects (font (size 1.3 1.3)) (justify left)) (uuid c1d2e3f4-6000-4000-a000-000000000515))
-  (text "Direct TO-can footprint is in parallel with the J4 harness option. Use one population path per channel unless intentionally paralleling sources." (at 150 130 0) (effects (font (size 1.3 1.3)) (justify left)) (uuid c1d2e3f4-6000-4000-a000-000000000516))
+  (text "Direct TO-can footprint is the board-mounted laser source connection; no separate laser/MPD harness header is populated." (at 150 130 0) (effects (font (size 1.3 1.3)) (justify left)) (uuid c1d2e3f4-6000-4000-a000-000000000516))
   (text "Digikey-cart MPNs: IR/red are US-Lasers Style-A TO18 monitor cans; green is PLT5 520EB_P TO56 monitor can; blue PLT5 450GB has no monitor PD." (at 150 135 0) (effects (font (size 1.3 1.3)) (justify left)) (uuid c1d2e3f4-6000-4000-a000-000000000517))
   (sheet_instances
     (path "/" (page "1"))

@@ -7,7 +7,7 @@ Exit codes:
   2: one or more known blockers remain open
 
 This is not another electrical-rule checker. It makes the unresolved manual,
-source, harness, thermal, and manufacturing checks visible in the same wrapper
+source, direct-laser, thermal, and manufacturing checks visible in the same wrapper
 as the generated schematic and PCB gates.
 """
 from __future__ import annotations
@@ -37,24 +37,24 @@ class ReleaseBlocker:
 BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "GENERATED_COPPER_NETCLASS_CLEARANCE",
-        "Rail/zone KiCad signoff remains open after generated signal copper pass",
-        "The PCB generator now runs in strict/capped route-search mode, using the same generated net-class clearances enforced by the PCB checker. The custom PCB gate passes with all signal/control multi-pad nets explicitly routed and 109/109 critical local route links connected. The generated-copper release gate still fails closed on +5V/GND rail/zone signoff: the laser-driver TLV9001 inter-channel +5V trunk is routed, but bulk +5V is still split from that trunk until placement or the bulk-to-laser bridge is fixed, KiCad zones are refilled, DRC is run, and visual return-path review is complete.",
-        "Fix the bulk +5V bridge into the laser-driver +5V trunk without regressing LASER_N/USB/MPD/PWM routing or antenna keepout, refill and inspect zones in KiCad, run PCB DRC with schematic parity, and review +5V/GND rail and return-path copper before fabrication.",
+        "PCB placement, routing, and rail/zone signoff remain open",
+        "The current PCB artifact has recovered hand-placement coordinates and pad nets, not a routed fabrication layout. The PCB checker still fails while final board-boundary/proximity limits are not met, USB routes are missing, no filled In1.Cu GND reference plane exists, and routing is absent. The generated-copper release gate also fails because signal/control multi-pad nets, rails, pours, laser-anode copper, and high-current laser sense returns are not routed.",
+        "Finish placement inside the 90 x 50 mm outline, route USB/signal/control nets, add and refill rail/GND zones, add reviewed laser-current and high-current GND return copper, run PCB DRC with schematic parity, and review +5V/GND rail and return-path copper before fabrication.",
         (
             Evidence(
                 "circuits/README.md",
                 (
-                    "Current blocker: PCB generation now runs in strict/capped route-search mode",
-                    "`check_laser_controller_pcb.py` custom gate passes",
-                    "Generated-copper release gate currently fails only on rail/zone signoff",
+                    "The current board artifact is not routed",
+                    "`check_laser_controller_pcb.py` currently fails",
+                    "release gate also fails because signal/control",
                 ),
             ),
             Evidence(
                 "circuits/PCB_LAYOUT.md",
                 (
-                    "Current blocker: the PCB is now generated in strict/capped route-search mode",
-                    "`check_laser_controller_pcb.py` now passes the custom generated-PCB gate",
-                    "Generated-copper release gate currently fails only on rail/zone signoff",
+                    "160 physical footprints match the schematic reference set",
+                    "Current blocker: the PCB is not release-clean",
+                    "The custom PCB and generated-copper release gates do not pass",
                 ),
             ),
         ),
@@ -100,16 +100,16 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 "circuits/PCB_LAYOUT.md",
                 (
                     "visual return-path review",
-                    "Cross-layer overlap near the dense J4 row is still a visual review item.",
+                    "cluster is still a visual review item.",
                 ),
             ),
         ),
     ),
     ReleaseBlocker(
-        "ACTUAL_LASER_MPN_HARNESS",
-        "Actual laser MPN pin tables and J4 harness are not released",
+        "ACTUAL_LASER_MPN_DIRECT_FOOTPRINT",
+        "Actual laser MPN pin tables and direct footprints are not released",
         "The Digikey cart MPNs have mixed pin-code behavior: D7805I, D6505I, and PLT5 520EB_P match the bench monitor front end, while PLT5 450GB has no monitor photodiode and its case pin must not be tied into MPD_RAW4.",
-        "Build and inspect the J4 harness from the exact per-MPN pin table, verify can/case handling, and document that PLT5 450GB has no MPD telemetry before laser bring-up.",
+        "Verify the exact per-MPN pin table against the direct LDx footprint wiring, inspect can/case handling, and document that PLT5 450GB has no MPD telemetry before laser bring-up.",
         (
             Evidence(
                 "docs/part-notes/PLT5-520B-harness-reference.md",
@@ -130,7 +130,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 "circuits/PCB_LAYOUT.md",
                 (
                     "confirm every raw laser MPN's LD/PD/common/case pin table",
-                    "actual laser harness MPN review",
+                    "actual laser direct-footprint MPN review",
                     "PLT5 450GB",
                 ),
             ),
@@ -203,7 +203,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 "circuits/POWER_TREE.md",
                 (
                     "External supply must be current-limited off-board until a fuse/PTC is added.",
-                    "Define off-board current limit or add board protection before production.",
+                    "define off-board current limit or add board protection before production.",
                 ),
             ),
         ),
@@ -217,15 +217,15 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
             Evidence(
                 "docs/part-notes/65100516121.md",
                 (
-                    "Official W\u00fcrth product-data URL did not open directly in this environment.",
-                    "Verify the current manufacturer drawing before fabrication.",
+                    "Resolve the connector identity before fabrication",
+                    "orderable connector must be mechanically checked",
                 ),
             ),
             Evidence(
                 "docs/source-register.md",
                 (
-                    "Official W\u00fcrth product-data URL for 65100516121 did not open directly",
-                    "Verify against W\u00fcrth before release.",
+                    "Mini-B orderable connector identity must be resolved before release",
+                    "mechanical fit and ordering source still need signoff",
                 ),
             ),
         ),
@@ -318,15 +318,15 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ),
     ReleaseBlocker(
         "AD7606_SYSTEM_INTERFACE",
-        "External AD7606 range and host-side assumptions are still open",
-        "The bench board exports VOUT1..4 and CONVST, but the external AD7606 range and firmware/host configuration remain system-level checks.",
-        "Verify the AD7606 variant/range pin, firmware timing, oversampling, and expected input range before relying on bench readings.",
+        "On-board AD7606 range and firmware assumptions are still open",
+        "The bench board routes VOUT1..4 into the on-board AD7606 and connects its serial/control interface to the ESP32, but range, timing, oversampling, and firmware configuration remain system-level checks.",
+        "Verify the AD7606 variant/range pin, firmware timing, oversampling straps, and expected input range before relying on bench readings.",
         (
             Evidence(
                 "circuits/README.md",
                 (
-                    "AD7606 RANGE pin",
-                    "Enable AD7606 oversampling",
+                    "U14 straps `RANGE` low",
+                    "oversampling. Confirm ESP32 timing",
                 ),
             ),
         ),

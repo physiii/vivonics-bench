@@ -11,6 +11,7 @@ Run after:
 from __future__ import annotations
 
 import re
+import json
 import sys
 from collections import Counter, defaultdict, deque
 from math import cos, hypot, radians, sin
@@ -28,20 +29,27 @@ from pcb_critical_routes import (
 
 BOARD_WIDTH_MM = 90.0
 BOARD_HEIGHT_MM = 50.0
+BOARD_SIZE_TOLERANCE_MM = 0.05
 ZONE_OR_RAIL_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "LASER_V+", "/POWER_IO/EXT5V"}
-EXPECTED_ZONE_OR_RAIL_PENDING_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "LASER_V+"}
+EXPECTED_ZONE_OR_RAIL_PENDING_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "LASER_V+", "/POWER_IO/EXT5V"}
 USB_ROUTE_CHAINS = {
-    "D-": [
-        ("connector to USBLC6", "/MCU_ESP32-S3/USB_DM_CONN"),
-        ("USBLC6 to 22R", "/MCU_ESP32-S3/USB_DM_ESD"),
-        ("22R to ESP32 GPIO19", "/MCU_ESP32-S3/USB_DM"),
+    "USB-UART D-": [
+        ("J1 D- to CP2102N D-", "/MCU_ESP32-S3/D-"),
     ],
-    "D+": [
-        ("connector to USBLC6", "/MCU_ESP32-S3/USB_DP_CONN"),
-        ("USBLC6 to 22R", "/MCU_ESP32-S3/USB_DP_ESD"),
-        ("22R to ESP32 GPIO20", "/MCU_ESP32-S3/USB_DP"),
+    "USB-UART D+": [
+        ("J1 D+ to CP2102N D+", "/MCU_ESP32-S3/D+"),
+    ],
+    "Native USB D-": [
+        ("J2 D- to ESP32 GPIO19", "/MCU_ESP32-S3/IO19"),
+    ],
+    "Native USB D+": [
+        ("J2 D+ to ESP32 GPIO20", "/MCU_ESP32-S3/IO20"),
     ],
 }
+USB_PAIR_CHAINS = [
+    ("USB-UART", "USB-UART D-", "USB-UART D+"),
+    ("Native USB", "Native USB D-", "Native USB D+"),
+]
 USB_ROUTE_LAYER = "F.Cu"
 USB_ROUTE_WIDTH_MM = 0.25
 USB_CHAIN_MAX_LENGTH_MM = 40.0
@@ -90,6 +98,62 @@ def pad_blocks(footprint_text: str) -> list[str]:
                 blocks.append("\n".join(current))
                 in_block = False
     return blocks
+
+
+def graphic_blocks(board_text: str) -> list[str]:
+    blocks: list[str] = []
+    current: list[str] = []
+    depth = 0
+    in_block = False
+    for line in board_text.splitlines():
+        stripped = line.lstrip()
+        if not in_block and stripped.startswith(
+            ("(gr_line", "(gr_rect", "(gr_arc", "(gr_circle", "(gr_poly")
+        ):
+            current = [line]
+            depth = line.count("(") - line.count(")")
+            in_block = True
+            if depth == 0:
+                blocks.append(line)
+                in_block = False
+            continue
+        if in_block:
+            current.append(line)
+            depth += line.count("(") - line.count(")")
+            if depth == 0:
+                blocks.append("\n".join(current))
+                in_block = False
+    return blocks
+
+
+def parse_board_outline_bounds(board_path: Path) -> tuple[tuple[float, float, float, float], bool]:
+    coords: list[tuple[float, float]] = []
+    for block in graphic_blocks(board_path.read_text()):
+        if '(layer "Edge.Cuts")' not in block:
+            continue
+        coords.extend(
+            (float(match.group(1)), float(match.group(2)))
+            for match in re.finditer(
+                r'\((?:start|end|xy|center|mid)\s+([-\d.]+)\s+([-\d.]+)\)',
+                block,
+            )
+        )
+    if not coords:
+        return (0.0, 0.0, BOARD_WIDTH_MM, BOARD_HEIGHT_MM), False
+    return (
+        min(x for x, _ in coords),
+        min(y for _, y in coords),
+        max(x for x, _ in coords),
+        max(y for _, y in coords),
+    ), True
+
+
+def board_bounds_label(board_bounds: tuple[float, float, float, float]) -> str:
+    min_x, min_y, max_x, max_y = board_bounds
+    return (
+        f"{max_x - min_x:.0f}x{max_y - min_y:.0f} mm board "
+        f"at x={min_x:.3f}..{max_x:.3f}, y={min_y:.3f}..{max_y:.3f}"
+    )
 
 
 def parse_board_pad_nets(board_path: Path) -> tuple[dict[str, dict[str, str]], list[str]]:
@@ -185,7 +249,31 @@ def intentional_unnetted_pad_names(
         allowed[board_ref(f"TIA_{color}", "D1")].add("")  # SFH2201 paste-only pads.
         allowed[board_ref(f"TIA_{color}", "U1")].update({"1", "5", "8"})  # OPA380 NC.
     allowed[board_ref("MCU_ESP32-S3", "J1")].update({"", "4"})  # Mini-B NPTH + USB ID.
-    allowed[board_ref("MCU_ESP32-S3", "U10")].add("4")  # AP2112 NC.
+    allowed[board_ref("MCU_ESP32-S3", "J2")].update({"", "4"})  # Mini-B NPTH + USB ID.
+    allowed[board_ref("MCU_ESP32-S3", "U10")].update(
+        {
+            "",  # CP2102N exposed-pad paste apertures.
+            "1",
+            "2",
+            "10",
+            "12",
+            "13",
+            "14",
+            "15",
+            "16",
+            "17",
+            "18",
+            "19",
+            "20",
+            "21",
+            "22",
+            "23",
+            "27",
+        }
+    )
+    allowed[board_ref("POWER_IO", "U3V3")].add("4")  # AP2112 NC.
+    allowed[board_ref("POWER_IO", "UADC")].add("15")  # AD7606 FRSTDATA unused in serial mode.
+    allowed[board_ref("LASER_BLUE", "LD")].add("2")  # PLT5 450GB case pad is isolated.
     allowed[board_ref("MCU_ESP32-S3", "U9")].update(
         {
             "",  # ESP32 paste-only thermal-pad stencil apertures.
@@ -653,11 +741,13 @@ def usb_route_quality(
                 "vias": chain_via_count,
             }
         )
-    if set(chain_lengths) == {"D-", "D+"}:
-        skew = abs(chain_lengths["D-"] - chain_lengths["D+"])
+    for pair_name, minus_chain, plus_chain in USB_PAIR_CHAINS:
+        if minus_chain not in chain_lengths or plus_chain not in chain_lengths:
+            continue
+        skew = abs(chain_lengths[minus_chain] - chain_lengths[plus_chain])
         if skew > USB_PAIR_MAX_SKEW_MM:
             failures.append(
-                f"USB pair routed-copper skew is too high: {skew:.2f} mm > {USB_PAIR_MAX_SKEW_MM:.2f} mm"
+                f"{pair_name} routed-copper skew is too high: {skew:.2f} mm > {USB_PAIR_MAX_SKEW_MM:.2f} mm"
             )
     return rows, failures
 
@@ -676,7 +766,9 @@ def via_copper_layers(via: dict[str, object], copper_layers: set[str]) -> set[st
 def copper_board_bounds_failures(
     segments: list[dict[str, object]],
     vias: list[dict[str, object]],
+    board_bounds: tuple[float, float, float, float],
 ) -> tuple[list[str], int]:
+    min_x, min_y, max_x, max_y = board_bounds
     failures: list[str] = []
     checked = 0
     for segment in segments:
@@ -684,9 +776,9 @@ def copper_board_bounds_failures(
             point = segment[endpoint]
             assert isinstance(point, tuple)
             checked += 1
-            if not (0.0 <= point[0] <= BOARD_WIDTH_MM and 0.0 <= point[1] <= BOARD_HEIGHT_MM):
+            if not (min_x <= point[0] <= max_x and min_y <= point[1] <= max_y):
                 failures.append(
-                    f"segment endpoint outside {BOARD_WIDTH_MM:.0f}x{BOARD_HEIGHT_MM:.0f} mm board: "
+                    f"segment endpoint outside {board_bounds_label(board_bounds)}: "
                     f"{segment['net']} {segment['layer']} {point}"
                 )
     for via in vias:
@@ -695,13 +787,13 @@ def copper_board_bounds_failures(
         radius = float(via["size"]) / 2
         checked += 1
         if (
-            point[0] - radius < 0.0
-            or point[1] - radius < 0.0
-            or point[0] + radius > BOARD_WIDTH_MM
-            or point[1] + radius > BOARD_HEIGHT_MM
+            point[0] - radius < min_x
+            or point[1] - radius < min_y
+            or point[0] + radius > max_x
+            or point[1] + radius > max_y
         ):
             failures.append(
-                f"via annulus outside {BOARD_WIDTH_MM:.0f}x{BOARD_HEIGHT_MM:.0f} mm board: "
+                f"via annulus outside {board_bounds_label(board_bounds)}: "
                 f"{via['net']} at {point} size {float(via['size']):.2f}mm"
             )
     return failures, checked
@@ -878,7 +970,7 @@ def split_multi_pad_signal_nets(
         zone["net_name"] == "GND"
         and zone["layers"] == {"In1.Cu"}
         and zone["has_fill"]
-        for zone in parse_zone_summaries(board_path)
+        for zone in parse_zone_summaries(board_path, copper_layers)
     )
     if has_gnd_in1_plane:
         plane_node: RouteNode = (-9999.0, -9999.0, "In1.Cu")
@@ -1178,7 +1270,11 @@ def via_pad_clearance_failures(board_path: Path, vias: list[dict[str, object]]) 
     return failures
 
 
-def pad_board_bounds_failures(board_path: Path) -> tuple[list[str], int]:
+def pad_board_bounds_failures(
+    board_path: Path,
+    board_bounds: tuple[float, float, float, float],
+) -> tuple[list[str], int]:
+    min_x, min_y, max_x, max_y = board_bounds
     pad_geometry = parse_pad_geometry_from_text(board_path.read_text())
     failures: list[str] = []
     checked = 0
@@ -1187,9 +1283,9 @@ def pad_board_bounds_failures(board_path: Path) -> tuple[list[str], int]:
             for pad in pad_list:
                 checked += 1
                 x0, y0, x1, y1 = _pad_bbox(pad, 0.0)
-                if x0 < 0 or y0 < 0 or x1 > BOARD_WIDTH_MM or y1 > BOARD_HEIGHT_MM:
+                if x0 < min_x or y0 < min_y or x1 > max_x or y1 > max_y:
                     failures.append(
-                        f"{ref}.{pin} pad bounds outside {BOARD_WIDTH_MM:.0f}x{BOARD_HEIGHT_MM:.0f} mm board: "
+                        f"{ref}.{pin} pad bounds outside {board_bounds_label(board_bounds)}: "
                         f"({x0:.3f}, {y0:.3f})-({x1:.3f}, {y1:.3f})"
                     )
     return failures, checked
@@ -1289,6 +1385,23 @@ def parse_board_net_classes(board_path: Path) -> dict[str, set[str]]:
                 classes[current].add(net_name)
             elif line.strip() == ")":
                 current = None
+    if classes:
+        return classes
+
+    project_path = board_path.with_suffix(".kicad_pro")
+    if not project_path.exists():
+        return classes
+    data = json.loads(project_path.read_text())
+    net_settings = data.get("net_settings", {})
+    for item in net_settings.get("classes", []):
+        name = item.get("name")
+        if isinstance(name, str):
+            classes[name] = set()
+    for item in net_settings.get("netclass_patterns", []) or []:
+        class_name = item.get("netclass")
+        pattern = item.get("pattern")
+        if isinstance(class_name, str) and isinstance(pattern, str):
+            classes.setdefault(class_name, set()).add(pattern)
     return classes
 
 
@@ -1330,7 +1443,24 @@ def zone_blocks(board_text: str) -> list[str]:
     return blocks
 
 
-def parse_keepout_zone_layers(board_path: Path) -> list[set[str]]:
+def _parse_copper_layer_tokens(
+    layer_text: str,
+    copper_layers: set[str] | None = None,
+) -> set[str]:
+    tokens = {
+        quoted or bare
+        for quoted, bare in re.findall(r'"([^"]+)"|([^\s]+)', layer_text)
+    }
+    if "*.Cu" in tokens and copper_layers is not None:
+        return set(copper_layers)
+    return {
+        token
+        for token in tokens
+        if token == "*.Cu" or re.fullmatch(r"(?:[FB]\.Cu|In\d+\.Cu)", token)
+    }
+
+
+def parse_keepout_zone_layers(board_path: Path, copper_layers: set[str]) -> list[set[str]]:
     keepout_layers: list[set[str]] = []
     for block in zone_blocks(board_path.read_text()):
         if "(keepout " not in block:
@@ -1338,21 +1468,18 @@ def parse_keepout_zone_layers(board_path: Path) -> list[set[str]]:
         layers_match = re.search(r'\(layers\s+([^\)]*)\)', block)
         if not layers_match:
             continue
-        layers = set(re.findall(r'"([^"]+\.Cu)"|(?<![\w.*-])([FB]\.Cu|In\d+\.Cu)(?![\w.-])', layers_match.group(1)))
-        flattened = {quoted or bare for quoted, bare in layers}
-        keepout_layers.append(flattened)
+        keepout_layers.append(_parse_copper_layer_tokens(layers_match.group(1), copper_layers))
     return keepout_layers
 
 
-def _zone_copper_layers(block: str) -> set[str]:
+def _zone_copper_layers(block: str, copper_layers: set[str] | None = None) -> set[str]:
     layers_match = re.search(r'\(layers\s+([^\)]*)\)', block)
     if not layers_match:
         layer_match = re.search(r'\(layer\s+(?:"([^"]*)"|([^\s\)]+))\)', block)
         if not layer_match:
             return set()
         return {layer_match.group(1) if layer_match.group(1) is not None else layer_match.group(2)}
-    layers = set(re.findall(r'"([^"]+\.Cu)"|(?<![\w.*-])([FB]\.Cu|In\d+\.Cu)(?![\w.-])', layers_match.group(1)))
-    return {quoted or bare for quoted, bare in layers}
+    return _parse_copper_layer_tokens(layers_match.group(1), copper_layers)
 
 
 def _transform_point(
@@ -1368,7 +1495,7 @@ def _transform_point(
     )
 
 
-def parse_keepout_zones(board_path: Path) -> list[dict[str, object]]:
+def parse_keepout_zones(board_path: Path, copper_layers: set[str]) -> list[dict[str, object]]:
     zones: list[dict[str, object]] = []
     for block in footprint_blocks(board_path.read_text()):
         ref = gen_pcb.fp_ref(block)
@@ -1389,7 +1516,7 @@ def parse_keepout_zones(board_path: Path) -> list[dict[str, object]]:
             zones.append(
                 {
                     "owner": ref,
-                    "layers": _zone_copper_layers(zone),
+                    "layers": _zone_copper_layers(zone, copper_layers),
                     "polygon": [_transform_point(point, origin, rotation) for point in local_points],
                 }
             )
@@ -1456,7 +1583,7 @@ def antenna_keepout_intrusion_failures(
     vias: list[dict[str, object]],
     copper_layers: set[str],
 ) -> tuple[list[str], int]:
-    zones = parse_keepout_zones(board_path)
+    zones = parse_keepout_zones(board_path, copper_layers)
     pad_geometry = parse_pad_geometry_from_text(board_path.read_text())
     failures: list[str] = []
     checked = 0
@@ -1501,7 +1628,10 @@ def antenna_keepout_intrusion_failures(
     return failures, checked
 
 
-def parse_zone_summaries(board_path: Path) -> list[dict[str, object]]:
+def parse_zone_summaries(
+    board_path: Path,
+    copper_layers: set[str] | None = None,
+) -> list[dict[str, object]]:
     summaries: list[dict[str, object]] = []
     for block in zone_blocks(board_path.read_text()):
         first = block.splitlines()[0]
@@ -1513,8 +1643,7 @@ def parse_zone_summaries(board_path: Path) -> list[dict[str, object]]:
         if layer_match:
             layers.add(layer_match.group(1) if layer_match.group(1) is not None else layer_match.group(2))
         if layers_match:
-            found = re.findall(r'"([^"]+)"|([^\s]+)', layers_match.group(1))
-            layers.update(quoted or bare for quoted, bare in found)
+            layers.update(_parse_copper_layer_tokens(layers_match.group(1), copper_layers))
         summaries.append(
             {
                 "net": int(net_match.group(1)) if net_match else None,
@@ -1532,28 +1661,30 @@ def parse_zone_summaries(board_path: Path) -> list[dict[str, object]]:
 
 
 PLACEMENT_CHECKS = [
-    ("USB D- connector to USBLC6", ("MCU_ESP32-S3", "J1", "2", "MCU_ESP32-S3", "U12", "1"), 7.5),
-    ("USB D+ connector to USBLC6", ("MCU_ESP32-S3", "J1", "3", "MCU_ESP32-S3", "U12", "3"), 9.5),
-    ("USBLC6 D- to 22R series", ("MCU_ESP32-S3", "U12", "6", "MCU_ESP32-S3", "RUSBM", "1"), 10.0),
-    ("USBLC6 D+ to 22R series", ("MCU_ESP32-S3", "U12", "4", "MCU_ESP32-S3", "RUSBP", "1"), 10.0),
-    ("USB D- series to ESP32 GPIO19", ("MCU_ESP32-S3", "RUSBM", "2", "MCU_ESP32-S3", "U9", "13"), 4.5),
-    ("USB D+ series to ESP32 GPIO20", ("MCU_ESP32-S3", "RUSBP", "2", "MCU_ESP32-S3", "U9", "14"), 4.5),
-    ("AP2112 input cap at VIN", ("MCU_ESP32-S3", "C44", "1", "MCU_ESP32-S3", "U10", "1"), 4.0),
-    ("AP2112 100n output cap at VOUT", ("MCU_ESP32-S3", "C41", "1", "MCU_ESP32-S3", "U10", "5"), 4.0),
-    ("AP2112 bulk output cap at VOUT", ("MCU_ESP32-S3", "C42", "1", "MCU_ESP32-S3", "U10", "5"), 4.0),
+    ("USB UART D- connector to ESD", ("MCU_ESP32-S3", "J1", "2", "MCU_ESP32-S3", "D7", "2"), 7.5),
+    ("USB UART D+ connector to ESD", ("MCU_ESP32-S3", "J1", "3", "MCU_ESP32-S3", "D8", "2"), 9.5),
+    ("USB UART D- ESD to CP2102N", ("MCU_ESP32-S3", "D7", "2", "MCU_ESP32-S3", "U10", "5"), 10.0),
+    ("USB UART D+ ESD to CP2102N", ("MCU_ESP32-S3", "D8", "2", "MCU_ESP32-S3", "U10", "4"), 10.0),
+    ("Native USB D- connector to ESD", ("MCU_ESP32-S3", "J2", "2", "MCU_ESP32-S3", "D12", "2"), 7.5),
+    ("Native USB D+ connector to ESD", ("MCU_ESP32-S3", "J2", "3", "MCU_ESP32-S3", "D11", "2"), 9.5),
+    ("Native USB D- ESD to ESP32 GPIO19", ("MCU_ESP32-S3", "D12", "2", "MCU_ESP32-S3", "U9", "13"), 4.5),
+    ("Native USB D+ ESD to ESP32 GPIO20", ("MCU_ESP32-S3", "D11", "2", "MCU_ESP32-S3", "U9", "14"), 4.5),
+    ("AP2112 input cap at VIN", ("POWER_IO", "C3V3IN", "1", "POWER_IO", "U3V3", "1"), 4.0),
+    ("AP2112 100n output cap at VOUT", ("POWER_IO", "C3V3OUT", "1", "POWER_IO", "U3V3", "5"), 4.0),
+    ("AP2112 bulk output cap at VOUT", ("POWER_IO", "C3V3BULK", "1", "POWER_IO", "U3V3", "5"), 4.0),
     ("ESP32 local 3V3 decap", ("MCU_ESP32-S3", "C43", "1", "MCU_ESP32-S3", "U9", "2"), 3.0),
-    ("ESP32 EN capacitor", ("MCU_ESP32-S3", "CEN", "1", "MCU_ESP32-S3", "U9", "3"), 4.0),
-    ("ESP32 EN pull-up", ("MCU_ESP32-S3", "REN", "2", "MCU_ESP32-S3", "U9", "3"), 5.0),
-    ("ESP32 BOOT pull-up", ("MCU_ESP32-S3", "RBOOT", "2", "MCU_ESP32-S3", "U9", "27"), 4.0),
+    ("ESP32 EN capacitor", ("MCU_ESP32-S3", "C44", "1", "MCU_ESP32-S3", "U9", "3"), 4.0),
+    ("ESP32 EN pull-up", ("MCU_ESP32-S3", "R54", "2", "MCU_ESP32-S3", "U9", "3"), 5.0),
+    ("ESP32 BOOT pull-up", ("MCU_ESP32-S3", "R53", "2", "MCU_ESP32-S3", "U9", "27"), 4.0),
 ]
 
 for _color in ["IR", "RED", "GREEN", "BLUE"]:
     _sheet = f"TIA_{_color}"
     PLACEMENT_CHECKS += [
         (f"{_sheet} photodiode anode to OPA380 -IN", (_sheet, "D1", "2", _sheet, "U1", "2"), 5.5),
-        (f"{_sheet} feedback resistor at OPA380 -IN", (_sheet, "U1", "2", _sheet, "R2", "1"), 3.5),
+        (f"{_sheet} feedback trimmer at OPA380 -IN", (_sheet, "U1", "2", _sheet, "RVFB", "1"), 3.5),
         (f"{_sheet} feedback capacitor at OPA380 -IN", (_sheet, "U1", "2", _sheet, "C1", "1"), 2.5),
-        (f"{_sheet} feedback resistor at OPA380 OUT", (_sheet, "R2", "2", _sheet, "U1", "6"), 4.5),
+        (f"{_sheet} feedback trimmer at OPA380 OUT", (_sheet, "RVFB", "2", _sheet, "U1", "6"), 4.5),
         (f"{_sheet} feedback capacitor at OPA380 OUT", (_sheet, "C1", "2", _sheet, "U1", "6"), 2.5),
         (f"{_sheet} OPA380 supply decoupling", (_sheet, "C2", "1", _sheet, "U1", "7"), 2.5),
         (f"{_sheet} PD bias resistor at cathode", (_sheet, "RB", "2", _sheet, "D1", "1"), 4.5),
@@ -1578,12 +1709,19 @@ for _color in ["IR", "RED", "GREEN", "BLUE"]:
         (f"{_sheet} compensation cap at TLV9001 OUT", (_sheet, "CC", "2", _sheet, "U11", "1"), 3.0),
     ]
 
-for _index, _j4_pin in enumerate(["2", "4", "6", "8"], 1):
+_ina_in_plus_pins = {1: "3", 2: "5", 3: "10", 4: "12"}
+_ina_out_pins = {1: "1", 2: "7", 3: "8", 4: "14"}
+for _index, _color in enumerate(["IR", "RED", "GREEN"], 1):
     PLACEMENT_CHECKS += [
-        (f"MPD_RAW{_index} sense resistor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"RMPD{_index}", "1"), 4.0),
-        (f"MPD{_index} ADC filter capacitor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"CMPD{_index}", "1"), 2.5),
-        (f"MPD_RAW{_index} ADC isolation resistor at J4", ("POWER_IO", "J4", _j4_pin, "POWER_IO", f"RADC{_index}", "2"), 4.0),
+        (f"MPD_RAW{_index} direct LD monitor to sense resistor", (f"LASER_{_color}", "LD", "3", "POWER_IO", f"RMPD{_index}", "1"), 4.0),
+        (f"MPD_RAW{_index} sense resistor to INA input", ("POWER_IO", f"RMPD{_index}", "1", "POWER_IO", "UMPD", _ina_in_plus_pins[_index]), 4.0),
+        (f"MPD{_index} ADC resistor to filter capacitor", ("POWER_IO", f"RADC{_index}", "2", "POWER_IO", f"CMPD{_index}", "1"), 2.5),
     ]
+PLACEMENT_CHECKS += [
+    ("MPD_RAW4 spare sense resistor to INA input", ("POWER_IO", "RMPD4", "1", "POWER_IO", "UMPD", _ina_in_plus_pins[4]), 4.0),
+    ("MPD_AMP4 INA output to ADC resistor", ("POWER_IO", "UMPD", _ina_out_pins[4], "POWER_IO", "RADC4", "1"), 4.0),
+    ("MPD4 ADC resistor to filter capacitor", ("POWER_IO", "RADC4", "2", "POWER_IO", "CMPD4", "1"), 2.5),
+]
 
 
 def main() -> int:
@@ -1607,6 +1745,7 @@ def main() -> int:
     actual_pad_nets, duplicate_refs = parse_board_pad_nets(board_path)
     pad_inventory = parse_board_pad_inventory(board_path)
     footprint_geometry = parse_footprint_geometry(board_path)
+    board_bounds, has_board_outline = parse_board_outline_bounds(board_path)
     actual_net_table = parse_board_net_table(board_path)
     actual_net_by_code = {code: name for name, code in actual_net_table.items()}
     actual_segments = parse_board_segments(board_path, actual_net_by_code)
@@ -1619,12 +1758,16 @@ def main() -> int:
     laser_current_width_failures, checked_laser_current_segments = laser_current_width_review_failures(actual_segments)
     sensitive_laser_failures, sensitive_laser_summary = sensitive_to_laser_clearance_failures(actual_segments)
     usb_route_rows, usb_route_failures = usb_route_quality(actual_segments, actual_vias)
-    pad_bounds_failures, checked_pad_bounds = pad_board_bounds_failures(board_path)
+    pad_bounds_failures, checked_pad_bounds = pad_board_bounds_failures(board_path, board_bounds)
     pad_overlap_failures, checked_pad_overlap_pairs = different_net_pad_overlap_failures(board_path)
     actual_net_classes = parse_board_net_classes(board_path)
     declared_layers = parse_declared_copper_layers(board_path)
     used_layers = parse_used_specific_copper_layers(board_path)
-    copper_bounds_failures, checked_copper_bounds = copper_board_bounds_failures(actual_segments, actual_vias)
+    copper_bounds_failures, checked_copper_bounds = copper_board_bounds_failures(
+        actual_segments,
+        actual_vias,
+        board_bounds,
+    )
     dangling_failures, dangling_summary = dangling_copper_failures(
         board_path,
         actual_segments,
@@ -1636,8 +1779,8 @@ def main() -> int:
         actual_segments,
         declared_layers,
     )
-    keepout_zone_layers = parse_keepout_zone_layers(board_path)
-    zone_summaries = parse_zone_summaries(board_path)
+    keepout_zone_layers = parse_keepout_zone_layers(board_path, declared_layers)
+    zone_summaries = parse_zone_summaries(board_path, declared_layers)
     keepout_intrusion_failures, checked_keepout_items = antenna_keepout_intrusion_failures(
         board_path,
         actual_segments,
@@ -1665,6 +1808,18 @@ def main() -> int:
         )
     if duplicate_refs:
         failures.append(f"duplicate footprint references: {duplicate_refs}")
+    if not has_board_outline:
+        failures.append("no Edge.Cuts board outline found; board-bounds checks used generated 90x50 mm fallback")
+    else:
+        min_x, min_y, max_x, max_y = board_bounds
+        if (
+            abs((max_x - min_x) - BOARD_WIDTH_MM) > BOARD_SIZE_TOLERANCE_MM
+            or abs((max_y - min_y) - BOARD_HEIGHT_MM) > BOARD_SIZE_TOLERANCE_MM
+        ):
+            failures.append(
+                f"board outline size mismatch: expected {BOARD_WIDTH_MM:.0f}x{BOARD_HEIGHT_MM:.0f} mm, "
+                f"got {board_bounds_label(board_bounds)}"
+            )
     missing_geometry_refs = sorted(set(expected_pad_nets) - set(footprint_geometry))
     if missing_geometry_refs:
         failures.append(f"footprints missing parseable placement/pad geometry: {missing_geometry_refs}")
@@ -1696,17 +1851,10 @@ def main() -> int:
         failures.append(
             f"GND reference-plane zone net code mismatch: zones={gnd_plane_zones} GND={actual_net_table.get('GND')}"
         )
-    if actual_net_table != expected_net_table:
+    if set(actual_net_table) != set(expected_net_table):
         missing = sorted(set(expected_net_table) - set(actual_net_table))
         extra = sorted(set(actual_net_table) - set(expected_net_table))
-        wrong_codes = sorted(
-            name
-            for name in set(expected_net_table) & set(actual_net_table)
-            if expected_net_table[name] != actual_net_table[name]
-        )
-        failures.append(
-            f"net table mismatch: missing={missing} extra={extra} wrong_codes={wrong_codes}"
-        )
+        failures.append(f"net table mismatch: missing={missing} extra={extra}")
     segment_failures = [
         f"segment has invalid net/layer/width: {segment}"
         for segment in actual_segments

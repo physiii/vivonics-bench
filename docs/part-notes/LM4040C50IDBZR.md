@@ -28,7 +28,7 @@ Budget captured:
 
 Release / layout implication:
 - Place U13, R41, C36, the 750R sense resistors, and U12 so `MPD_BIAS` is a
-  quiet local bias node near J4 and the INA4180 inputs.
+  quiet local bias node near the direct laser monitor inputs and INA4180 inputs.
 - LM4040 stability is acceptable with capacitive loads, but this shunt reference
   is still only the bench monitor-bias front end. Production APC still needs the
   selected driver/topology matched to each laser package polarity.

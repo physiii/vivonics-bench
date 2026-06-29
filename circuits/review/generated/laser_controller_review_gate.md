@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-06-28T20:32:57+00:00
+Generated: 2026-06-29T11:35:17+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -19,8 +19,8 @@ Overall release status: BLOCKED
 | PASS | Part-note completeness assertions | 0 | `python3 circuits/check_part_notes_completeness.py` |
 | PASS | Source-document evidence | 0 | `python3 circuits/check_source_documents.py` |
 | PASS | Passive derating assertions | 0 | `python3 circuits/check_passive_derating.py` |
-| PASS | Generate PCB | 0 | `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 python3 circuits/gen_pcb.py` |
-| PASS | PCB staging assertions | 0 | `python3 circuits/check_pcb_staging.py circuits/laser_controller.kicad_pcb /tmp/lc.net` |
+| PASS | Generate staging PCB to temp file | 0 | `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb` |
+| PASS | PCB staging assertions | 0 | `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /tmp/lc.net` |
 | BLOCKED | Generated-copper release gate | 1 | `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /tmp/lc.net` |
 | PASS | AP2112 bench thermal policy | 0 | `python3 circuits/check_power_thermal_budget.py --policy bench-uart-usb` |
 | PASS | AP2112 sustained Wi-Fi expected fail | 1 | `python3 circuits/check_power_thermal_budget.py --policy wifi-tx-100-duty` |
@@ -46,16 +46,16 @@ Command: `python3 -m py_compile circuits/run_laser_controller_review.py circuits
 Command: `python3 circuits/gen_laser_controller.py`
 
 ```text
-wrote tia_ir.kicad_sch (34648 bytes, 547 lines)
-  wrote tia_red.kicad_sch (34649 bytes, 547 lines)
-  wrote tia_green.kicad_sch (34663 bytes, 547 lines)
-  wrote tia_blue.kicad_sch (34666 bytes, 547 lines)
-  wrote laser_ir.kicad_sch (35184 bytes, 538 lines)
-  wrote laser_red.kicad_sch (35185 bytes, 538 lines)
-  wrote laser_green.kicad_sch (35180 bytes, 538 lines)
-  wrote laser_blue.kicad_sch (34871 bytes, 536 lines)
-  wrote power_io.kicad_sch (96259 bytes, 1476 lines)
-  wrote laser_controller.kicad_sch (27388 bytes, 223 lines)
+wrote tia_ir.kicad_sch (36315 bytes, 569 lines)
+  wrote tia_red.kicad_sch (36316 bytes, 569 lines)
+  wrote tia_green.kicad_sch (36330 bytes, 569 lines)
+  wrote tia_blue.kicad_sch (36331 bytes, 569 lines)
+  wrote laser_ir.kicad_sch (35160 bytes, 538 lines)
+  wrote laser_red.kicad_sch (35161 bytes, 538 lines)
+  wrote laser_green.kicad_sch (35156 bytes, 538 lines)
+  wrote laser_blue.kicad_sch (34847 bytes, 536 lines)
+  wrote power_io.kicad_sch (165564 bytes, 2611 lines)
+  wrote laser_controller.kicad_sch (30750 bytes, 247 lines)
   wrote laser_controller_bom_jlcpcb.csv
 ```
 
@@ -68,7 +68,7 @@ Command: `kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /t
 Command: `python3 circuits/check_laser_controller_netlist.py /tmp/lc.net`
 
 ```text
-PASS 457 netlist assertions across 139 nets
+PASS 542 netlist assertions across 144 nets
 ```
 
 ## PASS: Schematic hierarchy/label assertions
@@ -76,7 +76,7 @@ PASS 457 netlist assertions across 139 nets
 Command: `python3 circuits/check_schematic_hierarchy_labels.py circuits/laser_controller.kicad_sch`
 
 ```text
-PASS schematic hierarchy/label guardrails: 10 root sheets, 52 whitelisted root global labels, 54 child hierarchical labels, typed sheet pins, zero child-sheet global labels, and checked schematic annotation designators
+PASS schematic hierarchy/label guardrails: 10 root sheets, 60 whitelisted root global labels, 62 child hierarchical labels, typed sheet pins, zero child-sheet global labels, and checked schematic annotation designators
 ```
 
 ## PASS: Schematic presentation assertions
@@ -92,7 +92,7 @@ PASS schematic presentation guardrails: no generated wire segments enter symbol 
 Command: `python3 circuits/check_laser_controller_sources.py /tmp/lc.net`
 
 ```text
-PASS source-register coverage for 68 MPN/LCSC tokens across 151 components, intent coverage for 139 exported nets, 452 component-pin intent roles, and 4 documentation designator guard files
+PASS source-register coverage for 70 MPN/LCSC tokens across 160 components, intent coverage for 144 exported nets, 526 component-pin intent roles, and 3 documentation designator guard files
 ```
 
 ## PASS: Part-note completeness assertions
@@ -100,7 +100,7 @@ PASS source-register coverage for 68 MPN/LCSC tokens across 151 components, inte
 Command: `python3 circuits/check_part_notes_completeness.py`
 
 ```text
-PASS part-note completeness: 15 notes, 133 required phrases, 2 stale-phrase guards
+PASS part-note completeness: 15 notes, 149 required phrases, 3 stale-phrase guards
 ```
 
 ## PASS: Source-document evidence
@@ -108,8 +108,7 @@ PASS part-note completeness: 15 notes, 133 required phrases, 2 stale-phrase guar
 Command: `python3 circuits/check_source_documents.py`
 
 ```text
-WARN ST USBLC6-2 official datasheet: not reachable; Primary source, but ST/Akamai times out from this shell environment; manual release-time verification remains required. [GET failed: The read operation timed out; HEAD failed: The read operation timed out]
-WARN Alpha & Omega AO3400A datasheet: reachable; Primary source, but AOS currently returns a bot/noindex HTML page to this shell environment; manual release-time verification remains required. [HEAD HTTP 200, type=application/pdf, length=317848]
+WARN Alpha & Omega AO3400A datasheet: reachable; Primary source reachable from this shell; manual release-time latest-revision verification remains required. [HEAD HTTP 200, type=application/pdf, length=317848]
 WARN JLCPCB via-design article: reachable; Advisory article only; JLCPCB quote capability page wins. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN Vishay SS12-SS16 family datasheet: reachable; Family reference only; exact LCSC C2480 manufacturer must be confirmed at order. [HEAD HTTP 200, type=application/pdf, length=1174123]
 WARN LCSC C2480 SS14 order page: reachable; Distributor/order source, not a replacement for final order-time manufacturer confirmation. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
@@ -119,7 +118,7 @@ WARN LCSC C2907002 FRC0603F1001TS 1k resistor page: reachable; Distributor/order
 WARN JLCPCB C22984 30k resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C844918 CRCW060310K0FKEA 10k resistor page: reachable; Distributor/order source for active 10k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C5123624 10 ohm 2512 sense resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-PASS source-document evidence: 18 required online sources, 13 required local artifacts, and 11 secondary/open-risk sources reviewed
+PASS source-document evidence: 18 required online sources, 13 required local artifacts, and 10 secondary/open-risk sources reviewed
 ```
 
 ## PASS: Passive derating assertions
@@ -127,44 +126,44 @@ PASS source-document evidence: 18 required online sources, 13 required local art
 Command: `python3 circuits/check_passive_derating.py`
 
 ```text
-PASS passive derating: checked 45 capacitors and 60 resistors/trimmers
+PASS passive derating: checked 55 capacitors and 60 resistors/trimmers
   max capacitor voltage utilization: 31.6% at C36 (100nF MPD bias)
   max resistor power utilization: 40.0% at R57 (1K)
   max resistor voltage utilization: 10.0% at R60 (10K)
 ```
 
-## PASS: Generate PCB
+## PASS: Generate staging PCB to temp file
 
-Command: `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 python3 circuits/gen_pcb.py`
+Command: `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb`
 
 ```text
-wrote laser_controller.kicad_pcb  (162 blocks, 151 ref instances)
-  refs: 151 unique
+wrote /tmp/lc_generated_staging.kicad_pcb  (171 blocks, 160 ref instances)
+  refs: 160 unique
 ```
 
 ## PASS: PCB staging assertions
 
-Command: `python3 circuits/check_pcb_staging.py circuits/laser_controller.kicad_pcb /tmp/lc.net`
+Command: `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /tmp/lc.net`
 
 ```text
-PASS PCB staging: 151 physical footprints loaded, 0 empty-footprint symbols skipped, 0 board-level segments/vias/zones, 1 footprint-internal zone/keepout block(s), 151 non-overlapping staged bboxes outside the 90 x 50 mm outline; sections TIA_IR:11, TIA_RED:11, TIA_GREEN:11, TIA_BLUE:11, LASER_IR:11, LASER_RED:11, LASER_GREEN:11, LASER_BLUE:11, MCU_ESP32-S3:35, POWER_IO:28
+PASS PCB staging: 160 physical footprints loaded, 0 empty-footprint symbols skipped, 0 board-level segments/vias/zones, 1 footprint-internal zone/keepout block(s), 160 non-overlapping staged bboxes outside the 90 x 50 mm outline; sections TIA_IR:11, TIA_RED:11, TIA_GREEN:11, TIA_BLUE:11, LASER_IR:11, LASER_RED:11, LASER_GREEN:11, LASER_BLUE:11, MCU_ESP32-S3:35, POWER_IO:37
 ```
 
 ## BLOCKED: Generated-copper release gate
 
 Command: `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /tmp/lc.net`
 
-The current PCB artifact is intentionally placement-only: components are staged outside the outline with pad nets, but routing, zones, KiCad refill, DRC, and return-path review remain future fabrication work.
+The current PCB artifact has hand placement recovered, but routing, zones, KiCad refill, DRC, and return-path review remain future fabrication work.
 
 ```text
 FAIL fabrication release gate
   signal/control multi-pad nets are not explicitly routed: /LASER_BLUE/FB: U8.4 | Q4.2 | R33.1 | R34.1 | C28.1; /LASER_BLUE/LOUT: U8.1 | R32.1 | C28.2; /LASER_GREEN/FB: U7.4 | Q3.2 | R28.1 | R29.1 | C25.1; /LASER_GREEN/LOUT: U7.1 | R27.1 | C25.2; /LASER_IR/FB: U5.4 | Q1.2 | R18.1 | R19.1 | C19.1; /LASER_IR/LOUT: U5.1 | R17.1 | C19.2; /LASER_RED/FB: U6.4 | Q2.2 | R23.1 | R24.1 | C22.1; /LASER_RED/LOUT: U6.1 | R22.1 | C22.2; /MCU_ESP32-S3/D+: U10.4 | J1.3 | D8.2; /MCU_ESP32-S3/D-: U10.5 | J1.2 | D7.2; /MCU_ESP32-S3/DTR: Q6.3 | R50.1 | U10.28; /MCU_ESP32-S3/EN: U9.3 | C44.1 | R54.2 | SW1.1 | SW1.1 | Q5.3; /MCU_ESP32-S3/FACT: U9.39 | SW3.1 | SW3.1 | R52.2; /MCU_ESP32-S3/IO13: U9.21 | R60.1; /MCU_ESP32-S3/IO14: U9.22 | R59.2; /MCU_ESP32-S3/IO19: U9.13 | J2.2 | D12.2; /MCU_ESP32-S3/IO20: U9.14 | J2.3 | D11.2; /MCU_ESP32-S3/IO43: U9.37 | U10.25; /MCU_ESP32-S3/IO44: U9.36 | U10.26; /MCU_ESP32-S3/PROG: U9.27 | SW2.1 | SW2.1 | Q6.2 | R53.2 | C46.1
   rail/zone multi-pad nets still require pour/trunk routing and KiCad refill/DRC: +3V3, +5V, /POWER_IO/EXT5V, GND, LASER_V+, VBUS_5V
-    +3V3 split into 16 copper groups: group 1 (1 pads): U9.2 | group 2 (1 pads): C43.1 | group 3 (1 pads): R54.1 | group 4 (1 pads): R59.1 | group 5 (1 pads): R60.2 | group 6 (1 pads): R52.1 | group 7 (1 pads): R53.1 | group 8 (1 pads): U10.6 | group 9 (1 pads): U10.7 | group 10 (1 pads): R57.1 | group 11 (1 pads): C47.1 | group 12 (1 pads): U11.5 | group 13 (1 pads): C49.1 | group 14 (1 pads): C50.1 | group 15 (1 pads): U12.4 | group 16 (1 pads): C35.1
-    +5V split into 30 copper groups: group 1 (1 pads): R2.1 | group 2 (1 pads): U1.7 | group 3 (1 pads): C2.1 | group 4 (1 pads): R4.1 | group 5 (1 pads): R6.1 | group 6 (1 pads): U2.7 | group 7 (1 pads): C6.1 | group 8 (1 pads): R8.1 | group 9 (1 pads): R10.1 | group 10 (1 pads): U3.7 | group 11 (1 pads): C10.1 | group 12 (1 pads): R12.1 | group 13 (1 pads): R14.1 | group 14 (1 pads): U4.7 | group 15 (1 pads): C14.1 | group 16 (1 pads): R16.1 | group 17 (1 pads): U5.5 | group 18 (1 pads): C17.1 | group 19 (1 pads): U6.5 | group 20 (1 pads): C20.1 | group 21 (1 pads): U7.5 | group 22 (1 pads): C23.1 | group 23 (1 pads): U8.5 | group 24 (1 pads): C26.1 | group 25 (1 pads): D5.2 | group 26 (1 pads): D6.2 | group 27 (1 pads): C34.1 | group 28 (1 pads): U11.1 | group 29 (1 pads): U11.3 | group 30 (1 pads): C48.1
+    +3V3 split into 21 copper groups: group 1 (1 pads): U9.2 | group 2 (1 pads): C43.1 | group 3 (1 pads): R54.1 | group 4 (1 pads): R59.1 | group 5 (1 pads): R60.2 | group 6 (1 pads): R52.1 | group 7 (1 pads): R53.1 | group 8 (1 pads): U10.6 | group 9 (1 pads): U10.7 | group 10 (1 pads): R57.1 | group 11 (1 pads): C47.1 | group 12 (1 pads): U11.5 | group 13 (1 pads): C49.1 | group 14 (1 pads): C50.1 | group 15 (1 pads): U14.6 | group 16 (1 pads): U14.7 | group 17 (1 pads): U14.23 | group 18 (1 pads): U14.34 | group 19 (1 pads): C55.1 | group 20 (1 pads): U12.4 | group 21 (1 pads): C35.1
+    +5V split into 39 copper groups: group 1 (1 pads): R2.1 | group 2 (1 pads): U1.7 | group 3 (1 pads): C2.1 | group 4 (1 pads): R4.1 | group 5 (1 pads): R6.1 | group 6 (1 pads): U2.7 | group 7 (1 pads): C6.1 | group 8 (1 pads): R8.1 | group 9 (1 pads): R10.1 | group 10 (1 pads): U3.7 | group 11 (1 pads): C10.1 | group 12 (1 pads): R12.1 | group 13 (1 pads): R14.1 | group 14 (1 pads): U4.7 | group 15 (1 pads): C14.1 | group 16 (1 pads): R16.1 | group 17 (1 pads): U5.5 | group 18 (1 pads): C17.1 | group 19 (1 pads): U6.5 | group 20 (1 pads): C20.1 | group 21 (1 pads): U7.5 | group 22 (1 pads): C23.1 | group 23 (1 pads): U8.5 | group 24 (1 pads): C26.1 | group 25 (1 pads): D5.2 | group 26 (1 pads): D6.2 | group 27 (1 pads): C34.1 | group 28 (1 pads): U11.1 | group 29 (1 pads): U11.3 | group 30 (1 pads): C48.1 | group 31 (1 pads): U14.1 | group 32 (1 pads): U14.37 | group 33 (1 pads): U14.38 | group 34 (1 pads): U14.48 | group 35 (1 pads): C56.1 | group 36 (1 pads): C51.1 | group 37 (1 pads): C52.1 | group 38 (1 pads): C53.1 | group 39 (1 pads): C54.1
     /POWER_IO/EXT5V split into 2 copper groups: group 1 (1 pads): D6.1 | group 2 (1 pads): J6.1
-    GND split into 92 copper groups: group 1 (2 pads): U9.41, U9.41 | group 2 (2 pads): U9.41, U9.41 | group 3 (1 pads): C3.2 | group 4 (1 pads): U1.4 | group 5 (1 pads): C2.2 | group 6 (1 pads): RV1.3 | group 7 (1 pads): C4.2 | group 8 (1 pads): C7.2 | group 9 (1 pads): U2.4 | group 10 (1 pads): C6.2 | group 11 (1 pads): RV2.3 | group 12 (1 pads): C8.2 | group 13 (1 pads): C11.2 | group 14 (1 pads): U3.4 | group 15 (1 pads): C10.2 | group 16 (1 pads): RV3.3 | group 17 (1 pads): C12.2 | group 18 (1 pads): C15.2 | group 19 (1 pads): U4.4 | group 20 (1 pads): C14.2 | group 21 (1 pads): RV4.3 | group 22 (1 pads): C16.2 | group 23 (1 pads): U5.2 | group 24 (1 pads): R18.2 | group 25 (1 pads): C17.2 | group 26 (1 pads): R21.2 | group 27 (1 pads): C18.2 | group 28 (1 pads): U6.2 | group 29 (1 pads): R23.2 | group 30 (1 pads): C20.2 | group 31 (1 pads): R26.2 | group 32 (1 pads): C21.2 | group 33 (1 pads): U7.2 | group 34 (1 pads): R28.2 | group 35 (1 pads): C23.2 | group 36 (1 pads): R31.2 | group 37 (1 pads): C24.2 | group 38 (1 pads): U8.2 | group 39 (1 pads): R33.2 | group 40 (1 pads): C26.2 | group 41 (1 pads): R36.2 | group 42 (1 pads): C27.2 | group 43 (1 pads): U9.1 | group 44 (1 pads): U9.40 | group 45 (1 pads): U9.41 | group 46 (1 pads): U9.41 | group 47 (1 pads): U9.41 | group 48 (1 pads): U9.41 | group 49 (1 pads): U9.41 | group 50 (1 pads): U9.41 | group 51 (1 pads): U9.41 | group 52 (1 pads): C43.2 | group 53 (1 pads): C41.2 | group 54 (1 pads): C42.2 | group 55 (1 pads): C44.2 | group 56 (1 pads): SW1.2 | group 57 (1 pads): SW1.2 | group 58 (1 pads): SW2.2 | group 59 (1 pads): SW2.2 | group 60 (1 pads): SW3.2 | group 61 (1 pads): SW3.2 | group 62 (1 pads): R58.2 | group 63 (1 pads): U10.3 | group 64 (1 pads): U10.29 | group 65 (1 pads): J1.5 | group 66 (1 pads): D7.1 | group 67 (1 pads): D8.1 | group 68 (1 pads): R56.1 | group 69 (1 pads): C45.2 | group 70 (1 pads): C46.2 | group 71 (1 pads): C47.2 | group 72 (1 pads): J2.5 | group 73 (1 pads): D9.1 | group 74 (1 pads): D11.1 | group 75 (1 pads): D12.1 | group 76 (1 pads): D14.1 | group 77 (1 pads): J6.2 | group 78 (1 pads): J5.2 | group 79 (1 pads): C34.2 | group 80 (1 pads): U11.2 | group 81 (1 pads): C48.2 | group 82 (1 pads): C49.2 | group 83 (1 pads): C50.2 | group 84 (1 pads): J3.6 | group 85 (1 pads): J4.10 | group 86 (1 pads): U12.11 | group 87 (1 pads): C35.2 | group 88 (1 pads): R41.2 | group 89 (1 pads): C37.2 | group 90 (1 pads): C38.2 | group 91 (1 pads): C39.2 | group 92 (1 pads): C40.2
-    LASER_V+ split into 8 copper groups: group 1 (1 pads): LD1.2 | group 2 (1 pads): LD2.2 | group 3 (1 pads): LD3.2 | group 4 (1 pads): LD4.1 | group 5 (1 pads): J5.1 | group 6 (1 pads): J4.9 | group 7 (1 pads): U13.1 | group 8 (1 pads): C36.1
+    GND split into 146 copper groups: group 1 (2 pads): U9.41, U9.41 | group 2 (2 pads): U9.41, U9.41 | group 3 (1 pads): C3.2 | group 4 (1 pads): U1.4 | group 5 (1 pads): C2.2 | group 6 (1 pads): RV1.3 | group 7 (1 pads): C4.2 | group 8 (1 pads): C7.2 | group 9 (1 pads): U2.4 | group 10 (1 pads): C6.2 | group 11 (1 pads): RV2.3 | group 12 (1 pads): C8.2 | group 13 (1 pads): C11.2 | group 14 (1 pads): U3.4 | group 15 (1 pads): C10.2 | group 16 (1 pads): RV3.3 | group 17 (1 pads): C12.2 | group 18 (1 pads): C15.2 | group 19 (1 pads): U4.4 | group 20 (1 pads): C14.2 | group 21 (1 pads): RV4.3 | group 22 (1 pads): C16.2 | group 23 (1 pads): U5.2 | group 24 (1 pads): R18.2 | group 25 (1 pads): C17.2 | group 26 (1 pads): R21.2 | group 27 (1 pads): C18.2 | group 28 (1 pads): U6.2 | group 29 (1 pads): R23.2 | group 30 (1 pads): C20.2 | group 31 (1 pads): R26.2 | group 32 (1 pads): C21.2 | group 33 (1 pads): U7.2 | group 34 (1 pads): R28.2 | group 35 (1 pads): C23.2 | group 36 (1 pads): R31.2 | group 37 (1 pads): C24.2 | group 38 (1 pads): U8.2 | group 39 (1 pads): R33.2 | group 40 (1 pads): C26.2 | group 41 (1 pads): R36.2 | group 42 (1 pads): C27.2 | group 43 (1 pads): U9.1 | group 44 (1 pads): U9.40 | group 45 (1 pads): U9.41 | group 46 (1 pads): U9.41 | group 47 (1 pads): U9.41 | group 48 (1 pads): U9.41 | group 49 (1 pads): U9.41 | group 50 (1 pads): U9.41 | group 51 (1 pads): U9.41 | group 52 (1 pads): C43.2 | group 53 (1 pads): C41.2 | group 54 (1 pads): C42.2 | group 55 (1 pads): C44.2 | group 56 (1 pads): SW1.2 | group 57 (1 pads): SW1.2 | group 58 (1 pads): SW2.2 | group 59 (1 pads): SW2.2 | group 60 (1 pads): SW3.2 | group 61 (1 pads): SW3.2 | group 62 (1 pads): R58.2 | group 63 (1 pads): U10.3 | group 64 (1 pads): U10.29 | group 65 (1 pads): J1.5 | group 66 (1 pads): J1.6 | group 67 (1 pads): J1.6 | group 68 (1 pads): J1.6 | group 69 (1 pads): J1.6 | group 70 (1 pads): D7.1 | group 71 (1 pads): D8.1 | group 72 (1 pads): R56.1 | group 73 (1 pads): C45.2 | group 74 (1 pads): C46.2 | group 75 (1 pads): C47.2 | group 76 (1 pads): J2.5 | group 77 (1 pads): J2.6 | group 78 (1 pads): J2.6 | group 79 (1 pads): J2.6 | group 80 (1 pads): J2.6 | group 81 (1 pads): D9.1 | group 82 (1 pads): D11.1 | group 83 (1 pads): D12.1 | group 84 (1 pads): D14.1 | group 85 (1 pads): J6.2 | group 86 (1 pads): J5.2 | group 87 (1 pads): C34.2 | group 88 (1 pads): U11.2 | group 89 (1 pads): C48.2 | group 90 (1 pads): C49.2 | group 91 (1 pads): C50.2 | group 92 (1 pads): U14.2 | group 93 (1 pads): U14.3 | group 94 (1 pads): U14.4 | group 95 (1 pads): U14.5 | group 96 (1 pads): U14.8 | group 97 (1 pads): U14.16 | group 98 (1 pads): U14.17 | group 99 (1 pads): U14.18 | group 100 (1 pads): U14.19 | group 101 (1 pads): U14.20 | group 102 (1 pads): U14.21 | group 103 (1 pads): U14.22 | group 104 (1 pads): U14.26 | group 105 (1 pads): U14.27 | group 106 (1 pads): U14.28 | group 107 (1 pads): U14.29 | group 108 (1 pads): U14.30 | group 109 (1 pads): U14.31 | group 110 (1 pads): U14.32 | group 111 (1 pads): U14.33 | group 112 (1 pads): U14.35 | group 113 (1 pads): U14.40 | group 114 (1 pads): U14.41 | group 115 (1 pads): U14.43 | group 116 (1 pads): U14.46 | group 117 (1 pads): U14.47 | group 118 (1 pads): U14.50 | group 119 (1 pads): U14.52 | group 120 (1 pads): U14.53 | group 121 (1 pads): U14.54 | group 122 (1 pads): U14.55 | group 123 (1 pads): U14.56 | group 124 (1 pads): U14.58 | group 125 (1 pads): U14.60 | group 126 (1 pads): U14.61 | group 127 (1 pads): U14.62 | group 128 (1 pads): U14.63 | group 129 (1 pads): U14.64 | group 130 (1 pads): C56.2 | group 131 (1 pads): C51.2 | group 132 (1 pads): C52.2 | group 133 (1 pads): C53.2 | group 134 (1 pads): C54.2 | group 135 (1 pads): C55.2 | group 136 (1 pads): C57.2 | group 137 (1 pads): C58.2 | group 138 (1 pads): C59.2 | group 139 (1 pads): C60.2 | group 140 (1 pads): U12.11 | group 141 (1 pads): C35.2 | group 142 (1 pads): R41.2 | group 143 (1 pads): C37.2 | group 144 (1 pads): C38.2 | group 145 (1 pads): C39.2 | group 146 (1 pads): C40.2
+    LASER_V+ split into 7 copper groups: group 1 (1 pads): LD1.2 | group 2 (1 pads): LD2.2 | group 3 (1 pads): LD3.2 | group 4 (1 pads): LD4.1 | group 5 (1 pads): J5.1 | group 6 (1 pads): U13.1 | group 7 (1 pads): C36.1
     VBUS_5V split into 8 copper groups: group 1 (1 pads): C41.1 | group 2 (1 pads): C42.1 | group 3 (1 pads): R55.2 | group 4 (1 pads): D9.2 | group 5 (1 pads): D10.1 | group 6 (1 pads): D13.1 | group 7 (1 pads): D14.2 | group 8 (1 pads): D5.1
   LASER_V+: no routed laser-anode supply copper found
   laser sense returns: only 0 high-current GND vias, expected at least 4
@@ -214,7 +213,7 @@ Laser current-loop policy: green-high-vf-10v5
   laser rail=10.50V, diode Vf(max)=7.00V, AO3400A Vds=1.02V, power=0.254W
   at ambient=85.0degC and target Tj=125.0degC, AO3400A continuous power budget=0.320W
   estimated safe laser rail window at this diode Vf/current: 9.97V to 10.77V
-PASS laser current-loop policy for this diode/supply assumption. Actual laser MPN and harness pinout still require release review.
+PASS laser current-loop policy for this diode/supply assumption. Actual laser MPN and direct-footprint pinout still require release review.
 ```
 
 ## PASS: PLT5 520EB_P monitor-PD high-side bias policy
@@ -281,22 +280,22 @@ FAIL laser current-loop policy
 
 Command: `python3 circuits/check_laser_controller_release_readiness.py`
 
-The release-readiness registry has unresolved source, harness, thermal, manufacturing, and human-inspection blockers.
+The release-readiness registry has unresolved source, direct-laser, thermal, manufacturing, and human-inspection blockers.
 
 ```text
 BLOCKED release readiness: 13 open fabrication/release blockers
-  [GENERATED_COPPER_NETCLASS_CLEARANCE] Rail/zone KiCad signoff remains open after generated signal copper pass
-    Detail: The PCB generator now runs in strict/capped route-search mode, using the same generated net-class clearances enforced by the PCB checker. The custom PCB gate passes with all signal/control multi-pad nets explicitly routed and 109/109 critical local route links connected. The generated-copper release gate still fails closed on +5V/GND rail/zone signoff: the laser-driver TLV9001 inter-channel +5V trunk is routed, but bulk +5V is still split from that trunk until placement or the bulk-to-laser bridge is fixed, KiCad zones are refilled, DRC is run, and visual return-path review is complete.
-    Required action: Fix the bulk +5V bridge into the laser-driver +5V trunk without regressing LASER_N/USB/MPD/PWM routing or antenna keepout, refill and inspect zones in KiCad, run PCB DRC with schematic parity, and review +5V/GND rail and return-path copper before fabrication.
+  [GENERATED_COPPER_NETCLASS_CLEARANCE] PCB placement, routing, and rail/zone signoff remain open
+    Detail: The current PCB artifact has recovered hand-placement coordinates and pad nets, not a routed fabrication layout. The PCB checker still fails while final board-boundary/proximity limits are not met, USB routes are missing, no filled In1.Cu GND reference plane exists, and routing is absent. The generated-copper release gate also fails because signal/control multi-pad nets, rails, pours, laser-anode copper, and high-current laser sense returns are not routed.
+    Required action: Finish placement inside the 90 x 50 mm outline, route USB/signal/control nets, add and refill rail/GND zones, add reviewed laser-current and high-current GND return copper, run PCB DRC with schematic parity, and review +5V/GND rail and return-path copper before fabrication.
   [KICAD_ERC_DRC_ZONE_SIGNOFF] KiCad ERC, zone refill, and DRC signoff are still open
     Detail: Available netlist/source checks pass, but the current generated PCB is not release-clean and this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC. Formal KiCad ERC, refilled-zone copper, and board-rule DRC remain unproven.
     Required action: Run GUI ERC on the regenerated schematic, update PCB from schematic, refill zones, run PCB DRC with schematic parity, or use a KiCad CLI build that supports sch erc and pcb drc, then document any waivers.
   [VISUAL_RETURN_PATH_REVIEW] GND and sensitive return paths need visual review after zone refill
     Detail: The graph proves pads are connected, not that laser current, USB ESD, ESP32, and TIA returns have acceptable real copper paths.
     Required action: After KiCad zone refill, inspect GND islands/stitching and keep laser-current returns away from TIA summing-node return paths.
-  [ACTUAL_LASER_MPN_HARNESS] Actual laser MPN pin tables and J4 harness are not released
+  [ACTUAL_LASER_MPN_DIRECT_FOOTPRINT] Actual laser MPN pin tables and direct footprints are not released
     Detail: The Digikey cart MPNs have mixed pin-code behavior: D7805I, D6505I, and PLT5 520EB_P match the bench monitor front end, while PLT5 450GB has no monitor photodiode and its case pin must not be tied into MPD_RAW4.
-    Required action: Build and inspect the J4 harness from the exact per-MPN pin table, verify can/case handling, and document that PLT5 450GB has no MPD telemetry before laser bring-up.
+    Required action: Verify the exact per-MPN pin table against the direct LDx footprint wiring, inspect can/case handling, and document that PLT5 450GB has no MPD telemetry before laser bring-up.
   [PER_DIODE_LASER_THERMAL_BUDGET] Per-diode laser current and heat budget is still open
     Detail: A single LASER_V+ rail can be safe for one diode class and unsafe for another because AO3400A heat is set by rail headroom.
     Required action: Run the laser-current budget for every selected diode, intended LASER_V+, current setpoint, and duty cycle; measure driver/sense-resistor temperature during bring-up.
@@ -321,9 +320,9 @@ BLOCKED release readiness: 13 open fabrication/release blockers
   [MANUFACTURING_CLASS_AND_FAB_TIER] Manufacturing class, fab tier, and release package constraints are not selected
     Detail: The generated geometry is conservative, but IPC/J-STD class, final fabricator settings, and order-tier constraints are still not locked.
     Required action: Select IPC/J-STD class, fab tier, stackup/rule settings, assembly assumptions, and release notes before ordering.
-  [AD7606_SYSTEM_INTERFACE] External AD7606 range and host-side assumptions are still open
-    Detail: The bench board exports VOUT1..4 and CONVST, but the external AD7606 range and firmware/host configuration remain system-level checks.
-    Required action: Verify the AD7606 variant/range pin, firmware timing, oversampling, and expected input range before relying on bench readings.
+  [AD7606_SYSTEM_INTERFACE] On-board AD7606 range and firmware assumptions are still open
+    Detail: The bench board routes VOUT1..4 into the on-board AD7606 and connects its serial/control interface to the ESP32, but range, timing, oversampling, and firmware configuration remain system-level checks.
+    Required action: Verify the AD7606 variant/range pin, firmware timing, oversampling straps, and expected input range before relying on bench readings.
 ```
 
 ## PASS: Regenerate audit inventory

@@ -158,23 +158,13 @@ REQUIRED_ONLINE = [
 
 WARNING_ONLINE = [
     OnlineEvidence(
-        "ST USBLC6-2 official datasheet",
-        "https://www.st.com/resource/en/datasheet/usblc6-2.pdf",
-        False,
-        expect_pdf=True,
-        note=(
-            "Primary source, but ST/Akamai times out from this shell environment; "
-            "manual release-time verification remains required."
-        ),
-    ),
-    OnlineEvidence(
         "Alpha & Omega AO3400A datasheet",
         "https://www.aosmd.com/res/data_sheets/AO3400A.pdf",
         False,
         expect_pdf=True,
         note=(
-            "Primary source, but AOS currently returns a bot/noindex HTML page "
-            "to this shell environment; manual release-time verification remains required."
+            "Primary source reachable from this shell; manual release-time latest-revision "
+            "verification remains required."
         ),
     ),
     OnlineEvidence(

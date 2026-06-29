@@ -24,6 +24,7 @@ REPORT_DIR = CIRCUITS_DIR / "review" / "generated"
 REPORT_PATH = REPORT_DIR / "laser_controller_review_gate.md"
 NETLIST_PATH = Path("/tmp/lc.net")
 POS_PATH = Path("/tmp/lc_pos.csv")
+GENERATED_PCB_PATH = Path("/tmp/lc_generated_staging.kicad_pcb")
 REPORT_OUTPUT_TAIL_CHARS = 12000
 
 
@@ -193,13 +194,15 @@ def main() -> int:
         ("Source-document evidence", ["python3", "circuits/check_source_documents.py"], {}),
         ("Passive derating assertions", ["python3", "circuits/check_passive_derating.py"], {}),
         (
-            "Generate PCB",
+            "Generate staging PCB to temp file",
             [
                 "env",
                 "LC_STRICT_ROUTE_CLEARANCE=1",
                 "LC_MAX_ROUTE_SEARCH_CELLS=2500",
                 "python3",
                 "circuits/gen_pcb.py",
+                "--output",
+                str(GENERATED_PCB_PATH),
             ],
             {},
         ),
@@ -208,7 +211,7 @@ def main() -> int:
             [
                 "python3",
                 "circuits/check_pcb_staging.py",
-                "circuits/laser_controller.kicad_pcb",
+                str(GENERATED_PCB_PATH),
                 str(NETLIST_PATH),
             ],
             {},
@@ -224,9 +227,8 @@ def main() -> int:
             {
                 "blocked_codes": {1},
                 "blocked_note": (
-                    "The current PCB artifact is intentionally placement-only: components are "
-                    "staged outside the outline with pad nets, but routing, zones, KiCad refill, "
-                    "DRC, and return-path review remain future fabrication work."
+                    "The current PCB artifact has hand placement recovered, but routing, zones, "
+                    "KiCad refill, DRC, and return-path review remain future fabrication work."
                 ),
             },
         ),
@@ -267,7 +269,7 @@ def main() -> int:
             {
                 "blocked_codes": {2},
                 "blocked_note": (
-                    "The release-readiness registry has unresolved source, harness, "
+                    "The release-readiness registry has unresolved source, direct-laser, "
                     "thermal, manufacturing, and human-inspection blockers."
                 ),
             },

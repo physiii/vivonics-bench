@@ -80,7 +80,6 @@ POWER_IO_CHILD_LABELS = {
     "ADC_MISO_B": "output",
     "ADC_BUSY": "output",
     "ADC_RESET": "input",
-    **{f"LASER_N{i}": "input" for i in range(1, 5)},
     **{f"MPD_RAW{i}": "input" for i in range(1, 5)},
     **{f"MPD{i}": "output" for i in range(1, 5)},
 }
@@ -121,7 +120,7 @@ EXPECTED_ROOT_GLOBAL_COUNTS = Counter(
         **{f"VOUT{i}": 2 for i in range(1, 5)},
         **{f"PWM{i}": 2 for i in range(1, 5)},
         **{f"ISENSE{i}": 2 for i in range(1, 5)},
-        **{f"LASER_N{i}": 2 for i in range(1, 5)},
+        **{f"LASER_N{i}": 1 for i in range(1, 5)},
         **{f"MPD_RAW{i}": 2 for i in range(1, 4)},
         "MPD_RAW4": 1,
         **{f"MPD{i}": 2 for i in range(1, 5)},
@@ -145,10 +144,10 @@ ALLOWED_LOCAL_LABEL_COLLISIONS = {
 
 SCHEMATIC_TEXT_DENYLIST = {
     "mcu.kicad_sch": {
-        "USB Mini-B (J6)": "USB Mini-B final schematic reference is J1",
-        "USBLC6 ESD (U12)": "USBLC6 final schematic reference is U10",
-        "UART/EN/BOOT -> J3": "UART/EN/BOOT final schematic header reference is J2",
-        "exposed on J3": "BOOT/EN bring-up header final schematic reference is J2",
+        "USBLC6": "copied MCU sheet uses discrete ESD diodes, not USBLC6",
+        "22R series": "copied MCU sheet has no USB data-line series resistors",
+        "UART/EN/BOOT -> J": "copied MCU sheet has local reset/program/factory buttons and CP2102N USB-UART",
+        "exposed on J": "GPIO0/EN are local button nets, not a bring-up header",
     },
     "power_io.kicad_sch": {
         "J2 = ext +5V": "external 5 V final schematic header reference is J6",
