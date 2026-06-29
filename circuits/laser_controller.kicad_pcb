@@ -181,7 +181,7 @@
 
   (footprint "Osram_SFH2201" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000028)
-    (at 145.034 80.01)
+    (at 145.817 82.742)
     (descr "PhotoDiode, Clear Silicone, Osram TOPLED, 4x5.09mm, area: 2.85x2.85mm, Orientation mark at cathode, https://dammedia.osram.info/media/resource/hires/osram-dam-25688470/SFH%202201%20A01_EN.pdf")
     (tags "PhotoDiode silicone")
     (attr smd)
@@ -830,7 +830,7 @@
 
   (footprint "Osram_SFH2201" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000219)
-    (at 12.35 37.015 -90)
+    (at 145.817 98.742)
     (descr "PhotoDiode, Clear Silicone, Osram TOPLED, 4x5.09mm, area: 2.85x2.85mm, Orientation mark at cathode, https://dammedia.osram.info/media/resource/hires/osram-dam-25688470/SFH%202201%20A01_EN.pdf")
     (tags "PhotoDiode silicone")
     (attr smd)
@@ -929,7 +929,7 @@
 
   (footprint "R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000235)
-    (at 17.45 34.825 180)
+    (at 138.2795 102.868)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor handsolder")
     (attr smd)
@@ -978,7 +978,7 @@
 
   (footprint "C_0402_1005Metric_Pad0.74x0.62mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000251)
-    (at 21.38 34.555)
+    (at 138.7875 99.312 180)
     (descr "Capacitor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
@@ -1027,7 +1027,7 @@
 
   (footprint "SOIC-8_3.9x4.9mm_P1.27mm" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000252)
-    (at 27.36 36.795)
+    (at 144.623 104.9575)
     (descr "SOIC, 8 Pin (JEDEC MS-012AA, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_8.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py")
     (tags "SOIC SO")
     (attr smd)
@@ -1100,7 +1100,7 @@
 
   (footprint "Potentiometer_Bourns_3224W_Vertical" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000277)
-    (at 34.91 36.595)
+    (at 153.67 104.9 90)
     (descr "Potentiometer, vertical, Bourns 3224W, https://www.bourns.com/docs/Product-Datasheets/3224.pdf")
     (tags "Potentiometer vertical Bourns 3224W")
     (attr smd)
@@ -1167,7 +1167,7 @@
 
   (footprint "C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000293)
-    (at 40.41 34.825)
+    (at 149.86 103.7835 -90)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
@@ -1216,7 +1216,7 @@
 
   (footprint "C_0402_1005Metric_Pad0.74x0.62mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000309)
-    (at 44.34 34.555)
+    (at 149.606 106.8315 -90)
     (descr "Capacitor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
@@ -1265,7 +1265,7 @@
 
   (footprint "R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000325)
-    (at 48.27 34.825)
+    (at 138.2795 101.09 180)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor handsolder")
     (attr smd)
@@ -1314,7 +1314,7 @@
 
   (footprint "Potentiometer_Bourns_3224W_Vertical" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000350)
-    (at 53.77 36.595)
+    (at 153.744 99.058 90)
     (descr "Potentiometer, vertical, Bourns 3224W, https://www.bourns.com/docs/Product-Datasheets/3224.pdf")
     (tags "Potentiometer vertical Bourns 3224W")
     (attr smd)
@@ -1381,7 +1381,7 @@
 
   (footprint "R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000366)
-    (at 59.27 34.825)
+    (at 138.383 107.006)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor handsolder")
     (attr smd)
@@ -1430,7 +1430,7 @@
 
   (footprint "C_0805_2012Metric_Pad1.18x1.45mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000382)
-    (at 63.1 35.975 90)
+    (at 138.0255 104.9 180)
     (descr "Capacitor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf, https://docs.google.com/spreadsheets/d/1BsfQQcO9C6DZCsRaXUlFlo91Tg2WpOkGARC1WS5S8t0/edit?usp=sharing), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
@@ -1479,7 +1479,7 @@
 
   (footprint "Osram_SFH2201" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000410)
-    (at 12.35 47.86 -90)
+    (at 145.817 114.742)
     (descr "PhotoDiode, Clear Silicone, Osram TOPLED, 4x5.09mm, area: 2.85x2.85mm, Orientation mark at cathode, https://dammedia.osram.info/media/resource/hires/osram-dam-25688470/SFH%202201%20A01_EN.pdf")
     (tags "PhotoDiode silicone")
     (attr smd)
@@ -1578,7 +1578,7 @@
 
   (footprint "R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000426)
-    (at 17.45 45.67 180)
+    (at 138.2795 118.868)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor handsolder")
     (attr smd)
@@ -1627,7 +1627,7 @@
 
   (footprint "C_0402_1005Metric_Pad0.74x0.62mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000442)
-    (at 21.38 45.4)
+    (at 138.7875 115.312 180)
     (descr "Capacitor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
@@ -1676,7 +1676,7 @@
 
   (footprint "SOIC-8_3.9x4.9mm_P1.27mm" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000443)
-    (at 27.36 47.64)
+    (at 144.623 120.9575)
     (descr "SOIC, 8 Pin (JEDEC MS-012AA, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_8.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py")
     (tags "SOIC SO")
     (attr smd)
@@ -1749,7 +1749,7 @@
 
   (footprint "Potentiometer_Bourns_3224W_Vertical" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000468)
-    (at 34.91 47.44)
+    (at 153.67 120.9 90)
     (descr "Potentiometer, vertical, Bourns 3224W, https://www.bourns.com/docs/Product-Datasheets/3224.pdf")
     (tags "Potentiometer vertical Bourns 3224W")
     (attr smd)
@@ -1816,7 +1816,7 @@
 
   (footprint "C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000484)
-    (at 40.41 45.67)
+    (at 149.86 119.7835 -90)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
@@ -1865,7 +1865,7 @@
 
   (footprint "C_0402_1005Metric_Pad0.74x0.62mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000500)
-    (at 44.34 45.4)
+    (at 149.606 122.8315 -90)
     (descr "Capacitor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
@@ -1914,7 +1914,7 @@
 
   (footprint "R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000516)
-    (at 48.27 45.67)
+    (at 138.2795 117.09 180)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor handsolder")
     (attr smd)
@@ -1963,7 +1963,7 @@
 
   (footprint "Potentiometer_Bourns_3224W_Vertical" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000541)
-    (at 53.77 47.44)
+    (at 153.744 115.058 90)
     (descr "Potentiometer, vertical, Bourns 3224W, https://www.bourns.com/docs/Product-Datasheets/3224.pdf")
     (tags "Potentiometer vertical Bourns 3224W")
     (attr smd)
@@ -2030,7 +2030,7 @@
 
   (footprint "R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000557)
-    (at 59.27 45.67)
+    (at 138.383 123.006)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor handsolder")
     (attr smd)
@@ -2079,7 +2079,7 @@
 
   (footprint "C_0805_2012Metric_Pad1.18x1.45mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000573)
-    (at 63.1 46.82 90)
+    (at 138.0255 120.9 180)
     (descr "Capacitor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf, https://docs.google.com/spreadsheets/d/1BsfQQcO9C6DZCsRaXUlFlo91Tg2WpOkGARC1WS5S8t0/edit?usp=sharing), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
@@ -2128,7 +2128,7 @@
 
   (footprint "Osram_SFH2201" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000601)
-    (at 12.35 58.705 -90)
+    (at 145.817 130.742)
     (descr "PhotoDiode, Clear Silicone, Osram TOPLED, 4x5.09mm, area: 2.85x2.85mm, Orientation mark at cathode, https://dammedia.osram.info/media/resource/hires/osram-dam-25688470/SFH%202201%20A01_EN.pdf")
     (tags "PhotoDiode silicone")
     (attr smd)
@@ -2227,7 +2227,7 @@
 
   (footprint "R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000617)
-    (at 17.45 56.515 180)
+    (at 138.2795 134.868)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor handsolder")
     (attr smd)
@@ -2276,7 +2276,7 @@
 
   (footprint "C_0402_1005Metric_Pad0.74x0.62mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000633)
-    (at 21.38 56.245)
+    (at 138.7875 131.312 180)
     (descr "Capacitor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
@@ -2325,7 +2325,7 @@
 
   (footprint "SOIC-8_3.9x4.9mm_P1.27mm" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000634)
-    (at 27.36 58.485)
+    (at 144.623 136.9575)
     (descr "SOIC, 8 Pin (JEDEC MS-012AA, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_8.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py")
     (tags "SOIC SO")
     (attr smd)
@@ -2398,7 +2398,7 @@
 
   (footprint "Potentiometer_Bourns_3224W_Vertical" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000659)
-    (at 34.91 58.285)
+    (at 153.67 136.9 90)
     (descr "Potentiometer, vertical, Bourns 3224W, https://www.bourns.com/docs/Product-Datasheets/3224.pdf")
     (tags "Potentiometer vertical Bourns 3224W")
     (attr smd)
@@ -2465,7 +2465,7 @@
 
   (footprint "C_0603_1608Metric_Pad1.08x0.95mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000675)
-    (at 40.41 56.515)
+    (at 149.86 135.7835 -90)
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
@@ -2514,7 +2514,7 @@
 
   (footprint "C_0402_1005Metric_Pad0.74x0.62mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000691)
-    (at 44.34 56.245)
+    (at 149.606 138.8315 -90)
     (descr "Capacitor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
@@ -2563,7 +2563,7 @@
 
   (footprint "R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000707)
-    (at 48.27 56.515)
+    (at 138.2795 133.09 180)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor handsolder")
     (attr smd)
@@ -2612,7 +2612,7 @@
 
   (footprint "Potentiometer_Bourns_3224W_Vertical" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000732)
-    (at 53.77 58.285)
+    (at 153.744 131.058 90)
     (descr "Potentiometer, vertical, Bourns 3224W, https://www.bourns.com/docs/Product-Datasheets/3224.pdf")
     (tags "Potentiometer vertical Bourns 3224W")
     (attr smd)
@@ -2679,7 +2679,7 @@
 
   (footprint "R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000748)
-    (at 59.27 56.515)
+    (at 138.383 139.006)
     (descr "Resistor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 72, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "resistor handsolder")
     (attr smd)
@@ -2728,7 +2728,7 @@
 
   (footprint "C_0805_2012Metric_Pad1.18x1.45mm_HandSolder" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000764)
-    (at 63.1 57.665 90)
+    (at 138.0255 136.9 180)
     (descr "Capacitor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf, https://docs.google.com/spreadsheets/d/1BsfQQcO9C6DZCsRaXUlFlo91Tg2WpOkGARC1WS5S8t0/edit?usp=sharing), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
@@ -9507,13 +9507,13 @@
   (gr_text "LASER_IR" (at 74.226 146.476) (layer "Cmts.User") (tstamp 23345246-b91b-4df0-a138-59ad709ed036)
     (effects (font (size 1.2 1.2) (thickness 0.18)))
   )
-  (gr_text "TIA_GREEN" (at 10.1 41.94) (layer "Cmts.User") (tstamp 4b7ebac5-ddca-497a-b641-dffdb58396da)
+  (gr_text "TIA_GREEN" (at 136.15 109.4) (layer "Cmts.User") (tstamp 4b7ebac5-ddca-497a-b641-dffdb58396da)
     (effects (font (size 1.2 1.2) (thickness 0.18)))
   )
-  (gr_text "TIA_BLUE" (at 10.1 52.785) (layer "Cmts.User") (tstamp 52751a54-74ff-450f-accf-306029217884)
+  (gr_text "TIA_BLUE" (at 136.15 125.4) (layer "Cmts.User") (tstamp 52751a54-74ff-450f-accf-306029217884)
     (effects (font (size 1.2 1.2) (thickness 0.18)))
   )
-  (gr_text "TIA_IR" (at -78 -48) (layer "Cmts.User") (tstamp 72434d92-58ae-4c5d-9c3f-51f195959b74)
+  (gr_text "TIA_IR" (at 136.15 77.4) (layer "Cmts.User") (tstamp 72434d92-58ae-4c5d-9c3f-51f195959b74)
     (effects (font (size 1.2 1.2) (thickness 0.18)))
   )
   (gr_text "POWER_IO" (at 179.226 162.476) (layer "Cmts.User") (tstamp c8df8c82-568c-4683-a77c-263b4df4bb1d)
@@ -9525,7 +9525,7 @@
   (gr_text "LASER_BLUE" (at 127.226 182.476) (layer "Cmts.User") (tstamp e4e7098c-affc-4098-b21b-28b442cab9f1)
     (effects (font (size 1.2 1.2) (thickness 0.18)))
   )
-  (gr_text "TIA_RED" (at 10.1 31.095) (layer "Cmts.User") (tstamp e879f19f-92f5-4651-92ff-b4472b404b52)
+  (gr_text "TIA_RED" (at 136.15 93.4) (layer "Cmts.User") (tstamp e879f19f-92f5-4651-92ff-b4472b404b52)
     (effects (font (size 1.2 1.2) (thickness 0.18)))
   )
 
