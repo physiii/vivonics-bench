@@ -276,6 +276,18 @@ def capacitor_stress(comp: dict[str, str]) -> CapacitorStress:
 def resistor_stress(comp: dict[str, str]) -> ResistorStress:
     value = comp["value"]
     mpn = comp["mpn"]
+    if comp["ref"] == "R63":
+        return ResistorStress(
+            power_w=(24.0 - 2.0) * (24.0 - 2.0) / 10_000.0,
+            voltage_v=24.0 - 2.0,
+            reason="RJ45 24V-side LED/contact resistor; assumes about 2V internal LED drop on the access-controller connector LED pin convention",
+        )
+    if comp["ref"] == "R64":
+        return ResistorStress(
+            power_w=3.3 * 3.3 / 10_000.0,
+            voltage_v=3.3,
+            reason="RJ45 3V3-side LED/contact resistor copied from the access-controller connector LED pin convention",
+        )
     if mpn == "HoCR2512-2W-10R-1%":
         return ResistorStress(
             power_w=0.613,

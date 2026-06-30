@@ -85,6 +85,10 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
         return "AP63200 bootstrap node between U16 BST and the 100 nF capacitor to the laser-buck switch node."
     if re.match(r"Net-\(U16-FB\)$", net):
         return "AP63200 laser-buck feedback node set by the 274k/22.1k divider and 100 pF feed-forward capacitor for about 10.72 V LASER_V+."
+    if re.match(r"Net-\(J6-Pad10\)$", net):
+        return "RJ45 LED/contact node copied from the access-controller RJ45 convention: J6 pin 10 current-limited to VIN_24V through R63."
+    if re.match(r"Net-\(J6-Pad12\)$", net):
+        return "RJ45 LED/contact node copied from the access-controller RJ45 convention: J6 pin 12 current-limited to +3V3 through R64."
     if net.startswith("VOUT"):
         return "OPA380 TIA output and feedback high side into the on-board AD7606-4 signal ADC."
     if net == "CONVST":
@@ -320,7 +324,7 @@ def pin_intent_for_node(
             "2": "Barrel sleeve ground return.",
             "3": "Barrel jack switch/sleeve contact tied to board ground, matching the access-controller footprint convention.",
         }.get(pin, "Review required: barrel jack unknown pin.")
-    if value == "24V RJ45 IN":
+    if value == "CONN_RJ45":
         return {
             "1": "RJ45 contact intentionally unused on this power-only input.",
             "2": "RJ45 contact intentionally unused on this power-only input.",
@@ -331,9 +335,9 @@ def pin_intent_for_node(
             "7": "RJ45 return contact tied to GND, copied from the access-controller return convention.",
             "8": "RJ45 return contact tied to GND, copied from the access-controller return convention.",
             "9": "RJ45 return/shield-related contact tied to GND, copied from the access-controller return convention.",
-            "10": "RJ45 LED/contact pin intentionally unused.",
+            "10": "RJ45 LED/contact pin current-limited to VIN_24V through R63, matching the access-controller RJ45 LED-resistor convention.",
             "11": "RJ45 return/shield-related contact tied to GND, copied from the access-controller return convention.",
-            "12": "RJ45 LED/contact pin intentionally unused.",
+            "12": "RJ45 LED/contact pin current-limited to +3V3 through R64, matching the access-controller RJ45 LED-resistor convention.",
         }.get(pin, "Review required: RJ45 unknown pin.")
     if value in {"USB Mini-B", "USB_MINI_B"}:
         return {

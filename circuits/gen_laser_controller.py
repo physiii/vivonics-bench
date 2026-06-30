@@ -36,6 +36,7 @@ from circuit_designators import WL, actualize_parts
 PROJECT = "laser_controller"
 ROOT_UUID = "c1d2e3f4-6000-4000-a000-000000000001"
 ACCESS_CONTROLLER_MCU = Path("/home/andy/projects/access-controller/circuits/controller/microcontroller.kicad_sch")
+ACCESS_CONTROLLER_ETHERNET = Path("/home/andy/projects/access-controller/circuits/controller/ethernet.kicad_sch")
 OUT_DIR = Path(__file__).resolve().parent
 GRID_MM = 1.27
 _ctr = [0]
@@ -80,6 +81,9 @@ def S(name, pins, glyph, texts=None, power=False, hide_nums=None, roff=(5.6,-1.4
 
 S("R_H", {"1":(-3.81,0,0,"~","passive",1.27),"2":(3.81,0,180,"~","passive",1.27)},
   [[(-2.54,1.016),(2.54,1.016),(2.54,-1.016),(-2.54,-1.016),(-2.54,1.016)]])
+S("R_H_RJ45", {"1":(-3.81,0,0,"~","passive",1.27),"2":(3.81,0,180,"~","passive",1.27)},
+  [[(-2.54,1.016),(2.54,1.016),(2.54,-1.016),(-2.54,-1.016),(-2.54,1.016)]],
+  roff=(-2.5,-3.2), voff=(-2.5,3.2))
 S("R_V", {"1":(0,3.81,270,"~","passive",1.27),"2":(0,-3.81,90,"~","passive",1.27)},
   [[(-1.016,2.54),(1.016,2.54),(1.016,-2.54),(-1.016,-2.54),(-1.016,2.54)]])
 S("POT_H", {"1":(-3.81,0,0,"~","passive",1.27),"2":(0,3.81,270,"W","passive",1.27),"3":(3.81,0,180,"~","passive",1.27)},
@@ -382,7 +386,7 @@ S("VIN_24V",{"1":(0,0,90,"VIN_24V","power_in",0)},[[(0,0),(0,2.54)],[(-1.27,1.52
 S("GND",{"1":(0,0,270,"GND","power_in",0)},[[(0,0),(0,-2.032)],[(-2.032,-2.032),(2.032,-2.032)],
   [(-1.27,-2.794),(1.27,-2.794)],[(-0.508,-3.556),(0.508,-3.556)]],power=True)
 
-REFLET={"R_H":"R","R_V":"R","POT_H":"RV","POT_V":"RV","C_H":"C","C_V":"C","C_POL_V":"C","PHOTODIODE":"D","OPA_N":"U",
+REFLET={"R_H":"R","R_H_RJ45":"R","R_V":"R","POT_H":"RV","POT_V":"RV","C_H":"C","C_V":"C","C_POL_V":"C","PHOTODIODE":"D","OPA_N":"U",
         "TLV9001_SOT23_5":"U",
         "INA4180_TSSOP14":"U","LM4040_DBZ":"U","AD7606_4":"U",
         "LASER_CAN_MON_PD":"LD",
@@ -395,7 +399,7 @@ REFLET={"R_H":"R","R_V":"R","POT_H":"RV","POT_V":"RV","C_H":"C","C_V":"C","C_POL
     # the SFH2201 signal PDs, ESP32-S3, AD7606, 3224W SMD pots, and USB Mini-B connector, is JLCPCB machine-placed.
 HAND={"CONN2","CONN3","CONN4","CONN5","CONN6","CONN8","CONN10","open_automation:CONN_RJ45","BARREL_JACK_SWITCH"}
 NON_SMT_ASSEMBLY={"LASER_CAN_MON_PD","LASER_CAN_DIODE_CASE"}
-PASSIVE_GLYPH_NUMS=("R_H","R_V","POT_H","POT_V","C_H","C_V","PHOTODIODE","OPA_N","TLV9001_SOT23_5","NMOS","SCHOTTKY")
+PASSIVE_GLYPH_NUMS=("R_H","R_H_RJ45","R_V","POT_H","POT_V","C_H","C_V","PHOTODIODE","OPA_N","TLV9001_SOT23_5","NMOS","SCHOTTKY")
 
 FP_R="Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
 FP_R0402="Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
@@ -581,6 +585,8 @@ def ortho(poly):
 def sym_def(name):
     if name == "Espressif:ESP32-S3-WROOM-1":
         return extract_symbol_block(ACCESS_CONTROLLER_MCU, name)
+    if name == "open_automation:CONN_RJ45":
+        return extract_symbol_block(ACCESS_CONTROLLER_ETHERNET, name)
     if ":" in name: return ""  # library symbol, not defined inline
     s=SYM[name]
     ref = "#PWR" if s["power"] else REFLET[name]
@@ -1002,8 +1008,8 @@ def build_power_io():
     parts={
         "JDC":("BARREL_JACK_SWITCH","24V DC IN",FP_BARREL,"DC-470-2.1GP",LCSC_BARREL,42,56),
         "JRJ45":("open_automation:CONN_RJ45","CONN_RJ45",FP_RJ45,"R-RJ45R08P-C000",LCSC_RJ45,42,84),
-        "RJR45PWR":("R_H","10K",FP_R,"CRCW060310K0FKEA",LCSC_10K,26.7,76.2),
-        "RJR45LED":("R_H","10K",FP_R,"CRCW060310K0FKEA",LCSC_10K,26.7,91.4),
+        "RJR45PWR":("R_H_RJ45","10K",FP_R,"CRCW060310K0FKEA",LCSC_10K,24.13,76.2),
+        "RJR45LED":("R_H_RJ45","10K",FP_R,"CRCW060310K0FKEA",LCSC_10K,24.13,91.44),
         "CIN24A":("C_V","1uF 100V",FP_1206,"CL31B105KCHNNNE",LCSC_1UF_100V,68,52),
         "CIN24B":("C_V","1uF 100V",FP_1206,"CL31B105KCHNNNE",LCSC_1UF_100V,80,52),
         "CIN24BULK":("C_POL_V","22uF 100V",FP_CELEC_8X10,"RVT2A220M0810",LCSC_22UF_100V,92,52),
@@ -1094,8 +1100,12 @@ def build_power_io():
     ])
     wires.append([pin(parts,"RJR45PWR","2"), pin(parts,"JRJ45","10")])
     wires.append([pin(parts,"RJR45LED","2"), pin(parts,"JRJ45","12")])
-    add_rail(power,wires,"VIN_24V",pin(parts,"RJR45PWR","1"))
-    add_rail(power,wires,"+3V3",pin(parts,"RJR45LED","1"))
+    rj45_pwr_tap = snap_point((20.32, 69.85))
+    rj45_led_tap = snap_point((20.32, 86.36))
+    wires.append([pin(parts,"RJR45PWR","1"), rj45_pwr_tap])
+    wires.append([pin(parts,"RJR45LED","1"), rj45_led_tap])
+    power.append(("VIN_24V", rj45_pwr_tap[0], rj45_pwr_tap[1]))
+    power.append(("+3V3", rj45_led_tap[0], rj45_led_tap[1]))
     for rj45_pin in ["1","2","3","6"]:
         ncs.append(pin(parts,"JRJ45",rj45_pin))
     for cap in ["CIN24A","CIN24B","CIN24BULK"]:
@@ -1287,8 +1297,8 @@ def build_power_io():
     texts=[
         ("Power & I/O  —  24V barrel/RJ45 input, onboard AP63205 +5V buck, AP63200 laser buck, AD7606-4 ADC, monitor-PD front end",36,16,2.2),
         ("Inputs: J5 barrel center and J6 pins 4/5 -> VIN_24V; J5 sleeve/switch and J6 pins 7/8/9/11 -> GND.",36,23,1.25),
-        ("Supplies: U15 AP63205 -> BUCK_5V/+5V, U16 AP63200 -> LASER_V+ ~=10.72V; raw 24V stays off laser anodes.",36,29,1.25),
-        ("Signals: AD7606 digitizes VOUT1..4; INA4180A1 monitor-PD current sense filters to MPD1..4.",36,35,1.25),
+        ("RJ45: copied access-controller CONN_RJ45 symbol; J6 pins 10/12 use 10k LED/contact resistors to VIN_24V/+3V3.",36,29,1.25),
+        ("Supplies: U15 AP63205 -> BUCK_5V/+5V, U16 AP63200 -> LASER_V+ ~=10.72V; raw 24V stays off laser anodes.",36,35,1.25),
     ]
     return build_sch_content(
         "Power & IO",

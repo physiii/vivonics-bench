@@ -169,7 +169,7 @@ procurement/assembly items listed below.
 | LD3 | PLT5 520EB_P, `OptoDevice:LaserDiode_TO56-3` | Direct green laser can. |
 | LD4 | PLT5 450GB, `OptoDevice:LaserDiode_TO56-3` | Direct blue laser can; case pad is intentionally no-connect and `MPD_RAW4` stays spare/open. |
 | J5 | 24 V DC barrel jack, `Open_Automation:BarrelJack_OD5.5_ID2.5` | Center-positive 24 V input, GANGYUAN `DC-470-2.1GP` / LCSC **C194407**, copied from the access-controller libraries. |
-| J6 | 24 V RJ45 power input, `Connector_RJ:RJ45_Amphenol_RJHSE538X` | RJ45 pins 4/5 to `VIN_24V`, pins 7/8/9/11 to GND, Ckmtw `R-RJ45R08P-C000` / LCSC **C386757**, copied from the access-controller libraries. |
+| J6 | 24 V RJ45 power input, `Connector_RJ:RJ45_Amphenol_RJHSE538X` | RJ45 pins 4/5 to `VIN_24V`, pins 7/8/9/11 to GND, pins 10/12 through 10k LED/contact resistors to `VIN_24V` and `+3V3`, Ckmtw `R-RJ45R08P-C000` / LCSC **C386757**, copied from the access-controller Ethernet sheet and libraries. |
 
 ## ⚠ Before PCB layout — required pin-accuracy pass
 

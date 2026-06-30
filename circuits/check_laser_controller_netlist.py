@@ -239,8 +239,8 @@ def main() -> int:
         "CREF": ("100nF MPD bias", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
         "JDC": ("24V DC IN", "Open_Automation:BarrelJack_OD5.5_ID2.5", "DC-470-2.1GP", "C194407"),
         "JRJ45": ("CONN_RJ45", "Connector_RJ:RJ45_Amphenol_RJHSE538X", "R-RJ45R08P-C000", "C386757"),
-        "RJR45PWR": ("10K", "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder", "0402WGF1002TCE", "C25744"),
-        "RJR45LED": ("10K", "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder", "0402WGF1002TCE", "C25744"),
+        "RJR45PWR": ("10K", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "CRCW060310K0FKEA", "C844918"),
+        "RJR45LED": ("10K", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "CRCW060310K0FKEA", "C844918"),
         "CIN24A": ("1uF 100V", "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder", "CL31B105KCHNNNE", "C13832"),
         "CIN24B": ("1uF 100V", "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder", "CL31B105KCHNNNE", "C13832"),
         "CIN24BULK": ("22uF 100V", "Capacitor_SMD:C_Elec_8x10.2", "RVT2A220M0810", "C90264"),
@@ -357,11 +357,11 @@ def main() -> int:
     ]:
         expect_pin(ref_for("POWER_IO", "JDC"), pin, function, pintype)
     for pin in ["4", "5", "7", "8", "9", "11"]:
-        expect_pin(ref_for("POWER_IO", "JRJ45"), pin, pin, "passive")
+        expect_pin(ref_for("POWER_IO", "JRJ45"), pin, "", "passive")
     for pin in ["10", "12"]:
-        expect_pin(ref_for("POWER_IO", "JRJ45"), pin, pin, "passive")
+        expect_pin(ref_for("POWER_IO", "JRJ45"), pin, "", "passive")
     for pin in ["1", "2", "3", "6"]:
-        expect_pin(ref_for("POWER_IO", "JRJ45"), pin, pin, "passive+no_connect")
+        expect_pin(ref_for("POWER_IO", "JRJ45"), pin, "", "passive+no_connect")
     for pin, function, pintype in [
         ("1", "~{DCD}", "input+no_connect"),
         ("2", "~{RI}/CLK", "bidirectional+no_connect"),
@@ -1056,7 +1056,7 @@ def main() -> int:
         "C2099849": 1,
         "C2480": 2,
         "C191123": 8,
-        "C844918": 12,
+        "C844918": 14,
         "C2900216": 4,
         "C2913199": 1,
         "C398363": 4,
@@ -1077,7 +1077,6 @@ def main() -> int:
         "C2929993": 2,
         "C23061": 1,
         "C852624": 1,
-        "C25744": 2,
         "C127509": 3,
         "C964632": 1,
         "C1546": 1,
