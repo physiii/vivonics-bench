@@ -238,7 +238,9 @@ def main() -> int:
         "CINA": ("100nF", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
         "CREF": ("100nF MPD bias", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
         "JDC": ("24V DC IN", "Open_Automation:BarrelJack_OD5.5_ID2.5", "DC-470-2.1GP", "C194407"),
-        "JRJ45": ("24V RJ45 IN", "Connector_RJ:RJ45_Amphenol_RJHSE538X", "R-RJ45R08P-C000", "C386757"),
+        "JRJ45": ("CONN_RJ45", "Connector_RJ:RJ45_Amphenol_RJHSE538X", "R-RJ45R08P-C000", "C386757"),
+        "RJR45PWR": ("10K", "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder", "0402WGF1002TCE", "C25744"),
+        "RJR45LED": ("10K", "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder", "0402WGF1002TCE", "C25744"),
         "CIN24A": ("1uF 100V", "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder", "CL31B105KCHNNNE", "C13832"),
         "CIN24B": ("1uF 100V", "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder", "CL31B105KCHNNNE", "C13832"),
         "CIN24BULK": ("22uF 100V", "Capacitor_SMD:C_Elec_8x10.2", "RVT2A220M0810", "C90264"),
@@ -356,7 +358,9 @@ def main() -> int:
         expect_pin(ref_for("POWER_IO", "JDC"), pin, function, pintype)
     for pin in ["4", "5", "7", "8", "9", "11"]:
         expect_pin(ref_for("POWER_IO", "JRJ45"), pin, pin, "passive")
-    for pin in ["1", "2", "3", "6", "10", "12"]:
+    for pin in ["10", "12"]:
+        expect_pin(ref_for("POWER_IO", "JRJ45"), pin, pin, "passive")
+    for pin in ["1", "2", "3", "6"]:
         expect_pin(ref_for("POWER_IO", "JRJ45"), pin, pin, "passive+no_connect")
     for pin, function, pintype in [
         ("1", "~{DCD}", "input+no_connect"),
@@ -712,6 +716,7 @@ def main() -> int:
         (barrel_j, "1"),
         (rj45_j, "4"),
         (rj45_j, "5"),
+        (ref_for("POWER_IO", "RJR45PWR"), "1"),
         (ref_for("POWER_IO", "CIN24A"), "1"),
         (ref_for("POWER_IO", "CIN24B"), "1"),
         (ref_for("POWER_IO", "CIN24BULK"), "1"),
@@ -775,6 +780,7 @@ def main() -> int:
         (cp2102, "7"),
         (ina_mpd, "4"),
         (ref_for("POWER_IO", "CINA"), "1"),
+        (ref_for("POWER_IO", "RJR45LED"), "1"),
         (adc, "6"),
         (adc, "7"),
         (adc, "23"),
@@ -919,6 +925,8 @@ def main() -> int:
     exact("+5V", sorted(plus5_nodes))
     exact("+3V3", sorted(plus3v3_nodes))
     exact("GND", sorted(gnd_nodes))
+    exact(f"Net-({rj45_j}-Pad10)", [(rj45_j, "10"), (ref_for("POWER_IO", "RJR45PWR"), "2")])
+    exact(f"Net-({rj45_j}-Pad12)", [(rj45_j, "12"), (ref_for("POWER_IO", "RJR45LED"), "2")])
 
     # On-board sample photodiode TIA orientation.
     for color in WL:
@@ -955,7 +963,7 @@ def main() -> int:
         (ref_for("LASER_BLUE", "LD"), "2"),  # PLT5 450GB case pin is not tied to MPD_RAW4.
         (adc, "15"),  # FRSTDATA is unused in two-wire serial readout.
     }
-    allowed_single_node_pins.update({(rj45_j, pin) for pin in ["1", "2", "3", "6", "10", "12"]})
+    allowed_single_node_pins.update({(rj45_j, pin) for pin in ["1", "2", "3", "6"]})
     for color in WL:
         tia_ref = ref_for(f"TIA_{color}", "U1")
         allowed_single_node_pins.update({(tia_ref, "1"), (tia_ref, "5"), (tia_ref, "8")})
@@ -1031,8 +1039,8 @@ def main() -> int:
         for comp in assembled
         if not comp["lcsc"] or not comp["mpn"] or not comp["footprint"]
     ]
-    checks.append((len(comps) == 176, "component count", f"got {len(comps)}, expected 176"))
-    checks.append((len(assembled) == 170, "assembled component count", f"got {len(assembled)}, expected 170"))
+    checks.append((len(comps) == 178, "component count", f"got {len(comps)}, expected 178"))
+    checks.append((len(assembled) == 172, "assembled component count", f"got {len(assembled)}, expected 172"))
     checks.append((not missing_fields, "assembled component fields", f"missing {missing_fields}"))
 
     expected_lcsc_counts = {
@@ -1069,6 +1077,7 @@ def main() -> int:
         "C2929993": 2,
         "C23061": 1,
         "C852624": 1,
+        "C25744": 2,
         "C127509": 3,
         "C964632": 1,
         "C1546": 1,

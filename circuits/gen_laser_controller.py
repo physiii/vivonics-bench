@@ -73,7 +73,7 @@ def extract_symbol_block(path: Path, symbol_name: str) -> str:
 
 # ═══ Symbols ═══════════════════════════════════════════════════════
 SYM = {}
-CONNS = ("CONN2","CONN3","CONN4","CONN5","CONN6","CONN8","CONN10","CONN_RJ45","USB_MINIB","ESD_USB")
+CONNS = ("CONN2","CONN3","CONN4","CONN5","CONN6","CONN8","CONN10","open_automation:CONN_RJ45","USB_MINIB","ESD_USB")
 def S(name, pins, glyph, texts=None, power=False, hide_nums=None, roff=(5.6,-1.4), voff=(5.6,1.4)):
     SYM[name] = {"pins":pins, "glyph":glyph, "texts":texts or [], "power":power, "roff":roff, "voff":voff,
                  "hide_nums": hide_nums if hide_nums is not None else (name not in CONNS)}
@@ -137,22 +137,20 @@ S("BARREL_JACK_SWITCH",
    [(-3.81,-2.54),(-2.54,-2.54),(-1.27,-1.27),(0,-2.54),(5.08,-2.54)],
    [(1.27,-2.286),(1.905,-1.651)]],
   hide_nums=False, roff=(-4.5,-6.8), voff=(-4.5,6.4))
-S("CONN_RJ45",
-  {"1":(10.16,-8.89,180,"1","passive",2.54),
-   "2":(10.16,-6.35,180,"2","passive",2.54),
-   "3":(10.16,-3.81,180,"3","passive",2.54),
-   "4":(10.16,-1.27,180,"4","passive",2.54),
-   "5":(10.16,1.27,180,"5","passive",2.54),
-   "6":(10.16,3.81,180,"6","passive",2.54),
-   "7":(10.16,6.35,180,"7","passive",2.54),
-   "8":(10.16,8.89,180,"8","passive",2.54),
-   "9":(-10.16,6.35,0,"9","passive",2.54),
-   "10":(-10.16,3.81,0,"10","passive",2.54),
-   "11":(-10.16,1.27,0,"11","passive",2.54),
-   "12":(-10.16,-1.27,0,"12","passive",2.54)},
-  [[(-7.62,11.43),(7.62,11.43),(7.62,-11.43),(-7.62,-11.43),(-7.62,11.43)],
-   [(-2.54,-8.89),(2.54,-8.89),(2.54,8.89),(-2.54,8.89),(-2.54,-8.89)]],
-  [("RJ45",0,0,1.2)], hide_nums=False, roff=(-7.0,-14.8), voff=(-7.0,13.8))
+S("open_automation:CONN_RJ45",
+  {"1":(10.16,-7.62,180,"~","passive",2.54),
+   "2":(10.16,-5.08,180,"~","passive",2.54),
+   "3":(10.16,-2.54,180,"~","passive",2.54),
+   "4":(10.16,0,180,"~","passive",2.54),
+   "5":(10.16,2.54,180,"~","passive",2.54),
+   "6":(10.16,5.08,180,"~","passive",2.54),
+   "7":(10.16,7.62,180,"~","passive",2.54),
+   "8":(10.16,10.16,180,"~","passive",2.54),
+   "9":(-10.16,10.16,0,"~","passive",2.54),
+   "10":(-10.16,7.62,0,"~","passive",2.54),
+   "11":(-10.16,-5.08,0,"~","passive",2.54),
+   "12":(-10.16,-7.62,0,"~","passive",2.54)},
+  [], hide_nums=False, roff=(0,-18.03), voff=(0,-15.49))
 # ESP32-S3-WROOM-1: pin positions extracted from the official Espressif library symbol.
 # Symbol is 91mm wide (x=-45.7..45.7), 81mm tall (y=-40.6..40.6).
 # Left-side pins (x=-45.7, rot=0): EN(p3@35.6), JTAG(p32-35@12.7-20.3), flash(p28-30@-30.5..-35.6)
@@ -389,13 +387,13 @@ REFLET={"R_H":"R","R_V":"R","POT_H":"RV","POT_V":"RV","C_H":"C","C_V":"C","C_POL
         "INA4180_TSSOP14":"U","LM4040_DBZ":"U","AD7606_4":"U",
         "LASER_CAN_MON_PD":"LD",
         "LASER_CAN_DIODE_CASE":"LD",
-        "CONN2":"J","CONN3":"J","CONN4":"J","CONN5":"J","CONN6":"J","CONN8":"J","CONN10":"J","CONN_RJ45":"J",
+        "CONN2":"J","CONN3":"J","CONN4":"J","CONN5":"J","CONN6":"J","CONN8":"J","CONN10":"J",
         "BARREL_JACK_SWITCH":"J","L_H":"L","AP6320X_TSOT6":"U","NMOS":"Q",
         "Espressif:ESP32-S3-WROOM-1":"U",
         "LDO5":"U","SCHOTTKY":"D","USB_MINIB":"J","ESD_USB":"U"}
 # Hand-add (excluded from SMT BOM): only the THT 2.54mm I/O headers. Everything else, including
     # the SFH2201 signal PDs, ESP32-S3, AD7606, 3224W SMD pots, and USB Mini-B connector, is JLCPCB machine-placed.
-HAND={"CONN2","CONN3","CONN4","CONN5","CONN6","CONN8","CONN10","CONN_RJ45","BARREL_JACK_SWITCH"}
+HAND={"CONN2","CONN3","CONN4","CONN5","CONN6","CONN8","CONN10","open_automation:CONN_RJ45","BARREL_JACK_SWITCH"}
 NON_SMT_ASSEMBLY={"LASER_CAN_MON_PD","LASER_CAN_DIODE_CASE"}
 PASSIVE_GLYPH_NUMS=("R_H","R_V","POT_H","POT_V","C_H","C_V","PHOTODIODE","OPA_N","TLV9001_SOT23_5","NMOS","SCHOTTKY")
 
@@ -660,7 +658,10 @@ def build_sch_content(title,date,rev,parts,power,wires,junctions,labels,texts,mu
        '  (paper "A3")',"  (title_block",f'    (title "{title}")',f'    (date "{date}")',f'    (rev "{rev}")',
        '    (company "Vivonics")',"  )","  (lib_symbols"]
     used=sorted({t[0] for t in parts.values()} | {k for k,_,_ in power})
-    for name in used: P.append(sym_def(name))
+    for name in used:
+        block = sym_def(name)
+        if block:
+            P.append(block)
     P.append("  )")
     for ref,t in parts.items(): P.append(emit_part(ref,*t))
     for i,(kind,x,y) in enumerate(power,1): P.append(emit_power(kind,x,y,i))
@@ -1000,7 +1001,9 @@ def build_mcu():
 def build_power_io():
     parts={
         "JDC":("BARREL_JACK_SWITCH","24V DC IN",FP_BARREL,"DC-470-2.1GP",LCSC_BARREL,42,56),
-        "JRJ45":("CONN_RJ45","24V RJ45 IN",FP_RJ45,"R-RJ45R08P-C000",LCSC_RJ45,42,84),
+        "JRJ45":("open_automation:CONN_RJ45","CONN_RJ45",FP_RJ45,"R-RJ45R08P-C000",LCSC_RJ45,42,84),
+        "RJR45PWR":("R_H","10K",FP_R,"CRCW060310K0FKEA",LCSC_10K,26.7,76.2),
+        "RJR45LED":("R_H","10K",FP_R,"CRCW060310K0FKEA",LCSC_10K,26.7,91.4),
         "CIN24A":("C_V","1uF 100V",FP_1206,"CL31B105KCHNNNE",LCSC_1UF_100V,68,52),
         "CIN24B":("C_V","1uF 100V",FP_1206,"CL31B105KCHNNNE",LCSC_1UF_100V,80,52),
         "CIN24BULK":("C_POL_V","22uF 100V",FP_CELEC_8X10,"RVT2A220M0810",LCSC_22UF_100V,92,52),
@@ -1089,7 +1092,11 @@ def build_power_io():
         (rj45_gnd_right_x, rj45_gnd_y),
         (rj45_gnd_symbol[0], rj45_gnd_y),
     ])
-    for rj45_pin in ["1","2","3","6","10","12"]:
+    wires.append([pin(parts,"RJR45PWR","2"), pin(parts,"JRJ45","10")])
+    wires.append([pin(parts,"RJR45LED","2"), pin(parts,"JRJ45","12")])
+    add_rail(power,wires,"VIN_24V",pin(parts,"RJR45PWR","1"))
+    add_rail(power,wires,"+3V3",pin(parts,"RJR45LED","1"))
+    for rj45_pin in ["1","2","3","6"]:
         ncs.append(pin(parts,"JRJ45",rj45_pin))
     for cap in ["CIN24A","CIN24B","CIN24BULK"]:
         add_rail(power,wires,"VIN_24V",pin(parts,cap,"1"))
