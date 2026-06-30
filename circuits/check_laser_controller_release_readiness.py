@@ -194,10 +194,10 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
         ),
     ),
     ReleaseBlocker(
-        "VIN12_INPUT_PROTECTION_AND_BUCK_LAYOUT",
-        "12 V barrel input protection and buck layout are not released",
-        "J5 barrel input and the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout.",
-        "Define the adapter current limit and input protection, then verify AP63205/AP63200 switch-loop routing, copper width, and temperature before production.",
+        "VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT",
+        "24 V barrel/RJ45 input protection and buck layout are not released",
+        "J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout.",
+        "Define the adapter current limit, RJ45 harness current limit, and input protection, then verify AP63205/AP63200 switch-loop routing, copper width, and temperature before production.",
         (
             Evidence(
                 "circuits/POWER_TREE.md",

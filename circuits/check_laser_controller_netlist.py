@@ -237,9 +237,11 @@ def main() -> int:
     power_io_components = {
         "CINA": ("100nF", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
         "CREF": ("100nF MPD bias", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
-        "JDC": ("12V DC IN", "Open_Automation:BarrelJack_OD5.5_ID2.5", "DC-470-2.1GP", "C194407"),
-        "CIN12A": ("10uF VIN", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
-        "CIN12B": ("10uF VIN", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
+        "JDC": ("24V DC IN", "Open_Automation:BarrelJack_OD5.5_ID2.5", "DC-470-2.1GP", "C194407"),
+        "JRJ45": ("24V RJ45 IN", "Connector_RJ:RJ45_Amphenol_RJHSE538X", "R-RJ45R08P-C000", "C386757"),
+        "CIN24A": ("1uF 100V VIN", "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder", "CL31B105KCHNNNE", "C13832"),
+        "CIN24B": ("1uF 100V VIN", "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder", "CL31B105KCHNNNE", "C13832"),
+        "CIN24BULK": ("22uF 100V VIN", "Capacitor_SMD:C_Elec_8x10.2", "RVT2A220M0810", "C90264"),
         "U5V": ("AP63205WU-7 5V BUCK", "Package_TO_SOT_SMD:TSOT-23-6", "AP63205WU-7", "C2071056"),
         "L5V": ("4.7uH", "Open_Automation:L_5.4x5.3_H3", "MWSA0503S-4R7MT", "C408410"),
         "CBST5V": ("100nF BST", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
@@ -352,6 +354,10 @@ def main() -> int:
         ("3", "3", "passive"),
     ]:
         expect_pin(ref_for("POWER_IO", "JDC"), pin, function, pintype)
+    for pin in ["4", "5", "7", "8", "9", "11"]:
+        expect_pin(ref_for("POWER_IO", "JRJ45"), pin, pin, "passive")
+    for pin in ["1", "2", "3", "6", "10", "12"]:
+        expect_pin(ref_for("POWER_IO", "JRJ45"), pin, pin, "passive+no_connect")
     for pin, function, pintype in [
         ("1", "~{DCD}", "input+no_connect"),
         ("2", "~{RI}/CLK", "bidirectional+no_connect"),
@@ -547,6 +553,7 @@ def main() -> int:
     cp2102 = "U10"
     adc = ref_for("POWER_IO", "UADC")
     barrel_j = ref_for("POWER_IO", "JDC")
+    rj45_j = ref_for("POWER_IO", "JRJ45")
     d_usb = ref_for("POWER_IO", "D10")
     d_ext = ref_for("POWER_IO", "D11")
     buck5 = ref_for("POWER_IO", "U5V")
@@ -665,7 +672,7 @@ def main() -> int:
     for index, (color, esp_pin) in enumerate(zip(WL, ["18", "19", "20", "9"]), 1):
         exact(f"PWM{index}", [(ref_for(f"LASER_{color}", "R21"), "1"), ("U9", esp_pin)])
 
-    # Board interfaces: on-board signal ADC, 12 V barrel input, buck supplies, and 5V input OR-ing.
+    # Board interfaces: on-board signal ADC, 24 V barrel/RJ45 input, buck supplies, and 5V input OR-ing.
     adc_input_pin = {1: "49", 2: "51", 3: "57", 4: "59"}
     for index, color in enumerate(WL, 1):
         sheet = f"TIA_{color}"
@@ -701,10 +708,13 @@ def main() -> int:
     laser_vplus_nodes.append((ref_for("LASER_BLUE", "LD"), "1"))
     exact("LASER_V+", sorted(laser_vplus_nodes))
     exact("VBUS_5V", [("C41", "1"), ("C42", "1"), ("D10", "1"), ("D13", "1"), ("D14", "2"), (d_usb, "1"), ("D9", "2"), ("R55", "2")])
-    exact("VIN_12V", [
+    exact("VIN_24V", [
         (barrel_j, "1"),
-        (ref_for("POWER_IO", "CIN12A"), "1"),
-        (ref_for("POWER_IO", "CIN12B"), "1"),
+        (rj45_j, "4"),
+        (rj45_j, "5"),
+        (ref_for("POWER_IO", "CIN24A"), "1"),
+        (ref_for("POWER_IO", "CIN24B"), "1"),
+        (ref_for("POWER_IO", "CIN24BULK"), "1"),
         (buck5, "2"),
         (buck5, "3"),
         (laser_buck, "2"),
@@ -784,9 +794,14 @@ def main() -> int:
         (ldo, "2"),
         (barrel_j, "2"),
         (barrel_j, "3"),
+        (rj45_j, "7"),
+        (rj45_j, "8"),
+        (rj45_j, "9"),
+        (rj45_j, "11"),
         (ref_for("POWER_IO", "C50"), "2"),
-        (ref_for("POWER_IO", "CIN12A"), "2"),
-        (ref_for("POWER_IO", "CIN12B"), "2"),
+        (ref_for("POWER_IO", "CIN24A"), "2"),
+        (ref_for("POWER_IO", "CIN24B"), "2"),
+        (ref_for("POWER_IO", "CIN24BULK"), "2"),
         (ref_for("POWER_IO", "U5V"), "4"),
         (ref_for("POWER_IO", "C5VOUT1"), "2"),
         (ref_for("POWER_IO", "C5VOUT2"), "2"),
@@ -940,6 +955,7 @@ def main() -> int:
         (ref_for("LASER_BLUE", "LD"), "2"),  # PLT5 450GB case pin is not tied to MPD_RAW4.
         (adc, "15"),  # FRSTDATA is unused in two-wire serial readout.
     }
+    allowed_single_node_pins.update({(rj45_j, pin) for pin in ["1", "2", "3", "6", "10", "12"]})
     for color in WL:
         tia_ref = ref_for(f"TIA_{color}", "U1")
         allowed_single_node_pins.update({(tia_ref, "1"), (tia_ref, "5"), (tia_ref, "8")})
@@ -1006,7 +1022,7 @@ def main() -> int:
     }
     checks.append((not multi_net_pins, "physical pin appears on one net only", f"{multi_net_pins}"))
 
-    hand_add_refs = {barrel_j} | {
+    hand_add_refs = {barrel_j, rj45_j} | {
         ref_for(f"LASER_{color}", "LD") for color in WL
     }
     assembled = [comp for comp in comps if comp["ref"] not in hand_add_refs]
@@ -1015,14 +1031,16 @@ def main() -> int:
         for comp in assembled
         if not comp["lcsc"] or not comp["mpn"] or not comp["footprint"]
     ]
-    checks.append((len(comps) == 174, "component count", f"got {len(comps)}, expected 174"))
-    checks.append((len(assembled) == 169, "assembled component count", f"got {len(assembled)}, expected 169"))
+    checks.append((len(comps) == 176, "component count", f"got {len(comps)}, expected 176"))
+    checks.append((len(assembled) == 170, "assembled component count", f"got {len(assembled)}, expected 170"))
     checks.append((not missing_fields, "assembled component fields", f"missing {missing_fields}"))
 
     expected_lcsc_counts = {
         "C106245": 8,
         "C83056": 23,
-        "C318691": 18,
+        "C318691": 16,
+        "C13832": 2,
+        "C90264": 1,
         "C201677": 4,
         "C20917": 4,
         "C2907002": 16,

@@ -78,6 +78,20 @@ CAP_RATINGS = {
         package="0805",
         source="LCSC C318691 / Samsung CL21A106KAYNNNG page: 10uF +/-10%, X5R, 25Vdc.",
     ),
+    "CL31B105KCHNNNE": CapacitorRating(
+        value="1uF",
+        voltage_v=100.0,
+        dielectric="X7R",
+        package="1206",
+        source="LCSC C13832 / Samsung CL31B105KCHNNNE page: 1uF +/-10%, X7R, 100Vdc.",
+    ),
+    "RVT2A220M0810": CapacitorRating(
+        value="22uF",
+        voltage_v=100.0,
+        dielectric="aluminum electrolytic",
+        package="8x10.2mm SMD can",
+        source="LCSC C90264 / ROQANG RVT2A220M0810 page: 22uF, 100Vdc aluminum electrolytic.",
+    ),
     "CC0603JRNPO9BN100": CapacitorRating(
         value="10pF",
         voltage_v=50.0,
@@ -218,10 +232,10 @@ def capacitor_stress(comp: dict[str, str]) -> CapacitorStress:
             voltage_v=5.05,
             reason="LM4040 monitor-PD bias reference capacitor is across the nominal 5V LASER_V+ to MPD_BIAS reference",
         )
-    if value == "10uF VIN":
+    if value in {"1uF 100V VIN", "22uF 100V VIN"}:
         return CapacitorStress(
-            voltage_v=12.0,
-            reason="12V barrel-input buck capacitor on VIN_12V",
+            voltage_v=24.0,
+            reason="24V barrel/RJ45 input capacitor on VIN_24V",
         )
     if value == "10uF laser buck":
         return CapacitorStress(

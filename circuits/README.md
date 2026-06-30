@@ -58,7 +58,7 @@ python3 gen_laser_controller.py
 | `laser_controller.kicad_pro` | KiCad 7 project file. |
 | `LASER_MONITOR_PD_FEEDBACK.md` | Design note for the internal laser monitor photodiode feedback path and production APC implications. |
 | `LASER_CURRENT_THERMAL_BUDGET.md` | Laser current-loop thermal budget and common-rail bench limitation. |
-| `POWER_TREE.md` | Rail/source/load review and release gates for 12 V barrel input, USB VBUS, BUCK_5V, +5V, +3V3, LASER_V+, and GND. |
+| `POWER_TREE.md` | Rail/source/load review and release gates for 24 V barrel/RJ45 input, USB VBUS, BUCK_5V, +5V, +3V3, LASER_V+, and GND. |
 | `POWER_THERMAL_BUDGET.md` | AP2112/ESP32-S3 thermal budget and bench-vs-production regulator decision. |
 | `../docs/source-register.md` | Datasheet/source register for active components, passives, manufacturing capability, and open source gaps. |
 | `../docs/part-notes/` | Compact datasheet notes for package-sensitive and behavior-sensitive parts. |
@@ -96,10 +96,10 @@ MCU  ESP32-S3-WROOM-1 (2.4 GHz Wi-Fi 802.11 b/g/n / Bluetooth LE / native USB)
   GPIO0/BOOT pulled up with local PROG button ; FACT button on GPIO1
 
 POWER / IO
-  VIN_12V = J5 center-positive barrel jack copied from access-controller
-  BUCK_5V = U15 AP63205WU-7 from VIN_12V ; D6 ORs it with USB VBUS through D5 into +5V
+  VIN_24V = J5 center-positive barrel jack + J6 RJ45 pins 4/5 copied from access-controller
+  BUCK_5V = U15 AP63205WU-7 from VIN_24V ; D6 ORs it with USB VBUS through D5 into +5V
   +3V3 = AP2112K-3.3 from +5V
-  LASER_V+ = U16 AP63200WU-7 from VIN_12V, set near 10.72V for the shared bench laser rail
+  LASER_V+ = U16 AP63200WU-7 from VIN_24V, set near 10.72V for the shared bench laser rail
   U14 AD7606BSTZ-4RL → VOUT1..4, CONVST, SCLK, CS, BUSY, RESET, DOUTA, DOUTB
   LD1..LD4 direct TO-can footprints carry LASER_N/MPD_RAW pairs + LASER_V+
   MPD_RAWx -> 750R sense -> MPD_BIAS ; INA4180A1 gain 20 -> 1k/100nF -> MPDx ESP32 ADC
@@ -139,8 +139,8 @@ procurement/assembly items listed below.
 | Q1–Q4 | AO3400A N-MOSFET (SOT-23) | **C20917** | Basic | laser low-side sink pass device. |
 | D5–D6 | SS14 (SMA) | **C2480** | Basic | 5V OR-ing Schottky, 40V/1A. D5 = USB `VBUS_5V`, D6 = onboard `BUCK_5V`. |
 | D7-D14 | LESD5D5.0CT1G(UMW) / 1N5819HW VBUS support | **C5199850 / C82544** | — | copied MCU-sheet USB data/VBUS ESD and USB VBUS isolation. |
-| U15 | AP63205WU-7 (TSOT-23-6) | **C2071056** | — | 12 V input to onboard 5 V buck; output `BUCK_5V` feeds D6. |
-| U16 | AP63200WU-7 (TSOT-23-6) | **C2071868** | — | 12 V input to adjustable shared bench `LASER_V+` buck. |
+| U15 | AP63205WU-7 (TSOT-23-6) | **C2071056** | — | 24 V input to onboard 5 V buck; output `BUCK_5V` feeds D6. |
+| U16 | AP63200WU-7 (TSOT-23-6) | **C2071868** | — | 24 V input to adjustable shared bench `LASER_V+` buck. |
 | L1 | 4.7uH shielded inductor | **C408410** | — | AP63205 5 V buck inductor, copied from access-controller libraries. |
 | L2 | 10uH shielded inductor | **C98364** | — | AP63200 laser buck inductor, copied from access-controller libraries. |
 | RV1–RV4 | 10k SMD trimmer | **C81348** | Extended | VBIAS, Bourns **3224W-1-103E** (SMD, JLCPCB-mountable). |
@@ -154,6 +154,8 @@ procurement/assembly items listed below.
 | R (10Ω) | 10Ω 2512 2W 1% | **C5123624** | Basic | laser source-sense resistor. |
 | C (10pF) | 10pF C0G 0603 | **C106245** | Extended | Cf / loop-comp. |
 | C (1µF) | 1µF 0402 25V X5R | **C7472946** | — | PWM filter / PD-bias bypass / LDO input. |
+| C61-C62 | 1µF 1206 100V X7R | **C13832** | — | high-voltage `VIN_24V` ceramic input capacitors copied from access-controller PoE input filtering. |
+| C70 | 22µF 100V SMD electrolytic | **C90264** | — | `VIN_24V` input bulk capacitor copied from access-controller PoE bulk input. |
 | C (100nF) | 100nF 0402 16V X7R | **C83056** | — | decoupling and monitor-PD low-pass filters. |
 | C (10µF) | 10µF 0805 25V X5R | **C318691** | — | bulk decoupling. |
 | J1-J2 | USB Mini-B receptacle | **C46391** | (JLC assy) | `920-462A2021S10101` metadata on KiCad Würth `65100516121` land pattern; resolve exact connector before fab. |
@@ -166,7 +168,8 @@ procurement/assembly items listed below.
 | LD2 | D6505I, `OptoDevice:LaserDiode_TO18-D5.6-3` | Direct red laser can. |
 | LD3 | PLT5 520EB_P, `OptoDevice:LaserDiode_TO56-3` | Direct green laser can. |
 | LD4 | PLT5 450GB, `OptoDevice:LaserDiode_TO56-3` | Direct blue laser can; case pad is intentionally no-connect and `MPD_RAW4` stays spare/open. |
-| J5 | 12 V DC barrel jack, `Open_Automation:BarrelJack_OD5.5_ID2.5` | Center-positive 12 V input, GANGYUAN `DC-470-2.1GP` / LCSC **C194407**, copied from the access-controller libraries. |
+| J5 | 24 V DC barrel jack, `Open_Automation:BarrelJack_OD5.5_ID2.5` | Center-positive 24 V input, GANGYUAN `DC-470-2.1GP` / LCSC **C194407**, copied from the access-controller libraries. |
+| J6 | 24 V RJ45 power input, `Connector_RJ:RJ45_Amphenol_RJHSE538X` | RJ45 pins 4/5 to `VIN_24V`, pins 7/8/9/11 to GND, Ckmtw `R-RJ45R08P-C000` / LCSC **C386757**, copied from the access-controller libraries. |
 
 ## ⚠ Before PCB layout — required pin-accuracy pass
 
@@ -241,12 +244,14 @@ policy; it intentionally fails sustained Wi-Fi/BLE load cases on the current SOT
 `check_laser_current_budget.py` separately checks the laser command clamp, sense resistor power,
 AO3400A heat, and safe `LASER_V+` window for the selected diode forward voltage.
 `check_passive_derating.py` verifies all assembled passive MPNs against explicit bench
-voltage/power ratings; current worst cases are the 12 V input/buck capacitors at
-48.0% of rating, `R57` at 40.0% resistor power, and `R61` at 13.3% resistor voltage.
+voltage/power ratings; current worst cases are `R57` at 40.0% resistor power,
+the `100nF MPD bias` capacitor at 31.6% of rating, and `R61` at 13.3% resistor voltage.
+The `VIN_24V` input capacitors are at 24.0% of their 100 V rating under nominal
+24 V steady-state input.
 The generated inventory separately reports routed copper width/via geometry by
 net class and whole-board explicit route connectivity. In the current recovered
 placement PCB those route sections are empty: signal/control multi-pad nets are
-not explicitly routed, `+3V3`/`+5V`/`VIN_12V`/`BUCK_5V`/`GND`/`LASER_V+`/`VBUS_5V` still need
+not explicitly routed, `+3V3`/`+5V`/`VIN_24V`/`BUCK_5V`/`GND`/`LASER_V+`/`VBUS_5V` still need
 pours or trunks, and the laser sense returns have no high-current GND vias.
 Netlist export is *not* full
 ERC; `PWR_FLAG`s declare externally-supplied rails, but GUI ERC still must be run and reviewed

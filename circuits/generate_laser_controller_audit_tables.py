@@ -30,8 +30,8 @@ from check_laser_controller_netlist import parse_components, parse_netlist
 from pcb_critical_routes import CRITICAL_ROUTE_LINKS, _point_in_pad, parse_pad_geometry_from_text
 
 
-ZONE_OR_RAIL_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_12V", "/POWER_IO/BUCK_5V", "LASER_V+"}
-EXPECTED_ZONE_OR_RAIL_PENDING_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_12V", "/POWER_IO/BUCK_5V", "LASER_V+"}
+ZONE_OR_RAIL_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_24V", "/POWER_IO/BUCK_5V", "LASER_V+"}
+EXPECTED_ZONE_OR_RAIL_PENDING_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_24V", "/POWER_IO/BUCK_5V", "LASER_V+"}
 LASER_CATHODE_MIN_WIDTH_MM = 0.60
 LASER_CATHODE_MAX_LENGTH_MM = 70.0
 LASER_SUPPLY_MIN_WIDTH_MM = 0.80
@@ -39,7 +39,7 @@ LASER_SUPPLY_MAX_LENGTH_MM = 45.0
 LASER_SENSE_RETURN_MAX_PATH_MM = 6.0
 RAIL_PENDING_RELEASE_ACTION = {
     "VBUS_5V": "Route protected USB power-entry copper from the copied MCU-sheet VBUS isolation diodes to D5 anode; keep ESD return short.",
-    "VIN_12V": "Route the J5 barrel input to the AP63205/AP63200 input capacitors and VIN pins with protected, short 12 V copper.",
+    "VIN_24V": "Route the J5 barrel/J6 RJ45 input to the AP63205/AP63200 input capacitors and VIN pins with protected, short 24 V copper.",
     "/POWER_IO/BUCK_5V": "Route the AP63205 output from L1/C64/C65 to D6 anode; keep the switch loop compact and away from analog inputs.",
     "+5V": "Route or pour the post-OR board 5 V rail to every analog, laser-driver, and LDO input load; verify diode drop and current.",
     "+3V3": "Route the AP2112 output rail to ESP32-S3 and strap/decoupling loads; verify LDO thermal margin under radio bursts.",
@@ -71,8 +71,8 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
         return "AP63200-generated shared bench laser anode / monitor-PD cathode rail to the direct LDx footprints and LM4040 monitor-bias front end."
     if net == "VBUS_5V":
         return "Joined USB VBUS after the copied MCU-sheet 1N5819HW isolation diodes, local VBUS ESD/bulk parts, and D5 anode into +5V OR-ing."
-    if net == "VIN_12V":
-        return "12 V center-positive barrel input after J5, feeding the AP63205 +5 V buck and AP63200 laser buck input pins and local input capacitors."
+    if net == "VIN_24V":
+        return "24 V center-positive barrel/RJ45 input after J5/J6, feeding the AP63205 +5 V buck and AP63200 laser buck input pins and local input capacitors."
     if net == "/POWER_IO/BUCK_5V":
         return "AP63205 fixed 5 V buck output after L1 and output capacitors, before D6 OR-ing into the board +5 V rail."
     if re.match(r"Net-\(U15-SW\)$", net):
@@ -299,8 +299,8 @@ def pin_intent_for_node(
     if value == "AP63205WU-7 5V BUCK":
         return {
             "1": "AP63205 fixed-output FB pin tied to the BUCK_5V output node after L1.",
-            "2": "AP63205 EN tied to VIN_12V for always-on 5 V buck operation when the barrel input is present.",
-            "3": "AP63205 VIN from the protected 12 V barrel input.",
+            "2": "AP63205 EN tied to VIN_24V for always-on 5 V buck operation when the barrel/RJ45 input is present.",
+            "3": "AP63205 VIN from the protected 24 V barrel/RJ45 input.",
             "4": "AP63205 ground return.",
             "5": "AP63205 SW switch node into L1 and the bootstrap capacitor.",
             "6": "AP63205 BST bootstrap pin with 100 nF to SW.",
@@ -308,18 +308,33 @@ def pin_intent_for_node(
     if value == "AP63200WU-7 10.7V BUCK":
         return {
             "1": "AP63200 feedback pin at the 274k/22.1k divider midpoint for the 10.7 V laser rail.",
-            "2": "AP63200 EN tied to VIN_12V for always-on laser buck operation when the barrel input is present.",
-            "3": "AP63200 VIN from the protected 12 V barrel input.",
+            "2": "AP63200 EN tied to VIN_24V for always-on laser buck operation when the barrel/RJ45 input is present.",
+            "3": "AP63200 VIN from the protected 24 V barrel/RJ45 input.",
             "4": "AP63200 ground return.",
             "5": "AP63200 SW switch node into L2 and the bootstrap capacitor.",
             "6": "AP63200 BST bootstrap pin with 100 nF to SW.",
         }.get(pin, "Review required: AP63200 unknown pin.")
-    if value == "12V DC IN":
+    if value == "24V DC IN":
         return {
-            "1": "Center-positive barrel input pin feeding VIN_12V.",
+            "1": "Center-positive barrel input pin feeding VIN_24V.",
             "2": "Barrel sleeve ground return.",
             "3": "Barrel jack switch/sleeve contact tied to board ground, matching the access-controller footprint convention.",
         }.get(pin, "Review required: barrel jack unknown pin.")
+    if value == "24V RJ45 IN":
+        return {
+            "1": "RJ45 contact intentionally unused on this power-only input.",
+            "2": "RJ45 contact intentionally unused on this power-only input.",
+            "3": "RJ45 contact intentionally unused on this power-only input.",
+            "4": "RJ45 power contact feeding VIN_24V, copied from the access-controller POWER convention.",
+            "5": "RJ45 power contact feeding VIN_24V, copied from the access-controller POWER convention.",
+            "6": "RJ45 contact intentionally unused on this power-only input.",
+            "7": "RJ45 return contact tied to GND, copied from the access-controller return convention.",
+            "8": "RJ45 return contact tied to GND, copied from the access-controller return convention.",
+            "9": "RJ45 return/shield-related contact tied to GND, copied from the access-controller return convention.",
+            "10": "RJ45 LED/contact pin intentionally unused.",
+            "11": "RJ45 return/shield-related contact tied to GND, copied from the access-controller return convention.",
+            "12": "RJ45 LED/contact pin intentionally unused.",
+        }.get(pin, "Review required: RJ45 unknown pin.")
     if value in {"USB Mini-B", "USB_MINI_B"}:
         return {
             "1": "USB Mini-B VBUS entry into copied MCU-sheet VBUS isolation.",

@@ -137,8 +137,10 @@ MCU_REF_MAP = {
 
 POWER_REF_MAP = {
     "JDC": "J5",
-    "CIN12A": "C61",
-    "CIN12B": "C62",
+    "JRJ45": "J6",
+    "CIN24A": "C61",
+    "CIN24B": "C62",
+    "CIN24BULK": "C70",
     "U5V": "U15",
     "L5V": "L1",
     "CBST5V": "C63",

@@ -588,7 +588,7 @@
       },
       {
         "netclass": "Power_Rails",
-        "pattern": "VIN_12V"
+        "pattern": "VIN_24V"
       },
       {
         "netclass": "Power_Rails",

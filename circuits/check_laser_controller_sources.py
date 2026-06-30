@@ -59,7 +59,8 @@ DOCUMENTATION_DESIGNATOR_GUARDS = [
             "| U10 | CP2102N-A02-GQFN28R",
             "| U11 | AP2112K-3.3",
             "| J1-J2 | USB Mini-B receptacle",
-            "| J5 | 12 V DC barrel jack",
+            "| J5 | 24 V DC barrel jack",
+            "| J6 | 24 V RJ45 power input",
         ],
         [
             "| U10 | USBLC6-2SC6",

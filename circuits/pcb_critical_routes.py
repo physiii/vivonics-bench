@@ -187,8 +187,10 @@ POWER_ROUTE_LINKS = [
     ("USB-UART isolation diode to board VBUS", ("MCU_ESP32-S3", "D10", "1", "POWER_IO", "D10", "1"), 0.50),
     ("Native USB VBUS connector to isolation diode", ("MCU_ESP32-S3", "J2", "1", "MCU_ESP32-S3", "D13", "2"), 0.50),
     ("Native USB isolation diode to board VBUS", ("MCU_ESP32-S3", "D13", "1", "POWER_IO", "D10", "1"), 0.50),
-    ("VIN12 barrel to 5V buck input", ("POWER_IO", "JDC", "1", "POWER_IO", "U5V", "3"), 0.60),
-    ("VIN12 barrel to laser buck input", ("POWER_IO", "JDC", "1", "POWER_IO", "ULASER", "3"), 0.60),
+    ("VIN24 barrel to 5V buck input", ("POWER_IO", "JDC", "1", "POWER_IO", "U5V", "3"), 0.60),
+    ("VIN24 RJ45 to 5V buck input", ("POWER_IO", "JRJ45", "4", "POWER_IO", "U5V", "3"), 0.60),
+    ("VIN24 barrel to laser buck input", ("POWER_IO", "JDC", "1", "POWER_IO", "ULASER", "3"), 0.60),
+    ("VIN24 RJ45 to laser buck input", ("POWER_IO", "JRJ45", "4", "POWER_IO", "ULASER", "3"), 0.60),
     ("5V buck output to OR-ing diode", ("POWER_IO", "L5V", "2", "POWER_IO", "D11", "1"), 0.60),
     ("USB OR-ing diode cathode to +5V bulk", ("POWER_IO", "D10", "2", "POWER_IO", "C50", "1"), 0.60),
     ("5V buck OR-ing diode cathode to +5V bulk", ("POWER_IO", "D11", "2", "POWER_IO", "C50", "1"), 0.60),
@@ -229,8 +231,10 @@ PREROUTE_POWER_ROUTE_DESCRIPTIONS = {
     "Native USB isolation diode to board VBUS",
     "3V3 AP2112 output decap to ESP32 local decap",
     "ESP32 local 3V3 decap to EN pull-up",
-    "VIN12 barrel to 5V buck input",
-    "VIN12 barrel to laser buck input",
+    "VIN24 barrel to 5V buck input",
+    "VIN24 RJ45 to 5V buck input",
+    "VIN24 barrel to laser buck input",
+    "VIN24 RJ45 to laser buck input",
     "Laser buck output to direct LD rail",
 }
 DEFERRED_POWER_ROUTE_DESCRIPTIONS: set[str] = set()
@@ -266,7 +270,10 @@ POWER_LAYER_ROUTE_OVERRIDES = {
     "ESP32 3V3 pin to local decap": "In2.Cu",
     "ESP32 local 3V3 decap to EN pull-up": "In2.Cu",
     "3V3 bulk cap to BOOT pull-up": "In2.Cu",
-    "VIN12 barrel to laser buck input": "In2.Cu",
+    "VIN24 barrel to 5V buck input": "In2.Cu",
+    "VIN24 RJ45 to 5V buck input": "In2.Cu",
+    "VIN24 barrel to laser buck input": "In2.Cu",
+    "VIN24 RJ45 to laser buck input": "In2.Cu",
     "Laser buck output to direct LD rail": "In2.Cu",
 }
 VIA_SIZE = 0.60

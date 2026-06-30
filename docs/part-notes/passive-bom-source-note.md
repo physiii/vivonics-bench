@@ -10,6 +10,8 @@ Current passive families:
 - 10 pF C0G 0603: `CC0603JRNPO9BN100`, LCSC `C106245`
 - 100 nF 0402: `0402B104K160CT`, LCSC `C83056`
 - 1 uF 0402: `HGC0402R5105K250NTEJ`, LCSC `C7472946`
+- 1 uF 1206 100 V: `CL31B105KCHNNNE`, LCSC `C13832`
+- 22 uF 100 V SMD electrolytic: `RVT2A220M0810`, LCSC `C90264`
 - 10 uF 0805: `CL21A106KAYNNNG`, LCSC `C318691`
 - 1 k / 10 k / 30 k / 22 ohm / 10 M 0603 resistor families as encoded in
   the generated BOM and netlist checker.
@@ -25,8 +27,9 @@ Current verification:
 - The passive derating checker asserts that every assembled capacitor, resistor,
   and SMD trimmer MPN has an explicit bench rating entry and stays below the
   local steady-state voltage/power policy. Current worst cases are the
-  `100nF MPD bias` capacitor at 31.6% of 16 V, `R57` 1 k at 40.0% power,
-  and `R60` 10 k at 10.0% voltage.
+  `R57` 1 k at 40.0% power, the `100nF MPD bias` capacitor at 31.6% of 16 V,
+  and `R60` 10 k at 10.0% voltage. The `VIN_24V` input capacitors are at
+  24.0% of their 100 V steady-state rating.
 - The PCB checker verifies pad-net assignment, proximity, copper clearance, and
   route class membership.
 
