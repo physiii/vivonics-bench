@@ -85,6 +85,13 @@ CAP_RATINGS = {
         package="0603",
         source="Yageo CC0603JRNPO9BN100 specsheet: 10pF +/-5%, C0G, 50Vdc.",
     ),
+    "0402CG101J500NT": CapacitorRating(
+        value="100pF",
+        voltage_v=50.0,
+        dielectric="C0G/NP0",
+        package="0402",
+        source="LCSC C1546 / Fenghua 0402CG101J500NT page: 100pF +/-5%, C0G, 50Vdc.",
+    ),
 }
 
 
@@ -161,6 +168,14 @@ RES_RATINGS = {
         package="0402",
         source="LCSC C2929993 / FOJAN FRC0402F2212TS page: 22.1k, 62.5mW, 50V, +/-1%.",
     ),
+    "FRC0603F2743TS": ResistorRating(
+        value="274k",
+        power_w=0.10,
+        voltage_v=75.0,
+        tolerance="+/-1%",
+        package="0603",
+        source="LCSC C2942027 / FOJAN FRC0603F2743TS page: 274k, 100mW, 75V, +/-1%.",
+    ),
     "0603WAF4752T5E": ResistorRating(
         value="47.5k",
         power_w=0.10,
@@ -202,6 +217,31 @@ def capacitor_stress(comp: dict[str, str]) -> CapacitorStress:
         return CapacitorStress(
             voltage_v=5.05,
             reason="LM4040 monitor-PD bias reference capacitor is across the nominal 5V LASER_V+ to MPD_BIAS reference",
+        )
+    if value == "10uF VIN":
+        return CapacitorStress(
+            voltage_v=12.0,
+            reason="12V barrel-input buck capacitor on VIN_12V",
+        )
+    if value == "10uF laser buck":
+        return CapacitorStress(
+            voltage_v=10.77,
+            reason="AP63200 laser-buck output capacitor at the high green LASER_V+ rail margin",
+        )
+    if value in {"10uF 5V buck", "10uF +5V bulk"}:
+        return CapacitorStress(
+            voltage_v=5.1,
+            reason="5V buck/post-OR board rail bulk capacitor",
+        )
+    if value == "100nF BST":
+        return CapacitorStress(
+            voltage_v=5.0,
+            reason="AP63200/AP63205 bootstrap capacitor charged from the internal high-side gate-drive supply",
+        )
+    if value == "100pF FF":
+        return CapacitorStress(
+            voltage_v=10.77 - 0.8,
+            reason="AP63200 feed-forward capacitor across the top feedback resistor from LASER_V+ to the 0.8V FB node",
         )
     if value == "100nF MPD ADC":
         return CapacitorStress(
@@ -257,6 +297,18 @@ def resistor_stress(comp: dict[str, str]) -> ResistorStress:
             power_w=(10.77 - 5.0) * (10.77 - 5.0) / 2490.0,
             voltage_v=10.77 - 5.0,
             reason="LM4040 shunt-reference sink from MPD_BIAS to GND at the high green LASER_V+ rail margin",
+        )
+    if value == "274k FB":
+        return ResistorStress(
+            power_w=(10.77 - 0.8) * (10.77 - 0.8) / 274_000.0,
+            voltage_v=10.77 - 0.8,
+            reason="AP63200 top feedback resistor from LASER_V+ to the 0.8V FB node at the high green rail margin",
+        )
+    if value == "22.1K FB":
+        return ResistorStress(
+            power_w=0.8 * 0.8 / 22_100.0,
+            voltage_v=0.8,
+            reason="AP63200 bottom feedback resistor from FB to GND",
         )
     resistance_ohms = {
         "1k": 1_000.0,

@@ -7,7 +7,7 @@ Produces (1 channel, 4 wavelengths):
   tia_ir/red/green/blue.kicad_sch  — four on-board signal PD + OPA380 TIA sheets
   laser_ir/red/green/blue.kicad_sch — four constant-current laser sink sheets
   mcu.kicad_sch                    — imported access-controller ESP32-S3 MCU sheet
-  power_io.kicad_sch               — 5V OR-ing, laser supply, on-board AD7606-4 ADC, laser outputs, MPD high-side feedback
+  power_io.kicad_sch               — 12V barrel input, onboard 5V/laser bucks, AD7606-4 ADC, laser outputs, MPD feedback
   laser_controller_bom_jlcpcb.csv  — consolidated JLCPCB BOM
   laser_controller.kicad_pro       — minimal project file (written once if absent)
 
@@ -21,8 +21,8 @@ docs.) Control: copied access-controller ESP32-S3-WROOM-1 MCU sheet with
 CP2102N USB-UART, native USB Mini-B, reset/program/factory buttons, and
 discrete USB/VBUS ESD/isolation; 4× PWM → 4 laser drivers; 4 laser I-sense
 and 4 monitor-PD current-sense outputs → ESP32 ADC pins.
-Power: USB VBUS (5V) ‖ external J6 5V OR-ed via SS14 Schottkys → +5V; AP2112K-3.3 → +3V3;
-laser anode supply LASER_V+ (J5) is a separate rail.  Every SMT part carries visible-on-
+Power: USB VBUS (5V) and a 12V barrel jack feed the board; AP63205 makes the +5V rail,
+AP2112K-3.3 makes +3V3, and AP63200 makes the shared bench LASER_V+ rail. Every SMT part carries visible-on-
 click LCSC + Part Number fields (same convention as the access-controller project).
 
 Run:  python3 gen_laser_controller.py
@@ -118,6 +118,23 @@ S("NMOS", {"3":(0,5.08,270,"D","passive",2.54),"1":(-5.08,0,0,"G","input",2.54),
 S("SCHOTTKY", {"1":(-3.81,0,0,"A","passive",1.27),"2":(3.81,0,180,"K","passive",1.27)},
   [[(-3.81,0),(-1.27,0)],[(1.27,0),(3.81,0)],[(-1.27,1.27),(1.27,0),(-1.27,-1.27),(-1.27,1.27)],
    [(1.27,1.27),(1.27,-1.27)],[(1.27,1.27),(0.508,1.27)],[(1.27,-1.27),(2.032,-1.27)]])
+# Two-pin buck output inductor. Pin 1 is the switch-node side; pin 2 is the regulated rail.
+S("L_H", {"1":(-5.08,0,0,"1","passive",1.27),"2":(5.08,0,180,"2","passive",1.27)},
+  [[(-3.81,0),(-3.175,0.762),(-2.54,0),(-1.905,0.762),(-1.27,0),
+    (-0.635,0.762),(0,0),(0.635,0.762),(1.27,0),(1.905,0.762),
+    (2.54,0),(3.81,0)]],
+  hide_nums=True, roff=(-4.5,-3.0), voff=(-4.5,3.0))
+# Access-controller 12V barrel jack switch: pin 1 center-positive input, pins 2/3 sleeve/switch to GND.
+S("BARREL_JACK_SWITCH",
+  {"1":(7.62,2.54,180,"1","passive",2.54),
+   "3":(7.62,0,180,"3","passive",2.54),
+   "2":(7.62,-2.54,180,"2","passive",2.54)},
+  [[(-5.08,3.81),(5.08,3.81),(5.08,-3.81),(-5.08,-3.81),(-5.08,3.81)],
+   [(5.08,2.54),(1.27,2.54)],
+   [(5.08,0),(1.27,0),(1.27,-2.286),(0.635,-1.651)],
+   [(-3.81,-2.54),(-2.54,-2.54),(-1.27,-1.27),(0,-2.54),(5.08,-2.54)],
+   [(1.27,-2.286),(1.905,-1.651)]],
+  hide_nums=False, roff=(-4.5,-6.8), voff=(-4.5,6.4))
 # ESP32-S3-WROOM-1: pin positions extracted from the official Espressif library symbol.
 # Symbol is 91mm wide (x=-45.7..45.7), 81mm tall (y=-40.6..40.6).
 # Left-side pins (x=-45.7, rot=0): EN(p3@35.6), JTAG(p32-35@12.7-20.3), flash(p28-30@-30.5..-35.6)
@@ -194,6 +211,16 @@ SYM["Espressif:ESP32-S3-WROOM-1"] = {"pins": _ep, "power": False, "hide_nums": F
 S("LDO5",{"1":(0,3.81,270,"VIN","power_in",2.54),"2":(0,-3.81,90,"GND","power_in",2.54),
           "5":(5.08,0,180,"VOUT","power_out",2.54),"3":(-5.08,1.27,0,"EN","input",2.54),"4":(-5.08,-1.27,0,"NC","passive",2.54)},
   [[(-2.54,3.81),(2.54,3.81),(2.54,-3.81),(-2.54,-3.81),(-2.54,3.81)]])
+# AP63200/AP63205 TSOT-23-6 buck regulator family: 1=FB, 2=EN, 3=IN, 4=GND, 5=SW, 6=BST.
+S("AP6320X_TSOT6",
+  {"3":(-10.16,5.08,0,"IN","power_in",2.54),
+   "2":(-10.16,0,0,"EN","input",2.54),
+   "4":(-10.16,-5.08,0,"GND","power_in",2.54),
+   "5":(10.16,5.08,180,"SW","power_out",2.54),
+   "6":(10.16,0,180,"BST","passive",2.54),
+   "1":(10.16,-5.08,180,"FB","input",2.54)},
+  [[(-7.62,7.62),(7.62,7.62),(7.62,-7.62),(-7.62,-7.62),(-7.62,7.62)]],
+  [("AP6320x",0,0,1.2)], hide_nums=False, roff=(-7.2,-10.5), voff=(-7.2,10.2))
 # PWR_FLAG — declares an external supply node as a power source (silences ERC "no power source")
 S("PWR_FLAG",{"1":(0,0,90,"~","power_out",0)},
   [[(0,0),(0,1.27)],[(0,1.27),(-1.016,1.905),(0,2.54),(1.016,1.905),(0,1.27)]],power=True)
@@ -335,6 +362,7 @@ for sn,ys in [("CONN4",[3.81,1.27,-1.27,-3.81]),("CONN2",[1.27,-1.27]),("CONN3",
 S("+5V",{"1":(0,0,90,"+5V","power_in",0)},[[(0,0),(0,2.54)],[(-1.27,1.524),(0,2.54),(1.27,1.524)]],power=True)
 S("+3V3",{"1":(0,0,90,"+3V3","power_in",0)},[[(0,0),(0,2.54)],[(-1.27,1.524),(0,2.54),(1.27,1.524)]],power=True)
 S("LASER_VP",{"1":(0,0,90,"LASER_V+","power_in",0)},[[(0,0),(0,2.54)],[(-1.27,1.524),(0,2.54),(1.27,1.524)]],power=True)
+S("VIN_12V",{"1":(0,0,90,"VIN_12V","power_in",0)},[[(0,0),(0,2.54)],[(-1.27,1.524),(0,2.54),(1.27,1.524)]],power=True)
 S("GND",{"1":(0,0,270,"GND","power_in",0)},[[(0,0),(0,-2.032)],[(-2.032,-2.032),(2.032,-2.032)],
   [(-1.27,-2.794),(1.27,-2.794)],[(-0.508,-3.556),(0.508,-3.556)]],power=True)
 
@@ -343,16 +371,18 @@ REFLET={"R_H":"R","R_V":"R","POT_H":"RV","POT_V":"RV","C_H":"C","C_V":"C","PHOTO
         "INA4180_TSSOP14":"U","LM4040_DBZ":"U","AD7606_4":"U",
         "LASER_CAN_MON_PD":"LD",
         "LASER_CAN_DIODE_CASE":"LD",
-        "CONN2":"J","CONN3":"J","CONN4":"J","CONN5":"J","CONN6":"J","CONN8":"J","CONN10":"J","NMOS":"Q",
+        "CONN2":"J","CONN3":"J","CONN4":"J","CONN5":"J","CONN6":"J","CONN8":"J","CONN10":"J",
+        "BARREL_JACK_SWITCH":"J","L_H":"L","AP6320X_TSOT6":"U","NMOS":"Q",
         "Espressif:ESP32-S3-WROOM-1":"U",
         "LDO5":"U","SCHOTTKY":"D","USB_MINIB":"J","ESD_USB":"U"}
 # Hand-add (excluded from SMT BOM): only the THT 2.54mm I/O headers. Everything else, including
     # the SFH2201 signal PDs, ESP32-S3, AD7606, 3224W SMD pots, and USB Mini-B connector, is JLCPCB machine-placed.
-HAND={"CONN2","CONN3","CONN4","CONN5","CONN6","CONN8","CONN10"}
+HAND={"CONN2","CONN3","CONN4","CONN5","CONN6","CONN8","CONN10","BARREL_JACK_SWITCH"}
 NON_SMT_ASSEMBLY={"LASER_CAN_MON_PD","LASER_CAN_DIODE_CASE"}
 PASSIVE_GLYPH_NUMS=("R_H","R_V","POT_H","POT_V","C_H","C_V","PHOTODIODE","OPA_N","TLV9001_SOT23_5","NMOS","SCHOTTKY")
 
 FP_R="Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder"
+FP_R0402="Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder"
 FP_R2512="Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
 FP_603="Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 FP_402="Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder"
@@ -362,7 +392,7 @@ FP_TSSOP14="Package_SO:TSSOP-14_4.4x5mm_P0.65mm"
 FP_AD7606="Package_QFP:LQFP-64_10x10mm_P0.5mm"
 FP_POT_SMD="Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical"   # SMD trimmer (JLCPCB-mountable)
 FP_SOT235="Package_TO_SOT_SMD:SOT-23-5"
-FP_SOT236="Package_TO_SOT_SMD:SOT-23-6"
+FP_TSOT236="Package_TO_SOT_SMD:TSOT-23-6"
 FP_SOT23="Package_TO_SOT_SMD:SOT-23"
 FP_SMA="Diode_SMD:D_SMA"
 FP_ESP32S3="RF_Module:ESP32-S3-WROOM-1"   # stock KiCad footprint available here; access-controller uses Espressif lib name for same module
@@ -370,6 +400,9 @@ FP_USB="Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal"  # Würth 651005
 FP_PD="OptoDevice:Osram_SFH2201"          # clear broadband Si PIN PD; in-tree KiCad footprint (pad1=K, pad2=A)
 FP_LASER_TO18="OptoDevice:LaserDiode_TO18-D5.6-3"
 FP_LASER_TO56="OptoDevice:LaserDiode_TO56-3"
+FP_BARREL="Open_Automation:BarrelJack_OD5.5_ID2.5"
+FP_IND_4R7="Open_Automation:L_5.4x5.3_H3"
+FP_IND_10="Open_Automation:L_4x4"
 FP_H2="Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical"
 FP_H5="Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical"
 FP_H6="Connector_PinHeader_2.54mm:PinHeader_1x06_P2.54mm_Vertical"
@@ -383,6 +416,9 @@ LCSC_1K="C2907002"; LCSC_10PF="C106245"; LCSC_10UF="C318691"; LCSC_1UF="C7472946
 LCSC_30K="C22984"    # 30k 0603 1% UNI-ROYAL 0603WAF3002T5E — PWM command divider
 LCSC_750R="C114635"  # 750Ω 0603 1% Yageo RC0603FR-07750RL — monitor-PD sense shunt
 LCSC_249K="C2099849" # 2.49k 0603 1% Vishay CRCW06032K49FKEAHP — LM4040 shunt-reference sink
+LCSC_221K="C2929993" # 22.1k 0402 1% FOJAN FRC0402F2212TS — AP63200 laser feedback bottom resistor
+LCSC_274K="C2942027" # 274k 0603 1% FOJAN FRC0603F2743TS — AP63200 laser feedback top resistor
+LCSC_100PF="C1546"   # 100pF 0402 C0G Fenghua 0402CG101J500NT — AP63200 optional feed-forward cap
 LCSC_POT10K="C81348" # Bourns 3224W-1-103 10k SMD trimmer (Extended) — replaces THT 3296W VBIAS pot
 LCSC_POT2M="C116323" # Bourns 3224W-1-205E 2M SMD trimmer (Extended) — TIA feedback rheostat
 LCSC_OPA="C201677"   # OPA380AID (Extended, low stock — buy buffer)
@@ -396,6 +432,11 @@ LCSC_SCH="C2480"     # SS14 SMA Schottky 40V/1A (Basic)
 LCSC_USB="C5120592"     # Würth 65100516121 USB Mini-B horizontal SMD (same as access-controller)
 LCSC_PD="C2900216"   # Osram SFH2201 clear broadband Si PIN PD (Extended); 300–1100nm covers 450/520/650/780nm
 LCSC_AD7606="C51512" # Analog Devices AD7606BSTZ-4RL 4ch 16-bit simultaneous-sampling ADC, LQFP-64
+LCSC_BARREL="C194407" # GANGYUAN DC-470-2.1GP barrel jack, 2.1mm ID/6.3mm OD, 30V/500mA, same access-controller footprint
+LCSC_AP63205="C2071056" # Diodes AP63205WU-7 fixed 5V, 3.8-32V input, 2A synchronous buck, TSOT-23-6
+LCSC_AP63200="C2071868" # Diodes AP63200WU-7 adjustable, 3.8-32V input, 2A synchronous buck, TSOT-23-6
+LCSC_L4R7="C408410"  # Sunlord MWSA0503S-4R7MT 4.7uH buck inductor, access-controller/Open_Automation footprint
+LCSC_L10UH="C98364"  # Sunlord WPN4020H100MT 10uH buck inductor, access-controller/Open_Automation footprint
 
 LASER_MPN = {
     "LASER_IR": {
@@ -934,15 +975,29 @@ def build_mcu():
 # ═══ SUB-SHEET: power_io.kicad_sch ═══
 def build_power_io():
     parts={
-        "D10":("SCHOTTKY","SS14",FP_SMA,"SS14",LCSC_SCH,80,60),
-        "D11":("SCHOTTKY","SS14",FP_SMA,"SS14",LCSC_SCH,80,74),
-        "J2":("CONN2","EXT 5V",FP_H2,"","",45,74),
-        "J5":("CONN2","LASER PSU",FP_H2,"","",45,110),
-        "C50":("C_V","10uF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,105,64),
-        "U3V3":("LDO5","AP2112K-3.3",FP_SOT235,"AP2112K-3.3TRG1",LCSC_LDO,130,64),
-        "C3V3IN":("C_V","1uF",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,116,64),
-        "C3V3OUT":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,148,60),
-        "C3V3BULK":("C_V","10uF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,162,60),
+        "JDC":("BARREL_JACK_SWITCH","12V DC IN",FP_BARREL,"DC-470-2.1GP",LCSC_BARREL,42,62),
+        "CIN12A":("C_V","10uF VIN",FP_805,"CL21A106KAYNNNG",LCSC_10UF,68,54),
+        "CIN12B":("C_V","10uF VIN",FP_805,"CL21A106KAYNNNG",LCSC_10UF,80,54),
+        "U5V":("AP6320X_TSOT6","AP63205WU-7 5V BUCK",FP_TSOT236,"AP63205WU-7",LCSC_AP63205,105,60),
+        "L5V":("L_H","4.7uH",FP_IND_4R7,"MWSA0503S-4R7MT",LCSC_L4R7,136,54),
+        "CBST5V":("C_V","100nF BST",FP_402,"0402B104K160CT",LCSC_100NF,124,57),
+        "C5VOUT1":("C_V","10uF 5V buck",FP_805,"CL21A106KAYNNNG",LCSC_10UF,156,42),
+        "C5VOUT2":("C_V","10uF 5V buck",FP_805,"CL21A106KAYNNNG",LCSC_10UF,168,42),
+        "D10":("SCHOTTKY","SS14",FP_SMA,"SS14",LCSC_SCH,205,72),
+        "D11":("SCHOTTKY","SS14",FP_SMA,"SS14",LCSC_SCH,205,54),
+        "C50":("C_V","10uF +5V bulk",FP_805,"CL21A106KAYNNNG",LCSC_10UF,225,64),
+        "U3V3":("LDO5","AP2112K-3.3",FP_SOT235,"AP2112K-3.3TRG1",LCSC_LDO,250,64),
+        "C3V3IN":("C_V","1uF",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,238,64),
+        "C3V3OUT":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,268,60),
+        "C3V3BULK":("C_V","10uF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,282,60),
+        "ULASER":("AP6320X_TSOT6","AP63200WU-7 10.7V BUCK",FP_TSOT236,"AP63200WU-7",LCSC_AP63200,105,90),
+        "LLASER":("L_H","10uH",FP_IND_10,"WPN4020H100MT",LCSC_L10UH,136,84),
+        "CBSTLASER":("C_V","100nF BST",FP_402,"0402B104K160CT",LCSC_100NF,124,87),
+        "CLASEROUT1":("C_V","10uF laser buck",FP_805,"CL21A106KAYNNNG",LCSC_10UF,148,84),
+        "CLASEROUT2":("C_V","10uF laser buck",FP_805,"CL21A106KAYNNNG",LCSC_10UF,160,84),
+        "RFBTOP":("R_V","274k FB",FP_R,"FRC0603F2743TS",LCSC_274K,190,90),
+        "RFBBOT":("R_V","22.1K FB",FP_R0402,"FRC0402F2212TS",LCSC_221K,190,106),
+        "CFFLASER":("C_V","100pF FF",FP_402,"0402CG101J500NT",LCSC_100PF,202,90),
         "UADC":("AD7606_4","AD7606BSTZ-4",FP_AD7606,"AD7606BSTZ-4RL",LCSC_AD7606,250,205),
         "CADCAV1":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,220,158),
         "CADCAV2":("C_V","100nF ADC AVCC",FP_402,"0402B104K160CT",LCSC_100NF,235,158),
@@ -970,13 +1025,39 @@ def build_power_io():
         parts[f"CMPD{i+1}"] = ("C_V","100nF MPD ADC",FP_402,"0402B104K160CT",LCSC_100NF,306,adc_y+2.54)
     parts = grid_parts(parts)
     power=[]; wires=[]; labels=[]; ncs=[]
-    # 5V OR-ing
+    # 12V barrel input and onboard 5V buck. USB VBUS remains an optional OR-ed 5V source.
+    add_rail(power,wires,"VIN_12V",pin(parts,"JDC","1"))
+    add_rail(power,wires,"GND",pin(parts,"JDC","2"))
+    add_rail(power,wires,"GND",pin(parts,"JDC","3"))
+    for cap in ["CIN12A","CIN12B"]:
+        add_rail(power,wires,"VIN_12V",pin(parts,cap,"1"))
+        add_rail(power,wires,"GND",pin(parts,cap,"2"))
+
+    add_rail(power,wires,"VIN_12V",pin(parts,"U5V","3"))
+    add_rail(power,wires,"VIN_12V",pin(parts,"U5V","2"))
+    add_rail(power,wires,"GND",pin(parts,"U5V","4"))
+    wires.append([pin(parts,"U5V","5"), pin(parts,"L5V","1")])
+    wires.append([pin(parts,"U5V","5"), pin(parts,"CBST5V","1")])
+    wires.append([pin(parts,"U5V","6"), pin(parts,"CBST5V","2")])
+    l5v_out = pin(parts,"L5V","2")
+    add_bent_label(wires,labels,l5v_out,[(l5v_out[0],47),(145,47)],"BUCK_5V",justify="right")
+    add_stub(wires,labels,pin(parts,"U5V","1"),"right","BUCK_5V",dist=12)
+    add_stub(wires,labels,pin(parts,"D11","1"),"left","BUCK_5V",dist=12)
+    buck5_bus_y = snap(32)
+    buck5_bus_left = snap_point((148, buck5_bus_y))
+    buck5_bus_points = [buck5_bus_left]
+    for cap in ["C5VOUT1","C5VOUT2"]:
+        cap_top = pin(parts,cap,"1")
+        cap_bus = snap_point((cap_top[0], buck5_bus_y))
+        wires.append([cap_top, cap_bus])
+        buck5_bus_points.append(cap_bus)
+        add_rail(power,wires,"GND",pin(parts,cap,"2"))
+    wires.append(buck5_bus_points)
+    add_label(labels, buck5_bus_left, "BUCK_5V", justify="right")
+
     add_stub(wires,labels,pin(parts,"D10","1"),"left","H:VBUS_5V",shape="input")
     add_rail(power,wires,"+5V",pin(parts,"D10","2"))
-    add_stub(wires,labels,pin(parts,"D11","1"),"left","EXT5V")
-    add_stub(wires,labels,pin(parts,"J2","1"),"left","EXT5V")
     add_rail(power,wires,"+5V",pin(parts,"D11","2"))
-    add_rail(power,wires,"GND",pin(parts,"J2","2"))
     add_rail(power,wires,"+5V",pin(parts,"C50","1")); add_rail(power,wires,"GND",pin(parts,"C50","2"))
     # Board 3V3 source for the imported access-controller MCU sheet.
     add_rail(power,wires,"+5V",pin(parts,"U3V3","1"))
@@ -990,8 +1071,24 @@ def build_power_io():
     add_rail(power,wires,"GND",pin(parts,"C3V3OUT","2"))
     add_rail(power,wires,"+3V3",pin(parts,"C3V3BULK","1"))
     add_rail(power,wires,"GND",pin(parts,"C3V3BULK","2"))
-    # laser supply rail
-    add_rail(power,wires,"LASER_VP",pin(parts,"J5","1")); add_rail(power,wires,"GND",pin(parts,"J5","2"))
+    # Shared bench laser rail: AP63200 adjustable buck, set near 10.72V by 274k/22.1k.
+    add_rail(power,wires,"VIN_12V",pin(parts,"ULASER","3"))
+    add_rail(power,wires,"VIN_12V",pin(parts,"ULASER","2"))
+    add_rail(power,wires,"GND",pin(parts,"ULASER","4"))
+    wires.append([pin(parts,"ULASER","5"), pin(parts,"LLASER","1")])
+    wires.append([pin(parts,"ULASER","5"), pin(parts,"CBSTLASER","1")])
+    wires.append([pin(parts,"ULASER","6"), pin(parts,"CBSTLASER","2")])
+    add_rail(power,wires,"LASER_VP",pin(parts,"LLASER","2"))
+    for cap in ["CLASEROUT1","CLASEROUT2"]:
+        add_rail(power,wires,"LASER_VP",pin(parts,cap,"1"))
+        add_rail(power,wires,"GND",pin(parts,cap,"2"))
+    fb_node = pin(parts,"RFBBOT","1")
+    wires.append([pin(parts,"ULASER","1"), fb_node])
+    wires.append([pin(parts,"RFBTOP","2"), fb_node])
+    wires.append([pin(parts,"CFFLASER","2"), fb_node])
+    add_rail(power,wires,"LASER_VP",pin(parts,"RFBTOP","1"))
+    add_rail(power,wires,"LASER_VP",pin(parts,"CFFLASER","1"))
+    add_rail(power,wires,"GND",pin(parts,"RFBBOT","2"))
     # On-board AD7606-4: four OPA380 TIA outputs into V1/V2/V3/V4, serial data back to ESP32.
     adc_input_pins = {"VOUT1":"49", "VOUT2":"51", "VOUT3":"57", "VOUT4":"59"}
     for net, adc_pin in adc_input_pins.items():
@@ -1102,20 +1199,24 @@ def build_power_io():
         bus_x=322,
         symbol_at=(327,142),
     )
-    # PWR_FLAGs — declare the externally-supplied rails as sources (silences ERC)
+    # PWR_FLAGs — declare real external/generated rails as sources (silences ERC)
     junctions=[]
-    declare_source(power,wires,"+5V",60,138)
-    declare_source(power,wires,"GND",78,138)
-    declare_source(power,wires,"LASER_VP",96,138)
+    declare_source(power,wires,"VIN_12V",42,150)
+    declare_source(power,wires,"+5V",60,150)
+    declare_source(power,wires,"GND",78,150)
+    declare_source(power,wires,"LASER_VP",96,150)
     da=pin(parts,"D10","1")                         # D10 anode = VBUS_5V net
     power.append(("PWR_FLAG",da[0],da[1]+9)); wires.append([da,(da[0],da[1]+9)]); junctions.append(da)
+    db=pin(parts,"D11","1")                         # D11 anode = onboard AP63205 5V buck output
+    power.append(("PWR_FLAG",db[0],db[1]-9)); wires.append([db,(db[0],db[1]-9)]); junctions.append(db)
     texts=[
-        ("Power & I/O  —  USB‖external 5V OR-ing, AP2112 +3V3 source, separate laser supply, on-board AD7606-4 ADC, monitor-PD front end",36,16,2.2),
-        ("J6 = ext +5V in;  USB VBUS (from MCU J1) ‖ J6 OR-ed via SS14 Schottkys (D5/D6) → +5V; U11 AP2112K-3.3 → +3V3.",36,22,1.3),
-        ("U14 AD7606BSTZ-4 digitizes VOUT1..4 on-board; ESP32 drives CONVST/SCLK/CS/RESET and reads BUSY + DOUTA/DOUTB.",36,28,1.3),
-        ("MPD_RAWx -> 750R sense to MPD_BIAS; INA4180A1 gain=20 -> 1k/100nF -> MPDx ESP32 ADC.",36,34,1.3),
-        ("LM4040C50 holds LASER_V+ - MPD_BIAS near 5V; PLT5 typ 150uA -> about 2.25V ADC and about 4.89V monitor-PD reverse bias.",36,40,1.3),
-        ("ISENSE headroom: keep I_laser <= 250 mA so V_sense (=I*10ohm) stays inside the ESP32 ADC range with margin.",36,46,1.3),
+        ("Power & I/O  —  12V barrel input, onboard AP63205 +5V buck, AP63200 laser buck, AD7606-4 ADC, monitor-PD front end",36,16,2.2),
+        ("J5 = 12V barrel input. U15 AP63205WU-7 creates BUCK_5V; D6 ORs it with USB VBUS through D5 into +5V; U11 AP2112K-3.3 → +3V3.",36,22,1.3),
+        ("U16 AP63200WU-7 creates LASER_V+ ≈ 10.72V from 12V using 274k/22.1k feedback; raw 12V is not tied to laser anodes.",36,28,1.3),
+        ("U14 AD7606BSTZ-4 digitizes VOUT1..4 on-board; ESP32 drives CONVST/SCLK/CS/RESET and reads BUSY + DOUTA/DOUTB.",36,34,1.3),
+        ("MPD_RAWx -> 750R sense to MPD_BIAS; INA4180A1 gain=20 -> 1k/100nF -> MPDx ESP32 ADC.",36,40,1.3),
+        ("LM4040C50 holds LASER_V+ - MPD_BIAS near 5V; PLT5 typ 150uA -> about 2.25V ADC and about 4.89V monitor-PD reverse bias.",36,46,1.3),
+        ("ISENSE headroom: keep I_laser <= 250 mA so V_sense (=I*10ohm) stays inside the ESP32 ADC range with margin.",36,52,1.3),
     ]
     return build_sch_content(
         "Power & IO",

@@ -237,14 +237,28 @@ def main() -> int:
     power_io_components = {
         "CINA": ("100nF", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
         "CREF": ("100nF MPD bias", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
-        "C50": ("10uF", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
+        "JDC": ("12V DC IN", "Open_Automation:BarrelJack_OD5.5_ID2.5", "DC-470-2.1GP", "C194407"),
+        "CIN12A": ("10uF VIN", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
+        "CIN12B": ("10uF VIN", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
+        "U5V": ("AP63205WU-7 5V BUCK", "Package_TO_SOT_SMD:TSOT-23-6", "AP63205WU-7", "C2071056"),
+        "L5V": ("4.7uH", "Open_Automation:L_5.4x5.3_H3", "MWSA0503S-4R7MT", "C408410"),
+        "CBST5V": ("100nF BST", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
+        "C5VOUT1": ("10uF 5V buck", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
+        "C5VOUT2": ("10uF 5V buck", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
+        "ULASER": ("AP63200WU-7 10.7V BUCK", "Package_TO_SOT_SMD:TSOT-23-6", "AP63200WU-7", "C2071868"),
+        "LLASER": ("10uH", "Open_Automation:L_4x4", "WPN4020H100MT", "C98364"),
+        "CBSTLASER": ("100nF BST", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
+        "CLASEROUT1": ("10uF laser buck", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
+        "CLASEROUT2": ("10uF laser buck", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
+        "RFBTOP": ("274k FB", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "FRC0603F2743TS", "C2942027"),
+        "RFBBOT": ("22.1K FB", "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder", "FRC0402F2212TS", "C2929993"),
+        "CFFLASER": ("100pF FF", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402CG101J500NT", "C1546"),
+        "C50": ("10uF +5V bulk", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
         "C3V3IN": ("1uF", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "HGC0402R5105K250NTEJ", "C7472946"),
         "C3V3OUT": ("100nF", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
         "C3V3BULK": ("10uF", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
         "D10": ("SS14", "Diode_SMD:D_SMA", "SS14", "C2480"),
         "D11": ("SS14", "Diode_SMD:D_SMA", "SS14", "C2480"),
-        "J2": ("EXT 5V", "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical", "", ""),
-        "J5": ("LASER PSU", "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical", "", ""),
         "UADC": ("AD7606BSTZ-4", "Package_QFP:LQFP-64_10x10mm_P0.5mm", "AD7606BSTZ-4RL", "C51512"),
         "CADCAV1": ("100nF ADC AVCC", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
         "CADCAV2": ("100nF ADC AVCC", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
@@ -322,6 +336,22 @@ def main() -> int:
         ("5", "VOUT", "power_out"),
     ]:
         expect_pin(ref_for("POWER_IO", "U3V3"), pin, function, pintype)
+    for ref in [ref_for("POWER_IO", "U5V"), ref_for("POWER_IO", "ULASER")]:
+        for pin, function, pintype in [
+            ("1", "FB", "input"),
+            ("2", "EN", "input"),
+            ("3", "IN", "power_in"),
+            ("4", "GND", "power_in"),
+            ("5", "SW", "power_out"),
+            ("6", "BST", "passive"),
+        ]:
+            expect_pin(ref, pin, function, pintype)
+    for pin, function, pintype in [
+        ("1", "1", "passive"),
+        ("2", "2", "passive"),
+        ("3", "3", "passive"),
+    ]:
+        expect_pin(ref_for("POWER_IO", "JDC"), pin, function, pintype)
     for pin, function, pintype in [
         ("1", "~{DCD}", "input+no_connect"),
         ("2", "~{RI}/CLK", "bidirectional+no_connect"),
@@ -516,9 +546,11 @@ def main() -> int:
     usb_native_j = "J2"
     cp2102 = "U10"
     adc = ref_for("POWER_IO", "UADC")
-    ext5_j = ref_for("POWER_IO", "J2")
+    barrel_j = ref_for("POWER_IO", "JDC")
     d_usb = ref_for("POWER_IO", "D10")
     d_ext = ref_for("POWER_IO", "D11")
+    buck5 = ref_for("POWER_IO", "U5V")
+    laser_buck = ref_for("POWER_IO", "ULASER")
     ina_mpd = ref_for("POWER_IO", "UMPD")
     mpd_ref = ref_for("POWER_IO", "UREF")
 
@@ -655,13 +687,46 @@ def main() -> int:
     exact(f"Net-({ref_for('POWER_IO', 'CREG2')}-Pad1)", [(ref_for("POWER_IO", "CREG2"), "1"), (adc, "39")])
     exact(f"Net-({adc}-REFIN{{slash}}REFOUT)", [(ref_for("POWER_IO", "CREFIN"), "1"), (adc, "42")])
     exact(f"Net-({adc}-REFCAPA)", [(ref_for("POWER_IO", "CREFCAP"), "1"), (adc, "44"), (adc, "45")])
-    laser_vplus_nodes = [("J5", "1"), (mpd_ref, "1"), (ref_for("POWER_IO", "CREF"), "1")]
+    laser_vplus_nodes = [
+        (mpd_ref, "1"),
+        (ref_for("POWER_IO", "CREF"), "1"),
+        (ref_for("POWER_IO", "LLASER"), "2"),
+        (ref_for("POWER_IO", "CLASEROUT1"), "1"),
+        (ref_for("POWER_IO", "CLASEROUT2"), "1"),
+        (ref_for("POWER_IO", "RFBTOP"), "1"),
+        (ref_for("POWER_IO", "CFFLASER"), "1"),
+    ]
     for color in ("IR", "RED", "GREEN"):
         laser_vplus_nodes.append((ref_for(f"LASER_{color}", "LD"), "2"))
     laser_vplus_nodes.append((ref_for("LASER_BLUE", "LD"), "1"))
     exact("LASER_V+", sorted(laser_vplus_nodes))
     exact("VBUS_5V", [("C41", "1"), ("C42", "1"), ("D10", "1"), ("D13", "1"), ("D14", "2"), (d_usb, "1"), ("D9", "2"), ("R55", "2")])
-    exact("/POWER_IO/EXT5V", [(d_ext, "1"), (ext5_j, "1")])
+    exact("VIN_12V", [
+        (barrel_j, "1"),
+        (ref_for("POWER_IO", "CIN12A"), "1"),
+        (ref_for("POWER_IO", "CIN12B"), "1"),
+        (buck5, "2"),
+        (buck5, "3"),
+        (laser_buck, "2"),
+        (laser_buck, "3"),
+    ])
+    exact("/POWER_IO/BUCK_5V", [
+        (ref_for("POWER_IO", "C5VOUT1"), "1"),
+        (ref_for("POWER_IO", "C5VOUT2"), "1"),
+        (d_ext, "1"),
+        (ref_for("POWER_IO", "L5V"), "2"),
+        (buck5, "1"),
+    ])
+    exact(f"Net-({buck5}-SW)", [(ref_for("POWER_IO", "CBST5V"), "1"), (ref_for("POWER_IO", "L5V"), "1"), (buck5, "5")])
+    exact(f"Net-({buck5}-BST)", [(ref_for("POWER_IO", "CBST5V"), "2"), (buck5, "6")])
+    exact(f"Net-({laser_buck}-SW)", [(ref_for("POWER_IO", "CBSTLASER"), "1"), (ref_for("POWER_IO", "LLASER"), "1"), (laser_buck, "5")])
+    exact(f"Net-({laser_buck}-BST)", [(ref_for("POWER_IO", "CBSTLASER"), "2"), (laser_buck, "6")])
+    exact(f"Net-({laser_buck}-FB)", [
+        (ref_for("POWER_IO", "CFFLASER"), "2"),
+        (ref_for("POWER_IO", "RFBTOP"), "2"),
+        (ref_for("POWER_IO", "RFBBOT"), "1"),
+        (laser_buck, "1"),
+    ])
 
     # Full rail-membership guards. These are intentionally exact because a
     # stray power pin hidden on a broad rail is just as dangerous as a signal
@@ -717,9 +782,18 @@ def main() -> int:
         (cp2102, "3"),
         (cp2102, "29"),
         (ldo, "2"),
-        (ext5_j, "2"),
-        ("J5", "2"),
+        (barrel_j, "2"),
+        (barrel_j, "3"),
         (ref_for("POWER_IO", "C50"), "2"),
+        (ref_for("POWER_IO", "CIN12A"), "2"),
+        (ref_for("POWER_IO", "CIN12B"), "2"),
+        (ref_for("POWER_IO", "U5V"), "4"),
+        (ref_for("POWER_IO", "C5VOUT1"), "2"),
+        (ref_for("POWER_IO", "C5VOUT2"), "2"),
+        (ref_for("POWER_IO", "ULASER"), "4"),
+        (ref_for("POWER_IO", "CLASEROUT1"), "2"),
+        (ref_for("POWER_IO", "CLASEROUT2"), "2"),
+        (ref_for("POWER_IO", "RFBBOT"), "2"),
         (ref_for("POWER_IO", "C3V3IN"), "2"),
         (ref_for("POWER_IO", "C3V3OUT"), "2"),
         (ref_for("POWER_IO", "C3V3BULK"), "2"),
@@ -932,7 +1006,7 @@ def main() -> int:
     }
     checks.append((not multi_net_pins, "physical pin appears on one net only", f"{multi_net_pins}"))
 
-    hand_add_refs = {"J5", ext5_j} | {
+    hand_add_refs = {barrel_j} | {
         ref_for(f"LASER_{color}", "LD") for color in WL
     }
     assembled = [comp for comp in comps if comp["ref"] not in hand_add_refs]
@@ -941,21 +1015,14 @@ def main() -> int:
         for comp in assembled
         if not comp["lcsc"] or not comp["mpn"] or not comp["footprint"]
     ]
-    hand_refs_without_laser_mpns = {"J5", ext5_j}
-    hand_with_fields = [
-        comp
-        for comp in comps
-        if comp["ref"] in hand_refs_without_laser_mpns and (comp["lcsc"] or comp["mpn"])
-    ]
-    checks.append((len(comps) == 160, "component count", f"got {len(comps)}, expected 160"))
-    checks.append((len(assembled) == 154, "assembled component count", f"got {len(assembled)}, expected 154"))
+    checks.append((len(comps) == 174, "component count", f"got {len(comps)}, expected 174"))
+    checks.append((len(assembled) == 169, "assembled component count", f"got {len(assembled)}, expected 169"))
     checks.append((not missing_fields, "assembled component fields", f"missing {missing_fields}"))
-    checks.append((not hand_with_fields, "hand-add field exclusion", f"unexpected fields {hand_with_fields}"))
 
     expected_lcsc_counts = {
         "C106245": 8,
-        "C83056": 21,
-        "C318691": 12,
+        "C83056": 23,
+        "C318691": 18,
         "C201677": 4,
         "C20917": 4,
         "C2907002": 16,
@@ -981,11 +1048,17 @@ def main() -> int:
         "C46391": 2,
         "C49581": 1,
         "C39282": 1,
-        "C2929993": 1,
+        "C2929993": 2,
         "C23061": 1,
         "C852624": 1,
         "C127509": 3,
         "C964632": 1,
+        "C1546": 1,
+        "C408410": 1,
+        "C98364": 1,
+        "C2942027": 1,
+        "C2071056": 1,
+        "C2071868": 1,
     }
     actual_lcsc_counts = Counter(comp["lcsc"].strip() for comp in assembled)
     checks.append(

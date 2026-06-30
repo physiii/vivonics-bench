@@ -30,8 +30,8 @@ from check_laser_controller_netlist import parse_components, parse_netlist
 from pcb_critical_routes import CRITICAL_ROUTE_LINKS, _point_in_pad, parse_pad_geometry_from_text
 
 
-ZONE_OR_RAIL_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "LASER_V+", "/POWER_IO/EXT5V"}
-EXPECTED_ZONE_OR_RAIL_PENDING_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "LASER_V+", "/POWER_IO/EXT5V"}
+ZONE_OR_RAIL_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_12V", "/POWER_IO/BUCK_5V", "LASER_V+"}
+EXPECTED_ZONE_OR_RAIL_PENDING_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_12V", "/POWER_IO/BUCK_5V", "LASER_V+"}
 LASER_CATHODE_MIN_WIDTH_MM = 0.60
 LASER_CATHODE_MAX_LENGTH_MM = 70.0
 LASER_SUPPLY_MIN_WIDTH_MM = 0.80
@@ -39,11 +39,12 @@ LASER_SUPPLY_MAX_LENGTH_MM = 45.0
 LASER_SENSE_RETURN_MAX_PATH_MM = 6.0
 RAIL_PENDING_RELEASE_ACTION = {
     "VBUS_5V": "Route protected USB power-entry copper from the copied MCU-sheet VBUS isolation diodes to D5 anode; keep ESD return short.",
+    "VIN_12V": "Route the J5 barrel input to the AP63205/AP63200 input capacitors and VIN pins with protected, short 12 V copper.",
+    "/POWER_IO/BUCK_5V": "Route the AP63205 output from L1/C64/C65 to D6 anode; keep the switch loop compact and away from analog inputs.",
     "+5V": "Route or pour the post-OR board 5 V rail to every analog, laser-driver, and LDO input load; verify diode drop and current.",
     "+3V3": "Route the AP2112 output rail to ESP32-S3 and strap/decoupling loads; verify LDO thermal margin under radio bursts.",
-    "LASER_V+": "Manual wide laser-anode rail from J5 to the direct LDx footprints; size for actual laser current and keep away from TIA/MPD analog nodes.",
+    "LASER_V+": "Manual wide AP63200 laser-buck output rail from L2/C67/C68 to the direct LDx footprints; size for actual laser current and keep away from TIA/MPD analog nodes.",
     "GND": "Refill the In1.Cu GND zone, inspect islands/stitching, and keep laser-current return paths out of TIA summing-node returns.",
-    "/POWER_IO/EXT5V": "Route J6 pin 1 to D6 anode; if this appears pending, treat it as an open external-5V input route.",
 }
 
 
@@ -61,17 +62,29 @@ def nodes_text(nodes: list[tuple[str, str, str, str]]) -> str:
 def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
     node_pairs = {(ref, pin) for ref, pin, _, _ in nodes}
     if net == "+5V":
-        return "Board 5 V rail after USB/external Schottky OR-ing; feeds analog, laser-driver op amps, and 3V3 LDO input."
+        return "Board 5 V rail after USB/AP63205 Schottky OR-ing; feeds analog, laser-driver op amps, AD7606 AVCC, and 3V3 LDO input."
     if net == "+3V3":
         return "ESP32-S3 3.3 V rail from AP2112K output, plus MCU reset/boot pulls and decoupling."
     if net == "GND":
         return "Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths."
     if net == "LASER_V+":
-        return "External laser anode / monitor-PD cathode common supply from J5 to the direct LDx footprints."
+        return "AP63200-generated shared bench laser anode / monitor-PD cathode rail to the direct LDx footprints and LM4040 monitor-bias front end."
     if net == "VBUS_5V":
         return "Joined USB VBUS after the copied MCU-sheet 1N5819HW isolation diodes, local VBUS ESD/bulk parts, and D5 anode into +5V OR-ing."
-    if net == "/POWER_IO/EXT5V":
-        return "External 5 V input from J6 pin 1 to D6 anode into +5V OR-ing."
+    if net == "VIN_12V":
+        return "12 V center-positive barrel input after J5, feeding the AP63205 +5 V buck and AP63200 laser buck input pins and local input capacitors."
+    if net == "/POWER_IO/BUCK_5V":
+        return "AP63205 fixed 5 V buck output after L1 and output capacitors, before D6 OR-ing into the board +5 V rail."
+    if re.match(r"Net-\(U15-SW\)$", net):
+        return "AP63205 switch node: U15 SW pin, L1 switch-side pin, and the BST capacitor switch-side plate; keep this copper compact."
+    if re.match(r"Net-\(U15-BST\)$", net):
+        return "AP63205 bootstrap node between U15 BST and the 100 nF capacitor to the switch node."
+    if re.match(r"Net-\(U16-SW\)$", net):
+        return "AP63200 laser-buck switch node: U16 SW pin, L2 switch-side pin, and the BST capacitor switch-side plate; keep away from MPD/TIA nodes."
+    if re.match(r"Net-\(U16-BST\)$", net):
+        return "AP63200 bootstrap node between U16 BST and the 100 nF capacitor to the laser-buck switch node."
+    if re.match(r"Net-\(U16-FB\)$", net):
+        return "AP63200 laser-buck feedback node set by the 274k/22.1k divider and 100 pF feed-forward capacitor for about 10.72 V LASER_V+."
     if net.startswith("VOUT"):
         return "OPA380 TIA output and feedback high side into the on-board AD7606-4 signal ADC."
     if net == "CONVST":
@@ -283,6 +296,30 @@ def pin_intent_for_node(
             "4": "AP2112 NC pin deliberately left unconnected.",
             "5": "AP2112 regulated +3V3 output.",
         }.get(pin, "Review required: AP2112 unknown pin.")
+    if value == "AP63205WU-7 5V BUCK":
+        return {
+            "1": "AP63205 fixed-output FB pin tied to the BUCK_5V output node after L1.",
+            "2": "AP63205 EN tied to VIN_12V for always-on 5 V buck operation when the barrel input is present.",
+            "3": "AP63205 VIN from the protected 12 V barrel input.",
+            "4": "AP63205 ground return.",
+            "5": "AP63205 SW switch node into L1 and the bootstrap capacitor.",
+            "6": "AP63205 BST bootstrap pin with 100 nF to SW.",
+        }.get(pin, "Review required: AP63205 unknown pin.")
+    if value == "AP63200WU-7 10.7V BUCK":
+        return {
+            "1": "AP63200 feedback pin at the 274k/22.1k divider midpoint for the 10.7 V laser rail.",
+            "2": "AP63200 EN tied to VIN_12V for always-on laser buck operation when the barrel input is present.",
+            "3": "AP63200 VIN from the protected 12 V barrel input.",
+            "4": "AP63200 ground return.",
+            "5": "AP63200 SW switch node into L2 and the bootstrap capacitor.",
+            "6": "AP63200 BST bootstrap pin with 100 nF to SW.",
+        }.get(pin, "Review required: AP63200 unknown pin.")
+    if value == "12V DC IN":
+        return {
+            "1": "Center-positive barrel input pin feeding VIN_12V.",
+            "2": "Barrel sleeve ground return.",
+            "3": "Barrel jack switch/sleeve contact tied to board ground, matching the access-controller footprint convention.",
+        }.get(pin, "Review required: barrel jack unknown pin.")
     if value in {"USB Mini-B", "USB_MINI_B"}:
         return {
             "1": "USB Mini-B VBUS entry into copied MCU-sheet VBUS isolation.",
@@ -408,6 +445,14 @@ def pin_intent_for_node(
             return "SS14 anode receives one pre-OR 5V source."
         if function == "K":
             return "SS14 cathode feeds the post-OR +5V rail."
+    if value in {"4.7uH", "10uH"}:
+        if "SW" in net:
+            return f"{value} buck inductor switch-side pin."
+        if net == "/POWER_IO/BUCK_5V":
+            return "4.7uH AP63205 output inductor regulated-output side feeding BUCK_5V."
+        if net == "LASER_V+":
+            return "10uH AP63200 laser-buck output inductor regulated-output side feeding LASER_V+."
+        return f"{value} buck inductor pin."
     if value == "D_1N5819HW":
         return "1N5819HW USB VBUS isolation diode pin participating in the copied MCU-sheet VBUS path."
     if value == "SW_PUSH":
@@ -441,6 +486,10 @@ def pin_intent_for_node(
         return "Monitor-PD ADC filter capacitor ADC side." if net.startswith("MPD") and net[3:].isdigit() else "Monitor-PD ADC filter capacitor ground return."
     if value.startswith("100nF MPD bias"):
         return "Monitor-PD bias-reference capacitor participating in the 5V LASER_V+ to MPD_BIAS shunt reference."
+    if value in {"10uF VIN", "10uF 5V buck", "10uF laser buck", "100nF BST", "100pF FF"}:
+        return f"Power-supply capacitor pin participating in: {net_intent}"
+    if value in {"274k FB", "22.1K FB"}:
+        return f"AP63200 laser-buck feedback resistor pin participating in: {net_intent}"
 
     if footprint.startswith("Resistor_SMD"):
         return f"Resistor pin participating in: {net_intent}"
