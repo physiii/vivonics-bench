@@ -52,7 +52,8 @@ Design implication:
 - LD4 uses the laser-only diode/case model: `LD_A -> LASER_V+`, `LD_K ->
   LASER_N4`, and `CASE` is an intentional no-connect in the generated schematic.
 - The board uses direct soldered TO-can footprints `LD1..LD4`; the old
-  laser/MPD harness header is removed. J5 remains the external laser supply input.
+  laser/MPD harness header is removed. J5 is now the center-positive 12 V
+  barrel input, and U16 generates the shared bench `LASER_V+` rail on-board.
 
 Required action before laser bring-up:
 - Solder each diode directly into the matching `LDx` TO-can footprint after

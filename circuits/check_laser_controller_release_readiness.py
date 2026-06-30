@@ -91,7 +91,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
             Evidence(
                 "circuits/POWER_TREE.md",
                 (
-                    "Mixed analog, digital, USB ESD, and laser-current returns share this net",
+                    "Mixed analog, digital, USB ESD, buck-switching, and laser-current returns share this net",
                     "`GND` has a visually reviewed return path after zone refill.",
                     "keep laser current return out of TIA summing-node return path.",
                 ),
@@ -194,16 +194,16 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
         ),
     ),
     ReleaseBlocker(
-        "EXT5V_CURRENT_LIMIT_OR_PROTECTION",
-        "External 5 V input protection/current limit is not released",
-        "J6 external 5 V is accepted for bench use only if the upstream source is current-limited; the current board has no fuse/PTC on that input.",
-        "Define the off-board current limit for bench builds or add board-level input protection before production.",
+        "VIN12_INPUT_PROTECTION_AND_BUCK_LAYOUT",
+        "12 V barrel input protection and buck layout are not released",
+        "J5 barrel input and the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout.",
+        "Define the adapter current limit and input protection, then verify AP63205/AP63200 switch-loop routing, copper width, and temperature before production.",
         (
             Evidence(
                 "circuits/POWER_TREE.md",
                 (
-                    "External supply must be current-limited off-board until a fuse/PTC is added.",
-                    "define off-board current limit or add board protection before production.",
+                    "Select the adapter current limit",
+                    "AP63205/AP63200 buck placement, switch-loop routing, thermal behavior",
                 ),
             ),
         ),

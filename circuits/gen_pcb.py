@@ -272,7 +272,7 @@ def classify_net(net_name):
     if re.match(r"LASER_N[1-4]$", net_name) or net_name == "LASER_V+" or net_name.endswith("/FB"):
         return "Laser_Current"
     if (
-        net_name in {"+5V", "+3V3", "GND", "VBUS_5V", "/POWER_IO/EXT5V"}
+        net_name in {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_12V", "/POWER_IO/BUCK_5V"}
         or net_name in {"Net-(D10-A)", "Net-(D13-A)"}
     ):
         return "Power_Rails"

@@ -187,9 +187,11 @@ POWER_ROUTE_LINKS = [
     ("USB-UART isolation diode to board VBUS", ("MCU_ESP32-S3", "D10", "1", "POWER_IO", "D10", "1"), 0.50),
     ("Native USB VBUS connector to isolation diode", ("MCU_ESP32-S3", "J2", "1", "MCU_ESP32-S3", "D13", "2"), 0.50),
     ("Native USB isolation diode to board VBUS", ("MCU_ESP32-S3", "D13", "1", "POWER_IO", "D10", "1"), 0.50),
-    ("EXT 5V header to OR-ing diode", ("POWER_IO", "J2", "1", "POWER_IO", "D11", "1"), 0.60),
+    ("VIN12 barrel to 5V buck input", ("POWER_IO", "JDC", "1", "POWER_IO", "U5V", "3"), 0.60),
+    ("VIN12 barrel to laser buck input", ("POWER_IO", "JDC", "1", "POWER_IO", "ULASER", "3"), 0.60),
+    ("5V buck output to OR-ing diode", ("POWER_IO", "L5V", "2", "POWER_IO", "D11", "1"), 0.60),
     ("USB OR-ing diode cathode to +5V bulk", ("POWER_IO", "D10", "2", "POWER_IO", "C50", "1"), 0.60),
-    ("EXT 5V OR-ing diode cathode to +5V bulk", ("POWER_IO", "D11", "2", "POWER_IO", "C50", "1"), 0.60),
+    ("5V buck OR-ing diode cathode to +5V bulk", ("POWER_IO", "D11", "2", "POWER_IO", "C50", "1"), 0.60),
     ("+5V bulk to AP2112 VIN", ("POWER_IO", "C50", "1", "POWER_IO", "U3V3", "1"), 0.50),
     ("+5V AP2112 VIN to EN", ("POWER_IO", "U3V3", "1", "POWER_IO", "U3V3", "3"), 0.25),
     ("+5V bulk to laser IR op amp rail", ("POWER_IO", "C50", "1", "LASER_IR", "C22", "1"), 0.25),
@@ -214,7 +216,7 @@ POWER_ROUTE_LINKS = [
     ("ESP32 3V3 pin to local decap", ("MCU_ESP32-S3", "U9", "2", "MCU_ESP32-S3", "C43", "1"), 0.25),
     ("ESP32 local 3V3 decap to EN pull-up", ("MCU_ESP32-S3", "C43", "1", "MCU_ESP32-S3", "R54", "1"), 0.25),
     ("3V3 bulk cap to BOOT pull-up", ("POWER_IO", "C3V3BULK", "1", "MCU_ESP32-S3", "R53", "1"), 0.25),
-    ("Laser anode supply input to direct LD rail", ("POWER_IO", "J5", "1", "LASER_BLUE", "LD", "1"), 0.80),
+    ("Laser buck output to direct LD rail", ("POWER_IO", "LLASER", "2", "LASER_BLUE", "LD", "1"), 0.80),
 ]
 GND_LOCAL_ROUTE_LINKS = [
     ("ESP32 pin 1 ground to local decap ground", ("MCU_ESP32-S3", "U9", "1", "MCU_ESP32-S3", "C43", "2"), 0.20),
@@ -227,7 +229,9 @@ PREROUTE_POWER_ROUTE_DESCRIPTIONS = {
     "Native USB isolation diode to board VBUS",
     "3V3 AP2112 output decap to ESP32 local decap",
     "ESP32 local 3V3 decap to EN pull-up",
-    "Laser anode supply input to direct LD rail",
+    "VIN12 barrel to 5V buck input",
+    "VIN12 barrel to laser buck input",
+    "Laser buck output to direct LD rail",
 }
 DEFERRED_POWER_ROUTE_DESCRIPTIONS: set[str] = set()
 LOW_CURRENT_POWER_DOGBONE_ROUTE_DESCRIPTIONS = {
@@ -241,7 +245,7 @@ POWER_LAYER_ROUTE_OVERRIDES = {
     "USB-UART isolation diode to board VBUS": "B.Cu",
     "Native USB VBUS connector to isolation diode": "B.Cu",
     "Native USB isolation diode to board VBUS": "B.Cu",
-    "EXT 5V OR-ing diode cathode to +5V bulk": "In2.Cu",
+    "5V buck OR-ing diode cathode to +5V bulk": "In2.Cu",
     "+5V bulk to AP2112 VIN": "In2.Cu",
     "+5V bulk to laser IR op amp rail": "In2.Cu",
     "+5V laser IR to RED op amp rail": "In2.Cu",
@@ -262,7 +266,8 @@ POWER_LAYER_ROUTE_OVERRIDES = {
     "ESP32 3V3 pin to local decap": "In2.Cu",
     "ESP32 local 3V3 decap to EN pull-up": "In2.Cu",
     "3V3 bulk cap to BOOT pull-up": "In2.Cu",
-    "Laser anode supply input to direct LD rail": "In2.Cu",
+    "VIN12 barrel to laser buck input": "In2.Cu",
+    "Laser buck output to direct LD rail": "In2.Cu",
 }
 VIA_SIZE = 0.60
 VIA_DRILL = 0.30
@@ -1231,7 +1236,7 @@ def _forced_power_front_pad_to_front_pad_layer(
             [start_via, (round(start_via[0] + 0.2, 4), corridor_y), (end_via[0], corridor_y), end_via],
             [end_via, (round(end[0] - 0.75, 4), round(end[1] - 0.5, 4)), (round(end[0] - 0.75, 4), end[1]), end],
         )
-    if description == "Laser anode supply input to direct LD rail":
+    if description == "Laser buck output to direct LD rail":
         # Keep the shared laser anode rail off the raw monitor-PD fanout
         # corridor at the direct laser footprint cluster. It still uses In2.Cu, but the trunk now
         # runs below the MPD_RAW vertical escapes rather than underneath them.

@@ -30,8 +30,8 @@ from pcb_critical_routes import (
 BOARD_WIDTH_MM = 90.0
 BOARD_HEIGHT_MM = 50.0
 BOARD_SIZE_TOLERANCE_MM = 0.05
-ZONE_OR_RAIL_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "LASER_V+", "/POWER_IO/EXT5V"}
-EXPECTED_ZONE_OR_RAIL_PENDING_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "LASER_V+", "/POWER_IO/EXT5V"}
+ZONE_OR_RAIL_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_12V", "/POWER_IO/BUCK_5V", "LASER_V+"}
+EXPECTED_ZONE_OR_RAIL_PENDING_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_12V", "/POWER_IO/BUCK_5V", "LASER_V+"}
 USB_ROUTE_CHAINS = {
     "USB-UART D-": [
         ("J1 D- to CP2102N D-", "/MCU_ESP32-S3/D-"),
@@ -545,7 +545,9 @@ def _allowed_route_layers_for_net(net_name: str) -> set[str]:
         return {"F.Cu", "In2.Cu", "B.Cu"}
     if net_name in {"LASER_N1", "LASER_N3", "LASER_N4", "LASER_V+"}:
         return {"F.Cu", "In2.Cu"}
-    if net_name == "/POWER_IO/EXT5V":
+    if net_name == "VIN_12V":
+        return {"F.Cu", "In2.Cu"}
+    if net_name == "/POWER_IO/BUCK_5V":
         return {"F.Cu"}
     if net_name == "VBUS_5V":
         return {"F.Cu", "B.Cu"}
@@ -587,7 +589,7 @@ def _allowed_route_widths_for_net(net_name: str) -> set[float]:
         return {0.60}
     if re.match(r"^/LASER_(IR|RED|GREEN|BLUE)/FB$", net_name):
         return {0.20, 0.60}
-    if net_name == "/POWER_IO/EXT5V":
+    if net_name in {"VIN_12V", "/POWER_IO/BUCK_5V"}:
         return {0.60}
     if net_name == "VBUS_5V":
         return {0.50}

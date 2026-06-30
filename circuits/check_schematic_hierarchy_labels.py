@@ -150,8 +150,10 @@ SCHEMATIC_TEXT_DENYLIST = {
         "exposed on J": "GPIO0/EN are local button nets, not a bring-up header",
     },
     "power_io.kicad_sch": {
-        "J2 = ext +5V": "external 5 V final schematic header reference is J6",
-        "J2 OR-ed": "external 5 V final schematic header reference is J6",
+        "EXT5V": "external 5 V header was removed; onboard AP63205 BUCK_5V feeds D6",
+        "external 5V": "external 5 V header was removed; J5 is the 12 V barrel input",
+        "external +5V": "external 5 V header was removed; J5 is the 12 V barrel input",
+        "LASER PSU": "external laser PSU header was removed; U16 generates LASER_V+",
         "D10/D11": "5 V OR-ing diode final schematic references are D5/D6",
     },
 }

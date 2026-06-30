@@ -59,7 +59,7 @@ DOCUMENTATION_DESIGNATOR_GUARDS = [
             "| U10 | CP2102N-A02-GQFN28R",
             "| U11 | AP2112K-3.3",
             "| J1-J2 | USB Mini-B receptacle",
-            "| J6 | 1×02 THT header | external +5V in.",
+            "| J5 | 12 V DC barrel jack",
         ],
         [
             "| U10 | USBLC6-2SC6",
@@ -67,6 +67,7 @@ DOCUMENTATION_DESIGNATOR_GUARDS = [
             "| U10 | AP2112K-3.3",
             "| J6 | USB Mini-B receptacle",
             "| J2 | 1×05 THT header",
+            "| J6 | 1×02 THT header | external +5V in.",
         ],
     ),
     (

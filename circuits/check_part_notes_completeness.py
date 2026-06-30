@@ -113,7 +113,7 @@ NOTE_CHECKS: tuple[NoteCheck, ...] = (
             "KiCad `D_SMA` pad 1 is anode",
             "Pad 2 is cathode",
             "D5 anode receives USB `VBUS_5V`",
-            "D6 anode receives external `/POWER_IO/EXT5V`",
+            "D6 anode receives onboard AP63205 `/POWER_IO/BUCK_5V`",
             "D5/D6 cathodes OR into `+5V`",
             "Confirm exact C2480 manufacturer datasheet and polarity at order",
         ),

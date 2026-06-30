@@ -665,7 +665,7 @@ def main() -> int:
     for index, (color, esp_pin) in enumerate(zip(WL, ["18", "19", "20", "9"]), 1):
         exact(f"PWM{index}", [(ref_for(f"LASER_{color}", "R21"), "1"), ("U9", esp_pin)])
 
-    # Board interfaces: on-board signal ADC, laser PSU, and 5V input OR-ing.
+    # Board interfaces: on-board signal ADC, 12 V barrel input, buck supplies, and 5V input OR-ing.
     adc_input_pin = {1: "49", 2: "51", 3: "57", 4: "59"}
     for index, color in enumerate(WL, 1):
         sheet = f"TIA_{color}"

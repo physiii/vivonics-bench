@@ -47,8 +47,9 @@ The old J3 AD7606 debug/output header has been removed now that U14 is on-board.
 ## Board
 
 - Outline **90 × 50 mm**, 1.6 mm, 4× M3 mounting holes at corners (3 mm from edges).
-- **Power**: USB VBUS or optional EXT 5V via J6 feeds +5V through SS14 OR-ing diodes.
-  `LASER_V+` is a separate laser-anode rail from J5.
+- **Power**: J5 is the center-positive 12 V barrel input. U15 AP63205 creates
+  `BUCK_5V`, D6 ORs it with USB `VBUS_5V` through D5 into `+5V`, and U16 AP63200
+  creates the shared bench `LASER_V+` rail.
 - Floorplan:
   - **Left edge** (x≈3mm) — 4× SFH2201 photodiodes (D1–D4), stacked vertically,
     rotated 270° so light enters from the left.
@@ -56,7 +57,7 @@ The old J3 AD7606 debug/output header has been removed now that U14 is on-board.
   - **Centre** (x≈37–55mm) — Laser drivers ×4 (TLV9001 + AO3400A + passives).
   - **Right** (x≈58–85mm) — ESP32-S3-WROOM-1 (rotated 90°, antenna toward top edge)
     + CP2102N USB-UART + AP2112K LDO + discrete USB/VBUS ESD + decoupling.
-  - **Right edge** — J5 laser PSU, J6 external 5V.
+  - **Right edge** — J5 12 V barrel input.
   - **Bottom edge** — J1 USB Mini-B.
   - **Top edge** — J2 USB Mini-B.
 
@@ -66,8 +67,7 @@ The old J3 AD7606 debug/output header has been removed now that U14 is on-board.
 |-----|----------|------|------|
 | J1  | USB Mini-B to CP2102N USB-UART | 6 | SMD horizontal, JLCPCB assembly; shield pad 6 to GND |
 | J2  | USB Mini-B to ESP32-S3 native USB | 6 | SMD horizontal, JLCPCB assembly; shield pad 6 to GND |
-| J5  | LASER PSU input (`LASER_V+` + GND) | 2 | TH pin header, hand-solder |
-| J6  | EXT 5V in (optional) | 2 | TH pin header, hand-solder |
+| J5  | 12 V center-positive barrel input (`VIN_12V` + GND) | 3 | TH right-angle barrel jack, hand-solder |
 
 ## Finish it in KiCad
 
@@ -159,7 +159,7 @@ must verify every selected diode pin table before the diodes are soldered.
 ## BOM Summary
 
 See `laser_controller_bom_jlcpcb.csv`. Key notes:
-- **Power**: USB/external +5V for logic/analog; separate J5 `LASER_V+` for laser anodes.
+- **Power**: J5 12 V barrel feeds onboard AP63205/AP63200 bucks; USB VBUS remains an alternate OR-ed +5 V source.
 - **10k resistors**: C844918 (Vishay CRCW060310K0FKEA, live LCSC stock checked 2026-06-28).
 - **SFH2201**: C2900216 (Extended, one-time feeder fee).
-- **Pin headers J5,J6**: through-hole, hand-soldered.
+- **J5 barrel jack and direct laser cans**: through-hole, hand-soldered.

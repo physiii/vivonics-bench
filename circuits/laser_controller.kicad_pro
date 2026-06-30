@@ -584,7 +584,11 @@
       },
       {
         "netclass": "Power_Rails",
-        "pattern": "/POWER_IO/EXT5V"
+        "pattern": "/POWER_IO/BUCK_5V"
+      },
+      {
+        "netclass": "Power_Rails",
+        "pattern": "VIN_12V"
       },
       {
         "netclass": "Power_Rails",
