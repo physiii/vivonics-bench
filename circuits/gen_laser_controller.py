@@ -650,7 +650,7 @@ def emit_power(kind,x,y,n):
         f'        (path "/{ROOT_UUID}" (reference "{ref}") (unit 1))',"      )","    )","  )"])
 
 BOM_REG = {}
-def build_sch_content(title,date,rev,parts,power,wires,junctions,labels,texts,mult=1,ncs=None):
+def build_sch_content(title,date,rev,parts,power,wires,junctions,labels,texts,mult=1,ncs=None,paper="A3"):
     parts = grid_parts(parts)
     power = [(kind, snap(x), snap(y)) for kind, x, y in power]
     junctions = [snap_point(point) for point in junctions]
@@ -661,7 +661,7 @@ def build_sch_content(title,date,rev,parts,power,wires,junctions,labels,texts,mu
     ]
     BOM_REG[title]=(mult,parts)
     P=["(kicad_sch","  (version 20230121)","  (generator eeschema)",f"  (uuid {ROOT_UUID})",
-       '  (paper "A3")',"  (title_block",f'    (title "{title}")',f'    (date "{date}")',f'    (rev "{rev}")',
+       f'  (paper "{paper}")',"  (title_block",f'    (title "{title}")',f'    (date "{date}")',f'    (rev "{rev}")',
        '    (company "Vivonics")',"  )","  (lib_symbols"]
     used=sorted({t[0] for t in parts.values()} | {k for k,_,_ in power})
     for name in used:
@@ -1005,6 +1005,15 @@ def build_mcu():
 
 # ═══ SUB-SHEET: power_io.kicad_sch ═══
 def build_power_io():
+    def px(x): return 30 + x * 1.25
+    def py(y): return 20 + y * 1.25
+    def ppt(x, y): return snap_point((px(x), py(y)))
+    def pparts(raw_parts):
+        return {
+            ref: (sym, val, fp, mpn, lcsc, px(x), py(y))
+            for ref, (sym, val, fp, mpn, lcsc, x, y) in raw_parts.items()
+        }
+
     parts={
         "JDC":("BARREL_JACK_SWITCH","24V DC IN",FP_BARREL,"DC-470-2.1GP",LCSC_BARREL,42,56),
         "JRJ45":("open_automation:CONN_RJ45","CONN_RJ45",FP_RJ45,"R-RJ45R08P-C000",LCSC_RJ45,42,84),
@@ -1058,7 +1067,7 @@ def build_power_io():
         parts[f"RMPD{i+1}"] = ("R_H","750R MPD sense",FP_R,"RC0603FR-07750RL",LCSC_750R,236,sense_y)
         parts[f"RADC{i+1}"] = ("R_H","1k ADC",FP_R,"FRC0603F1001TS",LCSC_1K,288,adc_y)
         parts[f"CMPD{i+1}"] = ("C_V","100nF MPD ADC",FP_402,"0402B104K160CT",LCSC_100NF,306,adc_y+2.54)
-    parts = grid_parts(parts)
+    parts = grid_parts(pparts(parts))
     power=[]; wires=[]; labels=[]; ncs=[]; junctions=[]
     # 24V barrel/RJ45 input and onboard 5V buck. USB VBUS remains an optional OR-ed 5V source.
     add_rail(power,wires,"VIN_24V",pin(parts,"JDC","1"))
@@ -1067,28 +1076,28 @@ def build_power_io():
         wires,
         "GND",
         [pin(parts,"JDC","2"), pin(parts,"JDC","3")],
-        bus_y=64,
-        symbol_at=(50,69),
+        bus_y=py(64),
+        symbol_at=ppt(50,69),
     )
     add_bus_rail(
         power,
         wires,
         "VIN_24V",
         [pin(parts,"JRJ45","4"), pin(parts,"JRJ45","5")],
-        bus_x=60,
-        symbol_at=(65,84),
+        bus_x=px(60),
+        symbol_at=ppt(65,84),
     )
     rj45_gnd_right = [pin(parts,"JRJ45",rj45_pin) for rj45_pin in ["7","8"]]
     rj45_gnd_left = [pin(parts,"JRJ45",rj45_pin) for rj45_pin in ["9","11"]]
-    rj45_gnd_left_x, rj45_gnd_right_x = snap(24), snap(60)
-    rj45_gnd_y = snap(99)
+    rj45_gnd_left_x, rj45_gnd_right_x = snap(px(24)), snap(px(60))
+    rj45_gnd_y = snap(py(99))
     for point in rj45_gnd_left:
         wires.append([point, (rj45_gnd_left_x, point[1])])
     for point in rj45_gnd_right:
         wires.append([point, (rj45_gnd_right_x, point[1])])
     wires.append([(rj45_gnd_left_x, y) for y in sorted({p[1] for p in rj45_gnd_left} | {rj45_gnd_y})])
     wires.append([(rj45_gnd_right_x, y) for y in sorted({p[1] for p in rj45_gnd_right} | {rj45_gnd_y})])
-    rj45_gnd_symbol = snap_point((42, 104))
+    rj45_gnd_symbol = ppt(42, 104)
     wires.append([(rj45_gnd_left_x, rj45_gnd_y), (rj45_gnd_symbol[0], rj45_gnd_y)])
     wires.append([(rj45_gnd_symbol[0], rj45_gnd_y), (rj45_gnd_right_x, rj45_gnd_y)])
     wires.append([(rj45_gnd_symbol[0], rj45_gnd_y), rj45_gnd_symbol])
@@ -1100,8 +1109,8 @@ def build_power_io():
     ])
     wires.append([pin(parts,"RJR45PWR","2"), pin(parts,"JRJ45","10")])
     wires.append([pin(parts,"RJR45LED","2"), pin(parts,"JRJ45","12")])
-    rj45_pwr_tap = snap_point((20.32, 69.85))
-    rj45_led_tap = snap_point((20.32, 86.36))
+    rj45_pwr_tap = ppt(20.32, 69.85)
+    rj45_led_tap = ppt(20.32, 86.36)
     wires.append([pin(parts,"RJR45PWR","1"), rj45_pwr_tap])
     wires.append([pin(parts,"RJR45LED","1"), rj45_led_tap])
     power.append(("VIN_24V", rj45_pwr_tap[0], rj45_pwr_tap[1]))
@@ -1119,11 +1128,11 @@ def build_power_io():
     wires.append([pin(parts,"U5V","5"), pin(parts,"CBST5V","1")])
     wires.append([pin(parts,"U5V","6"), pin(parts,"CBST5V","2")])
     l5v_out = pin(parts,"L5V","2")
-    add_bent_label(wires,labels,l5v_out,[(l5v_out[0],47),(145,47)],"BUCK_5V",justify="right")
+    add_bent_label(wires,labels,l5v_out,[(l5v_out[0],py(47)),ppt(145,47)],"BUCK_5V",justify="right")
     add_stub(wires,labels,pin(parts,"U5V","1"),"right","BUCK_5V",dist=12)
     add_stub(wires,labels,pin(parts,"D11","1"),"left","BUCK_5V",dist=12)
-    buck5_bus_y = snap(32)
-    buck5_bus_left = snap_point((148, buck5_bus_y))
+    buck5_bus_y = snap(py(32))
+    buck5_bus_left = ppt(148, 32)
     buck5_bus_points = [buck5_bus_left]
     for cap in ["C5VOUT1","C5VOUT2"]:
         cap_top = pin(parts,cap,"1")
@@ -1193,16 +1202,16 @@ def build_power_io():
         "+5V",
         [pin(parts,"UADC",adc_pin) for adc_pin in ["1","37","38","48"]]
         + [pin(parts,cap,"1") for cap in ["CADCBULK","CADCAV1","CADCAV2","CADCAV3","CADCAV4"]],
-        bus_y=155,
-        symbol_at=(235,150),
+        bus_y=py(155),
+        symbol_at=ppt(235,150),
     )
     add_bus_rail(
         power,
         wires,
         "+3V3",
         [pin(parts,"UADC",adc_pin) for adc_pin in ["6","7","23"]],
-        bus_y=174,
-        symbol_at=(268,169),
+        bus_y=py(174),
+        symbol_at=ppt(268,169),
     )
     add_rail(power,wires,"+3V3",pin(parts,"UADC","34"))
     add_bus_rail(
@@ -1213,8 +1222,8 @@ def build_power_io():
             "3","4","5","8","16","17","18","19","20","21","22","27","28","29","30","31","32","33",
             "2","26","35","40","41","43","46","47","50","52","53","54","55","56","58","60","61","62","63","64",
         ]],
-        bus_y=247,
-        symbol_at=(250,254),
+        bus_y=py(247),
+        symbol_at=ppt(250,254),
     )
     cadcdrv_top = pin(parts,"CADCDRV","1")
     cadcdrv_3v3 = snap_point((cadcdrv_top[0] + 7.62, cadcdrv_top[1]))
@@ -1225,8 +1234,8 @@ def build_power_io():
         wires,
         "GND",
         [pin(parts,cap,"2") for cap in ["CADCBULK","CADCAV1","CADCAV2","CADCAV3","CADCAV4","CADCDRV"]],
-        bus_y=166,
-        symbol_at=(245,171),
+        bus_y=py(166),
+        symbol_at=ppt(245,171),
     )
     for cap, adc_pin in [("CREG1","36"),("CREG2","39"),("CREFIN","42")]:
         cap_top = pin(parts,cap,"1")
@@ -1282,23 +1291,23 @@ def build_power_io():
         wires,
         "GND",
         [pin(parts,f"CMPD{i}","2") for i in range(1,5)],
-        bus_x=322,
-        symbol_at=(327,142),
+        bus_x=px(322),
+        symbol_at=ppt(327,142),
     )
     # PWR_FLAGs — declare real external/generated rails as sources (silences ERC)
-    declare_source(power,wires,"VIN_24V",42,150)
-    declare_source(power,wires,"+5V",60,150)
-    declare_source(power,wires,"GND",78,150)
-    declare_source(power,wires,"LASER_VP",96,150)
+    declare_source(power,wires,"VIN_24V",px(42),py(150))
+    declare_source(power,wires,"+5V",px(60),py(150))
+    declare_source(power,wires,"GND",px(78),py(150))
+    declare_source(power,wires,"LASER_VP",px(96),py(150))
     da=pin(parts,"D10","1")                         # D10 anode = VBUS_5V net
     power.append(("PWR_FLAG",da[0],da[1]+9)); wires.append([da,(da[0],da[1]+9)]); junctions.append(da)
     db=pin(parts,"D11","1")                         # D11 anode = onboard AP63205 5V buck output
     power.append(("PWR_FLAG",db[0],db[1]-9)); wires.append([db,(db[0],db[1]-9)]); junctions.append(db)
     texts=[
-        ("Power & I/O  —  24V barrel/RJ45 input, onboard AP63205 +5V buck, AP63200 laser buck, AD7606-4 ADC, monitor-PD front end",36,16,2.2),
-        ("Inputs: J5 barrel center and J6 pins 4/5 -> VIN_24V; J5 sleeve/switch and J6 pins 7/8/9/11 -> GND.",36,23,1.25),
-        ("RJ45: copied access-controller CONN_RJ45 symbol; J6 pins 10/12 use 10k LED/contact resistors to VIN_24V/+3V3.",36,29,1.25),
-        ("Supplies: U15 AP63205 -> BUCK_5V/+5V, U16 AP63200 -> LASER_V+ ~=10.72V; raw 24V stays off laser anodes.",36,35,1.25),
+        ("Power & I/O  -  24V barrel/RJ45 input, onboard AP63205 +5V buck, AP63200 laser buck, AD7606-4 ADC, monitor-PD front end",px(36),py(8),2.0),
+        ("Inputs: J5 barrel center and J6 pins 4/5 -> VIN_24V; J5 sleeve/switch and J6 pins 7/8/9/11 -> GND.",px(36),py(14),1.2),
+        ("RJ45: copied access-controller CONN_RJ45 symbol; J6 pins 10/12 use 10k LED/contact resistors to VIN_24V/+3V3.",px(36),py(20),1.2),
+        ("Supplies: U15 AP63205 -> BUCK_5V/+5V, U16 AP63200 -> LASER_V+ ~=10.72V; raw 24V stays off laser anodes.",px(36),py(26),1.2),
     ]
     return build_sch_content(
         "Power & IO",
@@ -1312,6 +1321,7 @@ def build_power_io():
         texts,
         mult=1,
         ncs=ncs,
+        paper="A2",
     )
 
 # ═══ ROOT SHEET: laser_controller.kicad_sch ═══
