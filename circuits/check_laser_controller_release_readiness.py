@@ -202,7 +202,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
             Evidence(
                 "circuits/POWER_TREE.md",
                 (
-                    "Select the adapter current limit",
+                    "Select the adapter/RJ45 harness current limit",
                     "AP63205/AP63200 buck placement, switch-loop routing, thermal behavior",
                 ),
             ),

@@ -1001,9 +1001,9 @@ def build_power_io():
     parts={
         "JDC":("BARREL_JACK_SWITCH","24V DC IN",FP_BARREL,"DC-470-2.1GP",LCSC_BARREL,42,56),
         "JRJ45":("CONN_RJ45","24V RJ45 IN",FP_RJ45,"R-RJ45R08P-C000",LCSC_RJ45,42,84),
-        "CIN24A":("C_V","1uF 100V VIN",FP_1206,"CL31B105KCHNNNE",LCSC_1UF_100V,68,52),
-        "CIN24B":("C_V","1uF 100V VIN",FP_1206,"CL31B105KCHNNNE",LCSC_1UF_100V,80,52),
-        "CIN24BULK":("C_POL_V","22uF 100V VIN",FP_CELEC_8X10,"RVT2A220M0810",LCSC_22UF_100V,92,52),
+        "CIN24A":("C_V","1uF 100V",FP_1206,"CL31B105KCHNNNE",LCSC_1UF_100V,68,52),
+        "CIN24B":("C_V","1uF 100V",FP_1206,"CL31B105KCHNNNE",LCSC_1UF_100V,80,52),
+        "CIN24BULK":("C_POL_V","22uF 100V",FP_CELEC_8X10,"RVT2A220M0810",LCSC_22UF_100V,92,52),
         "U5V":("AP6320X_TSOT6","AP63205WU-7 5V BUCK",FP_TSOT236,"AP63205WU-7",LCSC_AP63205,105,60),
         "L5V":("L_H","4.7uH",FP_IND_4R7,"MWSA0503S-4R7MT",LCSC_L4R7,136,54),
         "CBST5V":("C_V","100nF BST",FP_402,"0402B104K160CT",LCSC_100NF,124,57),
@@ -1050,15 +1050,45 @@ def build_power_io():
         parts[f"RADC{i+1}"] = ("R_H","1k ADC",FP_R,"FRC0603F1001TS",LCSC_1K,288,adc_y)
         parts[f"CMPD{i+1}"] = ("C_V","100nF MPD ADC",FP_402,"0402B104K160CT",LCSC_100NF,306,adc_y+2.54)
     parts = grid_parts(parts)
-    power=[]; wires=[]; labels=[]; ncs=[]
+    power=[]; wires=[]; labels=[]; ncs=[]; junctions=[]
     # 24V barrel/RJ45 input and onboard 5V buck. USB VBUS remains an optional OR-ed 5V source.
     add_rail(power,wires,"VIN_24V",pin(parts,"JDC","1"))
-    add_rail(power,wires,"GND",pin(parts,"JDC","2"))
-    add_rail(power,wires,"GND",pin(parts,"JDC","3"))
-    for rj45_pin in ["4","5"]:
-        add_rail(power,wires,"VIN_24V",pin(parts,"JRJ45",rj45_pin))
-    for rj45_pin in ["7","8","9","11"]:
-        add_rail(power,wires,"GND",pin(parts,"JRJ45",rj45_pin))
+    add_bus_rail(
+        power,
+        wires,
+        "GND",
+        [pin(parts,"JDC","2"), pin(parts,"JDC","3")],
+        bus_y=64,
+        symbol_at=(50,69),
+    )
+    add_bus_rail(
+        power,
+        wires,
+        "VIN_24V",
+        [pin(parts,"JRJ45","4"), pin(parts,"JRJ45","5")],
+        bus_x=60,
+        symbol_at=(65,84),
+    )
+    rj45_gnd_right = [pin(parts,"JRJ45",rj45_pin) for rj45_pin in ["7","8"]]
+    rj45_gnd_left = [pin(parts,"JRJ45",rj45_pin) for rj45_pin in ["9","11"]]
+    rj45_gnd_left_x, rj45_gnd_right_x = snap(24), snap(60)
+    rj45_gnd_y = snap(99)
+    for point in rj45_gnd_left:
+        wires.append([point, (rj45_gnd_left_x, point[1])])
+    for point in rj45_gnd_right:
+        wires.append([point, (rj45_gnd_right_x, point[1])])
+    wires.append([(rj45_gnd_left_x, y) for y in sorted({p[1] for p in rj45_gnd_left} | {rj45_gnd_y})])
+    wires.append([(rj45_gnd_right_x, y) for y in sorted({p[1] for p in rj45_gnd_right} | {rj45_gnd_y})])
+    rj45_gnd_symbol = snap_point((42, 104))
+    wires.append([(rj45_gnd_left_x, rj45_gnd_y), (rj45_gnd_symbol[0], rj45_gnd_y)])
+    wires.append([(rj45_gnd_symbol[0], rj45_gnd_y), (rj45_gnd_right_x, rj45_gnd_y)])
+    wires.append([(rj45_gnd_symbol[0], rj45_gnd_y), rj45_gnd_symbol])
+    power.append(("GND", rj45_gnd_symbol[0], rj45_gnd_symbol[1]))
+    junctions.extend([
+        (rj45_gnd_left_x, rj45_gnd_y),
+        (rj45_gnd_right_x, rj45_gnd_y),
+        (rj45_gnd_symbol[0], rj45_gnd_y),
+    ])
     for rj45_pin in ["1","2","3","6","10","12"]:
         ncs.append(pin(parts,"JRJ45",rj45_pin))
     for cap in ["CIN24A","CIN24B","CIN24BULK"]:
@@ -1149,8 +1179,15 @@ def build_power_io():
         bus_y=155,
         symbol_at=(235,150),
     )
-    for adc_pin in ["6","7","23","34"]:
-        add_rail(power,wires,"+3V3",pin(parts,"UADC",adc_pin))
+    add_bus_rail(
+        power,
+        wires,
+        "+3V3",
+        [pin(parts,"UADC",adc_pin) for adc_pin in ["6","7","23"]],
+        bus_y=174,
+        symbol_at=(268,169),
+    )
+    add_rail(power,wires,"+3V3",pin(parts,"UADC","34"))
     add_bus_rail(
         power,
         wires,
@@ -1232,7 +1269,6 @@ def build_power_io():
         symbol_at=(327,142),
     )
     # PWR_FLAGs — declare real external/generated rails as sources (silences ERC)
-    junctions=[]
     declare_source(power,wires,"VIN_24V",42,150)
     declare_source(power,wires,"+5V",60,150)
     declare_source(power,wires,"GND",78,150)
@@ -1243,13 +1279,9 @@ def build_power_io():
     power.append(("PWR_FLAG",db[0],db[1]-9)); wires.append([db,(db[0],db[1]-9)]); junctions.append(db)
     texts=[
         ("Power & I/O  —  24V barrel/RJ45 input, onboard AP63205 +5V buck, AP63200 laser buck, AD7606-4 ADC, monitor-PD front end",36,16,2.2),
-        ("J5 barrel center and J6 RJ45 pins 4/5 feed VIN_24V; J5 sleeve/switch and J6 pins 7/8/9/11 return to GND, matching the access-controller convention.",36,22,1.3),
-        ("U15 AP63205WU-7 creates BUCK_5V; D6 ORs it with USB VBUS through D5 into +5V; U11 AP2112K-3.3 -> +3V3.",36,28,1.3),
-        ("U16 AP63200WU-7 creates LASER_V+ ≈ 10.72V from VIN_24V using 274k/22.1k feedback; raw 24V is not tied to laser anodes.",36,34,1.3),
-        ("U14 AD7606BSTZ-4 digitizes VOUT1..4 on-board; ESP32 drives CONVST/SCLK/CS/RESET and reads BUSY + DOUTA/DOUTB.",36,40,1.3),
-        ("MPD_RAWx -> 750R sense to MPD_BIAS; INA4180A1 gain=20 -> 1k/100nF -> MPDx ESP32 ADC.",36,46,1.3),
-        ("LM4040C50 holds LASER_V+ - MPD_BIAS near 5V; PLT5 typ 150uA -> about 2.25V ADC and about 4.89V monitor-PD reverse bias.",36,52,1.3),
-        ("ISENSE headroom: keep I_laser <= 250 mA so V_sense (=I*10ohm) stays inside the ESP32 ADC range with margin.",36,58,1.3),
+        ("Inputs: J5 barrel center and J6 pins 4/5 -> VIN_24V; J5 sleeve/switch and J6 pins 7/8/9/11 -> GND.",36,23,1.25),
+        ("Supplies: U15 AP63205 -> BUCK_5V/+5V, U16 AP63200 -> LASER_V+ ~=10.72V; raw 24V stays off laser anodes.",36,29,1.25),
+        ("Signals: AD7606 digitizes VOUT1..4; INA4180A1 monitor-PD current sense filters to MPD1..4.",36,35,1.25),
     ]
     return build_sch_content(
         "Power & IO",

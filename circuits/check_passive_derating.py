@@ -232,7 +232,7 @@ def capacitor_stress(comp: dict[str, str]) -> CapacitorStress:
             voltage_v=5.05,
             reason="LM4040 monitor-PD bias reference capacitor is across the nominal 5V LASER_V+ to MPD_BIAS reference",
         )
-    if value in {"1uF 100V VIN", "22uF 100V VIN"}:
+    if value in {"1uF 100V", "22uF 100V"}:
         return CapacitorStress(
             voltage_v=24.0,
             reason="24V barrel/RJ45 input capacitor on VIN_24V",
