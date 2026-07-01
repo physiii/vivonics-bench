@@ -154,7 +154,8 @@ S("open_automation:CONN_RJ45",
    "10":(-10.16,7.62,0,"~","passive",2.54),
    "11":(-10.16,-5.08,0,"~","passive",2.54),
    "12":(-10.16,-7.62,0,"~","passive",2.54)},
-  [], hide_nums=False, roff=(0,-18.03), voff=(0,-15.49))
+  [[(-7.62,12.7),(7.62,12.7),(7.62,-10.16),(-7.62,-10.16),(-7.62,12.7)]],
+  hide_nums=False, roff=(0,-18.03), voff=(0,-15.49))
 # ESP32-S3-WROOM-1: pin positions extracted from the official Espressif library symbol.
 # Symbol is 91mm wide (x=-45.7..45.7), 81mm tall (y=-40.6..40.6).
 # Left-side pins (x=-45.7, rot=0): EN(p3@35.6), JTAG(p32-35@12.7-20.3), flash(p28-30@-30.5..-35.6)
@@ -439,10 +440,11 @@ LCSC_1K="C2907002"; LCSC_10PF="C106245"; LCSC_10UF="C318691"; LCSC_1UF="C7472946
 LCSC_1UF_100V="C13832" # Samsung CL31B105KCHNNNE 1uF 100V X7R 1206, copied from access-controller PoE input filtering
 LCSC_22UF_100V="C90264" # ROQANG RVT2A220M0810 22uF 100V SMD electrolytic, copied from access-controller PoE bulk input cap
 LCSC_30K="C22984"    # 30k 0603 1% UNI-ROYAL 0603WAF3002T5E — PWM command divider
-LCSC_750R="C114635"  # 750Ω 0603 1% Yageo RC0603FR-07750RL — monitor-PD sense shunt
+LCSC_240R="C114613"  # 240Ω 0603 1% Yageo RC0603FR-07240RL — monitor-PD sense shunt
 LCSC_249K="C2099849" # 2.49k 0603 1% Vishay CRCW06032K49FKEAHP — LM4040 shunt-reference sink
 LCSC_221K="C2929993" # 22.1k 0402 1% FOJAN FRC0402F2212TS — AP63200 laser feedback bottom resistor
-LCSC_274K="C2942027" # 274k 0603 1% FOJAN FRC0603F2743TS — AP63200 laser feedback top resistor
+LCSC_237K="C2942028" # 237k 0603 1% FOJAN FRC0603F2373TS — AP63200 laser feedback top resistor (VERIFY LCSC BEFORE ORDER)
+LCSC_10UF_50V="C3080136"  # 10uF 50V X7R 1206 Samsung CL31B106KBHNNNE — AP632 input ceramic bypass (VERIFY LCSC BEFORE ORDER)
 LCSC_100PF="C1546"   # 100pF 0402 C0G Fenghua 0402CG101J500NT — AP63200 optional feed-forward cap
 LCSC_POT10K="C81348" # Bourns 3224W-1-103 10k SMD trimmer (Extended) — replaces THT 3296W VBIAS pot
 LCSC_POT2M="C116323" # Bourns 3224W-1-205E 2M SMD trimmer (Extended) — TIA feedback rheostat
@@ -1019,8 +1021,8 @@ def build_power_io():
         "JRJ45":("open_automation:CONN_RJ45","CONN_RJ45",FP_RJ45,"R-RJ45R08P-C000",LCSC_RJ45,42,84),
         "RJR45PWR":("R_H_RJ45","10K",FP_R,"CRCW060310K0FKEA",LCSC_10K,24.13,76.2),
         "RJR45LED":("R_H_RJ45","10K",FP_R,"CRCW060310K0FKEA",LCSC_10K,24.13,91.44),
-        "CIN24A":("C_V","1uF 100V",FP_1206,"CL31B105KCHNNNE",LCSC_1UF_100V,68,52),
-        "CIN24B":("C_V","1uF 100V",FP_1206,"CL31B105KCHNNNE",LCSC_1UF_100V,80,52),
+        "CIN24A":("C_V","10uF 50V",FP_1206,"CL31B106KBHNNNE",LCSC_10UF_50V,68,52),
+        "CIN24B":("C_V","10uF 50V",FP_1206,"CL31B106KBHNNNE",LCSC_10UF_50V,80,52),
         "CIN24BULK":("C_POL_V","22uF 100V",FP_CELEC_8X10,"RVT2A220M0810",LCSC_22UF_100V,92,52),
         "U5V":("AP6320X_TSOT6","AP63205WU-7 5V BUCK",FP_TSOT236,"AP63205WU-7",LCSC_AP63205,105,60),
         "L5V":("L_H","4.7uH",FP_IND_4R7,"MWSA0503S-4R7MT",LCSC_L4R7,136,54),
@@ -1034,12 +1036,12 @@ def build_power_io():
         "C3V3IN":("C_V","1uF",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,238,64),
         "C3V3OUT":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,268,60),
         "C3V3BULK":("C_V","10uF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,282,60),
-        "ULASER":("AP6320X_TSOT6","AP63200WU-7 10.7V BUCK",FP_TSOT236,"AP63200WU-7",LCSC_AP63200,105,90),
+        "ULASER":("AP6320X_TSOT6","AP63200WU-7 9.3V BUCK",FP_TSOT236,"AP63200WU-7",LCSC_AP63200,105,90),
         "LLASER":("L_H","10uH",FP_IND_10,"WPN4020H100MT",LCSC_L10UH,136,84),
         "CBSTLASER":("C_V","100nF BST",FP_402,"0402B104K160CT",LCSC_100NF,124,87),
         "CLASEROUT1":("C_V","10uF laser buck",FP_805,"CL21A106KAYNNNG",LCSC_10UF,148,84),
         "CLASEROUT2":("C_V","10uF laser buck",FP_805,"CL21A106KAYNNNG",LCSC_10UF,160,84),
-        "RFBTOP":("R_V","274k FB",FP_R,"FRC0603F2743TS",LCSC_274K,190,90),
+        "RFBTOP":("R_V","237k FB",FP_R,"FRC0603F2373TS",LCSC_237K,190,90),
         "RFBBOT":("R_V","22.1K FB",FP_R0402,"FRC0402F2212TS",LCSC_221K,190,106),
         "CFFLASER":("C_V","100pF FF",FP_402,"0402CG101J500NT",LCSC_100PF,202,90),
         "UADC":("AD7606_4","AD7606BSTZ-4",FP_AD7606,"AD7606BSTZ-4RL",LCSC_AD7606,250,205),
@@ -1064,7 +1066,7 @@ def build_power_io():
     for i in range(4):
         sense_y = 110 + i*12
         adc_y = 114 + i*12
-        parts[f"RMPD{i+1}"] = ("R_H","750R MPD sense",FP_R,"RC0603FR-07750RL",LCSC_750R,236,sense_y)
+        parts[f"RMPD{i+1}"] = ("R_H","240R MPD sense",FP_R,"RC0603FR-07240RL",LCSC_240R,236,sense_y)
         parts[f"RADC{i+1}"] = ("R_H","1k ADC",FP_R,"FRC0603F1001TS",LCSC_1K,288,adc_y)
         parts[f"CMPD{i+1}"] = ("C_V","100nF MPD ADC",FP_402,"0402B104K160CT",LCSC_100NF,306,adc_y+2.54)
     parts = grid_parts(pparts(parts))
@@ -1089,7 +1091,7 @@ def build_power_io():
     )
     rj45_gnd_right = [pin(parts,"JRJ45",rj45_pin) for rj45_pin in ["7","8"]]
     rj45_gnd_left = [pin(parts,"JRJ45",rj45_pin) for rj45_pin in ["9","11"]]
-    rj45_gnd_left_x, rj45_gnd_right_x = snap(px(24)), snap(px(60))
+    rj45_gnd_left_x, rj45_gnd_right_x = snap(px(14)), snap(px(60))
     rj45_gnd_y = snap(py(99))
     for point in rj45_gnd_left:
         wires.append([point, (rj45_gnd_left_x, point[1])])
@@ -1159,7 +1161,7 @@ def build_power_io():
     add_rail(power,wires,"GND",pin(parts,"C3V3OUT","2"))
     add_rail(power,wires,"+3V3",pin(parts,"C3V3BULK","1"))
     add_rail(power,wires,"GND",pin(parts,"C3V3BULK","2"))
-    # Shared bench laser rail: AP63200 adjustable buck, set near 10.72V by 274k/22.1k.
+    # Shared bench laser rail: AP63200 adjustable buck, set near 9.3V by 237k/22.1k.
     add_rail(power,wires,"VIN_24V",pin(parts,"ULASER","3"))
     add_rail(power,wires,"VIN_24V",pin(parts,"ULASER","2"))
     add_rail(power,wires,"GND",pin(parts,"ULASER","4"))
@@ -1307,7 +1309,7 @@ def build_power_io():
         ("Power & I/O  -  24V barrel/RJ45 input, onboard AP63205 +5V buck, AP63200 laser buck, AD7606-4 ADC, monitor-PD front end",px(36),py(8),2.0),
         ("Inputs: J5 barrel center and J6 pins 4/5 -> VIN_24V; J5 sleeve/switch and J6 pins 7/8/9/11 -> GND.",px(36),py(14),1.2),
         ("RJ45: copied access-controller CONN_RJ45 symbol; J6 pins 10/12 use 10k LED/contact resistors to VIN_24V/+3V3.",px(36),py(20),1.2),
-        ("Supplies: U15 AP63205 -> BUCK_5V/+5V, U16 AP63200 -> LASER_V+ ~=10.72V; raw 24V stays off laser anodes.",px(36),py(26),1.2),
+        ("Supplies: U15 AP63205 -> BUCK_5V/+5V, U16 AP63200 -> LASER_V+ ~=9.3V; raw 24V stays off laser anodes.",px(36),py(26),1.2),
     ]
     return build_sch_content(
         "Power & IO",

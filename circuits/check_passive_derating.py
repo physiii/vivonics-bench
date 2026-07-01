@@ -150,13 +150,13 @@ RES_RATINGS = {
         package="0603",
         source="LCSC C2099849 / Vishay CRCW06032K49FKEAHP page: 2.49k, 333mW, 75V, +/-1%, +/-100ppm/C.",
     ),
-    "RC0603FR-07750RL": ResistorRating(
-        value="750R",
+    "RC0603FR-07240RL": ResistorRating(
+        value="240R",
         power_w=0.10,
         voltage_v=75.0,
         tolerance="+/-1%",
         package="0603",
-        source="LCSC C114635 / Yageo RC0603FR-07750RL page: 750 ohm, 100mW, 75V, +/-1%, +/-100ppm/C.",
+        source="Yageo RC0603FR-07240RL specsheet and LCSC C114613 page: 240 ohm, 100mW, 75V, +/-1%, +/-100ppm/C.",
     ),
     "RT0402BRD071KL": ResistorRating(
         value="1k",
@@ -312,11 +312,11 @@ def resistor_stress(comp: dict[str, str]) -> ResistorStress:
             voltage_v=3.6,
             reason="USB series damping resistor; no intentional DC load, checked for steady-state signal voltage only",
         )
-    if value == "750R MPD sense":
+    if value == "240R MPD sense":
         return ResistorStress(
-            power_w=0.00008,
-            voltage_v=0.25,
-            reason="monitor-PD sense resistor at a conservative 330uA monitor current; INA4180 gain/output headroom is checked separately",
+            power_w=0.00009,
+            voltage_v=0.15,
+            reason="monitor-PD sense resistor at the selected D7805I 600uA high-end monitor current; INA4180 gain/output headroom is checked separately",
         )
     if value == "2.49k MPD bias":
         return ResistorStress(

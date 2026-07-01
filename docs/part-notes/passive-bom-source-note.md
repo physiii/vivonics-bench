@@ -15,7 +15,7 @@ Current passive families:
 - 10 uF 0805: `CL21A106KAYNNNG`, LCSC `C318691`
 - 1 k / 10 k / 30 k / 22 ohm / 10 M 0603 resistor families as encoded in
   the generated BOM and netlist checker.
-- 750 ohm 0603 monitor-PD sense resistor: `RC0603FR-07750RL`, LCSC `C114635`.
+- 240 ohm 0603 monitor-PD sense resistor: `RC0603FR-07240RL`, LCSC `C114613`.
 - 2.49 k 0603 monitor-bias sink resistor: `CRCW06032K49FKEAHP`, LCSC `C2099849`.
 - 10 ohm 2512 2 W laser sense resistors: `HoCR2512-2W-10R-1%`, LCSC `C5123624`.
 - Bourns 3224W SMD trimmers: `3224W-1-103E` / LCSC `C81348` for VBIAS,
@@ -27,9 +27,9 @@ Current verification:
 - The passive derating checker asserts that every assembled capacitor, resistor,
   and SMD trimmer MPN has an explicit bench rating entry and stays below the
   local steady-state voltage/power policy. Current worst cases are the
-  `R57` 1 k at 40.0% power, the `100nF MPD bias` capacitor at 31.6% of 16 V,
-  and `R60` 10 k at 10.0% voltage. The `VIN_24V` input capacitors are at
-  24.0% of their 100 V steady-state rating.
+  `C68` 10 uF laser-buck output capacitor at 43.1% voltage utilization,
+  `R63` 10 k RJ45/input resistor at 48.4% power utilization, and `R63` at
+  29.3% voltage utilization.
 - The PCB checker verifies pad-net assignment, proximity, copper clearance, and
   route class membership.
 

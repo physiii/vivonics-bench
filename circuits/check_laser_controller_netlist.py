@@ -241,20 +241,20 @@ def main() -> int:
         "JRJ45": ("CONN_RJ45", "Connector_RJ:RJ45_Amphenol_RJHSE538X", "R-RJ45R08P-C000", "C386757"),
         "RJR45PWR": ("10K", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "CRCW060310K0FKEA", "C844918"),
         "RJR45LED": ("10K", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "CRCW060310K0FKEA", "C844918"),
-        "CIN24A": ("1uF 100V", "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder", "CL31B105KCHNNNE", "C13832"),
-        "CIN24B": ("1uF 100V", "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder", "CL31B105KCHNNNE", "C13832"),
+        "CIN24A": ("10uF 50V", "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder", "CL31B106KBHNNNE", "C3080136"),
+        "CIN24B": ("10uF 50V", "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder", "CL31B106KBHNNNE", "C3080136"),
         "CIN24BULK": ("22uF 100V", "Capacitor_SMD:C_Elec_8x10.2", "RVT2A220M0810", "C90264"),
         "U5V": ("AP63205WU-7 5V BUCK", "Package_TO_SOT_SMD:TSOT-23-6", "AP63205WU-7", "C2071056"),
         "L5V": ("4.7uH", "Open_Automation:L_5.4x5.3_H3", "MWSA0503S-4R7MT", "C408410"),
         "CBST5V": ("100nF BST", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
         "C5VOUT1": ("10uF 5V buck", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
         "C5VOUT2": ("10uF 5V buck", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
-        "ULASER": ("AP63200WU-7 10.7V BUCK", "Package_TO_SOT_SMD:TSOT-23-6", "AP63200WU-7", "C2071868"),
+        "ULASER": ("AP63200WU-7 9.3V BUCK", "Package_TO_SOT_SMD:TSOT-23-6", "AP63200WU-7", "C2071868"),
         "LLASER": ("10uH", "Open_Automation:L_4x4", "WPN4020H100MT", "C98364"),
         "CBSTLASER": ("100nF BST", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
         "CLASEROUT1": ("10uF laser buck", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
         "CLASEROUT2": ("10uF laser buck", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
-        "RFBTOP": ("274k FB", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "FRC0603F2743TS", "C2942027"),
+        "RFBTOP": ("237k FB", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "FRC0603F2373TS", "C2942028"),
         "RFBBOT": ("22.1K FB", "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder", "FRC0402F2212TS", "C2929993"),
         "CFFLASER": ("100pF FF", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402CG101J500NT", "C1546"),
         "C50": ("10uF +5V bulk", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
@@ -282,7 +282,7 @@ def main() -> int:
     for index in range(1, 5):
         power_io_components[f"CMPD{index}"] = ("100nF MPD ADC", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056")
         power_io_components[f"RADC{index}"] = ("1k ADC", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "FRC0603F1001TS", "C2907002")
-        power_io_components[f"RMPD{index}"] = ("750R MPD sense", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "RC0603FR-07750RL", "C114635")
+        power_io_components[f"RMPD{index}"] = ("240R MPD sense", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "RC0603FR-07240RL", "C114613")
     for color in WL:
         for ref, fields in tia_components.items():
             expect_component(f"/TIA_{color}/", ref_for(f"TIA_{color}", ref), *fields)
@@ -1047,7 +1047,7 @@ def main() -> int:
         "C106245": 8,
         "C83056": 23,
         "C318691": 16,
-        "C13832": 2,
+        "C3080136": 2,  # 10uF 50V input caps (was C13832 1uF 100V)
         "C90264": 1,
         "C201677": 4,
         "C20917": 4,
@@ -1061,7 +1061,7 @@ def main() -> int:
         "C2913199": 1,
         "C398363": 4,
         "C2057528": 1,
-        "C114635": 4,
+        "C114613": 4,
         "C69316": 1,
         "C51118": 1,
         "C5123624": 4,
@@ -1082,7 +1082,7 @@ def main() -> int:
         "C1546": 1,
         "C408410": 1,
         "C98364": 1,
-        "C2942027": 1,
+        "C2942028": 1,  # 237k FB top (was C2942027 274k)
         "C2071056": 1,
         "C2071868": 1,
     }

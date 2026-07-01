@@ -32,6 +32,7 @@ CRITICAL_PART_NOTES = [
     "INA4180A1IPWR.md",
     "LM4040C50IDBZR.md",
     "AD7606BSTZ-4RL.md",
+    "AP63200-AP63205.md",
     "PLT5-520B-harness-reference.md",
     "laser-harness-pin-code-compatibility.md",
     "passive-bom-source-note.md",
@@ -74,7 +75,8 @@ DOCUMENTATION_DESIGNATOR_GUARDS = [
     (
         PART_NOTES_DIR / "ESP32-S3-WROOM-1-N16.md",
         [
-            "GPIO0/BOOT has a pull-up and local PROG button",
+            "GPIO0/BOOT has a 10 k pull-up, 1 uF capacitor, and local PROG button",
+            "`check_esp32_reset_boot_controls.py` asserts the exported U9/U10/Q5/Q6/SW1-SW3",
         ],
         [
             "GPIO0/BOOT has a pull-up and is exposed on J2",
@@ -149,6 +151,10 @@ def main() -> int:
         "Diodes",
         "CP2102N-A02-GQFN28R",
         "LESD5D5.0CT1G",
+        "check_usb_vbus_interface.py",
+        "check_esp32_reset_boot_controls.py",
+        "check_laser_driver_package_pcb.py",
+        "check_laser_diode_footprints.py",
         "Alpha & Omega",
         "Bourns",
         "Mini-B connector metadata",
@@ -166,6 +172,9 @@ def main() -> int:
         "MPD_RAW4",
         "Part-note completeness guardrail",
         "Review/CI wrapper",
+        "check_ad7606_package_pcb.py",
+        "check_ap6320x_package_pcb.py",
+        "check_monitor_pd_package_pcb.py",
     ]:
         if required not in searchable:
             failures.append(f"required source/risk phrase missing: {required}")

@@ -1,7 +1,7 @@
 # Laser Controller — PCB layout & routing guide
 
 `laser_controller.kicad_pcb` currently has **recovered hand-placement coordinates
-and pad-net assignments**: 160 physical footprints match the schematic reference set
+and pad-net assignments**: 178 physical footprints match the schematic reference set
 with no duplicate refs, and the old laser/MPD header footprint is not present. PCB
 pad nets are explicit and derived from the exported KiCad schematic netlist.
 It also emits checked net classes for laser current, power rails, USB, TIA-sensitive analog,
@@ -34,7 +34,7 @@ It also fails sensitive local-route length violations for `MPD_RAWx`, OPA380 sum
 bias nodes, photodiode cathode/bias stubs, trim wipers, TLV9001 laser-control nodes,
 and AO3400A gate-drive nodes.
 Current blocker: the PCB is not release-clean. The measured board has 0
-board-level routed segments, 0 vias, recovered placement for 160 physical
+board-level routed segments, 0 vias, recovered placement for 178 physical
 footprints, and one footprint-internal ESP32 antenna keepout zone.
 `check_laser_controller_pcb.py` still fails because final board-boundary and
 placement-proximity limits are not met, USB routes are absent, and no filled
@@ -106,7 +106,7 @@ The old J3 AD7606 debug/output header has been removed now that U14 is on-board.
 - **Analog/digital split**: ESP32 + PWM returns off TIA analog return; star ground.
 - **Laser current path** (AO3400A drain -> `LASER_Nx` -> `LDx`): short wide traces, away from TIA.
 - **Monitor PD path** (`MPD_RAWx`): route as quiet analog telemetry, not with the laser
-  cathode current paths. Keep the 750 ohm sense resistors, INA4180 inputs, LM4040 bias
+  cathode current paths. Keep the 240 ohm sense resistors, INA4180 inputs, LM4040 bias
   reference, 2.49 k sink, and 1 k / 100 nF ADC filters close to the direct laser footprints or the ESP32 ADC
   entry area.
 - The custom PCB checker now enforces same-layer spacing from laser-current copper:

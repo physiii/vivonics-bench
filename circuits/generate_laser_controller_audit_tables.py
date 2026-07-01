@@ -84,7 +84,7 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
     if re.match(r"Net-\(U16-BST\)$", net):
         return "AP63200 bootstrap node between U16 BST and the 100 nF capacitor to the laser-buck switch node."
     if re.match(r"Net-\(U16-FB\)$", net):
-        return "AP63200 laser-buck feedback node set by the 274k/22.1k divider and 100 pF feed-forward capacitor for about 10.72 V LASER_V+."
+        return "AP63200 laser-buck feedback node set by the 237k/22.1k divider and 100 pF feed-forward capacitor for about 9.3 V LASER_V+."
     if re.match(r"Net-\(J6-Pad10\)$", net):
         return "RJ45 LED/contact node copied from the access-controller RJ45 convention: J6 pin 10 current-limited to VIN_24V through R63."
     if re.match(r"Net-\(J6-Pad12\)$", net):
@@ -156,7 +156,7 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
     if net == "MPD_RAW4":
         return "Spare/open blue-channel monitor input at INA4180 channel 4; PLT5 450GB has no monitor photodiode."
     if "MPD_RAW" in net:
-        return "Raw internal monitor-photodiode anode node from the direct LDx footprint into the 750 ohm high-side sense resistor and INA4180 IN+ pin."
+        return "Raw internal monitor-photodiode anode node from the direct LDx footprint into the 240 ohm high-side sense resistor and INA4180 IN+ pin."
     if net.startswith("LASER_N"):
         return "Laser cathode sink path from the direct LDx footprint to AO3400A drain."
     if net.endswith("/FB"):
@@ -495,7 +495,7 @@ def pin_intent_for_node(
         return "Laser current-sense resistor high side." if net.endswith("/FB") else "Laser current-sense resistor low-side GND return."
     if value.startswith("30k LIMIT"):
         return "PWM command limiter node." if re.match(r"Net-\(U[5-8]-\+\)$", net) else "PWM command limiter ground leg."
-    if value.startswith("750R MPD sense"):
+    if value.startswith("240R MPD sense"):
         return "Monitor-PD sense resistor raw direct-laser side." if "MPD_RAW" in net else "Monitor-PD sense resistor MPD_BIAS side."
     if value.startswith("2.49k MPD bias"):
         return "MPD_BIAS sink resistor high side." if "MPD_BIAS" in net else "MPD_BIAS sink resistor ground return."

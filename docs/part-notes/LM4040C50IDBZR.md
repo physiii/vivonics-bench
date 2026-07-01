@@ -23,11 +23,19 @@ Budget captured:
 - At `LASER_V+ = 10.5 V`, `MPD_BIAS` is about `5.5 V`.
 - R41 sinks about `2.21 mA`; four PLT5-style channels at `150 uA` monitor
   current leave about `1.61 mA` through the LM4040.
+- At the present `LASER_V+ ~= 10.72 V`, the selected-monitor typical case
+  leaves about `1.80 mA` through the LM4040 after LD1/LD2/LD3 monitor currents;
+  the selected high-end case still leaves about `1.25 mA`. These pass the
+  shunt-current guard, so the selected-monitor failure is ADC/INA output range,
+  not LM4040 bias current.
 - The guardrail in `check_laser_monitor_pd_budget.py` keeps LM4040 current
   between the local `80 uA` minimum design guard and the `15 mA` maximum.
+- `check_monitor_pd_package_pcb.py` asserts U13 cathode/anode/pin-3 schematic
+  pin nets, current PCB pad-net assignments, R41/C36 local support nets, and
+  installed KiCad `SOT-23` pad geometry.
 
 Release / layout implication:
-- Place U13, R41, C36, the 750R sense resistors, and U12 so `MPD_BIAS` is a
+- Place U13, R41, C36, the 240R sense resistors, and U12 so `MPD_BIAS` is a
   quiet local bias node near the direct laser monitor inputs and INA4180 inputs.
 - LM4040 stability is acceptable with capacitive loads, but this shunt reference
   is still only the bench monitor-bias front end. Production APC still needs the

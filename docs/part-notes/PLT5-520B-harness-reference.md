@@ -23,10 +23,12 @@ PLT5 520EB_P result:
 - PLT5 520EB_P monitor current is specified at `VRPD = 5 V` as a short-time
   power reference, not as an accurate absolute power measurement.
 - The bench schematic uses a high-side INA4180/LM4040 monitor front end:
-  `MPD_RAWx -> 750R MPD sense -> MPD_BIAS`, with `LASER_V+ - MPD_BIAS` held
+  `MPD_RAWx -> 240R MPD sense -> MPD_BIAS`, with `LASER_V+ - MPD_BIAS` held
   near 5 V and INA4180A1 gain 20 feeding the ESP32 ADC path.
 - At `LASER_V+ = 10.5 V`, PLT5-style `150 uA` monitor current gives about
-  `2.25 V` at the ADC and about `4.89 V` monitor-PD reverse bias.
+  `0.72 V` at the ADC and about `4.96 V` monitor-PD reverse bias.
+- The laser-current policy uses 65 mA typ / 78 mA max and 5.4 V typ / 6.1 V max
+  for the PLT5 520EB_P operating point.
 
 PLT5 450GB result:
 - The datasheet pin table says pin 1 = LD Anode, pin 2 = Case, and pin 3 =
@@ -36,6 +38,13 @@ PLT5 450GB result:
 - Direct footprint `LD4` is `OptoDevice:LaserDiode_TO56-3`. The bench mapping
   is `LD_A -> LASER_V+`, `LD_K -> LASER_N4`, and `CASE` deliberately left
   unconnected. `MPD_RAW4` remains a spare/open monitor front-end input at U12.
+- The laser-current policy uses 87 mA typ / 120 mA max and 5.2 V typ / 6.5 V max
+  for the PLT5 450GB operating point.
+- At the present `LASER_V+ ~= 10.72 V` setting, `selected-diodes-typ-10v72`
+  fails the conservative continuous AO3400A thermal budget for PLT5 450GB.
+- `selected-diodes-max-9v3` is the current passing common-rail reference for the
+  selected diode max-current cases, assuming real current limiting and bench
+  thermal verification.
 
 Release blocker:
 - Every actual laser MPN must be checked against its own pin table and can/common
@@ -47,3 +56,5 @@ Release blocker:
   telemetry for that blue channel.
 - For every actual laser MPN, run `check_laser_current_budget.py` with that
   diode's forward-voltage/current assumption and the intended `LASER_V+`.
+- Do not let the analog command path or firmware reach the 247.5 mA hardware
+  clamp for PLT5 520EB_P or PLT5 450GB.

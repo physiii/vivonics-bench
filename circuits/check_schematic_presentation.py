@@ -200,9 +200,12 @@ def parse_visible_properties(symbol_block: str) -> list[TextItem]:
 def symbol_body_box(lib_id: str, x: float, y: float) -> Box | None:
     if lib_id == "Espressif:ESP32-S3-WROOM-1":
         return Box(x - 45.72, y - 40.64, x + 45.72, y + 40.64)
-    if not lib_id.startswith("viv:"):
+    if lib_id in gen.SYM:
+        sym_name = lib_id
+    elif lib_id.startswith("viv:"):
+        sym_name = lib_id.removeprefix("viv:")
+    else:
         return None
-    sym_name = lib_id.removeprefix("viv:")
     sym = gen.SYM.get(sym_name)
     if not sym or sym.get("power"):
         return None
@@ -219,6 +222,8 @@ def symbol_body_box(lib_id: str, x: float, y: float) -> Box | None:
 
 def symbol_model(lib_id: str) -> tuple[str, dict] | None:
     if lib_id == "Espressif:ESP32-S3-WROOM-1":
+        return lib_id, gen.SYM[lib_id]
+    if lib_id in gen.SYM:
         return lib_id, gen.SYM[lib_id]
     if not lib_id.startswith("viv:"):
         return None

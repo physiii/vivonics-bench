@@ -21,6 +21,8 @@ Package/pin decisions captured in the checker:
   decoupling.
 - VDRIVE pin 23 connects to +3V3 for ESP32 logic-level readback.
 - PAR/SER/BYTE_SEL pin 6 is tied high for serial mode.
+- DB15/BYTE_SEL pin 33 is tied low so the part is in serial mode, not parallel
+  byte mode.
 - STBY pin 7 and REF_SELECT pin 34 are tied high; the design uses the internal
   reference.
 - RANGE pin 8 is tied low for the base AD7606 +/-5 V input range.
@@ -41,6 +43,27 @@ Layout/release notes:
 - Firmware must verify CONVST timing, serial readback timing, scaling for the
   +/-5 V range strap, and whether oversampling straps should change before
   relying on bench readings.
+- Firmware contract for the current bench board is encoded in
+  `check_ad7606_interface_budget.py`: use two DOUT lines, read 32 SCLK edges per
+  DOUT line for each 4-channel sample, keep nominal SCLK at or below 10 MHz
+  until rail/timing margin is measured, default to 100 kSPS or lower, and treat
+  data as 16-bit twos-complement with 152.58 uV/LSB for the +/-5 V range.
+- `check_tia_readout_budget.py` asserts that the OPA380 guarded output window
+  is inside the AD7606 +/-5 V range; the production limiter for the signal-PD
+  path is the OPA380/TIA headroom and optical calibration, not the ADC full
+  scale.
+- On power-up, firmware must pulse RESET high for at least 50 ns and then wait
+  at least 25 ns after RESET returns low before CONVST. CONVST low and high
+  pulses must each be at least 25 ns.
+- For read-after-conversion firmware, wait for BUSY to fall before asserting CS.
+  For read-during-conversion firmware, do not clock data on the BUSY falling edge
+  and keep the datasheet t6 guard to the next BUSY falling edge.
 - `check_laser_controller_netlist.py` asserts the AD7606 package pinout, exact
   signal nets, rail membership, reference capacitors, and the intentional
   FRSTDATA no-connect.
+- `check_ad7606_package_pcb.py` asserts the U14 schematic pin nets, the current
+  PCB pad-net assignments, C51-C60 AVCC/VDRIVE/REGCAP/reference capacitor
+  identities and pad nets, the intentional FRSTDATA unnetted PCB pad, and the
+  installed KiCad `LQFP-64_10x10mm_P0.5mm` pad geometry.
+- `check_ad7606_interface_budget.py` asserts the hardware straps and the default
+  firmware timing/readback budget.

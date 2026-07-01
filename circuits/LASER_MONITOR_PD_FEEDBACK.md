@@ -27,7 +27,7 @@ Do not use it as the film/readout detector.
   `LD_K -> LASER_N`, common `LD_A/PD_K/case -> LASER_V+`, and `PD_A ->
   MPD_RAW` for monitor-capable cans.
 - Each monitor input uses a high-side current-sense front end:
-  `MPD_RAWx -> 750R sense -> MPD_BIAS`; INA4180A1 gain 20 drives
+  `MPD_RAWx -> 240R sense -> MPD_BIAS`; INA4180A1 gain 20 drives
   `MPD_AMPx -> 1k -> MPDx`, with `100nF` ADC-side filtering.
 - LM4040C50 holds `LASER_V+ - MPD_BIAS` near 5 V through a 2.49 k sink, so
   PLT5-style monitor diodes see about the datasheet monitor-current bias.
@@ -63,8 +63,8 @@ The PLT5 520EB_P datasheet gives a typical monitor current around `150 uA` at
 its rated optical power, and monitor current refers to `VRPD = 5 V` as a
 short-time power reference, not guaranteed absolute accuracy. The bench path is
 scaled for that condition: at the current green policy of `LASER_V+ = 10.5 V`,
-LM4040C50 sets `MPD_BIAS` near `5.5 V`, the `750R` sense resistor drops about
-`112.5 mV` at `150 uA`, and INA4180A1 gain 20 drives about `2.25 V` into the
+LM4040C50 sets `MPD_BIAS` near `5.5 V`, the `240R` sense resistor drops about
+`36 mV` at `150 uA`, and INA4180A1 gain 20 drives about `0.72 V` into the
 ESP32 ADC path. The monitor photodiode reverse bias is about `4.89 V` at
 typical monitor current and about `5.00 V` in the dark/off case while
 `LASER_V+` is present. The ADC path remains linear to about `218 uA` of monitor
@@ -75,6 +75,14 @@ telemetry rather than a release-approved production APC loop. Firmware must keep
 the current loop as the hard safety limit, and every actual laser MPN still
 needs a pin table, can/common polarity, monitor-PD reverse-bias limit, and
 optical calibration check before relying on MPD feedback.
+
+The selected LD1-LD3 pin topology is compatible with the high-side
+INA4180/LM4040 front end. The present `240R` / INA4180A1 gain-20 scaling fits
+the selected monitor-current spread inside the local ADC-headroom guard:
+`D7805I` typical monitor current (`200 uA`) maps to about `0.96 V`, its
+`600 uA` high-end value maps to about `2.88 V`, and `D6505I` high-end monitor
+current (`0.3 mA`) maps to about `1.44 V`. This fixes ADC headroom only; MPD
+still requires optical calibration before production APC or safety feedback.
 
 Recommended bench control architecture:
 

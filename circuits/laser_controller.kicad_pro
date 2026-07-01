@@ -588,10 +588,6 @@
       },
       {
         "netclass": "Power_Rails",
-        "pattern": "VIN_24V"
-      },
-      {
-        "netclass": "Power_Rails",
         "pattern": "GND"
       },
       {
@@ -605,6 +601,10 @@
       {
         "netclass": "Power_Rails",
         "pattern": "VBUS_5V"
+      },
+      {
+        "netclass": "Power_Rails",
+        "pattern": "VIN_24V"
       },
       {
         "netclass": "USB",
@@ -985,6 +985,34 @@
       {
         "netclass": "Digital_Control",
         "pattern": "Net-(U10-~{SUSPEND})"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "Net-(J6-Pad10)"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "Net-(J6-Pad12)"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "Net-(U15-BST)"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "Net-(U15-SW)"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "Net-(U16-BST)"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "Net-(U16-FB)"
+      },
+      {
+        "netclass": "Default",
+        "pattern": "Net-(U16-SW)"
       }
     ]
   },

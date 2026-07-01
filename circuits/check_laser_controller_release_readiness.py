@@ -52,7 +52,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
             Evidence(
                 "circuits/PCB_LAYOUT.md",
                 (
-                    "160 physical footprints match the schematic reference set",
+                    "178 physical footprints match the schematic reference set",
                     "Current blocker: the PCB is not release-clean",
                     "The custom PCB and generated-copper release gates do not pass",
                 ),
@@ -144,23 +144,104 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
         ),
     ),
     ReleaseBlocker(
+        "MONITOR_PD_FRONTEND_RANGE_CALIBRATION",
+        "Monitor-PD front-end range and calibration are not released",
+        "The exported netlist now proves the INA4180/LM4040 monitor topology is connected as intended, and the 240R/gain20 monitor scale covers the captured D7805I/D6505I/PLT5 520EB_P monitor-current range inside the local ADC-headroom guard. PLT5 450GB has no monitor photodiode, so MPD4 is not blue-source telemetry. Optical calibration and safety behavior are still unreleased.",
+        "Calibrate each source against an external optical meter and define firmware behavior for MPD telemetry before using it for production APC, normalization, or safety decisions.",
+        (
+            Evidence(
+                "docs/part-notes/INA4180A1IPWR.md",
+                (
+                    "selected-monitor-typ-10v72",
+                    "selected-monitor-worst-10v72",
+                    "`600 uA` high-end monitor current maps",
+                ),
+            ),
+            Evidence(
+                "docs/part-notes/laser-harness-pin-code-compatibility.md",
+                (
+                    "`D7805I` monitor current is checked",
+                    "selected-monitor-worst-10v72",
+                    "MPD still needs optical calibration",
+                ),
+            ),
+            Evidence(
+                "circuits/README.md",
+                (
+                    "D7805I max maps to about 2.88 V",
+                    "Selected blue diode `PLT5 450GB` has no monitor",
+                    "MPD_RAW4` / `MPD4` is spare/open",
+                ),
+            ),
+            Evidence(
+                "docs/source-register.md",
+                (
+                    "D7805I 600 uA high-end monitor current maps to about 2.88 V",
+                    "It still cannot read monitor telemetry",
+                ),
+            ),
+        ),
+    ),
+    ReleaseBlocker(
+        "TIA_READOUT_RANGE_CALIBRATION",
+        "Signal-PD TIA readout range and optical calibration are not released",
+        "The exported netlist now proves the four SFH2201/OPA380 signal-PD channels feed VOUT1..4 into the AD7606 as intended, and the first-order TIA checker shows the present 2 MOhm feedback trim is a high-sensitivity, low-current bench range. At VBIAS = 1.5 V it has about +1.40 uA / -0.70 uA one-sided OPA380 headroom before the guarded output window clips; the SFH2201 1000 lx datasheet short-circuit-current example would need about 152 V of TIA swing at 2 MOhm and is intentionally an expected-fail case.",
+        "Define the real Vivonics optical photocurrent range at the SFH2201 under the bench optics, choose RF/VBIAS/firmware scaling for that range, shield or limit ambient light, and calibrate AD7606 counts against known optical/electrical inputs before using the signal-PD path for production measurements.",
+        (
+            Evidence(
+                "docs/part-notes/OPA380AID.md",
+                (
+                    "`check_tia_readout_budget.py` asserts",
+                    "+1.40 uA / -0.70 uA",
+                    "optical signal range is still a production calibration blocker",
+                ),
+            ),
+            Evidence(
+                "circuits/README.md",
+                (
+                    "check_tia_readout_budget.py",
+                    "+1.40 uA / -0.70 uA",
+                    "TIA readout range and optical calibration remain release blockers",
+                ),
+            ),
+            Evidence(
+                "docs/source-register.md",
+                (
+                    "check_tia_readout_budget.py",
+                    "SFH2201 1000 lx short-circuit-current example",
+                    "Define the real Vivonics optical photocurrent range",
+                ),
+            ),
+        ),
+    ),
+    ReleaseBlocker(
         "PER_DIODE_LASER_THERMAL_BUDGET",
         "Per-diode laser current and heat budget is still open",
-        "A single LASER_V+ rail can be safe for one diode class and unsafe for another because AO3400A heat is set by rail headroom.",
-        "Run the laser-current budget for every selected diode, intended LASER_V+, current setpoint, and duty cycle; measure driver/sense-resistor temperature during bring-up.",
+        "The selected-diode policies now prove the present 10.72 V common rail fails the conservative continuous AO3400A budget for PLT5 450GB at typical current, and the 247.5 mA hardware clamp exceeds every selected laser MPN operating-current maximum.",
+        "Lower/rework LASER_V+ or use per-channel drivers, enforce real per-diode current limits before firmware can command the clamp, then measure driver/sense-resistor temperature and optical output during bring-up.",
         (
             Evidence(
                 "circuits/LASER_CURRENT_THERMAL_BUDGET.md",
                 (
-                    "Set `LASER_V+` from the actual diode forward-voltage table",
-                    "Do not run all four colors at the clamp from one high rail without thermal",
+                    "selected-diodes-typ-10v72",
+                    "selected-diodes-max-9v3",
+                    "selected-diodes-hardware-clamp-10v72",
                     "Use per-channel laser driver/APC topology or per-channel supply/headroom",
                 ),
             ),
             Evidence(
                 "docs/part-notes/PLT5-520B-harness-reference.md",
                 (
-                    "For every actual laser MPN, run `check_laser_current_budget.py`",
+                    "fails the conservative continuous AO3400A thermal budget for PLT5 450GB",
+                    "Do not let the analog command path or firmware reach the 247.5 mA hardware",
+                ),
+            ),
+            Evidence(
+                "docs/part-notes/laser-harness-pin-code-compatibility.md",
+                (
+                    "selected-diodes-typ-10v72",
+                    "selected-diodes-max-9v3",
+                    "selected-diodes-hardware-clamp-10v72",
                 ),
             ),
             Evidence(
@@ -196,29 +277,45 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT",
         "24 V barrel/RJ45 input protection and buck layout are not released",
-        "J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout.",
-        "Define the adapter current limit, RJ45 harness current limit, and input protection, then verify AP63205/AP63200 switch-loop routing, copper width, and temperature before production.",
+        "J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, but the 10.72 V all-channel hardware-clamp case exceeds the 500 mA J5 input budget and the current C61+C62/C64+C65/C67+C68 capacitor set is below generic AP632 datasheet guidance.",
+        "Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; rework or justify the AP632 input/output capacitors; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.",
         (
             Evidence(
                 "circuits/POWER_TREE.md",
                 (
-                    "Select the adapter/RJ45 harness current limit",
-                    "AP63205/AP63200 buck placement, switch-loop routing, thermal behavior",
+                    "check_vin24_input_protection.py --policy bench-topology",
+                    "production-protection",
+                    "no fuse/PTC/TVS/reverse-protection/eFuse stage",
+                    "bench-selected-max-9v3",
+                    "hardware-clamp-10v72",
+                    "datasheet-recommended-components",
+                    "C61+C62 provide only 2 uF VIN ceramic",
+                ),
+            ),
+            Evidence(
+                "docs/part-notes/AP63200-AP63205.md",
+                (
+                    "check_vin24_input_protection.py --policy production-protection",
+                    "no fuse/PTC/TVS/reverse-protection",
+                    "C61+C62 = `2uF`",
+                    "`2x22uF` style output capacitance",
+                    "input range is `3.8 V` to `32 V`",
                 ),
             ),
         ),
     ),
     ReleaseBlocker(
         "USB_CONNECTOR_OFFICIAL_DRAWING",
-        "Official current Wuerth USB connector drawing still needs release verification",
-        "The design uses a local KiCad footprint and a distributor mirror because the official exact drawing was not reachable from this shell.",
-        "Verify the current 65100516121 manufacturer drawing, pin order, shield pads, and footprint orientation before fabrication.",
+        "Mini-B orderable connector and Wuerth land pattern still need release verification",
+        "The official Wuerth 65100516121 drawing is now captured and the USB/VBUS checker proves the electrical nets, but the active BOM metadata still names 920-462A2021S10101 / C46391 on a KiCad Wuerth 65100516121 footprint.",
+        "Verify that the orderable connector fits the Wuerth land pattern, pin-1 orientation, shield pads, board-edge orientation, and assembly source before fabrication.",
         (
             Evidence(
                 "docs/part-notes/65100516121.md",
                 (
                     "Resolve the connector identity before fabrication",
                     "orderable connector must be mechanically checked",
+                    "check_usb_vbus_interface.py --policy connector-source-match",
                 ),
             ),
             Evidence(
@@ -226,6 +323,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 (
                     "Mini-B orderable connector identity must be resolved before release",
                     "mechanical fit and ordering source still need signoff",
+                    "check_usb_vbus_interface.py",
                 ),
             ),
         ),
@@ -318,15 +416,23 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ),
     ReleaseBlocker(
         "AD7606_SYSTEM_INTERFACE",
-        "On-board AD7606 range and firmware assumptions are still open",
-        "The bench board routes VOUT1..4 into the on-board AD7606 and connects its serial/control interface to the ESP32, but range, timing, oversampling, and firmware configuration remain system-level checks.",
-        "Verify the AD7606 variant/range pin, firmware timing, oversampling straps, and expected input range before relying on bench readings.",
+        "On-board AD7606 firmware and bench-readout validation are still open",
+        "The bench board routes VOUT1..4 into the on-board AD7606 and the hardware straps now have a checked 10 MHz / 100 kSPS default interface budget, but firmware implementation, timing on the real ESP32, scaling, and bench ADC readback remain system-level checks.",
+        "Implement and scope the ESP32 AD7606 driver, verify RESET/CONVST/BUSY/CS/SCLK timing, confirm +/-5 V range scaling and oversampling assumptions in firmware, and compare readings against known optical/electrical inputs before relying on bench data.",
         (
             Evidence(
                 "circuits/README.md",
                 (
                     "U14 straps `RANGE` low",
                     "oversampling. Confirm ESP32 timing",
+                ),
+            ),
+            Evidence(
+                "docs/part-notes/AD7606BSTZ-4RL.md",
+                (
+                    "`check_ad7606_interface_budget.py` asserts the hardware straps",
+                    "default to 100 kSPS or lower",
+                    "152.58 uV/LSB",
                 ),
             ),
         ),

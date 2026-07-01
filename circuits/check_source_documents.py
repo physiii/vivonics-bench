@@ -77,6 +77,18 @@ REQUIRED_ONLINE = [
         expect_pdf=True,
     ),
     OnlineEvidence(
+        "Silicon Labs CP2102N datasheet",
+        "https://www.silabs.com/documents/public/data-sheets/cp2102n-datasheet.pdf",
+        True,
+        expect_pdf=True,
+    ),
+    OnlineEvidence(
+        "Wuerth 65100516121 Mini-B datasheet",
+        "https://www.we-online.com/catalog/datasheet/65100516121.pdf",
+        True,
+        expect_pdf=True,
+    ),
+    OnlineEvidence(
         "Espressif ESP-IDF ESP32-S3 ADC guide",
         "https://docs.espressif.com/projects/esp-idf/en/v4.4/esp32s3/api-reference/peripherals/adc.html",
         True,
@@ -96,6 +108,12 @@ REQUIRED_ONLINE = [
     OnlineEvidence(
         "Diodes AP2112 datasheet",
         "https://www.diodes.com/assets/Datasheets/AP2112.pdf",
+        True,
+        expect_pdf=True,
+    ),
+    OnlineEvidence(
+        "Diodes AP63200/AP63201/AP63203/AP63205 datasheet",
+        "https://www.diodes.com/datasheet/download/AP63200-AP63201-AP63203-AP63205.pdf",
         True,
         expect_pdf=True,
     ),
@@ -153,6 +171,12 @@ REQUIRED_ONLINE = [
         "https://yageogroup.com/download/specsheet/CC0603JRNPO9BN100",
         True,
     ),
+    OnlineEvidence(
+        "Yageo RC0603FR-07240RL 240 ohm resistor specsheet",
+        "https://yageogroup.com/component-documentation/download/specsheet/RC0603FR-07240RL",
+        True,
+        expect_pdf=True,
+    ),
 ]
 
 
@@ -186,17 +210,29 @@ WARNING_ONLINE = [
         note="Distributor/order source, not a replacement for final order-time manufacturer confirmation.",
     ),
     OnlineEvidence(
+        "JLCPCB C408410 MWSA0503S-4R7MT inductor page",
+        "https://jlcpcb.com/partdetail/Sunlord-MWSA0503S4R7MT/C408410",
+        False,
+        note="Distributor/order source for the AP63205 4.7uH inductor; final AVL should retain a manufacturer datasheet copy.",
+    ),
+    OnlineEvidence(
+        "JLCPCB C98364 WPN4020H100MT inductor page",
+        "https://jlcpcb.com/partdetail/Sunlord-WPN4020H100MT/C98364",
+        False,
+        note="Distributor/order source for the AP63200 10uH inductor; final AVL should retain a manufacturer datasheet copy.",
+    ),
+    OnlineEvidence(
         "Wuerth Mini/Micro USB family page",
         "https://www.we-online.com/en/components/products/INPUT_OUTPUT_WR_USB_MINI_MICRO",
         False,
-        note="Family/product page; final 65100516121 drawing still needs release verification.",
+        note="Family/product page; exact 65100516121 drawing is required separately above.",
     ),
     OnlineEvidence(
         "Farnell mirror of Wuerth 65100516121 drawing",
         "https://www.farnell.com/datasheets/1442461.pdf",
         False,
         expect_pdf=True,
-        note="Distributor mirror used because the exact official Wuerth drawing URL was not directly reachable.",
+        note="Distributor mirror only; the official Wuerth drawing URL is the required source.",
     ),
     OnlineEvidence(
         "LCSC C2907002 FRC0603F1001TS 1k resistor page",
@@ -217,6 +253,31 @@ WARNING_ONLINE = [
         note="Distributor/order source for active 10k 0603 passive rating evidence.",
     ),
     OnlineEvidence(
+        "LCSC C114613 RC0603FR-07240RL 240 ohm resistor page",
+        "https://www.lcsc.com/product-detail/C114613.html",
+        False,
+        note="Distributor/order source for active 240 ohm monitor-PD sense resistor evidence.",
+    ),
+    OnlineEvidence(
+        "LRC L8050QLT1G transistor datasheet",
+        "https://www.lrc.cn/Upload/PDF/Product/GPBJ/L8050QLT1G.pdf",
+        False,
+        expect_pdf=True,
+        note="Manufacturer datasheet for the Q5 NPN SOT-23 auto-reset transistor.",
+    ),
+    OnlineEvidence(
+        "LCSC C39282 L8550HQLT1G transistor page",
+        "https://www.lcsc.com/product-detail/C39282.html",
+        False,
+        note="Distributor/order source for the Q6 PNP SOT-23 auto-reset transistor; final AVL should retain a manufacturer datasheet copy.",
+    ),
+    OnlineEvidence(
+        "LCSC C127509 K2-1102SP-C4SC-04 switch page",
+        "https://www.lcsc.com/product-detail/C127509.html",
+        False,
+        note="Distributor/order source for the SW1-SW3 tactile reset/program/factory buttons.",
+    ),
+    OnlineEvidence(
         "JLCPCB C5123624 10 ohm 2512 sense resistor page",
         "https://jlcpcb.com/partdetail/Milliohm-HoCR2512_2W_10R_1/C5123624",
         False,
@@ -234,13 +295,24 @@ REQUIRED_LOCAL = [
     LocalEvidence("local OPA380 datasheet copy", "docs/datasheets/opa380.pdf", 100_000),
     LocalEvidence("KiCad ESP32-S3-WROOM-1 footprint", "/usr/share/kicad/footprints/RF_Module.pretty/ESP32-S3-WROOM-1.kicad_mod", 1_000),
     LocalEvidence("KiCad SFH2201 footprint", "/usr/share/kicad/footprints/OptoDevice.pretty/Osram_SFH2201.kicad_mod", 1_000),
+    LocalEvidence("KiCad TO18 laser diode footprint", "/usr/share/kicad/footprints/OptoDevice.pretty/LaserDiode_TO18-D5.6-3.kicad_mod", 1_000),
+    LocalEvidence("KiCad TO56 laser diode footprint", "/usr/share/kicad/footprints/OptoDevice.pretty/LaserDiode_TO56-3.kicad_mod", 1_000),
     LocalEvidence("KiCad OPA380 SOIC-8 footprint", "/usr/share/kicad/footprints/Package_SO.pretty/SOIC-8_3.9x4.9mm_P1.27mm.kicad_mod", 1_000),
+    LocalEvidence("KiCad INA4180 TSSOP-14 footprint", "/usr/share/kicad/footprints/Package_SO.pretty/TSSOP-14_4.4x5mm_P0.65mm.kicad_mod", 1_000),
     LocalEvidence("KiCad SOT-23 footprint", "/usr/share/kicad/footprints/Package_TO_SOT_SMD.pretty/SOT-23.kicad_mod", 1_000),
     LocalEvidence("KiCad SOT-23-5 footprint", "/usr/share/kicad/footprints/Package_TO_SOT_SMD.pretty/SOT-23-5.kicad_mod", 1_000),
     LocalEvidence("KiCad SOT-23-6 footprint", "/usr/share/kicad/footprints/Package_TO_SOT_SMD.pretty/SOT-23-6.kicad_mod", 1_000),
+    LocalEvidence("KiCad TSOT-23-6 footprint", "/usr/share/kicad/footprints/Package_TO_SOT_SMD.pretty/TSOT-23-6.kicad_mod", 1_000),
+    LocalEvidence("KiCad AD7606 LQFP-64 footprint", "/usr/share/kicad/footprints/Package_QFP.pretty/LQFP-64_10x10mm_P0.5mm.kicad_mod", 1_000),
     LocalEvidence("KiCad D_SMA footprint", "/usr/share/kicad/footprints/Diode_SMD.pretty/D_SMA.kicad_mod", 1_000),
     LocalEvidence("KiCad Wuerth Mini-B footprint", "/usr/share/kicad/footprints/Connector_USB.pretty/USB_Mini-B_Wuerth_65100516121_Horizontal.kicad_mod", 1_000),
     LocalEvidence("KiCad Bourns 3224W footprint", "/usr/share/kicad/footprints/Potentiometer_SMD.pretty/Potentiometer_Bourns_3224W_Vertical.kicad_mod", 1_000),
+    LocalEvidence("KiCad 2512 hand-solder footprint", "/usr/share/kicad/footprints/Resistor_SMD.pretty/R_2512_6332Metric_Pad1.40x3.35mm_HandSolder.kicad_mod", 1_000),
+    LocalEvidence("KiCad 0603 hand-solder footprint", "/usr/share/kicad/footprints/Resistor_SMD.pretty/R_0603_1608Metric_Pad0.98x0.95mm_HandSolder.kicad_mod", 1_000),
+    LocalEvidence("KiCad 0402 hand-solder footprint", "/usr/share/kicad/footprints/Capacitor_SMD.pretty/C_0402_1005Metric_Pad0.74x0.62mm_HandSolder.kicad_mod", 1_000),
+    LocalEvidence("KiCad 0603 capacitor hand-solder footprint", "/usr/share/kicad/footprints/Capacitor_SMD.pretty/C_0603_1608Metric_Pad1.08x0.95mm_HandSolder.kicad_mod", 1_000),
+    LocalEvidence("Open_Automation 4.7uH inductor footprint", "circuits/lib/Open_Automation.pretty/L_5.4x5.3_H3.kicad_mod", 1_000),
+    LocalEvidence("Open_Automation 10uH inductor footprint", "circuits/lib/Open_Automation.pretty/L_4x4.kicad_mod", 1_000),
     LocalEvidence("canonical proof laser parts list", "../docs/program/PROOF_LASER_PARTS_2026-06-24.md", 5_000),
     LocalEvidence("laser harness pin-code compatibility note", "docs/part-notes/laser-harness-pin-code-compatibility.md", 1_000),
 ]

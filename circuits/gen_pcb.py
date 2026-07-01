@@ -95,9 +95,28 @@ def transform_zone_polygons_to_board_coords(fp, origin_x, origin_y, rotation_deg
 
     return re.sub(r'\(zone\b[\s\S]*?\n\s*\)', transform_zone, fp)
 
+def normalize_legacy_module_footprint(fp):
+    """Convert old KiCad `(module ...)` footprint files into board footprint blocks."""
+    match = re.match(
+        r'\(module\s+("([^"]+)"|([^\s\)]+))\s+\(layer\s+("?)([^"\)]+)\4\)\s+\(tedit\s+([0-9A-Fa-f]+)\)',
+        fp,
+    )
+    if not match:
+        return fp
+    name = match.group(2) or match.group(3)
+    layer = match.group(5)
+    tedit = match.group(6)
+    replacement = (
+        f'(footprint {sexpr_quote(name)} (version 20211014) (generator pcbnew)\n'
+        f'  (layer {sexpr_quote(layer)})\n'
+        f'  (tedit {tedit})'
+    )
+    return replacement + fp[match.end():]
+
 def place(libid, ref, val, x, y, rot=0):
     fp=get_fp(libid)
     if fp is None: return None
+    fp=normalize_legacy_module_footprint(fp)
     fp=transform_zone_polygons_to_board_coords(fp, x, y, rot)
     fp=re.sub(r'\(tstamp [0-9a-fA-F-]+\)', lambda m:f'(tstamp {uuid()})', fp)
     # The KiCad ESP32-S3-WROOM footprint antenna keepout names only F/In1/B
@@ -557,7 +576,9 @@ def build_board(emit_routes=False):
         "D11", "D12", "D13", "D14",
     ]
     power_io_order = [
-        "D10", "D11", "J2", "J5", "C50",
+        "D10", "D11", "J2", "J5", "J6", "C50",
+        "C61", "C62", "U15", "C63", "L1", "C64", "C65", "R61", "R62",
+        "U16", "C66", "L2", "C67", "C68", "R63", "R64", "C69", "C70",
         "U3V3", "C3V3IN", "C3V3OUT", "C3V3BULK",
         "J1", "UADC", "CADCBULK", "CADCAV1", "CADCAV2", "CADCAV3", "CADCAV4", "CADCDRV",
         "CREG1", "CREG2", "CREFIN", "CREFCAP",
