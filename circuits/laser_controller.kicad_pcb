@@ -189,7 +189,7 @@
 
   (footprint "Osram_SFH2201" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000028)
-    (at 153.9 98.925)
+    (at 153.9 102.4375)
     (descr "PhotoDiode, Clear Silicone, Osram TOPLED, 4x5.09mm, area: 2.85x2.85mm, Orientation mark at cathode, https://dammedia.osram.info/media/resource/hires/osram-dam-25688470/SFH%202201%20A01_EN.pdf")
     (tags "PhotoDiode silicone")
     (attr smd)
@@ -838,7 +838,7 @@
 
   (footprint "Osram_SFH2201" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000219)
-    (at 137.925 98.95)
+    (at 137.925 102.4375)
     (descr "PhotoDiode, Clear Silicone, Osram TOPLED, 4x5.09mm, area: 2.85x2.85mm, Orientation mark at cathode, https://dammedia.osram.info/media/resource/hires/osram-dam-25688470/SFH%202201%20A01_EN.pdf")
     (tags "PhotoDiode silicone")
     (attr smd)
@@ -1487,7 +1487,7 @@
 
   (footprint "Osram_SFH2201" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000410)
-    (at 153.9 114.925)
+    (at 153.9 118.4375)
     (descr "PhotoDiode, Clear Silicone, Osram TOPLED, 4x5.09mm, area: 2.85x2.85mm, Orientation mark at cathode, https://dammedia.osram.info/media/resource/hires/osram-dam-25688470/SFH%202201%20A01_EN.pdf")
     (tags "PhotoDiode silicone")
     (attr smd)
@@ -2136,7 +2136,7 @@
 
   (footprint "Osram_SFH2201" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000601)
-    (at 137.9 114.925)
+    (at 137.9 118.4375)
     (descr "PhotoDiode, Clear Silicone, Osram TOPLED, 4x5.09mm, area: 2.85x2.85mm, Orientation mark at cathode, https://dammedia.osram.info/media/resource/hires/osram-dam-25688470/SFH%202201%20A01_EN.pdf")
     (tags "PhotoDiode silicone")
     (attr smd)
@@ -3313,7 +3313,7 @@
 
   (footprint "LaserDiode_TO18-D5.6-3" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000000916)
-    (at 168.88 114.915)
+    (at 168.88 118.4375)
     (descr "Laser Diode, TO18-like (D=5.6mm), 3pin")
     (tags "Laser Diode TO18-like")
     (attr through_hole)
@@ -3902,7 +3902,7 @@
 
   (footprint "LaserDiode_TO18-D5.6-3" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000001068)
-    (at 184.88 98.915)
+    (at 184.88 102.4375)
     (descr "Laser Diode, TO18-like (D=5.6mm), 3pin")
     (tags "Laser Diode TO18-like")
     (attr through_hole)
@@ -4491,7 +4491,7 @@
 
   (footprint "LaserDiode_TO56-3" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000001219)
-    (at 184.9 114.925)
+    (at 184.9 118.4375)
     (descr "Laser Diode, TO-56, 3pin")
     (tags "Laser Diode TO56")
     (attr through_hole)
@@ -5078,7 +5078,7 @@
 
   (footprint "LaserDiode_TO56-3" (layer "F.Cu")
     (tstamp b0b0b0b0-0000-4000-a000-000000001370)
-    (at 168.9 98.925)
+    (at 168.9 102.4375)
     (descr "Laser Diode, TO-56, 3pin")
     (tags "Laser Diode TO56")
     (attr through_hole)
