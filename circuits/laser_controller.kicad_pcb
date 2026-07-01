@@ -10552,4 +10552,44 @@
     (effects (font (size 1.2 1.2) (thickness 0.18)))
   )
 
+  (zone (net 46) (net_name "GND") (layer "In1.Cu") (tstamp 00000000-0000-0000-0000-00006094b0e3) (hatch edge 0.508)
+    (connect_pads (clearance 0.508))
+    (min_thickness 0.254) (filled_areas_thickness no)
+    (fill yes (thermal_gap 0.508) (thermal_bridge_width 0.508))
+    (polygon
+      (pts
+        (xy 31 80)
+        (xy 204 80)
+        (xy 204 141)
+        (xy 31 141)
+      )
+    )
+  )
+  (zone (net 2) (net_name "+5V") (layer "In2.Cu") (tstamp 00000000-0000-0000-0000-00006094b0e4) (hatch edge 0.508)
+    (connect_pads (clearance 0.508))
+    (min_thickness 0.254) (filled_areas_thickness no)
+    (fill yes (thermal_gap 0.508) (thermal_bridge_width 0.508))
+    (polygon
+      (pts
+        (xy 31 80)
+        (xy 130 80)
+        (xy 130 141)
+        (xy 31 141)
+      )
+    )
+  )
+  (zone (net 55) (net_name "LASER_V+") (layer "In2.Cu") (tstamp 00000000-0000-0000-0000-00006094b0e5) (hatch edge 0.508)
+    (connect_pads (clearance 0.508))
+    (min_thickness 0.254) (filled_areas_thickness no)
+    (fill yes (thermal_gap 0.508) (thermal_bridge_width 0.508))
+    (polygon
+      (pts
+        (xy 125 80)
+        (xy 204 80)
+        (xy 204 141)
+        (xy 125 141)
+      )
+    )
+  )
+
 )
