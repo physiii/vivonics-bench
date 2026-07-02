@@ -84,8 +84,8 @@
     (add_net "LASER_V+")
   )
   (net_class "Power_Rails" "Board power and common return rails; prefer pours or wide trunks."
-    (clearance 0.25)
-    (trace_width 0.60)
+    (clearance 0.20)
+    (trace_width 0.25)
     (via_dia 1.00)
     (via_drill 0.50)
     (uvia_dia 0.30)
