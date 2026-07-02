@@ -27,11 +27,35 @@ from pcb_critical_routes import (
     parse_pad_geometry_from_text,
 )
 
-BOARD_WIDTH_MM = 90.0
-BOARD_HEIGHT_MM = 50.0
+BOARD_WIDTH_MM = float(gen_pcb.BOARD_W_MM)
+BOARD_HEIGHT_MM = float(gen_pcb.BOARD_H_MM)
 BOARD_SIZE_TOLERANCE_MM = 0.05
 ZONE_OR_RAIL_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_24V", "/POWER_IO/BUCK_5V", "LASER_V+"}
 EXPECTED_ZONE_OR_RAIL_PENDING_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_24V", "/POWER_IO/BUCK_5V", "LASER_V+"}
+RAIL_PAD_VIA_TARGETS = {
+    "GND": {"In1.Cu"},
+    "+3V3": {"In2.Cu"},
+    "+5V": {"In2.Cu", "B.Cu"},
+}
+RAIL_PAD_MAX_VIA_DISTANCE_MM = 1.2
+ADDITIONAL_POWER_PAD_VIA_TARGETS = {
+    "LASER_V+",
+    "VBUS_5V",
+    "VIN_24V",
+    "/POWER_IO/BUCK_5V",
+    "Net-(D10-A)",
+    "Net-(D13-A)",
+    "LASER_N1",
+    "LASER_N2",
+    "LASER_N3",
+    "LASER_N4",
+}
+ADDITIONAL_POWER_PAD_MAX_VIA_DISTANCE_MM = RAIL_PAD_MAX_VIA_DISTANCE_MM
+REQUIRED_PLANE_ZONES = {
+    "GND": {"In1.Cu"},
+    "+3V3": {"In2.Cu"},
+    "+5V": {"In2.Cu", "B.Cu"},
+}
 USB_ROUTE_CHAINS = {
     "USB-UART D-": [
         ("J1 D- to CP2102N D-", "/MCU_ESP32-S3/D-"),
@@ -45,6 +69,11 @@ USB_ROUTE_CHAINS = {
     "Native USB D+": [
         ("J2 D+ to ESP32 GPIO20", "/MCU_ESP32-S3/IO20"),
     ],
+}
+USB_ROUTE_NET_NAMES = {
+    net_name
+    for chain_entries in USB_ROUTE_CHAINS.values()
+    for _, net_name in chain_entries
 }
 USB_PAIR_CHAINS = [
     ("USB-UART", "USB-UART D-", "USB-UART D+"),
@@ -139,7 +168,12 @@ def parse_board_outline_bounds(board_path: Path) -> tuple[tuple[float, float, fl
             )
         )
     if not coords:
-        return (0.0, 0.0, BOARD_WIDTH_MM, BOARD_HEIGHT_MM), False
+        return (
+            gen_pcb.BOARD_X0_MM,
+            gen_pcb.BOARD_Y0_MM,
+            gen_pcb.BOARD_X1_MM,
+            gen_pcb.BOARD_Y1_MM,
+        ), False
     return (
         min(x for x, _ in coords),
         min(y for _, y in coords),
@@ -250,6 +284,16 @@ def intentional_unnetted_pad_names(
         allowed[board_ref(f"TIA_{color}", "U1")].update({"1", "5", "8"})  # OPA380 NC.
     allowed[board_ref("MCU_ESP32-S3", "J1")].update({"", "4"})  # Mini-B NPTH + USB ID.
     allowed[board_ref("MCU_ESP32-S3", "J2")].update({"", "4"})  # Mini-B NPTH + USB ID.
+    allowed[board_ref("POWER_IO", "JRJ45")].update(
+        {
+            "",  # Shielded RJ45 NPTH locator holes.
+            "1",
+            "2",
+            "3",
+            "6",
+            "SH",  # Shield tabs are intentionally isolated in this power-input footprint.
+        }
+    )
     allowed[board_ref("MCU_ESP32-S3", "U10")].update(
         {
             "",  # CP2102N exposed-pad paste apertures.
@@ -423,20 +467,21 @@ def parse_board_vias(board_path: Path, net_by_code: dict[int, str]) -> list[dict
     vias: list[dict[str, object]] = []
     text = board_path.read_text()
     pattern = re.compile(
-        r'\(via\s+\(at\s+([-\d.]+)\s+([-\d.]+)\)\s+'
+        r'\(via(?:\s+(micro|blind|buried))?\s+\(at\s+([-\d.]+)\s+([-\d.]+)\)\s+'
         r'\(size\s+([-\d.]+)\)\s+\(drill\s+([-\d.]+)\)\s+'
         r'\(layers\s+"([^"]+)"\s+"([^"]+)"\)\s+\(net\s+(\d+)\)'
     )
     for match in pattern.finditer(text):
-        net_code = int(match.group(7))
+        net_code = int(match.group(8))
         vias.append(
             {
-                "at": (float(match.group(1)), float(match.group(2))),
-                "size": float(match.group(3)),
-                "drill": float(match.group(4)),
-                "layers": {match.group(5), match.group(6)},
+                "at": (float(match.group(2)), float(match.group(3))),
+                "size": float(match.group(4)),
+                "drill": float(match.group(5)),
+                "layers": {match.group(6), match.group(7)},
                 "net_code": net_code,
                 "net": net_by_code.get(net_code, ""),
+                "type": match.group(1) or "through",
             }
         )
     return vias
@@ -467,6 +512,8 @@ def duplicate_via_failures(vias: list[dict[str, object]]) -> list[str]:
 def _via_limit_for_net(net_name: str) -> int | None:
     if gen_pcb.classify_net(net_name) == "Power_Rails":
         return None
+    if net_name == "LASER_V+":
+        return None
     if re.match(r"^/POWER_IO/MPD_RAW[1-4]$", net_name):
         return 0
     if re.match(r"^Net-\(D[1-4]-[AK]\)$", net_name):
@@ -479,7 +526,7 @@ def _via_limit_for_net(net_name: str) -> int | None:
         return 0
     if re.match(r"^/LASER_(IR|RED|GREEN|BLUE)/(FB|LOUT)$", net_name):
         return 0
-    if re.match(r"^/MCU_ESP32-S3/USB_D[MP](_CONN|_ESD)?$", net_name):
+    if net_name in USB_ROUTE_NET_NAMES or re.match(r"^/MCU_ESP32-S3/USB_D[MP](_CONN|_ESD)?$", net_name):
         return 0
     if re.match(r"^VOUT[1-4]$", net_name):
         return 2
@@ -500,6 +547,11 @@ def _via_limit_for_net(net_name: str) -> int | None:
         "/MCU_ESP32-S3/ESP_TX",
     }:
         return 1
+    if net_name in {
+        "Net-(J6-Pad10)",
+        "Net-(J6-Pad12)",
+    }:
+        return 2
     if net_name in {"LASER_N1", "LASER_N2", "LASER_N3", "LASER_N4"}:
         return 1
     if net_name == "LASER_V+":
@@ -525,7 +577,7 @@ def route_via_policy_failures(vias: list[dict[str, object]]) -> tuple[list[str],
 
 
 def _allowed_route_layers_for_net(net_name: str) -> set[str]:
-    if re.match(r"^/MCU_ESP32-S3/USB_D[MP](_CONN|_ESD)?$", net_name):
+    if net_name in USB_ROUTE_NET_NAMES or re.match(r"^/MCU_ESP32-S3/USB_D[MP](_CONN|_ESD)?$", net_name):
         return {"F.Cu"}
     if re.match(r"^/POWER_IO/MPD_RAW[1-4]$", net_name):
         return {"F.Cu"}
@@ -581,16 +633,22 @@ def route_layer_policy_failures(segments: list[dict[str, object]]) -> tuple[list
 
 
 def _allowed_route_widths_for_net(net_name: str) -> set[float]:
-    if re.match(r"^/MCU_ESP32-S3/USB_D[MP](_CONN|_ESD)?$", net_name):
+    if net_name in USB_ROUTE_NET_NAMES or re.match(r"^/MCU_ESP32-S3/USB_D[MP](_CONN|_ESD)?$", net_name):
         return {0.25}
     if net_name == "LASER_V+":
-        return {0.80}
+        return {0.80, 1.00}
     if re.match(r"^LASER_N[1-4]$", net_name):
         return {0.60}
     if re.match(r"^/LASER_(IR|RED|GREEN|BLUE)/FB$", net_name):
         return {0.20, 0.60}
-    if net_name in {"VIN_24V", "/POWER_IO/BUCK_5V"}:
+    if net_name == "VIN_24V":
+        return {0.30, 0.60}
+    if net_name in {"Net-(D10-A)", "Net-(D13-A)"}:
+        return {0.50}
+    if net_name == "/POWER_IO/BUCK_5V":
         return {0.60}
+    if re.match(r"^Net-\(U1[56]-SW\)$", net_name):
+        return {0.40}
     if net_name == "VBUS_5V":
         return {0.50}
     if net_name == "+3V3":
@@ -598,7 +656,7 @@ def _allowed_route_widths_for_net(net_name: str) -> set[float]:
     if net_name == "+5V":
         return {0.25, 0.50, 0.60}
     if net_name == "GND":
-        return {0.20, 0.60}
+        return {0.25, 0.30, 0.50, 0.60, 0.80, 1.00}
     if re.match(r"^Net-\(D[1-4]-K\)$", net_name):
         return {0.20, 0.25}
     return {0.20}
@@ -838,6 +896,19 @@ def dangling_copper_failures(
             via_copper_layers(via, copper_layers)
         )
 
+    zone_polygons_by_net_layer: dict[tuple[str, str], list[list[tuple[float, float]]]] = {}
+    for zone in parse_zone_summaries(board_path, copper_layers):
+        net = str(zone["net_name"])
+        if not net or not zone["has_fill"] or zone["is_keepout"]:
+            continue
+        for layer in sorted(set(zone["layers"]) & copper_layers):
+            zone_polygons_by_net_layer[(net, layer)] = _filled_zone_polygons(
+                board_path,
+                net,
+                layer,
+                copper_layers,
+            )
+
     def endpoint_touches_same_net_pad(net: str, layer: str, point: tuple[float, float]) -> str | None:
         for ref, pin, pad_net, pad_layers, pad in pads:
             if pad_net != net or layer not in pad_layers:
@@ -845,6 +916,17 @@ def dangling_copper_failures(
             if _point_in_pad(point, pad, 0.01):
                 return f"{ref}.{pin}"
         return None
+
+    def point_touches_same_net_zone(
+        net: str,
+        layer: str,
+        point: tuple[float, float],
+        radius: float,
+    ) -> bool:
+        return any(
+            _dist_point_polygon(point, polygon) <= radius + 0.03
+            for polygon in zone_polygons_by_net_layer.get((net, layer), [])
+        )
 
     failures: list[str] = []
     checked_endpoints = 0
@@ -861,6 +943,8 @@ def dangling_copper_failures(
             if layer in via_layers_by_net_point.get((net, _point_key(point)), set()):
                 continue
             if endpoint_touches_same_net_pad(net, layer, point):
+                continue
+            if point_touches_same_net_zone(net, layer, point, float(segment["width"]) / 2):
                 continue
             failures.append(
                 f"dangling segment endpoint: {net} {layer} {point} on {endpoint} of {segment['a']}->{segment['b']} "
@@ -880,6 +964,9 @@ def dangling_copper_failures(
                 supported = True
                 break
             if endpoint_touches_same_net_pad(net, layer, point):
+                supported = True
+                break
+            if point_touches_same_net_zone(net, layer, point, float(via["size"]) / 2):
                 supported = True
                 break
         if not supported:
@@ -965,8 +1052,19 @@ def split_multi_pad_signal_nets(
                         "pin": pin,
                         "point": (round(center[0], 4), round(center[1], 4)),
                         "nodes": nodes,
+                        "pad": pad,
                     }
                 )
+
+    _connect_filled_zone_polygons(
+        board_path,
+        copper_layers,
+        segments,
+        vias,
+        pads_by_net,
+        graph_by_net,
+        route_point_key,
+    )
 
     has_gnd_in1_plane = any(
         zone["net_name"] == "GND"
@@ -1108,6 +1206,154 @@ def _dist_segment_segment(
         _dist_point_segment(b, c, d),
         _dist_point_segment(c, a, b),
         _dist_point_segment(d, a, b),
+    )
+
+
+def _child_blocks(parent_block: str, prefix: str) -> list[str]:
+    blocks: list[str] = []
+    current: list[str] = []
+    depth = 0
+    in_block = False
+    for line in parent_block.splitlines():
+        if not in_block and line.lstrip().startswith(prefix):
+            current = [line]
+            depth = line.count("(") - line.count(")")
+            in_block = True
+            continue
+        if in_block:
+            current.append(line)
+            depth += line.count("(") - line.count(")")
+            if depth == 0:
+                blocks.append("\n".join(current))
+                in_block = False
+    return blocks
+
+
+def _filled_zone_polygons(
+    board_path: Path,
+    net_name: str,
+    layer: str,
+    copper_layers: set[str],
+) -> list[list[tuple[float, float]]]:
+    polygons: list[list[tuple[float, float]]] = []
+    for zone in zone_blocks(board_path.read_text()):
+        first = zone.splitlines()[0]
+        net_name_match = re.search(r'\(net_name\s+(?:"([^"]*)"|([^\s\)]+))\)', first)
+        zone_net_name = (
+            net_name_match.group(1)
+            if net_name_match and net_name_match.group(1) is not None
+            else net_name_match.group(2) if net_name_match else ""
+        )
+        if zone_net_name != net_name:
+            continue
+        if layer not in _zone_copper_layers(zone, copper_layers):
+            continue
+        for filled_polygon in _child_blocks(zone, "(filled_polygon"):
+            filled_layer_match = re.search(r'\(layer\s+(?:"([^"]*)"|([^\s\)]+))\)', filled_polygon)
+            filled_layer = (
+                filled_layer_match.group(1)
+                if filled_layer_match and filled_layer_match.group(1) is not None
+                else filled_layer_match.group(2) if filled_layer_match else layer
+            )
+            if filled_layer != layer:
+                continue
+            points = [
+                (float(x), float(y))
+                for x, y in re.findall(r'\(xy\s+([-\d.]+)\s+([-\d.]+)\)', filled_polygon)
+            ]
+            if len(points) >= 3:
+                polygons.append(points)
+    return polygons
+
+
+def _connect_filled_zone_polygons(
+    board_path: Path,
+    copper_layers: set[str],
+    segments: list[dict[str, object]],
+    vias: list[dict[str, object]],
+    pads_by_net: dict[str, list[dict[str, object]]],
+    graph_by_net: dict[object, object],
+    route_point_key,
+    target_nets: set[str] | None = None,
+) -> None:
+    zone_index = 0
+    zone_summaries = parse_zone_summaries(board_path, copper_layers)
+    for zone in zone_summaries:
+        net = str(zone["net_name"])
+        if not net or not zone["has_fill"] or zone["is_keepout"]:
+            continue
+        if target_nets is not None and net not in target_nets:
+            continue
+        zone_layers = set(zone["layers"]) & copper_layers
+        for layer in sorted(zone_layers):
+            for polygon in _filled_zone_polygons(board_path, net, layer, copper_layers):
+                zone_node = route_point_key((-9998.0 - zone_index, -9998.0), layer)
+                zone_index += 1
+                graph_by_net[net][zone_node]
+
+                for via in vias:
+                    if str(via["net"]) != net or layer not in via_copper_layers(via, copper_layers):
+                        continue
+                    point = via["at"]
+                    assert isinstance(point, tuple)
+                    if _dist_point_polygon(point, polygon) <= float(via["size"]) / 2 + 0.03:
+                        via_node = route_point_key(point, layer)
+                        graph_by_net[net][zone_node].add(via_node)
+                        graph_by_net[net][via_node].add(zone_node)
+
+                for segment in segments:
+                    if str(segment["net"]) != net or str(segment["layer"]) != layer:
+                        continue
+                    a_point = segment["a"]
+                    b_point = segment["b"]
+                    assert isinstance(a_point, tuple) and isinstance(b_point, tuple)
+                    width = float(segment["width"])
+                    if (
+                        _dist_point_polygon(a_point, polygon) <= width / 2 + 0.03
+                        or _dist_point_polygon(b_point, polygon) <= width / 2 + 0.03
+                        or _segment_intersects_polygon(a_point, b_point, polygon)
+                    ):
+                        a_node = route_point_key(a_point, layer)
+                        b_node = route_point_key(b_point, layer)
+                        graph_by_net[net][zone_node].add(a_node)
+                        graph_by_net[net][a_node].add(zone_node)
+                        graph_by_net[net][zone_node].add(b_node)
+                        graph_by_net[net][b_node].add(zone_node)
+
+                for pad in pads_by_net.get(net, []):
+                    nodes = set(pad["nodes"])  # type: ignore[arg-type]
+                    layer_nodes = {node for node in nodes if node[2] == layer}
+                    if not layer_nodes:
+                        continue
+                    pad_geom = pad.get("pad")
+                    if not isinstance(pad_geom, dict):
+                        continue
+                    pad_point = (float(pad_geom["x"]), float(pad_geom["y"]))
+                    if (
+                        _bbox_intersects_polygon(_pad_bbox(pad_geom, 0.0), polygon)
+                        or _dist_point_polygon(pad_point, polygon)
+                        <= _pad_bounding_radius(pad_geom) + 0.12
+                    ):
+                        for node in layer_nodes:
+                            graph_by_net[net][zone_node].add(node)
+                            graph_by_net[net][node].add(zone_node)
+
+
+def _dist_point_polygon(point: tuple[float, float], polygon: list[tuple[float, float]]) -> float:
+    if _point_in_polygon(point, polygon):
+        return 0.0
+    return min(
+        _dist_point_segment(point, a, b)
+        for a, b in zip(polygon, polygon[1:] + polygon[:1])
+    )
+
+
+def _pad_bounding_radius(pad: dict[str, float | str]) -> float:
+    x0, y0, x1, y1 = _pad_bbox(pad, 0.0)
+    center = (float(pad["x"]), float(pad["y"]))
+    return max(
+        hypot(center[0] - x, center[1] - y)
+        for x, y in ((x0, y0), (x0, y1), (x1, y0), (x1, y1))
     )
 
 
@@ -1270,6 +1516,117 @@ def via_pad_clearance_failures(board_path: Path, vias: list[dict[str, object]]) 
                             f"via {point}({via_net}) too close to {ref}.{pin}({pad_net})"
                         )
     return failures
+
+
+def rail_pad_via_coverage_failures(
+    board_path: Path,
+    vias: list[dict[str, object]],
+    copper_layers: set[str],
+) -> tuple[list[str], dict[str, int]]:
+    pad_geometry = parse_pad_geometry_from_text(board_path.read_text())
+    rail_vias: dict[str, list[tuple[float, float]]] = defaultdict(list)
+    for via in vias:
+        net = str(via["net"])
+        target_layers = RAIL_PAD_VIA_TARGETS.get(net)
+        if not target_layers:
+            continue
+        if not (via_copper_layers(via, copper_layers) & target_layers):
+            continue
+        point = via["at"]
+        assert isinstance(point, tuple)
+        rail_vias[net].append(point)
+
+    failures: list[str] = []
+    checked = 0
+    in_pad = 0
+    near_pad = 0
+    for ref, pads in pad_geometry.items():
+        for pin, pad_list in pads.items():
+            for pad in pad_list:
+                net = str(pad.get("net", ""))
+                if net not in RAIL_PAD_VIA_TARGETS:
+                    continue
+                if _pad_is_plated_through(pad):
+                    continue
+                checked += 1
+                vias_for_net = rail_vias.get(net, [])
+                center = (float(pad["x"]), float(pad["y"]))
+                if any(_point_in_pad(via_point, pad, 0.01) for via_point in vias_for_net):
+                    in_pad += 1
+                    continue
+                if any(
+                    hypot(center[0] - via_point[0], center[1] - via_point[1])
+                    <= RAIL_PAD_MAX_VIA_DISTANCE_MM
+                    for via_point in vias_for_net
+                ):
+                    near_pad += 1
+                    continue
+                failures.append(
+                    f"{ref}.{pin}({net}) lacks a same-net rail via within "
+                    f"{RAIL_PAD_MAX_VIA_DISTANCE_MM:.1f} mm to "
+                    f"{sorted(RAIL_PAD_VIA_TARGETS[net])}"
+                )
+    return failures, {
+        "rail_pads_checked": checked,
+        "rail_pads_with_in_pad_via": in_pad,
+        "rail_pads_with_nearby_via": near_pad,
+    }
+
+
+def additional_power_pad_via_coverage_failures(
+    board_path: Path,
+    vias: list[dict[str, object]],
+    copper_layers: set[str],
+) -> tuple[list[str], dict[str, int]]:
+    pad_geometry = parse_pad_geometry_from_text(board_path.read_text())
+    power_vias: dict[str, list[tuple[tuple[float, float], set[str]]]] = defaultdict(list)
+    for via in vias:
+        net = str(via["net"])
+        if net not in ADDITIONAL_POWER_PAD_VIA_TARGETS:
+            continue
+        point = via["at"]
+        assert isinstance(point, tuple)
+        power_vias[net].append((point, via_copper_layers(via, copper_layers)))
+
+    failures: list[str] = []
+    checked = 0
+    in_pad = 0
+    near_pad = 0
+    for ref, pads in pad_geometry.items():
+        for pin, pad_list in pads.items():
+            for pad in pad_list:
+                net = str(pad.get("net", ""))
+                if net not in ADDITIONAL_POWER_PAD_VIA_TARGETS:
+                    continue
+                if _pad_is_plated_through(pad):
+                    continue
+                checked += 1
+                pad_layers = _pad_layers(pad, copper_layers)
+                vias_for_net = [
+                    via_point
+                    for via_point, via_layers in power_vias.get(net, [])
+                    if via_layers & pad_layers
+                ]
+                center = (float(pad["x"]), float(pad["y"]))
+                if any(_point_in_pad(via_point, pad, 0.01) for via_point in vias_for_net):
+                    in_pad += 1
+                    continue
+                if any(
+                    hypot(center[0] - via_point[0], center[1] - via_point[1])
+                    <= ADDITIONAL_POWER_PAD_MAX_VIA_DISTANCE_MM
+                    for via_point in vias_for_net
+                ):
+                    near_pad += 1
+                    continue
+                failures.append(
+                    f"{ref}.{pin}({net}) lacks a same-net power via within "
+                    f"{ADDITIONAL_POWER_PAD_MAX_VIA_DISTANCE_MM:.1f} mm"
+                )
+    return failures, {
+        "additional_power_pads_checked": checked,
+        "additional_power_pads_with_in_pad_via": in_pad,
+        "additional_power_pads_with_nearby_via": near_pad,
+    }
 
 
 def pad_board_bounds_failures(
@@ -1579,6 +1936,10 @@ def _pad_layers(pad: dict[str, float | str], copper_layers: set[str]) -> set[str
     return set(re.findall(r'(?<![\w.*-])(?:[FB]\.Cu|In\d+\.Cu)(?![\w.-])', layers))
 
 
+def _pad_is_plated_through(pad: dict[str, float | str]) -> bool:
+    return "*.Cu" in str(pad.get("layers", ""))
+
+
 def antenna_keepout_intrusion_failures(
     board_path: Path,
     segments: list[dict[str, object]],
@@ -1660,6 +2021,38 @@ def parse_zone_summaries(
             }
         )
     return summaries
+
+
+def required_plane_zone_failures(
+    zone_summaries: list[dict[str, object]],
+    actual_net_table: dict[str, int],
+) -> tuple[list[str], dict[str, int]]:
+    failures: list[str] = []
+    definitions = 0
+    for net_name, required_layers in sorted(REQUIRED_PLANE_ZONES.items()):
+        expected_net = actual_net_table.get(net_name)
+        for layer in sorted(required_layers):
+            zones = [
+                zone for zone in zone_summaries
+                if zone["net_name"] == net_name
+                and layer in set(zone["layers"])
+                and zone["has_fill"]
+                and not zone["is_keepout"]
+            ]
+            if not zones:
+                failures.append(f"no filled {net_name} plane zone found on {layer}")
+                continue
+            definitions += len(zones)
+            mismatched = [zone for zone in zones if zone["net"] != expected_net]
+            if mismatched:
+                failures.append(
+                    f"{net_name} plane zone net code mismatch on {layer}: "
+                    f"zones={mismatched} {net_name}={expected_net}"
+                )
+    return failures, {
+        "required_plane_zone_requirements": sum(len(layers) for layers in REQUIRED_PLANE_ZONES.values()),
+        "required_plane_zone_definitions": definitions,
+    }
 
 
 PLACEMENT_CHECKS = [
@@ -1765,6 +2158,18 @@ def main() -> int:
     actual_net_classes = parse_board_net_classes(board_path)
     declared_layers = parse_declared_copper_layers(board_path)
     used_layers = parse_used_specific_copper_layers(board_path)
+    rail_pad_via_failures, rail_pad_via_summary = rail_pad_via_coverage_failures(
+        board_path,
+        actual_vias,
+        declared_layers,
+    )
+    additional_power_pad_via_failures, additional_power_pad_via_summary = (
+        additional_power_pad_via_coverage_failures(
+            board_path,
+            actual_vias,
+            declared_layers,
+        )
+    )
     copper_bounds_failures, checked_copper_bounds = copper_board_bounds_failures(
         actual_segments,
         actual_vias,
@@ -1783,6 +2188,10 @@ def main() -> int:
     )
     keepout_zone_layers = parse_keepout_zone_layers(board_path, declared_layers)
     zone_summaries = parse_zone_summaries(board_path, declared_layers)
+    required_plane_failures, required_plane_summary = required_plane_zone_failures(
+        zone_summaries,
+        actual_net_table,
+    )
     keepout_intrusion_failures, checked_keepout_items = antenna_keepout_intrusion_failures(
         board_path,
         actual_segments,
@@ -1811,7 +2220,10 @@ def main() -> int:
     if duplicate_refs:
         failures.append(f"duplicate footprint references: {duplicate_refs}")
     if not has_board_outline:
-        failures.append("no Edge.Cuts board outline found; board-bounds checks used generated 90x50 mm fallback")
+        failures.append(
+            f"no Edge.Cuts board outline found; board-bounds checks used generated "
+            f"{BOARD_WIDTH_MM:.0f}x{BOARD_HEIGHT_MM:.0f} mm fallback"
+        )
     else:
         min_x, min_y, max_x, max_y = board_bounds
         if (
@@ -1843,16 +2255,7 @@ def main() -> int:
         failures.append(
             f"copper keepout zones do not cover every declared copper layer: {partial_keepouts}"
         )
-    gnd_plane_zones = [
-        zone for zone in zone_summaries
-        if zone["net_name"] == "GND" and zone["layers"] == {"In1.Cu"} and zone["has_fill"]
-    ]
-    if not gnd_plane_zones:
-        failures.append("no filled GND reference-plane zone found on In1.Cu")
-    elif any(zone["net"] != actual_net_table.get("GND") for zone in gnd_plane_zones):
-        failures.append(
-            f"GND reference-plane zone net code mismatch: zones={gnd_plane_zones} GND={actual_net_table.get('GND')}"
-        )
+    failures.extend(required_plane_failures)
     if set(actual_net_table) != set(expected_net_table):
         missing = sorted(set(expected_net_table) - set(actual_net_table))
         extra = sorted(set(actual_net_table) - set(expected_net_table))
@@ -1887,6 +2290,8 @@ def main() -> int:
     failures.extend(cross_net_segment_clearance_failures(clearance_items)[:40])
     failures.extend(segment_pad_failures[:40])
     failures.extend(via_pad_clearance_failures(board_path, actual_vias)[:40])
+    failures.extend(rail_pad_via_failures[:40])
+    failures.extend(additional_power_pad_via_failures[:40])
     failures.extend(pad_bounds_failures[:40])
     failures.extend(copper_bounds_failures[:40])
     failures.extend(dangling_failures[:40])
@@ -2014,7 +2419,8 @@ def main() -> int:
         f"{checked_pads} PCB pad-net assignments across "
         f"{len(expected_pad_nets)} footprints, {len(expected_net_names)} named nets, "
         f"{len(expected_net_classes)} net classes, {len(declared_layers)} copper layers, "
-        f"{len(gnd_plane_zones)} GND reference-zone definition, "
+        f"{required_plane_summary['required_plane_zone_definitions']}/"
+        f"{required_plane_summary['required_plane_zone_requirements']} required GND/+3V3/+5V plane-zone definitions, "
         f"{len(placement_distances)} placement proximity checks, "
         f"{checked_unnetted_pad_instances} intentional unnetted pad instances, "
         f"{checked_pad_bounds} board-bounded pads, "
@@ -2033,6 +2439,12 @@ def main() -> int:
         f"sensitive-to-laser clearances [{format_sensitive_to_laser_summary(sensitive_laser_summary)}], "
         f"{len(actual_vias)} vias, "
         f"{via_policy_summary['non_power_vias_checked']} non-power vias checked by route policy, "
+        f"{rail_pad_via_summary['rail_pads_checked']} rail pads checked for plane vias "
+        f"({rail_pad_via_summary['rail_pads_with_in_pad_via']} in-pad, "
+        f"{rail_pad_via_summary['rail_pads_with_nearby_via']} nearby), "
+        f"{additional_power_pad_via_summary['additional_power_pads_checked']} additional power pads checked for vias "
+        f"({additional_power_pad_via_summary['additional_power_pads_with_in_pad_via']} in-pad, "
+        f"{additional_power_pad_via_summary['additional_power_pads_with_nearby_via']} nearby), "
         f"{full_route_summary['explicitly_routed_multi_pad_nets']}/{full_route_summary['multi_pad_nets']} explicitly routed multi-pad nets, "
         f"{full_route_summary['zone_or_rail_pending_multi_pad_nets']} zone/rail pending nets, "
         f"and {routed_critical_links}/{len(CRITICAL_ROUTE_LINKS)} connected critical local route links"

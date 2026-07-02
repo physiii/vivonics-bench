@@ -15,6 +15,7 @@ from pathlib import Path
 
 from circuit_designators import WL, ref_for
 from check_laser_controller_pcb import (
+    _connect_filled_zone_polygons,
     _point_in_pad,
     parse_board_net_table,
     parse_board_segments,
@@ -256,8 +257,20 @@ def rail_zone_split_details(
                         "pin": pin,
                         "point": (round(center[0], 4), round(center[1], 4)),
                         "nodes": nodes,
+                        "pad": pad,
                     }
                 )
+
+    _connect_filled_zone_polygons(
+        board_path,
+        copper_layers,
+        segments,
+        vias,
+        pads_by_net,
+        graph_by_net,
+        route_point_key,
+        set(target_nets),
+    )
 
     has_gnd_in1_plane = any(
         zone["net_name"] == "GND"

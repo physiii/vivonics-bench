@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Placement-staging generator for laser_controller.kicad_pcb.
 
-Board: 90 x 50 mm outline only.
+Board outline: x=30.975..204.000 mm, y=79.875..141.000 mm.
 
 All schematic footprints are staged outside the board outline by sheet so they
 can be dragged into the board manually in KiCad.  The generator intentionally
@@ -48,8 +48,12 @@ FPROOT = Path("/usr/share/kicad/footprints")
 NET="/tmp/lc.net"
 OUT_DIR=Path(__file__).resolve().parent
 DEFAULT_OUT_PATH = OUT_DIR / "laser_controller.kicad_pcb"
-BOARD_W_MM = 90
-BOARD_H_MM = 50
+BOARD_X0_MM = 30.975
+BOARD_Y0_MM = 79.875
+BOARD_W_MM = 173.025
+BOARD_H_MM = 61.125
+BOARD_X1_MM = BOARD_X0_MM + BOARD_W_MM
+BOARD_Y1_MM = BOARD_Y0_MM + BOARD_H_MM
 _uu=[0]
 def uuid(): _uu[0]+=1; return f"b0b0b0b0-0000-4000-a000-{_uu[0]:012d}"
 
@@ -166,7 +170,10 @@ def hand_placed_footprints(board_text):
     """Return footprints near the board area, which means user placement exists."""
     placed = []
     for ref, x, y in footprint_positions(board_text):
-        if -5.0 <= x <= BOARD_W_MM + 5.0 and -5.0 <= y <= BOARD_H_MM + 25.0:
+        if (
+            BOARD_X0_MM - 5.0 <= x <= BOARD_X1_MM + 5.0
+            and BOARD_Y0_MM - 5.0 <= y <= BOARD_Y1_MM + 25.0
+        ):
             placed.append((ref, x, y))
     return placed
 
@@ -218,10 +225,24 @@ NET_CLASS_SPECS = OrderedDict([
     }),
     ("Power_Rails", {
         "description": "Board power and common return rails; prefer pours or wide trunks.",
-        "clearance": 0.25,
+        "clearance": 0.20,
         "trace_width": 0.60,
         "via_dia": 1.00,
         "via_drill": 0.50,
+    }),
+    ("Switching_Power", {
+        "description": "Local buck/boost switch-node copper; keep short, direct, and wider than signal traces.",
+        "clearance": 0.20,
+        "trace_width": 0.40,
+        "via_dia": 0.80,
+        "via_drill": 0.40,
+    }),
+    ("Switcher_Control", {
+        "description": "Local buck/boost bootstrap and feedback nodes; keep compact and away from switch copper.",
+        "clearance": 0.20,
+        "trace_width": 0.20,
+        "via_dia": 0.60,
+        "via_drill": 0.30,
     }),
     ("USB", {
         "description": "USB D+/D- connector, ESD, and ESP32 native USB nets; route as a short 90 ohm pair.",
@@ -295,6 +316,10 @@ def classify_net(net_name):
         or net_name in {"Net-(D10-A)", "Net-(D13-A)"}
     ):
         return "Power_Rails"
+    if re.match(r"^Net-\(U1[56]-SW\)$", net_name):
+        return "Switching_Power"
+    if re.match(r"^Net-\(U1[56]-(BST|FB)\)$", net_name):
+        return "Switcher_Control"
     if net_name in {
         "/MCU_ESP32-S3/D-",
         "/MCU_ESP32-S3/D+",
@@ -341,6 +366,8 @@ def classify_net(net_name):
             "Net-(U10-VBUS)",
             "Net-(U10-~{RST})",
             "Net-(U10-~{SUSPEND})",
+            "Net-(J6-Pad10)",
+            "Net-(J6-Pad12)",
         }
         or re.match(r"/MCU_ESP32-S3/IO(?:1[34]|3[5-9]|4[0-6])$", net_name)
     ):
@@ -524,9 +551,9 @@ def build_board(emit_routes=False):
        LAYERS,'  (setup (pad_to_mask_clearance 0.05))','  (net 0 "")']
     body=[]
 
-    # ===== FLOORPLAN: 90 x 50 mm outline, footprints staged outside =====
+    # ===== FLOORPLAN: current hand-placed board outline, footprints staged outside =====
     BW,BH=BOARD_W_MM,BOARD_H_MM
-    body.append(outline(0,0,BW,BH))
+    body.append(outline(BOARD_X0_MM,BOARD_Y0_MM,BOARD_X1_MM,BOARD_Y1_MM))
 
     def emit_fp(comp, x, y, rot=0, prefix=None):
         ref = comp["ref"]

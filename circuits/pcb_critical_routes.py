@@ -380,14 +380,14 @@ def parse_pad_geometry_from_text(board_text: str) -> dict[str, dict[str, list[di
             pad_name = pad_match.group(1) if pad_match.group(1) is not None else pad_match.group(2)
             lx = float(pad_at.group(1))
             ly = float(pad_at.group(2))
-            lrot = float(pad_at.group(3) or 0)
+            lrot = float(pad_at.group(3)) if pad_at.group(3) is not None else None
             pads.setdefault(pad_name, []).append(
                 {
-                    "x": gx + lx * cos(theta) - ly * sin(theta),
-                    "y": gy + lx * sin(theta) + ly * cos(theta),
+                    "x": gx + lx * cos(theta) + ly * sin(theta),
+                    "y": gy - lx * sin(theta) + ly * cos(theta),
                     "w": float(size_match.group(1)),
                     "h": float(size_match.group(2)),
-                    "rot": grot + lrot,
+                    "rot": lrot if lrot is not None else grot,
                     "net": net_match.group(2) if net_match else "",
                     "layers": layers_match.group(1) if layers_match else "",
                 }
@@ -652,14 +652,46 @@ def _simplify_route(points: list[tuple[float, float]]) -> list[tuple[float, floa
     if len(points) <= 2:
         return points
     simplified = [points[0]]
-    previous = (points[1][0] - points[0][0], points[1][1] - points[0][1])
     for index in range(1, len(points) - 1):
-        current = (points[index + 1][0] - points[index][0], points[index + 1][1] - points[index][1])
-        if current != previous:
-            simplified.append(points[index])
-            previous = current
+        a = simplified[-1]
+        b = points[index]
+        c = points[index + 1]
+        if abs((b[0] - a[0]) * (c[1] - b[1]) - (b[1] - a[1]) * (c[0] - b[0])) > 1e-7:
+            simplified.append(b)
     simplified.append(points[-1])
     return simplified
+
+
+def _route_search_limits(
+    pads: dict[str, dict[str, list[dict[str, float | str]]]],
+    existing_segments: list[dict[str, object]],
+    step: float,
+) -> tuple[int, int, int, int]:
+    xs: list[float] = []
+    ys: list[float] = []
+    for pad_map in pads.values():
+        for pad_list in pad_map.values():
+            for pad in pad_list:
+                xs.append(float(pad["x"]))
+                ys.append(float(pad["y"]))
+    for segment in existing_segments:
+        a = segment.get("a")
+        b = segment.get("b")
+        if isinstance(a, tuple):
+            xs.append(float(a[0]))
+            ys.append(float(a[1]))
+        if isinstance(b, tuple):
+            xs.append(float(b[0]))
+            ys.append(float(b[1]))
+    if not xs or not ys:
+        return (_grid(0.25, step), _grid(89.75, step), _grid(0.25, step), _grid(49.75, step))
+    margin = 2.0
+    return (
+        _grid(min(xs) - margin, step),
+        _grid(max(xs) + margin, step),
+        _grid(min(ys) - margin, step),
+        _grid(max(ys) + margin, step),
+    )
 
 
 def _route_one(
@@ -674,11 +706,12 @@ def _route_one(
 ) -> list[tuple[float, float]] | None:
     start = (_grid(start_point[0], step), _grid(start_point[1], step))
     goal = (_grid(end_point[0], step), _grid(end_point[1], step))
+    limit_ix0, limit_ix1, limit_iy0, limit_iy1 = _route_search_limits(pads, existing_segments, step)
     for margin in [1.0, 2.0, 3.5, 5.0, 8.0, 12.0, 20.0, 35.0]:
-        ix0 = _grid(max(0.25, min(start_point[0], end_point[0]) - margin), step)
-        ix1 = _grid(min(89.75, max(start_point[0], end_point[0]) + margin), step)
-        iy0 = _grid(max(0.25, min(start_point[1], end_point[1]) - margin), step)
-        iy1 = _grid(min(49.75, max(start_point[1], end_point[1]) + margin), step)
+        ix0 = max(limit_ix0, _grid(min(start_point[0], end_point[0]) - margin, step))
+        ix1 = min(limit_ix1, _grid(max(start_point[0], end_point[0]) + margin, step))
+        iy0 = max(limit_iy0, _grid(min(start_point[1], end_point[1]) - margin, step))
+        iy1 = min(limit_iy1, _grid(max(start_point[1], end_point[1]) + margin, step))
         blocked = _build_blocked_cells(
             pads,
             existing_segments,
