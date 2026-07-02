@@ -594,22 +594,22 @@ def _allowed_route_layers_for_net(net_name: str) -> set[str]:
     if re.match(r"^Net-\(U[5-8]-\+\)$", net_name):
         return {"F.Cu"}
     if net_name == "LASER_N2":
-        return {"F.Cu", "In2.Cu", "B.Cu"}
+        return {"F.Cu", "B.Cu"}
     if net_name in {"LASER_N1", "LASER_N3", "LASER_N4", "LASER_V+"}:
-        return {"F.Cu", "In2.Cu"}
+        return {"F.Cu", "B.Cu"}
     if net_name == "VIN_24V":
-        return {"F.Cu", "In2.Cu"}
+        return {"F.Cu", "B.Cu"}
     if net_name == "/POWER_IO/BUCK_5V":
         return {"F.Cu"}
     if net_name == "VBUS_5V":
         return {"F.Cu", "B.Cu"}
     if net_name == "+3V3":
-        return {"F.Cu", "In2.Cu"}
+        return {"F.Cu", "B.Cu"}
     if net_name == "+5V":
-        return {"F.Cu", "B.Cu", "In2.Cu"}
+        return {"F.Cu", "B.Cu"}
     if net_name == "GND":
         return {"F.Cu"}
-    return {"F.Cu", "B.Cu", "In2.Cu"}
+    return {"F.Cu", "B.Cu"}
 
 
 def route_layer_policy_failures(segments: list[dict[str, object]]) -> tuple[list[str], dict[str, int]]:
@@ -620,9 +620,10 @@ def route_layer_policy_failures(segments: list[dict[str, object]]) -> tuple[list
         net_name = str(segment["net"])
         layer = str(segment["layer"])
         allowed_layers = _allowed_route_layers_for_net(net_name)
-        if layer == "In1.Cu":
+        if re.fullmatch(r"In\d+\.Cu", layer):
             failures.append(
-                f"{net_name}: routed segment uses In1.Cu ground/reference plane at {segment['a']}->{segment['b']}"
+                f"{net_name}: routed segment uses internal copper layer {layer}; "
+                f"use F.Cu or B.Cu only at {segment['a']}->{segment['b']}"
             )
         elif layer not in allowed_layers:
             failures.append(
