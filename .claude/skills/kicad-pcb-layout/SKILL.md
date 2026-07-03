@@ -76,47 +76,90 @@ on B.Cu, laser cathodes need a specific inner layer, etc.), not because the
 direction was free to choose. Don't strengthen this bias to the point where
 it fights those hard layer requirements.
 
-## Power planes: one real plane, everything else is small pours + trunk traces
+## Power planes: one ground plane, one power layer split in two -- nothing else
 
 The board is a 4-layer Sig/GND/PWR/Sig stack (`F.Cu` / `In1.Cu` / `In2.Cu`
-/ `B.Cu`). The board previously had 9 separate zone definitions across 4
-layers for 4 different rail nets, several with overlapping bounding boxes
-on the same layer (e.g. `+3V3` and `+5V` both claiming chunks of `In2.Cu`)
--- KiCad resolves same-layer same-area conflicts by fill priority, which
-in practice means one net's pour gets carved into thin, ugly slivers by
-the other. That's the "messy planes" problem.
-
-The standard this board now follows:
+/ `B.Cu`). Two earlier attempts at this both got corrected by the user:
+first a 9-zone set with overlapping bounding boxes on the same layer for
+different rails (KiCad resolves that by fill priority, which in practice
+carves one net's pour into thin ugly slivers), then a "fixed" version with
+small isolated local pours + trunk traces that the user still rejected as
+overcomplicated ("you did a horrible job... we need to copy the planes we
+have in access-controller"). The pattern that stuck, copied from
+`~/projects/access-controller/circuits/controller/access-controller.kicad_pcb`:
 
 - **`In1.Cu`**: the one true reference plane. Single full-board `GND`
-  flood, nothing else ever goes here.
-- **`F.Cu` / `B.Cu`**: signal layers. Flood the unused copper with `GND`
-  (standard outer-layer return-path/shield practice -- KiCad clears it
-  automatically around routed traces of other nets), but never a large
-  flood of a power rail here. `B.Cu` had *no* GND fill at all before this
-  pass; both outer layers should always have one.
-- **`In2.Cu`**: power layer, but as small, mutually disjoint local pours
-  (roughly 3-6mm boxes) right at each rail's own regulator/OR-diode/bulk
-  cap -- e.g. `+3V3` at the AP2112 output decap, `+5V` at the post-OR bulk
-  cap, `LASER_V+` at the laser buck's output caps, `VIN_24V` at the barrel
-  jack. These exist to (a) give each source low-impedance local copper and
-  (b) satisfy `check_laser_controller_pcb.py`'s `REQUIRED_PLANE_ZONES`
-  check (currently `GND`/`In1.Cu`, `+3V3`/`In2.Cu`, `+5V`/`In2.Cu`+`B.Cu`).
-  **Actual delivery to every load pad is the explicit point-to-point
-  `POWER_ROUTE_LINKS` trunk-trace daisy chain** (e.g. `+5V bulk -> laser IR
-  op amp -> RED -> GREEN -> BLUE`), not a wide flood -- two rails that both
-  need copper in the same physical region (e.g. `+5V` feeding op-amps and
-  `LASER_V+` feeding laser anodes, both inside the same tightly-packed
-  per-channel cluster) cannot both own a flood there without fighting;
-  traces thread between the obstacles that a 2D flood can't route around.
+  flood. Nothing else ever goes here.
+- **`F.Cu` / `B.Cu`**: pure signal layers. **No flood zones at all** --
+  access-controller's reference board has exactly one `GND` zone (`In1.Cu`
+  only) and no outer-layer GND fill. Don't add one; it was tried and
+  rejected.
+- **`In2.Cu`**: the power layer, split into exactly two regions -- one per
+  rail the user actually asked for (`+3V3`, `+5V`), each a simple,
+  generously-sized rectangle covering that rail's real load cluster (not a
+  tiny 3-6mm pour): `+3V3` over the `MCU_ESP32-S3` sheet's footprint
+  extent, `+5V` over the combined `TIA_*`/`LASER_*` sheets' extent, with a
+  visible gap between them (don't let them touch or overlap). The
+  access-controller reference uses hand-fit irregular polygons that
+  interlock without overlapping; simple axis-aligned rectangles with a gap
+  are the "keep it simple" version of the same idea and are what the user
+  actually asked for ("simple split the power plane into 5v and 3v3
+  regions").
 
-Before adding a new rail's plane, check the *real* component clusters
+The `POWER_IO` sheet's own buck/OR-diode/ADC/monitor cluster (roughly
+x=85..117 on the current board) sits in the gap between the two regions on
+purpose: components there (`U11`/AP2112, `U12`/INA4180, `U14`/AD7606) have
+real pins on *both* `+3V3` and `+5V` within a few mm of each other, so
+neither region can honestly claim that territory -- those parts get trace
+drops from whichever rail they need instead of flood coverage. Don't try
+to extend either region to "reach" them; that's exactly the shape-fighting
+problem this design avoids.
+
+`check_laser_controller_pcb.py`'s `REQUIRED_PLANE_ZONES` should match
+this exactly: `{"GND": {"In1.Cu"}, "+3V3": {"In2.Cu"}, "+5V": {"In2.Cu"}}`
+-- no `B.Cu` entry. If you find yourself adding one back, you're
+reintroducing the outer-layer flood the user rejected.
+
+Before sizing a rail's region, check the *real* component clusters
 (`gen_pcb.build_board(emit_routes=False)` for positions) rather than
 copy-pasting the board's stale docs -- `PCB_LAYOUT.md`/`POWER_TREE.md`
-describe a 90x50mm board with a different floorplan than the real, current
-173x61mm hand-placed layout. Verify against the actual `Edge.Cuts` outline
-(`check_laser_controller_pcb.py`'s `parse_board_outline_bounds`), not the
-docs.
+used to describe a 90x50mm board with a different floorplan than the real,
+current 173x61mm hand-placed layout (this has since been corrected in the
+docs, but re-verify against the actual `Edge.Cuts` outline via
+`check_laser_controller_pcb.py`'s `parse_board_outline_bounds` if it drifts
+again).
+
+### Zones need an actual fill pass, not just `(fill yes ...)`
+
+Writing a zone's `(polygon ...)` outline with the `fill yes` flag set is
+**not** the same as the zone having real copper. KiCad only writes the
+computed `(filled_polygon ...)` sub-block -- the actual clearance-clipped
+copper shape gerbers/renders are generated from -- when its own zone-fill
+algorithm runs. A hand-written zone block with no `filled_polygon` data
+renders as empty/invisible (confirmed via `kicad-cli pcb export svg`) and
+`check_laser_controller_pcb.py`'s `required_plane_zone_failures` won't
+catch this either, since it only checks for the `(fill yes` text flag, not
+for actual `filled_polygon` presence -- a real gap in that checker.
+
+Fill zones programmatically with the `pcbnew` Python API (present in this
+environment at `/usr/lib/python3/dist-packages`, needs an explicit
+`sys.path.insert` since the project's venv doesn't include system
+packages):
+
+```python
+import sys
+sys.path.insert(0, "/usr/lib/python3/dist-packages")
+import pcbnew
+board = pcbnew.LoadBoard("laser_controller.kicad_pcb")
+pcbnew.ZONE_FILLER(board).Fill(board.Zones())
+pcbnew.SaveBoard("laser_controller.kicad_pcb", board)
+```
+
+This round-trips cleanly through the project's own regex-based parsers
+(verified: net table, pad nets, footprint count, zone summaries all read
+back identically). Do this as the last step after any zone edit, and
+re-verify with `kicad-cli pcb export svg` that the fill actually shows up
+visually, not just that the checker's text-flag check passes.
 
 ## Zero component overlap: check real courtyards, not pad boxes
 

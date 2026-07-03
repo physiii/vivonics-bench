@@ -10,25 +10,27 @@ is required to stay empty by `check_laser_controller_pcb.py`.
 The generated stackup is four copper layers: `F.Cu` signal, `In1.Cu` ground/reference,
 `In2.Cu` power/reference, and `B.Cu` signal.
 
-**Power/ground zones** (rebuilt into a standard layout; see the
-`kicad-pcb-layout` skill for the rules behind this): `In1.Cu` is a single
-full-board `GND` flood -- the one true reference plane, matching the
-declared stackup role. `F.Cu` and `B.Cu` also each carry a full-board `GND`
-fill for standard outer-layer return-path/shielding (both were missing this
-before; `B.Cu` had no `GND` presence at all). `In2.Cu` carries small (3-6mm),
-mutually disjoint local pours right at each rail's own source -- `+3V3` at
-the AP2112 output decap, `+5V` at the post-OR bulk cap (also mirrored on
-`B.Cu`, both required by `check_laser_controller_pcb.REQUIRED_PLANE_ZONES`),
-`LASER_V+` at the laser buck's output caps, `VIN_24V` at the barrel jack.
-Actual delivery from each pour to every load pad is the explicit
-point-to-point `POWER_ROUTE_LINKS` trunk-trace daisy chain, not a wide
-flood -- the previous layout had 9 zone definitions across 4 layers with
-several overlapping bounding boxes for *different* rails on the *same*
-layer (e.g. `+3V3` and `+5V` both claiming chunks of `In2.Cu`), which KiCad
-resolves by fill priority and in practice renders as thin, fragmented
-slivers. `F.Cu`/`B.Cu` signal routing and the `In2.Cu` rail trunks coexist
-with the `GND` fill on their layers the normal way (KiCad clears the fill
-around routed copper of other nets automatically).
+**Power/ground zones** (matches the pattern in
+`~/projects/access-controller/circuits/controller/access-controller.kicad_pcb`;
+see the `kicad-pcb-layout` skill for the rules behind this): `In1.Cu` is a
+single full-board `GND` flood -- the one true reference plane. `F.Cu` and
+`B.Cu` carry no flood zones at all (pure signal layers, matching the
+reference project). `In2.Cu` is split into exactly two simple,
+non-overlapping rectangular regions: `+3V3` over the `MCU_ESP32-S3` sheet's
+footprint extent, `+5V` over the combined `TIA_*`/`LASER_*` sheets' extent,
+with a clear gap between them. The `POWER_IO` sheet's buck/OR-diode/ADC/
+monitor cluster sits in that gap deliberately -- several of its parts
+(`U11`/AP2112, `U12`/INA4180, `U14`/AD7606) have real pins on both `+3V3`
+and `+5V` a few mm apart, so neither region can honestly claim that
+territory; those get trace drops instead of flood coverage. Two earlier
+zone layouts this session were rejected: a 9-zone set with overlapping
+same-layer bounding boxes for different rails (KiCad resolves that by fill
+priority, rendering as thin fragmented slivers), then a small-isolated-
+pours-plus-trunk-traces version that was still "overcomplicated" relative
+to the access-controller reference. Zones must go through an actual
+`pcbnew.ZONE_FILLER` pass (see the skill) after any edit -- a `(polygon
+...)` with `fill yes` set but no computed `(filled_polygon ...)` renders as
+invisible copper and isn't caught by the project's own checker.
 The board checker also enforces pad-to-pad proximity limits: USB connectors at their
 discrete ESD clamps and CP2102N/native-USB endpoints, AP2112 input/output capacitors,
 local ESP32 3V3 decoupling, EN RC, BOOT pull-up, every OPA380/SFH2201 TIA input-feedback-bias cluster,
@@ -47,23 +49,15 @@ trunks may use only their documented width sets.
 It also fails sensitive local-route length violations for `MPD_RAWx`, OPA380 summing/
 bias nodes, photodiode cathode/bias stubs, trim wipers, TLV9001 laser-control nodes,
 and AO3400A gate-drive nodes.
-Current state: the PCB is routed but not yet release-clean. The measured
-board has ~2000 routed segments, ~225 vias, zero footprint courtyard/pad
-overlaps, zero dangling copper, zero copper outside the board outline, and
-zero vias centered on a signal pad (a handful remain over intentionally
-unnetted/NC pads, see `check_laser_controller_pcb.intentional_unnetted_pad_names`).
-72 of 110 multi-pad signal nets are fully connected end-to-end and a
-further 7 are covered by a required zone/rail pour; the remaining ~31 are
-mostly long single-hop runs between the MCU/ADC region and the far TIA/
-laser-driver clusters (`PWM1-4`, `VOUT1-4`, `ISENSE1-4`, `MPD_RAWx`, the
-AD7606 SPI bus) that this project's lightweight grid-search router can't
-reliably thread across 100+mm and ~170 other footprints without corridor
-guidance a human router would add interactively in KiCad. `check_laser_controller_pcb.py`
-still fails on route-width/layer/via-count *policy* violations (some
-locally-congested nets needed a via or a layer the strict class definition
-doesn't allow) and the remaining unrouted multi-pad nets above.
-`check_laser_controller_release_gate.py` also still fails until those are
-closed. The old J3 AD7606 debug/output header has been removed now that U14 is on-board.
+Current state: placement and power planes are done, routing is not started.
+A first automated routing pass reached decent net connectivity (72/110
+multi-pad nets fully connected) but was rejected on review as low quality
+-- thick/tangled traces, crude bends, hard to follow -- and has been fully
+stripped (0 segments, 0 vias) for a from-scratch re-route. Zones are
+filled and verified: zero footprint courtyard/pad overlaps, zero copper
+outside the board outline, zero antenna-keepout intrusions. `check_laser_controller_pcb.py`
+and `check_laser_controller_release_gate.py` both fail as expected with no
+routing present. The old J3 AD7606 debug/output header has been removed now that U14 is on-board.
 
 ## Board
 

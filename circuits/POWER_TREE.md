@@ -5,20 +5,25 @@ Generated design state: 2026-06-30.
 This is the rail and power-path review for `laser_controller.kicad_sch` and
 `laser_controller.kicad_pcb`. It complements the netlist/PCB checkers; it does
 not replace GUI ERC, zone refill, PCB DRC, or visual return-path review.
-The PCB now has real routed copper: a single full-board `GND` flood on
-`In1.Cu` (plus outer-layer `GND` fill on `F.Cu`/`B.Cu`), and small local
-pours for `+3V3`/`+5V`/`LASER_V+`/`VIN_24V` right at each rail's own
-regulator/OR-diode/bulk-cap source on `In2.Cu` (`+5V` also on `B.Cu`),
-satisfying `check_laser_controller_pcb.REQUIRED_PLANE_ZONES`. Delivery from
-each pour to its distributed loads is the explicit `POWER_ROUTE_LINKS`
-trunk-trace daisy chain (e.g. `+5V bulk -> laser IR -> RED -> GREEN -> BLUE`
-op-amp rail), not a wide flood -- see `PCB_LAYOUT.md` and the
-`kicad-pcb-layout` skill for why. The custom release gate still fails: a
-number of long single-hop MCU<->analog telemetry/control nets (`PWM1-4`,
-`VOUT1-4`, `ISENSE1-4`, `MPD_RAWx`, the AD7606 SPI bus) remain unrouted, and
-some locally-congested nets picked up a via/layer their strict net-class
-policy doesn't allow. KiCad GUI ERC, zone refill/DRC confirmation, and
-visual return-path review are still separate release requirements.
+The PCB's copper planes follow the `~/projects/access-controller` reference
+pattern: a single full-board `GND` flood on `In1.Cu` (no outer-layer `GND`
+fill -- `F.Cu`/`B.Cu` are pure signal layers), and `In2.Cu` split into
+exactly two simple, non-overlapping regions, `+3V3` over the MCU cluster
+and `+5V` over the TIA/laser-driver clusters, satisfying
+`check_laser_controller_pcb.REQUIRED_PLANE_ZONES`. `LASER_V+` and
+`VIN_24V` have no dedicated zone; delivery to their loads (and delivery
+from the `+3V3`/`+5V` zone edges to any load outside their region, e.g.
+the `POWER_IO` buck/ADC/monitor cluster sitting in the gap between the two
+regions) is meant to be the explicit `POWER_ROUTE_LINKS` trunk-trace daisy
+chain (e.g. `+5V bulk -> laser IR -> RED -> GREEN -> BLUE` op-amp rail),
+not a wide flood -- see `PCB_LAYOUT.md` and the `kicad-pcb-layout` skill
+for why. **Routing has been fully stripped** (0 segments, 0 vias) pending
+a from-scratch re-route -- the previous automated routing pass was
+rejected as low quality (thick/tangled traces, crude bends) even though it
+achieved decent net connectivity; zones are filled and verified but no
+signal/rail copper exists yet. KiCad GUI ERC, zone refill/DRC
+confirmation, and visual return-path review are still separate release
+requirements.
 
 ## Rail Table
 

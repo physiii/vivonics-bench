@@ -54,7 +54,7 @@ ADDITIONAL_POWER_PAD_MAX_VIA_DISTANCE_MM = RAIL_PAD_MAX_VIA_DISTANCE_MM
 REQUIRED_PLANE_ZONES = {
     "GND": {"In1.Cu"},
     "+3V3": {"In2.Cu"},
-    "+5V": {"In2.Cu", "B.Cu"},
+    "+5V": {"In2.Cu"},
 }
 USB_ROUTE_CHAINS = {
     "USB-UART D-": [
