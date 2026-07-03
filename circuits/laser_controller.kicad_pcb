@@ -1935,7 +1935,7 @@
 
   (footprint "D_SOD-523" (layer "F.Cu")
     (tstamp 2f9c92bc-56ef-4004-840c-0dcd8e670cc4)
-    (at 40.893 80.417 90)
+    (at 32.340 81.316 90)
     (descr "http://www.diodes.com/datasheets/ap02001.pdf p.144")
     (tags "Diode SOD523")
     (attr smd)
@@ -8735,7 +8735,7 @@
 
   (footprint "C_0805_2012Metric_Pad1.18x1.45mm_HandSolder" (layer "F.Cu")
     (tstamp d1a90000-b54d-4666-84e4-1e6833139d5d)
-    (at 44.675 80.800)
+    (at 50.402 83.875)
     (descr "Capacitor SMD 0805 (2012 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf, https://docs.google.com/spreadsheets/d/1BsfQQcO9C6DZCsRaXUlFlo91Tg2WpOkGARC1WS5S8t0/edit?usp=sharing), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
