@@ -1,0 +1,40 @@
+#VRML V2.0 utf8
+# Taiyo-Yuden NR-50xx power inductor - approximate model
+# Dimensions: ~5.0mm x 5.0mm x 2.0mm
+# Body sits on PCB surface (z=0)
+Transform {
+  children [
+    # Ferrite body (centered at half height above board)
+    Transform {
+      translation 0 0 1.0
+      children [
+        Shape {
+          appearance Appearance {
+            material Material {
+              diffuseColor 0.25 0.25 0.25
+              specularColor 0.1 0.1 0.1
+            }
+          }
+          geometry Box { size 5.0 5.0 2.0 }
+        }
+      ]
+    }
+    # Top marking
+    Transform {
+      translation 0 0 2.05
+      children [
+        Shape {
+          appearance Appearance {
+            material Material {
+              diffuseColor 0.35 0.35 0.35
+            }
+          }
+          geometry Box { size 3.5 3.5 0.1 }
+        }
+      ]
+    }
+    # Two terminals on bottom (flat on board)
+    Transform { translation -2.0 -2.5 0 children [ Shape { appearance Appearance { material Material { diffuseColor 0.7 0.7 0.7 } } geometry Box { size 1.0 1.5 0.3 } } ] }
+    Transform { translation 2.0 -2.5 0 children [ Shape { appearance Appearance { material Material { diffuseColor 0.7 0.7 0.7 } } geometry Box { size 1.0 1.5 0.3 } } ] }
+  ]
+}

@@ -279,7 +279,7 @@
       (net 119 "VOUT4") (tstamp b0b0b0b0-0000-4000-a000-000000000657))
     (pad "3" smd rect (at -1.25 -1.45) (size 1.3 1.6) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 119 "VOUT4") (tstamp b0b0b0b0-0000-4000-a000-000000000658))
-    (model "${KICAD6_3DMODEL_DIR}/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
+    (model "${KIPRJMOD}/packages3d/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -940,7 +940,7 @@
       (net 46 "GND") (tstamp b0b0b0b0-0000-4000-a000-000000001759))
     (pad "6" smd rect (at 4.4 2.9 270) (size 2 2.5) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 46 "GND") (tstamp b0b0b0b0-0000-4000-a000-000000001758))
-    (model "${KICAD6_3DMODEL_DIR}/Connector_USB.3dshapes/USB_Mini-B_Wuerth_65100516121_Horizontal.wrl"
+    (model "${KICAD7_3DMODEL_DIR}/Connector_USB.3dshapes/USB_Mini-B_Lumberg_2486_01_Horizontal.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -1116,7 +1116,7 @@
     (descr "http://www.diodes.com/datasheets/ap02001.pdf p.144")
     (tags "Diode SOD523")
     (attr smd)
-    (fp_text reference "D12" (at 0 -1.3) (layer "F.SilkS")
+    (fp_text reference "D12" (at -0.35 2.075) (layer "F.SilkS")
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 9ca0ef07-f2ec-4f0b-ac97-eee261b684a8)
     )
@@ -1804,7 +1804,7 @@
       (net 55 "LASER_V+") (clearance 0.2) (tstamp b0b0b0b0-0000-4000-a000-000000000914))
     (pad "3" thru_hole circle (at 2 0) (size 1.2 1.2) (drill 0.6) (layers "*.Cu" "*.Mask")
       (net 60 "MPD_RAW1") (clearance 0.2) (tstamp b0b0b0b0-0000-4000-a000-000000000915))
-    (model "${KICAD6_3DMODEL_DIR}/OptoDevice.3dshapes/LaserDiode_TO18-D5.6-3.wrl"
+    (model "${KIPRJMOD}/packages3d/OptoDevice.3dshapes/LaserDiode_TO18-D5.6-3.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -2002,7 +2002,7 @@
     (descr "SOT, 3 Pin (https://www.jedec.org/system/files/docs/to-236h.pdf variant AB), generated with kicad-footprint-generator ipc_gullwing_generator.py")
     (tags "SOT TO_SOT_SMD")
     (attr smd)
-    (fp_text reference "U13" (at 0 -2.4) (layer "F.SilkS")
+    (fp_text reference "U13" (at 0.9125 -3.15) (layer "F.SilkS")
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 31e92f23-8169-4160-837a-3d281e2361d5)
     )
@@ -2743,7 +2743,7 @@
       (net 46 "GND") (tstamp b0b0b0b0-0000-4000-a000-000000001904))
     (pad "6" smd rect (at 4.4 2.9 270) (size 2 2.5) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 46 "GND") (tstamp b0b0b0b0-0000-4000-a000-000000001903))
-    (model "${KICAD6_3DMODEL_DIR}/Connector_USB.3dshapes/USB_Mini-B_Wuerth_65100516121_Horizontal.wrl"
+    (model "${KICAD7_3DMODEL_DIR}/Connector_USB.3dshapes/USB_Mini-B_Lumberg_2486_01_Horizontal.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -3013,7 +3013,7 @@
       (net 109 "Net-(U16-SW)") (tstamp b0b0b0b0-0000-4000-a000-000000002152))
     (pad "2" smd rect (at 1.5 0 90) (size 1.1 3.7) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 55 "LASER_V+") (tstamp b0b0b0b0-0000-4000-a000-000000002153))
-    (model "${KICAD6_3DMODEL_DIR}/Inductor_SMD.3dshapes/L_Taiyo-Yuden_NR-50xx.wrl"
+    (model "${KIPRJMOD}/packages3d/Inductor_SMD.3dshapes/L_Taiyo-Yuden_NR-50xx.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -3458,7 +3458,7 @@
       (net 106 "Net-(U15-SW)") (tstamp b0b0b0b0-0000-4000-a000-000000002074))
     (pad "2" smd rect (at 1.45 0) (size 1.5 2.4) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 33 "/POWER_IO/BUCK_5V") (tstamp b0b0b0b0-0000-4000-a000-000000002075))
-    (model "${KISYS3DMOD}/Inductor_SMD.3dshapes/L_6.3x6.3_H3.wrl"
+    (model "${KIPRJMOD}/packages3d/Inductor_SMD.3dshapes/L_6.3x6.3_H3.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -3618,7 +3618,7 @@
     (descr "Capacitor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
-    (fp_text reference "C36" (at 0 -1.16) (layer "F.SilkS")
+    (fp_text reference "C36" (at -1.905 -0.8375) (layer "F.SilkS")
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp 8bf28981-4dd3-48fd-b405-2bc49c97df21)
     )
@@ -3721,7 +3721,7 @@
       (net 91 "Net-(RV4-W)") (tstamp b0b0b0b0-0000-4000-a000-000000000730))
     (pad "3" smd rect (at -1.25 -1.45 270) (size 1.3 1.6) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 46 "GND") (tstamp b0b0b0b0-0000-4000-a000-000000000731))
-    (model "${KICAD6_3DMODEL_DIR}/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
+    (model "${KIPRJMOD}/packages3d/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -4072,7 +4072,7 @@
       (net 118 "VOUT3") (tstamp b0b0b0b0-0000-4000-a000-000000000466))
     (pad "3" smd rect (at -1.25 -1.45 180) (size 1.3 1.6) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 118 "VOUT3") (tstamp b0b0b0b0-0000-4000-a000-000000000467))
-    (model "${KICAD6_3DMODEL_DIR}/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
+    (model "${KIPRJMOD}/packages3d/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -4492,7 +4492,7 @@
       (net 88 "Net-(RV1-W)") (tstamp b0b0b0b0-0000-4000-a000-000000000157))
     (pad "3" smd rect (at -1.25 -1.45) (size 1.3 1.6) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 46 "GND") (tstamp b0b0b0b0-0000-4000-a000-000000000158))
-    (model "${KICAD6_3DMODEL_DIR}/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
+    (model "${KIPRJMOD}/packages3d/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -4640,7 +4640,7 @@
           )
           (width 0) (fill yes))
       ) (tstamp b0b0b0b0-0000-4000-a000-000000000600))
-    (model "${KICAD6_3DMODEL_DIR}/OptoDevice.3dshapes/Osram_SFH2201.wrl"
+    (model "${KIPRJMOD}/packages3d/OptoDevice.3dshapes/Osram_SFH2201.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -4788,7 +4788,7 @@
           )
           (width 0) (fill yes))
       ) (tstamp b0b0b0b0-0000-4000-a000-000000000218))
-    (model "${KICAD6_3DMODEL_DIR}/OptoDevice.3dshapes/Osram_SFH2201.wrl"
+    (model "${KIPRJMOD}/packages3d/OptoDevice.3dshapes/Osram_SFH2201.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -4801,7 +4801,7 @@
     (descr "Capacitor SMD 0603 (1608 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
-    (fp_text reference "C1" (at 0 -1.43) (layer "F.SilkS")
+    (fp_text reference "C1" (at -2.569 0.27) (layer "F.SilkS")
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp b0b0b0b0-0000-4000-a000-000000000087)
     )
@@ -5109,7 +5109,7 @@
     (descr "Potentiometer, vertical, Bourns 3224W, https://www.bourns.com/docs/Product-Datasheets/3224.pdf")
     (tags "Potentiometer vertical Bourns 3224W")
     (attr smd)
-    (fp_text reference "RV5" (at 0 -3.5) (layer "F.SilkS")
+    (fp_text reference "RV5" (at 3.3288 -0.6843) (layer "F.SilkS")
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp b0b0b0b0-0000-4000-a000-000000000062)
     )
@@ -5163,7 +5163,7 @@
       (net 116 "VOUT1") (tstamp b0b0b0b0-0000-4000-a000-000000000084))
     (pad "3" smd rect (at -1.25 -1.45 90) (size 1.3 1.6) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 116 "VOUT1") (tstamp b0b0b0b0-0000-4000-a000-000000000085))
-    (model "${KICAD6_3DMODEL_DIR}/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
+    (model "${KIPRJMOD}/packages3d/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -5221,7 +5221,7 @@
     (pad "2" thru_hole circle (at 1 1) (size 1 1) (drill 0.7) (layers "*.Cu" "*.Mask") (tstamp b0b0b0b0-0000-4000-a000-000000001368))
     (pad "3" thru_hole circle (at 2 0) (size 1 1) (drill 0.7) (layers "*.Cu" "*.Mask")
       (net 54 "LASER_N4") (clearance 0.2) (tstamp b0b0b0b0-0000-4000-a000-000000001369))
-    (model "${KICAD6_3DMODEL_DIR}/OptoDevice.3dshapes/LaserDiode_TO56-3.wrl"
+    (model "${KIPRJMOD}/packages3d/OptoDevice.3dshapes/LaserDiode_TO56-3.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -6449,7 +6449,7 @@
       (net 55 "LASER_V+") (clearance 0.2) (tstamp b0b0b0b0-0000-4000-a000-000000001066))
     (pad "3" thru_hole circle (at 2 0) (size 1.2 1.2) (drill 0.6) (layers "*.Cu" "*.Mask")
       (net 61 "MPD_RAW2") (clearance 0.2) (tstamp b0b0b0b0-0000-4000-a000-000000001067))
-    (model "${KICAD6_3DMODEL_DIR}/OptoDevice.3dshapes/LaserDiode_TO18-D5.6-3.wrl"
+    (model "${KIPRJMOD}/packages3d/OptoDevice.3dshapes/LaserDiode_TO18-D5.6-3.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -6860,7 +6860,7 @@
       (net 117 "VOUT2") (tstamp b0b0b0b0-0000-4000-a000-000000000275))
     (pad "3" smd rect (at -1.25 -1.45 270) (size 1.3 1.6) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 117 "VOUT2") (tstamp b0b0b0b0-0000-4000-a000-000000000276))
-    (model "${KICAD6_3DMODEL_DIR}/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
+    (model "${KIPRJMOD}/packages3d/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -7239,8 +7239,8 @@
         )
       )
     )
-    (model "${KICAD7_3RD_PARTY}/3dmodels/com_github_espressif_kicad-libraries/espressif.3dshapes/ESP32-S3-WROOM-1.STEP"
-      (opacity 0.7500)      (offset (xyz -9 -9.75 0))
+    (model "${KICAD7_3DMODEL_DIR}/RF_Module.3dshapes/ESP32-S3-WROOM-1.wrl"
+    (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
@@ -7856,7 +7856,7 @@
     (descr "Capacitor SMD 0402 (1005 Metric), square (rectangular) end terminal, IPC_7351 nominal with elongated pad for handsoldering. (Body size source: IPC-SM-782 page 76, https://www.pcb-3d.com/wordpress/wp-content/uploads/ipc-sm-782a_amendment_1_and_2.pdf), generated with kicad-footprint-generator")
     (tags "capacitor handsolder")
     (attr smd)
-    (fp_text reference "C2" (at 0 -1.16) (layer "F.SilkS")
+    (fp_text reference "C2" (at -3.115 -0.114) (layer "F.SilkS")
         (effects (font (size 1 1) (thickness 0.15)))
       (tstamp b0b0b0b0-0000-4000-a000-000000000103)
     )
@@ -8152,7 +8152,7 @@
           )
           (width 0) (fill yes))
       ) (tstamp b0b0b0b0-0000-4000-a000-000000000409))
-    (model "${KICAD6_3DMODEL_DIR}/OptoDevice.3dshapes/Osram_SFH2201.wrl"
+    (model "${KIPRJMOD}/packages3d/OptoDevice.3dshapes/Osram_SFH2201.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -8326,7 +8326,7 @@
       (net 55 "LASER_V+") (clearance 0.2) (tstamp b0b0b0b0-0000-4000-a000-000000001217))
     (pad "3" thru_hole circle (at 2 0) (size 1 1) (drill 0.7) (layers "*.Cu" "*.Mask")
       (net 62 "MPD_RAW3") (clearance 0.2) (tstamp b0b0b0b0-0000-4000-a000-000000001218))
-    (model "${KICAD6_3DMODEL_DIR}/OptoDevice.3dshapes/LaserDiode_TO56-3.wrl"
+    (model "${KIPRJMOD}/packages3d/OptoDevice.3dshapes/LaserDiode_TO56-3.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -8590,7 +8590,7 @@
           )
           (width 0) (fill yes))
       ) (tstamp b0b0b0b0-0000-4000-a000-000000000027))
-    (model "${KICAD6_3DMODEL_DIR}/OptoDevice.3dshapes/Osram_SFH2201.wrl"
+    (model "${KIPRJMOD}/packages3d/OptoDevice.3dshapes/Osram_SFH2201.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -8891,7 +8891,7 @@
       (net 89 "Net-(RV2-W)") (tstamp b0b0b0b0-0000-4000-a000-000000000348))
     (pad "3" smd rect (at -1.25 -1.45 180) (size 1.3 1.6) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 46 "GND") (tstamp b0b0b0b0-0000-4000-a000-000000000349))
-    (model "${KICAD6_3DMODEL_DIR}/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
+    (model "${KIPRJMOD}/packages3d/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
@@ -10302,7 +10302,7 @@
       (net 90 "Net-(RV3-W)") (tstamp b0b0b0b0-0000-4000-a000-000000000539))
     (pad "3" smd rect (at -1.25 -1.45 270) (size 1.3 1.6) (layers "F.Cu" "F.Paste" "F.Mask")
       (net 46 "GND") (tstamp b0b0b0b0-0000-4000-a000-000000000540))
-    (model "${KICAD6_3DMODEL_DIR}/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
+    (model "${KIPRJMOD}/packages3d/Potentiometer_SMD.3dshapes/Potentiometer_Bourns_3224W_Vertical.wrl"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
