@@ -12,6 +12,17 @@ from math import cos, hypot, radians, sin
 
 from circuit_designators import ref_for
 
+# Must match gen_pcb.py's BOARD_X0_MM/BOARD_Y0_MM/BOARD_X1_MM/BOARD_Y1_MM. Duplicated
+# here (rather than imported) because gen_pcb.py imports this module.
+BOARD_X0_MM = 30.975
+BOARD_Y0_MM = 79.875
+BOARD_X1_MM = 204.0
+BOARD_Y1_MM = 141.0
+BOARD_EDGE_KEEPOUT_MM = 0.7
+# Minimum clearance a via must keep from a pad on its OWN net. Vias must never
+# sit on/overlap any pad copper -- including same-net pads -- so fanout stays
+# off pads (short escape stub + offset via instead of via-in-pad).
+SAME_NET_VIA_PAD_CLEARANCE_MM = 0.15
 
 CRITICAL_ROUTE_LINKS = [
     ("USB UART D- connector to ESD", ("MCU_ESP32-S3", "J1", "2", "MCU_ESP32-S3", "D7", "2"), 7.5),
@@ -219,6 +230,15 @@ POWER_ROUTE_LINKS = [
     ("ESP32 local 3V3 decap to EN pull-up", ("MCU_ESP32-S3", "C43", "1", "MCU_ESP32-S3", "R54", "1"), 0.25),
     ("3V3 bulk cap to BOOT pull-up", ("POWER_IO", "C3V3BULK", "1", "MCU_ESP32-S3", "R53", "1"), 0.25),
     ("Laser buck output to direct LD rail", ("POWER_IO", "LLASER", "2", "LASER_BLUE", "LD", "1"), 0.80),
+    # LASER_V+ is a shared common-anode rail across all 4 direct laser
+    # footprints (POWER_TREE.md: "LD1-LD4 common laser anode"). The buck only
+    # seeds LASER_BLUE above; daisy-chain the other 3 in off the nearest
+    # already-seeded channel (round-robin around the 2x2 channel layout:
+    # BLUE top-left -> RED top-right -> GREEN bottom-right -> IR bottom-left)
+    # so every LDx anode has an explicit routed path, not just a zone pour.
+    ("LASER_V+ blue to red LD rail", ("LASER_BLUE", "LD", "1", "LASER_RED", "LD", "2"), 0.80),
+    ("LASER_V+ red to green LD rail", ("LASER_RED", "LD", "2", "LASER_GREEN", "LD", "2"), 0.80),
+    ("LASER_V+ green to IR LD rail", ("LASER_GREEN", "LD", "2", "LASER_IR", "LD", "2"), 0.80),
 ]
 GND_LOCAL_ROUTE_LINKS = [
     ("ESP32 pin 1 ground to local decap ground", ("MCU_ESP32-S3", "U9", "1", "MCU_ESP32-S3", "C43", "2"), 0.20),
@@ -236,6 +256,9 @@ PREROUTE_POWER_ROUTE_DESCRIPTIONS = {
     "VIN24 barrel to laser buck input",
     "VIN24 RJ45 to laser buck input",
     "Laser buck output to direct LD rail",
+    "LASER_V+ blue to red LD rail",
+    "LASER_V+ red to green LD rail",
+    "LASER_V+ green to IR LD rail",
 }
 DEFERRED_POWER_ROUTE_DESCRIPTIONS: set[str] = set()
 LOW_CURRENT_POWER_DOGBONE_ROUTE_DESCRIPTIONS = {
@@ -275,6 +298,9 @@ POWER_LAYER_ROUTE_OVERRIDES = {
     "VIN24 barrel to laser buck input": "In2.Cu",
     "VIN24 RJ45 to laser buck input": "In2.Cu",
     "Laser buck output to direct LD rail": "In2.Cu",
+    "LASER_V+ blue to red LD rail": "In2.Cu",
+    "LASER_V+ red to green LD rail": "In2.Cu",
+    "LASER_V+ green to IR LD rail": "In2.Cu",
 }
 VIA_SIZE = 0.60
 VIA_DRILL = 0.30
@@ -662,6 +688,58 @@ def _simplify_route(points: list[tuple[float, float]]) -> list[tuple[float, floa
     return simplified
 
 
+CHAMFER_FRACTION = 0.4
+MAX_CHAMFER_MM = 1.0
+
+
+def _chamfer_polyline(
+    points: list[tuple[float, float]],
+    pads: dict[str, dict[str, list[dict[str, float | str]]]],
+    existing_segments: list[dict[str, object]],
+    net_name: str,
+    width: float,
+    route_layer: str,
+) -> list[tuple[float, float]]:
+    """Cut hard 90-degree bends into two 45-degree legs where there is room.
+
+    Grid-search routing only ever turns at right angles; this is a purely
+    cosmetic pass that shaves a small chamfer off each square corner, and
+    only keeps the chamfer when the two new legs stay clear of other copper.
+    A corner that has no room (tight pad-to-pad escapes) is left square.
+    """
+    if len(points) < 3:
+        return points
+    result = [points[0]]
+    index = 1
+    while index < len(points) - 1:
+        a = result[-1]
+        b = points[index]
+        c = points[index + 1]
+        v1 = (b[0] - a[0], b[1] - a[1])
+        v2 = (c[0] - b[0], c[1] - b[1])
+        len1 = hypot(*v1)
+        len2 = hypot(*v2)
+        is_right_angle = (
+            len1 > 1e-6
+            and len2 > 1e-6
+            and abs(v1[0] * v2[0] + v1[1] * v2[1]) < 1e-6
+        )
+        if is_right_angle:
+            chamfer = min(len1, len2, width * 2.5, MAX_CHAMFER_MM) * CHAMFER_FRACTION
+            if 0.05 < chamfer < len1 and chamfer < len2:
+                p1 = (b[0] - v1[0] / len1 * chamfer, b[1] - v1[1] / len1 * chamfer)
+                p2 = (b[0] + v2[0] / len2 * chamfer, b[1] + v2[1] / len2 * chamfer)
+                if _route_shape_clear(pads, existing_segments, net_name, [a, p1, p2, c], width, route_layer):
+                    result.append(p1)
+                    result.append(p2)
+                    index += 1
+                    continue
+        result.append(b)
+        index += 1
+    result.append(points[-1])
+    return result
+
+
 def _route_search_limits(
     pads: dict[str, dict[str, list[dict[str, float | str]]]],
     existing_segments: list[dict[str, object]],
@@ -745,7 +823,19 @@ def _route_one(
                     continue
                 direction = (dx, dy)
                 turn_cost = 0.0 if previous_direction in (None, direction) else 0.05
-                new_cost = route_cost + 1.0 + turn_cost
+                # Soft per-layer axis preference: F.Cu favors horizontal runs,
+                # B.Cu favors vertical runs, so a net that must pick a layer
+                # for a leg tends to keep horizontal/vertical traffic apart.
+                # Small relative to turn_cost/step cost -- a tie-breaker, not
+                # a hard rule, so it never blocks the router from finding a
+                # path when the preferred axis is unavailable.
+                if route_layer == "F.Cu":
+                    axis_bias = 0.0 if dy == 0 else 0.03
+                elif route_layer == "B.Cu":
+                    axis_bias = 0.0 if dx == 0 else 0.03
+                else:
+                    axis_bias = 0.0
+                new_cost = route_cost + 1.0 + turn_cost + axis_bias
                 if new_cost < cost.get(neighbor, 1e18):
                     cost[neighbor] = new_cost
                     came_from[neighbor] = (cell, direction)
@@ -760,7 +850,8 @@ def _route_one(
             cell = came_from[cell][0]
         cells.append(start)
         cells.reverse()
-        return _simplify_route([start_point] + [_coord(cell, step) for cell in cells[1:-1]] + [end_point])
+        simplified = _simplify_route([start_point] + [_coord(cell, step) for cell in cells[1:-1]] + [end_point])
+        return _chamfer_polyline(simplified, pads, existing_segments, net_name, width, route_layer)
     return None
 
 
@@ -799,16 +890,21 @@ def _via_clear_sized(
     net_name: str,
     via_size: float,
 ) -> bool:
-    if point[0] < 0.7 or point[0] > 89.3 or point[1] < 0.7 or point[1] > 49.3:
+    if (
+        point[0] < BOARD_X0_MM + BOARD_EDGE_KEEPOUT_MM
+        or point[0] > BOARD_X1_MM - BOARD_EDGE_KEEPOUT_MM
+        or point[1] < BOARD_Y0_MM + BOARD_EDGE_KEEPOUT_MM
+        or point[1] > BOARD_Y1_MM - BOARD_EDGE_KEEPOUT_MM
+    ):
         return False
     if not STRICT_ROUTE_CLEARANCE:
         pad_inflate = 0.18 + via_size / 2
+        same_net_pad_inflate = SAME_NET_VIA_PAD_CLEARANCE_MM + via_size / 2
         for pad_map in pads.values():
             for pad_list in pad_map.values():
                 for pad in pad_list:
-                    if pad["net"] == net_name:
-                        continue
-                    if _point_in_pad(point, pad, pad_inflate):
+                    inflate = same_net_pad_inflate if pad["net"] == net_name else pad_inflate
+                    if _point_in_pad(point, pad, inflate):
                         return False
         for segment in existing_segments:
             if segment["net"] == net_name:
@@ -821,6 +917,7 @@ def _via_clear_sized(
                 return False
         return True
     default_pad_inflate = 0.18 + via_size / 2
+    same_net_pad_inflate = SAME_NET_VIA_PAD_CLEARANCE_MM + via_size / 2
     for pad_map in pads.values():
         for pad_list in pad_map.values():
             for pad in pad_list:
@@ -828,6 +925,8 @@ def _via_clear_sized(
                 if not pad_net:
                     continue
                 if pad_net == net_name:
+                    if _point_in_pad(point, pad, same_net_pad_inflate):
+                        return False
                     continue
                 pad_inflate = (
                     _required_edge_clearance(net_name, pad_net) + via_size / 2
@@ -990,23 +1089,6 @@ def emit_ground_plane_fanout_segments(
         board_ref = board_ref_by_comp.get((sheet, ref_for(sheet, "R11")))
         if board_ref:
             high_current_ground_pads.add((board_ref, "2"))
-    via_in_pad_fallbacks: set[tuple[str, str]] = set()
-    ap2112_ref = board_ref_by_comp.get(("MCU_ESP32-S3", ref_for("MCU_ESP32-S3", "U10")))
-    if ap2112_ref:
-        via_in_pad_fallbacks.add((ap2112_ref, "2"))
-    c34_ref = board_ref_by_comp.get(("POWER_IO", ref_for("POWER_IO", "C50")))
-    if c34_ref:
-        via_in_pad_fallbacks.add((c34_ref, "2"))
-    for sheet, local_ref in [
-        ("LASER_IR", "C17"),
-        ("LASER_RED", "C20"),
-        ("LASER_GREEN", "C23"),
-        ("LASER_BLUE", "C26"),
-        ("MCU_ESP32-S3", "C33"),
-    ]:
-        board_ref = board_ref_by_comp.get((sheet, ref_for(sheet, local_ref)))
-        if board_ref:
-            via_in_pad_fallbacks.add((board_ref, "2"))
     forced_gnd_fanout_offsets: dict[tuple[str, str], tuple[float, float]] = {}
     for sheet, local_ref in [
         ("LASER_IR", "C17"),
@@ -1075,9 +1157,6 @@ def emit_ground_plane_fanout_segments(
                 continue
             committed = (via, escape)
             break
-        if committed is None and (ref, pin) in via_in_pad_fallbacks:
-            if _via_clear_sized(pads, existing_segments, start, "GND", via_size):
-                committed = (start, [start])
         if committed is None:
             continue
         via, escape = committed
@@ -1265,31 +1344,19 @@ def _forced_power_front_pad_to_front_pad_layer(
             [start_via, (round(start_via[0] + 0.6, 4), corridor_y), (end_via[0], corridor_y), end_via],
             [end_via, end],
         )
-    if description == "USB-UART isolation diode to board VBUS":
-        start_via = (round(start[0] + 2.5, 4), round(start[1], 4))
-        end_via = (round(end[0] - 1.0, 4), round(end[1] - 1.5, 4))
-        corridor_y = 3.5
-        return (
-            start_via,
-            end_via,
-            [start, start_via],
-            [start_via, (round(start_via[0] + 0.2, 4), corridor_y), (end_via[0], corridor_y), end_via],
-            [end_via, (round(end[0] - 0.75, 4), round(end[1] - 0.5, 4)), (round(end[0] - 0.75, 4), end[1]), end],
-        )
-    if description == "Laser buck output to direct LD rail":
-        # Keep the shared laser anode rail off the raw monitor-PD fanout
-        # corridor at the direct laser footprint cluster. It still uses In2.Cu, but the trunk now
-        # runs below the MPD_RAW vertical escapes rather than underneath them.
-        start_via = (round(start[0] - 1.0, 4), round(start[1] + 1.25, 4))
-        end_via = (round(end[0] - 0.25, 4), round(end[1] - 1.75, 4))
-        corridor_y = 18.0
-        return (
-            start_via,
-            end_via,
-            [start, (start_via[0], start[1]), start_via],
-            [start_via, (start_via[0], corridor_y), (end_via[0], corridor_y), end_via],
-            [end_via, (end_via[0], end[1]), end],
-        )
+    # "USB-UART isolation diode to board VBUS" and "Laser buck output to
+    # direct LD rail" used to have hand-tuned forced shapes here with
+    # absolute corridor_y values (3.5 and 18.0) from the board's original
+    # 90x50mm-at-origin layout. On the current 173x61mm board (y=80..141)
+    # those corridors sit entirely off the board -- and because a route
+    # only needs to clear *other copper/pads*, not the board outline, the
+    # clearance check happily accepted a path routed through empty space
+    # off the board edge instead of failing. That produced literally
+    # unmanufacturable copper that passed generation silently; it only
+    # showed up as `copper_board_bounds_failures` in the release checker.
+    # Removed rather than re-tuned: both fall through to the general
+    # via-search layer-hop path below, which is board-bounds safe by
+    # construction (see BOARD_EDGE_KEEPOUT_MM in _via_clear_sized).
     return None
 
 
@@ -1482,17 +1549,37 @@ def _route_shape_clear(
     return True
 
 
+def _corridor_positions(lo: float, hi: float, step: float) -> list[float]:
+    """Evenly spaced candidate corridor lanes across the real board extent.
+
+    Was previously a hardcoded absolute list (x in 8..87, y in 3..47) tuned
+    for the board's original 90x50mm-at-origin layout. On the current
+    173x61mm board (x=31..204, y=80..141) those literal values either fall
+    off the board entirely or land on top of components that didn't exist
+    at those coordinates on the old floorplan -- rebuilding a long cross-
+    board route (PWM/VOUT/ISENSE/ADC-bus links) then has only the 3 direct/
+    L-shaped fallback candidates to try, which routinely can't clear ~170
+    other footprints over 100+mm. Generating lanes from the board's own
+    bounds keeps this correct regardless of future resizes/re-placements.
+    """
+    if hi <= lo:
+        return []
+    count = max(1, int((hi - lo) / step))
+    return [lo + (i + 0.5) * (hi - lo) / count for i in range(count)]
+
+
 def _bottom_route_shapes(start: tuple[float, float], end: tuple[float, float]) -> list[list[tuple[float, float]]]:
     shapes = [
         [start, end],
         [start, (end[0], start[1]), end],
         [start, (start[0], end[1]), end],
     ]
-    for x in [8.0, 20.0, 32.0, 44.0, 56.0, 68.0, 80.0, 87.0]:
-        if min(start[0], end[0]) - 8.0 <= x <= max(start[0], end[0]) + 8.0:
+    margin = 8.0
+    for x in _corridor_positions(BOARD_X0_MM, BOARD_X1_MM, 12.0):
+        if min(start[0], end[0]) - margin <= x <= max(start[0], end[0]) + margin:
             shapes.append([start, (x, start[1]), (x, end[1]), end])
-    for y in [3.0, 7.0, 11.0, 15.0, 19.0, 23.0, 27.0, 31.0, 35.0, 39.0, 43.0, 47.0]:
-        if min(start[1], end[1]) - 8.0 <= y <= max(start[1], end[1]) + 8.0:
+    for y in _corridor_positions(BOARD_Y0_MM, BOARD_Y1_MM, 4.0):
+        if min(start[1], end[1]) - margin <= y <= max(start[1], end[1]) + margin:
             shapes.append([start, (start[0], y), (end[0], y), end])
     return shapes
 
@@ -1532,6 +1619,7 @@ def emit_critical_route_segments(
         width = route_width_for_link(description, net_a)
         forced_points = _forced_route_points(description, start, end)
         if forced_points is not None:
+            forced_points = _chamfer_polyline(forced_points, pads, existing_segments, net_a, width, "F.Cu")
             for a, b in zip(forced_points, forced_points[1:]):
                 if a == b:
                     continue
