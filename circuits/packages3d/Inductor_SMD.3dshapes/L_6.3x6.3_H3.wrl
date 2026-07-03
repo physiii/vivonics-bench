@@ -1,37 +1,64 @@
 #VRML V2.0 utf8
-# Shielded SMD inductor 6.3x6.3mm, 3.0mm height
-# Body sits on PCB surface (z=0)
-Transform {
-  children [
-    # Shielded body (centered at half height above board)
-    Transform {
-      translation 0 0 1.5
-      children [
-        Shape {
-          appearance Appearance {
-            material Material {
-              diffuseColor 0.2 0.2 0.2
-              specularColor 0.15 0.15 0.15
-            }
-          }
-          geometry Box { size 6.3 6.3 3.0 }
-        }
+# Shielded SMD Power Inductor 6.3x6.3mm, 3.0mm height
+# General shielded power inductor for buck converter
+WorldInfo { title "SMD Inductor 6.3x6.3 H3" }
+
+Shape { appearance Appearance { material DEF SHIELD Material {
+  ambientIntensity 0.3 diffuseColor 0.2 0.2 0.2 specularColor 0.3 0.28 0.25 shininess 0.5 } } }
+Shape { appearance Appearance { material DEF CORE Material {
+  ambientIntensity 0.2 diffuseColor 0.16 0.16 0.16 specularColor 0.1 0.1 0.08 shininess 0.2 } } }
+Shape { appearance Appearance { material DEF PAD Material {
+  ambientIntensity 0.2 diffuseColor 0.65 0.63 0.58 specularColor 0.3 0.28 0.15 shininess 0.45 } } }
+Shape { appearance Appearance { material DEF DOT Material {
+  ambientIntensity 0.1 diffuseColor 0.9 0.9 0.85 specularColor 0.1 0.1 0.1 shininess 0.1 } } }
+
+# Shielded body
+Transform { translation 0 0 1.5 children [
+  Shape {
+    appearance Appearance { material USE SHIELD }
+    geometry IndexedFaceSet {
+      creaseAngle 0.3
+      coord Coordinate { point [
+        -3.15 -3.15 0, 3.15 -3.15 0, 3.15 3.15 0, -3.15 3.15 0,
+        -2.95 -2.95 3.0, 2.95 -2.95 3.0, 2.95 2.95 3.0, -2.95 2.95 3.0
+      ]}
+      coordIndex [
+        0,1,2,3,-1,  4,7,6,5,-1,
+        0,4,5,1,-1,  1,5,6,2,-1,
+        2,6,7,3,-1,  3,7,4,0,-1
       ]
     }
-    # Top dot marking
-    Transform {
-      translation 2.0 2.0 3.05
-      children [
-        Shape {
-          appearance Appearance {
-            material Material { diffuseColor 1.0 1.0 1.0 }
-          }
-          geometry Cylinder { radius 0.5 height 0.1 }
-        }
-      ]
+  }
+]}
+
+# Top marking area
+Transform { translation 0 0 3.02 children [
+  Shape {
+    appearance Appearance { material USE CORE }
+    geometry Box { size 4.0 4.0 0.04 }
+  }
+]}
+
+# Polarity dot
+Transform { translation -2.0 2.0 3.04 children [
+  Shape {
+    appearance Appearance { material USE DOT }
+    geometry Cylinder { radius 0.45 height 0.03 }
+  }
+]}
+
+# Terminal pads
+Transform { translation -2.5 -3.15 0 children [
+  DEF PAD1 Shape {
+    appearance Appearance { material USE PAD }
+    geometry IndexedFaceSet {
+      creaseAngle 0.5
+      coord Coordinate { point [
+        -0.6 -0.75 0, 0.6 -0.75 0, 0.6 0.75 0, -0.6 0.75 0,
+        -0.6 -0.75 0.15, 0.6 -0.75 0.15, 0.6 0.75 0.15, -0.6 0.75 0.15
+      ]}
+      coordIndex [0,1,2,3,-1, 4,7,6,5,-1, 0,4,5,1,-1, 1,5,6,2,-1, 2,6,7,3,-1, 3,7,4,0,-1]
     }
-    # Two terminals on bottom (flat on board)
-    Transform { translation -2.5 -3.15 0 children [ Shape { appearance Appearance { material Material { diffuseColor 0.7 0.7 0.7 } } geometry Box { size 1.2 1.5 0.3 } } ] }
-    Transform { translation 2.5 -3.15 0 children [ Shape { appearance Appearance { material Material { diffuseColor 0.7 0.7 0.7 } } geometry Box { size 1.2 1.5 0.3 } } ] }
-  ]
-}
+  }
+]}
+Transform { translation 2.5 -3.15 0 children [ USE PAD1 ] }

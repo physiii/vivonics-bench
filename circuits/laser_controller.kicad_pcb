@@ -7239,8 +7239,8 @@
         )
       )
     )
-    (model "${KICAD7_3DMODEL_DIR}/RF_Module.3dshapes/ESP32-S3-WROOM-1.wrl"
-    (offset (xyz 0 0 0))
+    (model "${KIPRJMOD}/packages3d/RF_Module.3dshapes/ESP32-S3-WROOM-1.STEP"
+    (offset (xyz -9 -9.75 0))
       (scale (xyz 1 1 1))
       (rotate (xyz 0 0 0))
     )
