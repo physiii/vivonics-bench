@@ -15,3 +15,9 @@ vivonics_sensor_check.json
 ~*.lck
 
 fp-info-cache
+
+# KiCad backup archives
+circuits/laser_controller-backups/
+
+# DeepSeek runtime state
+.deepseek/state/
