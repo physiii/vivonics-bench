@@ -52,8 +52,8 @@ board has ~2000 routed segments, ~225 vias, zero footprint courtyard/pad
 overlaps, zero dangling copper, zero copper outside the board outline, and
 zero vias centered on a signal pad (a handful remain over intentionally
 unnetted/NC pads, see `check_laser_controller_pcb.intentional_unnetted_pad_names`).
-70 of 110 multi-pad signal nets are fully connected end-to-end and a
-further 7 are covered by a required zone/rail pour; the remaining ~33 are
+72 of 110 multi-pad signal nets are fully connected end-to-end and a
+further 7 are covered by a required zone/rail pour; the remaining ~31 are
 mostly long single-hop runs between the MCU/ADC region and the far TIA/
 laser-driver clusters (`PWM1-4`, `VOUT1-4`, `ISENSE1-4`, `MPD_RAWx`, the
 AD7606 SPI bus) that this project's lightweight grid-search router can't
