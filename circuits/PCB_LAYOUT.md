@@ -9,19 +9,33 @@ monitor/ADC telemetry, laser control, and digital control nets; the fallback `De
 is required to stay empty by `check_laser_controller_pcb.py`.
 The generated stackup is four copper layers: `F.Cu` signal, `In1.Cu` ground/reference,
 `In2.Cu` power/reference, and `B.Cu` signal.
-The current PCB does not yet contain a filled `In1.Cu` `GND` reference-zone
-definition. Add/refill zones in KiCad after placement/routing so the actual
-copper pour is generated and checked by DRC. `check_laser_controller_pcb.py`
-fails routed segments on `In1.Cu`; that layer is reserved as the quiet
-ground/reference plane, while `F.Cu`, `B.Cu`, and selected `In2.Cu` trunks carry
-routed copper once routing exists.
+
+**Power/ground zones** (rebuilt into a standard layout; see the
+`kicad-pcb-layout` skill for the rules behind this): `In1.Cu` is a single
+full-board `GND` flood -- the one true reference plane, matching the
+declared stackup role. `F.Cu` and `B.Cu` also each carry a full-board `GND`
+fill for standard outer-layer return-path/shielding (both were missing this
+before; `B.Cu` had no `GND` presence at all). `In2.Cu` carries small (3-6mm),
+mutually disjoint local pours right at each rail's own source -- `+3V3` at
+the AP2112 output decap, `+5V` at the post-OR bulk cap (also mirrored on
+`B.Cu`, both required by `check_laser_controller_pcb.REQUIRED_PLANE_ZONES`),
+`LASER_V+` at the laser buck's output caps, `VIN_24V` at the barrel jack.
+Actual delivery from each pour to every load pad is the explicit
+point-to-point `POWER_ROUTE_LINKS` trunk-trace daisy chain, not a wide
+flood -- the previous layout had 9 zone definitions across 4 layers with
+several overlapping bounding boxes for *different* rails on the *same*
+layer (e.g. `+3V3` and `+5V` both claiming chunks of `In2.Cu`), which KiCad
+resolves by fill priority and in practice renders as thin, fragmented
+slivers. `F.Cu`/`B.Cu` signal routing and the `In2.Cu` rail trunks coexist
+with the `GND` fill on their layers the normal way (KiCad clears the fill
+around routed copper of other nets automatically).
 The board checker also enforces pad-to-pad proximity limits: USB connectors at their
 discrete ESD clamps and CP2102N/native-USB endpoints, AP2112 input/output capacitors,
 local ESP32 3V3 decoupling, EN RC, BOOT pull-up, every OPA380/SFH2201 TIA input-feedback-bias cluster,
 every TLV9001/AO3400A laser gate/sense/control/compensation cluster, and every monitor-PD
 sense/reference/ADC-isolation cluster near the direct laser footprints.
 It also fails on different-net pad bounding-box overlaps between different footprints.
-It also fails if any physical pad geometry falls outside the 90 x 50 mm board outline.
+It also fails if any physical pad geometry falls outside the board outline.
 It also fails if routed copper endpoints/vias leave the board outline or if any same-net
 segment endpoint/via is dangling instead of terminating on a same-net pad, via, or segment.
 It also fails route-layer policy violations, including USB/MPD_RAW/TIA-local and laser-loop
@@ -33,34 +47,59 @@ trunks may use only their documented width sets.
 It also fails sensitive local-route length violations for `MPD_RAWx`, OPA380 summing/
 bias nodes, photodiode cathode/bias stubs, trim wipers, TLV9001 laser-control nodes,
 and AO3400A gate-drive nodes.
-Current blocker: the PCB is not release-clean. The measured board has 0
-board-level routed segments, 0 vias, recovered placement for 178 physical
-footprints, and one footprint-internal ESP32 antenna keepout zone.
-`check_laser_controller_pcb.py` still fails because final board-boundary and
-placement-proximity limits are not met, USB routes are absent, and no filled
-`In1.Cu` GND reference plane exists. `check_laser_controller_release_gate.py`
-also fails because
-signal/control multi-pad nets, rails, pours, laser-anode copper, and
-high-current GND vias are not routed.
-The old J3 AD7606 debug/output header has been removed now that U14 is on-board.
+Current state: the PCB is routed but not yet release-clean. The measured
+board has ~2000 routed segments, ~225 vias, zero footprint courtyard/pad
+overlaps, zero dangling copper, zero copper outside the board outline, and
+zero vias centered on a signal pad (a handful remain over intentionally
+unnetted/NC pads, see `check_laser_controller_pcb.intentional_unnetted_pad_names`).
+70 of 110 multi-pad signal nets are fully connected end-to-end and a
+further 7 are covered by a required zone/rail pour; the remaining ~33 are
+mostly long single-hop runs between the MCU/ADC region and the far TIA/
+laser-driver clusters (`PWM1-4`, `VOUT1-4`, `ISENSE1-4`, `MPD_RAWx`, the
+AD7606 SPI bus) that this project's lightweight grid-search router can't
+reliably thread across 100+mm and ~170 other footprints without corridor
+guidance a human router would add interactively in KiCad. `check_laser_controller_pcb.py`
+still fails on route-width/layer/via-count *policy* violations (some
+locally-congested nets needed a via or a layer the strict class definition
+doesn't allow) and the remaining unrouted multi-pad nets above.
+`check_laser_controller_release_gate.py` also still fails until those are
+closed. The old J3 AD7606 debug/output header has been removed now that U14 is on-board.
 
 ## Board
 
-- Outline **90 × 50 mm**, 1.6 mm, 4× M3 mounting holes at corners (3 mm from edges).
+- Outline **173.025 × 61.125 mm** (measured from `Edge.Cuts`, board spans
+  x=30.975..204.000mm, y=79.875..141.000mm), 1.6 mm, 4× M3 mounting holes at
+  corners (3 mm from edges). Earlier revisions of this doc said 90 × 50 mm;
+  that was the pre-resize board and no longer matches the real outline or
+  the floorplan below -- always verify against the actual `Edge.Cuts`
+  graphics (`check_laser_controller_pcb.parse_board_outline_bounds`) rather
+  than this doc when in doubt.
 - **Power**: J5 is the center-positive 24 V barrel input and J6 is the RJ45
   24 V power input copied from the access-controller. U15 AP63205 creates
   `BUCK_5V`, D6 ORs it with USB `VBUS_5V` through D5 into `+5V`, and U16 AP63200
   creates the shared bench `LASER_V+` rail.
-- Floorplan:
-  - **Left edge** (x≈3mm) — 4× SFH2201 photodiodes (D1–D4), stacked vertically,
-    rotated 270° so light enters from the left.
-  - **Left-centre** (x≈10–32mm) — TIA ×4 (OPA380 + VBIAS trim-pot + passives).
-  - **Centre** (x≈37–55mm) — Laser drivers ×4 (TLV9001 + AO3400A + passives).
-  - **Right** (x≈58–85mm) — ESP32-S3-WROOM-1 (rotated 90°, antenna toward top edge)
-    + CP2102N USB-UART + AP2112K LDO + discrete USB/VBUS ESD + decoupling.
-  - **Right edge** — J5 24 V barrel input and J6 24 V RJ45 input.
-  - **Bottom edge** — J1 USB Mini-B.
-  - **Top edge** — J2 USB Mini-B.
+- Floorplan (measured footprint bounding boxes per schematic sheet, current
+  hand placement):
+  - **Left third** (x≈37–114mm) — `MCU_ESP32-S3` sheet (x≈37–82, y≈82–133:
+    ESP32-S3-WROOM-1, CP2102N USB-UART, AP2112K LDO, discrete USB/VBUS ESD,
+    decoupling) and `POWER_IO` sheet (x≈39–114, y≈90–138: J5/J6 24V inputs,
+    AP63205/AP63200 bucks, AD7606 + INA4180 monitor-PD front end)
+    overlapping in x since the buck/ADC circuitry sits to the right of the
+    MCU while the connectors sit at the left edge.
+  - **Right two-thirds** (x≈121–200mm) — the 4 TIA + 4 laser-driver sheets,
+    arranged in two y-bands: an upper band at y≈84–102 (`TIA_IR`,
+    `LASER_BLUE`, `LASER_RED`) and a lower band at y≈118–137 (`TIA_RED`,
+    `TIA_BLUE`, `TIA_GREEN`, `LASER_IR`, `LASER_GREEN`). Each `TIA_<color>`
+    sheet is OPA380 + VBIAS trim-pot + passives; each `LASER_<color>` sheet
+    is TLV9001 + AO3400A + passives. TIA and laser-driver sheets for the
+    same channel are not always spatially adjacent (e.g. `TIA_RED` sits in
+    the lower band while `LASER_RED` sits in the upper band) -- route by
+    net, not by assuming same-color proximity.
+  - Zero footprint courtyard/body overlaps and zero different-net pad
+    overlaps (verified; see `check_laser_controller_pcb.different_net_pad_overlap_failures`
+    for the pad-level check -- courtyard-level overlap has no built-in
+    checker function today, see the `kicad-pcb-layout` skill for the
+    F.CrtYd-polygon method used to verify it).
 
 ## Connectors
 
