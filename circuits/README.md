@@ -178,7 +178,7 @@ procurement/assembly items listed below.
 | C70 | 22µF 100V SMD electrolytic | **C90264** | — | `VIN_24V` input bulk capacitor copied from access-controller PoE bulk input. |
 | C (100nF) | 100nF 0402 16V X7R | **C83056** | — | decoupling and monitor-PD low-pass filters. |
 | C (10µF) | 10µF 0805 25V X5R | **C318691** | — | bulk decoupling. |
-| J1-J2 | USB Mini-B receptacle | **C46391** | (JLC assy) | `920-462A2021S10101` metadata on KiCad Würth `65100516121` land pattern; resolve exact connector before fab. |
+| J1-J2 | USB Mini-B receptacle | **C5120592** | (JLC assy) | Würth `65100516121` metadata on the matching KiCad Würth land pattern. |
 
 ### Hand-add / not in SMT assembly
 
@@ -214,9 +214,8 @@ block: J1 USB-UART, J2 ESP32-S3 native USB, Mini-B pins 1-6, CP2102N QFN28
 pins 4/5/8, ESP32-S3 module pins 13/14, discrete ESD clamps, 1N5819HW VBUS
 isolation, D5 +5 V OR-ing, the CP2102N 22.1 k / 47.5 k VBUS divider, RST
 pull-up, UART, EN/BOOT auto-reset, and USB ID no-connects. Its
-`connector-source-match` policy is an expected fail until the
-`920-462A2021S10101` / **C46391** orderable connector is mechanically proven
-against the Würth `65100516121` land pattern.
+`connector-source-match` policy passes only when the active metadata is
+Würth `65100516121` / **C5120592** on the matching Würth land pattern.
 `check_esp32_reset_boot_controls.py` separately asserts the copied reset/boot
 support block: EN 10 k / 1 uF / RESET button, GPIO0 BOOT 10 k / 1 uF / PROG
 button, GPIO1 FACT button, CP2102N QFN28 DTR/RTS into the Q5/Q6 auto-reset
@@ -313,9 +312,9 @@ datasheet-check before routing:
    keep-out during layout.
 2. **SFH2201 polarity.** `OptoDevice:Osram_SFH2201` pad 1 = cathode, pad 2 = anode (matches
    the KiCad `D_Photo` symbol convention used here). Confirm the orientation mark in bring-up.
-3. **USB Mini-B land.** The copied MCU sheet uses `920-462A2021S10101` / **C46391**
-   metadata on the KiCad Würth 65100516121 footprint; check connector pin-1,
-   shield pad 6 to GND, board-edge orientation, and mechanical fit before fabrication.
+3. **USB Mini-B land.** J1/J2 use Würth `65100516121` / **C5120592** metadata
+   on the KiCad Würth 65100516121 footprint; check connector pin-1, shield pad
+   6 to GND, board-edge orientation, and final JLCPCB quote acceptance.
 
 ### Design review — folded into the generator
 

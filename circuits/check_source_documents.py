@@ -228,6 +228,12 @@ WARNING_ONLINE = [
         note="Family/product page; exact 65100516121 drawing is required separately above.",
     ),
     OnlineEvidence(
+        "LCSC C5120592 Wuerth 65100516121 Mini-B order page",
+        "https://www.lcsc.com/product-detail/USB-Connectors_Wurth-Elektronik-65100516121_C5120592.html",
+        False,
+        note="Distributor/order source for the Wuerth Mini-B part used by the active J1/J2 BOM metadata.",
+    ),
+    OnlineEvidence(
         "Farnell mirror of Wuerth 65100516121 drawing",
         "https://www.farnell.com/datasheets/1442461.pdf",
         False,

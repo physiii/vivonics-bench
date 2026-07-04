@@ -213,7 +213,7 @@ def main() -> int:
             {},
         ),
         (
-            "USB connector footprint/source expected fail",
+            "USB connector footprint/source match",
             [
                 "python3",
                 "circuits/check_usb_vbus_interface.py",
@@ -222,7 +222,7 @@ def main() -> int:
                 "--policy",
                 "connector-source-match",
             ],
-            {"expected_codes": {1}},
+            {},
         ),
         (
             "AD7606 package/PCB pinout",

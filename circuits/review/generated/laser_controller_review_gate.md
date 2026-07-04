@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-04T23:02:57+00:00
+Generated: 2026-07-04T23:11:58+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -21,7 +21,7 @@ Overall release status: BLOCKED
 | PASS | Passive derating assertions | 0 | `python3 circuits/check_passive_derating.py` |
 | PASS | USB/VBUS topology | 0 | `python3 circuits/check_usb_vbus_interface.py --netlist /tmp/lc.net` |
 | PASS | ESP32 reset/boot controls | 0 | `python3 circuits/check_esp32_reset_boot_controls.py --netlist /tmp/lc.net` |
-| PASS | USB connector footprint/source expected fail | 1 | `python3 circuits/check_usb_vbus_interface.py --netlist /tmp/lc.net --policy connector-source-match` |
+| PASS | USB connector footprint/source match | 0 | `python3 circuits/check_usb_vbus_interface.py --netlist /tmp/lc.net --policy connector-source-match` |
 | PASS | AD7606 package/PCB pinout | 0 | `python3 circuits/check_ad7606_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
 | PASS | AD7606 interface budget | 0 | `python3 circuits/check_ad7606_interface_budget.py /tmp/lc.net` |
 | PASS | TIA readout budget | 0 | `python3 circuits/check_tia_readout_budget.py --netlist /tmp/lc.net` |
@@ -136,19 +136,20 @@ WARN Alpha & Omega AO3400A datasheet: reachable; Primary source reachable from t
 WARN JLCPCB via-design article: not reachable; Advisory article only; JLCPCB quote capability page wins. [GET failed: HTTP Error 429: Too Many Requests; HEAD failed: HTTP Error 429: Too Many Requests]
 WARN Vishay SS12-SS16 family datasheet: reachable; Family reference only; exact LCSC C2480 manufacturer must be confirmed at order. [HEAD HTTP 200, type=application/pdf, length=1174123]
 WARN LCSC C2480 SS14 order page: reachable; Distributor/order source, not a replacement for final order-time manufacturer confirmation. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN JLCPCB C408410 MWSA0503S-4R7MT inductor page: not reachable; Distributor/order source for the AP63205 4.7uH inductor; final AVL should retain a manufacturer datasheet copy. [GET failed: HTTP Error 429: Too Many Requests; HEAD failed: HTTP Error 429: Too Many Requests]
+WARN JLCPCB C408410 MWSA0503S-4R7MT inductor page: reachable; Distributor/order source for the AP63205 4.7uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C98364 WPN4020H100MT inductor page: not reachable; Distributor/order source for the AP63200 10uH inductor; final AVL should retain a manufacturer datasheet copy. [GET failed: HTTP Error 429: Too Many Requests; HEAD failed: HTTP Error 429: Too Many Requests]
 WARN Wuerth Mini/Micro USB family page: reachable; Family/product page; exact 65100516121 drawing is required separately above. [HEAD HTTP 200, type=text/html; charset=UTF-8, length=1]
+WARN LCSC C5120592 Wuerth 65100516121 Mini-B order page: reachable; Distributor/order source for the Wuerth Mini-B part used by the active J1/J2 BOM metadata. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN Farnell mirror of Wuerth 65100516121 drawing: reachable; Distributor mirror only; the official Wuerth drawing URL is the required source. [HEAD HTTP 200, type=application/pdf, length=276116]
 WARN LCSC C2907002 FRC0603F1001TS 1k resistor page: reachable; Distributor/order source for active 1k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN JLCPCB C22984 30k resistor page: reachable; Distributor/order source for passive rating evidence. [GET HTTP 206, type=text/html; charset=utf-8, first_bytes=4096]
+WARN JLCPCB C22984 30k resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C844918 CRCW060310K0FKEA 10k resistor page: reachable; Distributor/order source for active 10k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C114613 RC0603FR-07240RL 240 ohm resistor page: reachable; Distributor/order source for active 240 ohm monitor-PD sense resistor evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LRC L8050QLT1G transistor datasheet: reachable; Manufacturer datasheet for the Q5 NPN SOT-23 auto-reset transistor. [HEAD HTTP 200, type=application/pdf, length=543317]
 WARN LCSC C39282 L8550HQLT1G transistor page: reachable; Distributor/order source for the Q6 PNP SOT-23 auto-reset transistor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C127509 K2-1102SP-C4SC-04 switch page: reachable; Distributor/order source for the SW1-SW3 tactile reset/program/factory buttons. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN JLCPCB C5123624 10 ohm 2512 sense resistor page: not reachable; Distributor/order source for passive rating evidence. [GET failed: HTTP Error 429: Too Many Requests; HEAD failed: HTTP Error 429: Too Many Requests]
-PASS source-document evidence: 22 required online sources, 24 required local artifacts, and 16 secondary/open-risk sources reviewed
+WARN JLCPCB C5123624 10 ohm 2512 sense resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
+PASS source-document evidence: 22 required online sources, 24 required local artifacts, and 17 secondary/open-risk sources reviewed
 ```
 
 ## PASS: Passive derating assertions
@@ -178,14 +179,12 @@ Command: `python3 circuits/check_esp32_reset_boot_controls.py --netlist /tmp/lc.
 PASS ESP32 reset/boot controls: EN 10k/1uF/reset, GPIO0 BOOT 10k/1uF/PROG, GPIO1 FACT, CP2102N DTR/RTS auto-reset transistors, RST/SUSPEND pulls, and IO13/IO14 pulls match the exported schematic
 ```
 
-## PASS: USB connector footprint/source expected fail
+## PASS: USB connector footprint/source match
 
 Command: `python3 circuits/check_usb_vbus_interface.py --netlist /tmp/lc.net --policy connector-source-match`
 
 ```text
-FAIL USB connector source/footprint match
-  - J1: footprint is Wuerth 65100516121 but BOM metadata is MPN='920-462A2021S10101', LCSC='C46391'; orderable connector/land-pattern fit needs release signoff
-  - J2: footprint is Wuerth 65100516121 but BOM metadata is MPN='920-462A2021S10101', LCSC='C46391'; orderable connector/land-pattern fit needs release signoff
+PASS USB connector source/footprint match
 ```
 
 ## PASS: AD7606 package/PCB pinout
@@ -657,7 +656,7 @@ Command: `python3 circuits/check_laser_controller_release_readiness.py`
 The release-readiness registry has unresolved source, direct-laser, thermal, manufacturing, and human-inspection blockers.
 
 ```text
-BLOCKED release readiness: 13 open fabrication/release blockers
+BLOCKED release readiness: 12 open fabrication/release blockers
   [KICAD_ERC_DRC_ZONE_SIGNOFF] KiCad ERC and schematic-parity signoff are still open
     Detail: Available netlist/source/custom PCB checks pass, and a 2026-07-04 GUI DRC screenshot captures refilled-zone DRC with 0 violations and 0 unconnected items. Full fabrication signoff is still not proven because this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC, and the captured GUI DRC did not run schematic parity. Formal KiCad ERC and native schematic-parity evidence remain unproven.
     Required action: Run GUI ERC on the regenerated schematic, update PCB from schematic, refill zones, run PCB DRC with schematic parity, or use a KiCad CLI build that supports sch erc and pcb drc, then document any waivers/reports.
@@ -682,9 +681,6 @@ BLOCKED release readiness: 13 open fabrication/release blockers
   [VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT] 24 V barrel/RJ45 input protection and buck layout are not released
     Detail: J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, but the 9.3 V all-channel hardware-clamp case exceeds the 500 mA J5 input budget and the current C64+C65/C67+C68 output capacitor set is below generic AP632 datasheet guidance.
     Required action: Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; rework or justify the AP632 output capacitors; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.
-  [USB_CONNECTOR_OFFICIAL_DRAWING] Mini-B orderable connector and Wuerth land pattern still need release verification
-    Detail: The official Wuerth 65100516121 drawing is now captured and the USB/VBUS checker proves the electrical nets, but the active BOM metadata still names 920-462A2021S10101 / C46391 on a KiCad Wuerth 65100516121 footprint.
-    Required action: Verify that the orderable connector fits the Wuerth land pattern, pin-1 orientation, shield pads, board-edge orientation, and assembly source before fabrication.
   [SS14_EXACT_ORDER_DATASHEET] Exact SS14 C2480 manufacturer datasheet and polarity are still order-time checks
     Detail: The schematic and board assert diode polarity, but the source register still relies on distributor/order evidence plus a family reference.
     Required action: Confirm the exact C2480 manufacturer datasheet, package polarity, and orderable part before board order.

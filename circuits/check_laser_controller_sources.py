@@ -43,7 +43,7 @@ DOCUMENTATION_DESIGNATOR_GUARDS = [
         SOURCE_REGISTER,
         [
             "Silicon Labs `CP2102N-A02-GQFN28R` / `C964632`",
-            "Mini-B `920-462A2021S10101` / `C46391`",
+            "Mini-B `65100516121` / `C5120592`",
             "UMW `LESD5D5.0CT1G(UMW)` / `C5199850`",
             "| Diodes Inc. `AP2112K-3.3TRG1`, LCSC `C51118` | U11 |",
         ],
@@ -51,7 +51,6 @@ DOCUMENTATION_DESIGNATOR_GUARDS = [
             "| ST `USBLC6-2SC6`, LCSC `C7519` |",
             "| ST `USBLC6-2SC6`, LCSC `C7519` | U12 |",
             "| Diodes Inc. `AP2112K-3.3TRG1`, LCSC `C51118` | U10 |",
-            "| Würth `65100516121` Mini-B, LCSC `C5120592` |",
         ],
     ),
     (
@@ -158,7 +157,7 @@ def main() -> int:
         "Alpha & Omega",
         "Bourns",
         "Mini-B connector metadata",
-        "orderable connector against the Würth land pattern",
+        "connector-source-match` passes because the active metadata now matches the Würth footprint",
         "Commodity passive voltage ratings",
         "AP2112 3V3 rail thermal policy",
         "sustained Wi-Fi/BLE",

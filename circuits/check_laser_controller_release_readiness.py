@@ -290,30 +290,6 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
         ),
     ),
     ReleaseBlocker(
-        "USB_CONNECTOR_OFFICIAL_DRAWING",
-        "Mini-B orderable connector and Wuerth land pattern still need release verification",
-        "The official Wuerth 65100516121 drawing is now captured and the USB/VBUS checker proves the electrical nets, but the active BOM metadata still names 920-462A2021S10101 / C46391 on a KiCad Wuerth 65100516121 footprint.",
-        "Verify that the orderable connector fits the Wuerth land pattern, pin-1 orientation, shield pads, board-edge orientation, and assembly source before fabrication.",
-        (
-            Evidence(
-                "docs/part-notes/65100516121.md",
-                (
-                    "Resolve the connector identity before fabrication",
-                    "orderable connector must be mechanically checked",
-                    "check_usb_vbus_interface.py --policy connector-source-match",
-                ),
-            ),
-            Evidence(
-                "docs/source-register.md",
-                (
-                    "Mini-B orderable connector identity must be resolved before release",
-                    "mechanical fit and ordering source still need signoff",
-                    "check_usb_vbus_interface.py",
-                ),
-            ),
-        ),
-    ),
-    ReleaseBlocker(
         "SS14_EXACT_ORDER_DATASHEET",
         "Exact SS14 C2480 manufacturer datasheet and polarity are still order-time checks",
         "The schematic and board assert diode polarity, but the source register still relies on distributor/order evidence plus a family reference.",

@@ -139,9 +139,9 @@ evidence remain open.
 
 - **ESP32-S3-WROOM-1**: real Espressif symbol; USB D− = GPIO19/module pin 13, USB D+ =
   GPIO20/module pin 14; GPIO0/BOOT is pulled up and has a local PROG button.
-- **USB Mini-B**: `920-462A2021S10101` / C46391 metadata on the KiCad Würth
-  65100516121 footprint, horizontal SMD, port faces board edge; resolve exact
-  connector/footprint fit before fabrication.
+- **USB Mini-B**: Würth `65100516121` / C5120592 metadata on the matching KiCad
+  Würth 65100516121 footprint, horizontal SMD, port faces board edge; review
+  pin-1, shield pads, board-edge orientation, ESD placement, and final quote.
 - **SFH2201**: pad 1 = cathode, pad 2 = anode — check PD orientation.
 - **Direct laser pinout**: confirm every raw laser MPN's LD/PD/common/case pin table before
   soldering a diode into `LD1..LD4`. Current Digikey-cart
