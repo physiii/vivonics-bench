@@ -59,6 +59,8 @@ CHECKS: tuple[GeometryCheck, ...] = (
         7.0,
         "Laser buck output capacitor should sit close to the inductor output node.",
     ),
+    # The full PCB checker owns USB route length, skew, layer, width, and via
+    # policy. This focused gate only keeps the surge clamp close to the connector.
     GeometryCheck(
         "usb-esd",
         "Native USB D- connector-to-ESD distance",
@@ -66,22 +68,6 @@ CHECKS: tuple[GeometryCheck, ...] = (
         PadRef("D12", "2"),
         7.5,
         "USB ESD clamp should be near the connector before the trace enters the board.",
-    ),
-    GeometryCheck(
-        "usb-esd",
-        "Native USB D- ESD-to-ESP32 distance",
-        PadRef("D12", "2"),
-        PadRef("U9", "13"),
-        4.5,
-        "USB D-/D+ routes should keep the clamp and protected device path compact.",
-    ),
-    GeometryCheck(
-        "usb-esd",
-        "Native USB D+ ESD-to-ESP32 distance",
-        PadRef("D11", "2"),
-        PadRef("U9", "14"),
-        4.5,
-        "USB D-/D+ routes should keep the clamp and protected device path compact.",
     ),
     GeometryCheck(
         "tia-sensitive",

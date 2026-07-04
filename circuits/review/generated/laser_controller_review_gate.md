@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-04T23:34:22+00:00
+Generated: 2026-07-04T23:37:32+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -405,9 +405,7 @@ Command: `python3 circuits/check_layout_review_geometry.py circuits/laser_contro
 The board still has high-risk physical layout distances in buck, USB ESD, TIA summing-node, monitor-PD, or laser-current local loops.
 
 ```text
-BLOCKED layout geometry review: 13 high-risk layout distances exceed targets
-  [usb-esd] Native USB D- ESD-to-ESP32 distance: 18.57 mm exceeds 4.50 mm; D12.2 (/MCU_ESP32-S3/IO19) at (45.175,101.650) -> U9.13 (/MCU_ESP32-S3/IO19) at (63.125,96.895). USB D-/D+ routes should keep the clamp and protected device path compact.
-  [usb-esd] Native USB D+ ESD-to-ESP32 distance: 20.06 mm exceeds 4.50 mm; D11.2 (/MCU_ESP32-S3/IO20) at (43.375,101.650) -> U9.14 (/MCU_ESP32-S3/IO20) at (63.125,98.165). USB D-/D+ routes should keep the clamp and protected device path compact.
+BLOCKED layout geometry review: 11 high-risk layout distances exceed targets
   [tia-sensitive] IR signal photodiode anode to OPA380 summing node: 20.02 mm exceeds 6.00 mm; D1.2 (Net-(D1-A)) at (156.165,102.438) -> U1.2 (Net-(D1-A)) at (142.531,87.782). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
   [tia-sensitive] Red signal photodiode anode to OPA380 summing node: 16.59 mm exceeds 6.00 mm; D2.2 (Net-(D2-A)) at (140.190,102.438) -> U2.2 (Net-(D2-A)) at (123.895,105.550). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
   [tia-sensitive] Green signal photodiode anode to OPA380 summing node: 12.99 mm exceeds 6.00 mm; D3.2 (Net-(D3-A)) at (156.165,118.438) -> U3.2 (Net-(D3-A)) at (158.425,131.225). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
