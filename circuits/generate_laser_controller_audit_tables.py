@@ -339,6 +339,17 @@ def pin_intent_for_node(
             "11": "RJ45 return/shield-related contact tied to GND, copied from the access-controller return convention.",
             "12": "RJ45 LED/contact pin current-limited to +3V3 through R64, matching the access-controller RJ45 LED-resistor convention.",
         }.get(pin, "Review required: RJ45 unknown pin.")
+    if value == "C192300":
+        return {
+            "1": "J7 4x2 SMT utility header ground pin 1.",
+            "2": "J7 4x2 SMT utility header ground pin 2.",
+            "3": "J7 4x2 SMT utility header +3V3 pin 3.",
+            "4": "J7 4x2 SMT utility header +3V3 pin 4.",
+            "5": "J7 4x2 SMT utility header +5V pin 5.",
+            "6": "J7 4x2 SMT utility header +5V pin 6.",
+            "7": "J7 4x2 SMT utility header VIN_24V pin 7.",
+            "8": "J7 4x2 SMT utility header VIN_24V pin 8.",
+        }.get(pin, "Review required: C192300 utility header unknown pin.")
     if value in {"USB Mini-B", "USB_MINI_B"}:
         return {
             "1": "USB Mini-B VBUS entry into copied MCU-sheet VBUS isolation.",
