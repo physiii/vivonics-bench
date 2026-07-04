@@ -17,8 +17,11 @@ the `POWER_IO` buck/ADC/monitor cluster sitting in the gap between the two
 regions) is meant to be explicit trunk-trace routing, not a wide flood -- see
 `PCB_LAYOUT.md` for why. The current PCB artifact has filled zone definitions,
 1611 routed copper segments, 236 vias, and passes the custom PCB and
-generated-copper release gates. KiCad GUI ERC, zone refill/DRC confirmation,
-and visual return-path review are still separate release requirements.
+generated-copper release gates. A 2026-07-04 GUI DRC screenshot captures
+refilled-zone DRC with zero violations and zero unconnected items, but schematic
+parity was not run in that dialog. KiCad GUI ERC, native schematic-parity
+evidence, and visual return-path review are still separate release
+requirements.
 
 ## Rail Table
 

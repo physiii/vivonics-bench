@@ -260,9 +260,12 @@ bias nodes at 9-18 mm by function, laser gate nodes at or below 3 mm, laser
 op-amp output nodes at or below 7 mm, and laser sense-feedback loops at or
 below 12.5 mm.
 Current blocker: the custom PCB and generated-copper gates pass, but the board is
-not fabrication-released until KiCad ERC/DRC with schematic parity, zone refill
-review, visual return-path review, procurement/source checks, and bring-up
-measurement blockers are closed. The checker also enforces same-layer spacing
+not fabrication-released until KiCad ERC with schematic parity evidence, zone
+refill review, visual return-path review, procurement/source checks, and
+bring-up measurement blockers are closed. A 2026-07-04 GUI DRC screenshot is
+captured in `review/signoff/2026-07-04-kicad-drc-zero-violations.md` and shows
+0 violations / 0 unconnected items with zone refill enabled, but schematic
+parity was not run in that DRC dialog. The checker also enforces same-layer spacing
 from laser-current copper to `TIA_Sensitive`, `MPD_RAWx`, and filtered
 `Monitor_ADC` copper.
 `check_power_thermal_budget.py` separately enforces the AP2112 `+3V3` bench/no-RF thermal

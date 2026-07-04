@@ -37,10 +37,19 @@ class ReleaseBlocker:
 BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "KICAD_ERC_DRC_ZONE_SIGNOFF",
-        "KiCad ERC, zone refill, and DRC signoff are still open",
-        "Available netlist/source/custom PCB checks pass, but full fabrication signoff is not proven because this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC. Formal KiCad ERC, refilled-zone copper, and board-rule DRC remain unproven.",
-        "Run GUI ERC on the regenerated schematic, update PCB from schematic, refill zones, run PCB DRC with schematic parity, or use a KiCad CLI build that supports sch erc and pcb drc, then document any waivers.",
+        "KiCad ERC and schematic-parity signoff are still open",
+        "Available netlist/source/custom PCB checks pass, and a 2026-07-04 GUI DRC screenshot captures refilled-zone DRC with 0 violations and 0 unconnected items. Full fabrication signoff is still not proven because this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC, and the captured GUI DRC did not run schematic parity. Formal KiCad ERC and native schematic-parity evidence remain unproven.",
+        "Run GUI ERC on the regenerated schematic, update PCB from schematic, refill zones, run PCB DRC with schematic parity, or use a KiCad CLI build that supports sch erc and pcb drc, then document any waivers/reports.",
         (
+            Evidence(
+                "circuits/review/signoff/2026-07-04-kicad-drc-zero-violations.md",
+                (
+                    "Violations (0)",
+                    "Unconnected Items (0)",
+                    "Schematic Parity (not run)",
+                    "partial CAD signoff only",
+                ),
+            ),
             Evidence(
                 "circuits/POWER_TREE.md",
                 (

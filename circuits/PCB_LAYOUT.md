@@ -130,6 +130,11 @@ AD7606 debug/output header has been removed now that U14 is on-board.
 4. Run **DRC** with refilled zones and schematic parity for 0 unwaived unrouted/violations.
 5. **File → Fabrication Outputs → Gerbers + Drill** only after ERC, DRC, rail review, and visual return-path review pass.
 
+Partial evidence captured on 2026-07-04: `review/signoff/2026-07-04-kicad-drc-zero-violations.md`
+records a zone-refilled GUI DRC screenshot with 0 violations and 0 unconnected
+items. That run did not enable schematic parity, so native ERC and parity
+evidence remain open.
+
 ## Before fabrication
 
 - **ESP32-S3-WROOM-1**: real Espressif symbol; USB D− = GPIO19/module pin 13, USB D+ =
