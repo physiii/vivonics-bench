@@ -33,6 +33,8 @@ KiCad 7 system library did not provide a footprint-matched STEP model.
   - Manufacturer part: BOOMELE `2.54-2*4P`
   - Published package/spec basis: SMT, 2.54 mm pitch, 2 rows, 8 pins,
     vertical, 2.54 mm row spacing.
+  - Footprint/model layout: two columns by four positions, with duplicated
+    `GND`, `+3V3`, `+5V`, and `VIN_24V` rails on the two sides.
 - `OptoDevice.3dshapes/LaserDiode_TO18-D5.6-3.step`
 - `OptoDevice.3dshapes/LaserDiode_TO56-3.step`
 
