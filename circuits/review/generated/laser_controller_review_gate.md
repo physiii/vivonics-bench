@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-04T23:37:32+00:00
+Generated: 2026-07-04T23:45:44+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -405,18 +405,14 @@ Command: `python3 circuits/check_layout_review_geometry.py circuits/laser_contro
 The board still has high-risk physical layout distances in buck, USB ESD, TIA summing-node, monitor-PD, or laser-current local loops.
 
 ```text
-BLOCKED layout geometry review: 11 high-risk layout distances exceed targets
-  [tia-sensitive] IR signal photodiode anode to OPA380 summing node: 20.02 mm exceeds 6.00 mm; D1.2 (Net-(D1-A)) at (156.165,102.438) -> U1.2 (Net-(D1-A)) at (142.531,87.782). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
-  [tia-sensitive] Red signal photodiode anode to OPA380 summing node: 16.59 mm exceeds 6.00 mm; D2.2 (Net-(D2-A)) at (140.190,102.438) -> U2.2 (Net-(D2-A)) at (123.895,105.550). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
-  [tia-sensitive] Green signal photodiode anode to OPA380 summing node: 12.99 mm exceeds 6.00 mm; D3.2 (Net-(D3-A)) at (156.165,118.438) -> U3.2 (Net-(D3-A)) at (158.425,131.225). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
-  [tia-sensitive] Blue signal photodiode anode to OPA380 summing node: 16.22 mm exceeds 6.00 mm; D4.2 (Net-(D4-A)) at (140.165,118.438) -> U4.2 (Net-(D4-A)) at (134.450,133.620). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
-  [monitor-pd] IR monitor-PD raw path from LD1 to sense resistor: 103.36 mm exceeds 25.00 mm; LD1.3 (MPD_RAW1) at (170.880,118.438) -> R42.1 (MPD_RAW1) at (67.600,114.475). Raw monitor-PD current should not cross the board before the current-sense resistor.
-  [monitor-pd] Red monitor-PD raw path from LD2 to sense resistor: 121.96 mm exceeds 25.00 mm; LD2.3 (MPD_RAW2) at (186.880,102.438) -> R44.1 (MPD_RAW2) at (65.525,114.543). Raw monitor-PD current should not cross the board before the current-sense resistor.
-  [monitor-pd] Green monitor-PD raw path from LD3 to sense resistor: 114.29 mm exceeds 25.00 mm; LD3.3 (MPD_RAW3) at (186.900,118.438) -> R46.1 (MPD_RAW3) at (72.738,113.100). Raw monitor-PD current should not cross the board before the current-sense resistor.
-  [laser-current] IR laser FET source to sense resistor: 5.49 mm exceeds 3.00 mm; Q1.2 (/LASER_IR/FB) at (170.673,133.397) -> R18.1 (/LASER_IR/FB) at (172.261,128.142). Laser current sense loop should be tight to avoid injecting error and current-loop noise.
-  [laser-current] Red laser FET source to sense resistor: 5.85 mm exceeds 3.00 mm; Q2.2 (/LASER_RED/FB) at (195.325,86.600) -> R23.1 (/LASER_RED/FB) at (192.650,91.800). Laser current sense loop should be tight to avoid injecting error and current-loop noise.
-  [laser-current] Green laser FET source to sense resistor: 5.49 mm exceeds 3.00 mm; Q3.2 (/LASER_GREEN/FB) at (189.300,133.425) -> R28.1 (/LASER_GREEN/FB) at (190.888,128.169). Laser current sense loop should be tight to avoid injecting error and current-loop noise.
-  [laser-current] Blue laser FET source to sense resistor: 5.77 mm exceeds 3.00 mm; Q4.2 (/LASER_BLUE/FB) at (176.025,86.312) -> R33.1 (/LASER_BLUE/FB) at (173.250,91.375). Laser current sense loop should be tight to avoid injecting error and current-loop noise.
+BLOCKED layout geometry review: 7 high-risk layout distances exceed targets
+  [tia-sensitive] IR signal photodiode anode to OPA380 summing node: distance 20.02 mm exceeds 6.00 mm; D1.2 (Net-(D1-A)) at (156.165,102.438) -> U1.2 (Net-(D1-A)) at (142.531,87.782). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
+  [tia-sensitive] Red signal photodiode anode to OPA380 summing node: distance 16.59 mm exceeds 6.00 mm; D2.2 (Net-(D2-A)) at (140.190,102.438) -> U2.2 (Net-(D2-A)) at (123.895,105.550). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
+  [tia-sensitive] Green signal photodiode anode to OPA380 summing node: distance 12.99 mm exceeds 6.00 mm; D3.2 (Net-(D3-A)) at (156.165,118.438) -> U3.2 (Net-(D3-A)) at (158.425,131.225). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
+  [tia-sensitive] Blue signal photodiode anode to OPA380 summing node: distance 16.22 mm exceeds 6.00 mm; D4.2 (Net-(D4-A)) at (140.165,118.438) -> U4.2 (Net-(D4-A)) at (134.450,133.620). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
+  [monitor-pd] IR monitor-PD raw path from LD1 to sense resistor: distance 103.36 mm exceeds 25.00 mm; LD1.3 (MPD_RAW1) at (170.880,118.438) -> R42.1 (MPD_RAW1) at (67.600,114.475). Raw monitor-PD current should not cross the board before the current-sense resistor.
+  [monitor-pd] Red monitor-PD raw path from LD2 to sense resistor: distance 121.96 mm exceeds 25.00 mm; LD2.3 (MPD_RAW2) at (186.880,102.438) -> R44.1 (MPD_RAW2) at (65.525,114.543). Raw monitor-PD current should not cross the board before the current-sense resistor.
+  [monitor-pd] Green monitor-PD raw path from LD3 to sense resistor: distance 114.29 mm exceeds 25.00 mm; LD3.3 (MPD_RAW3) at (186.900,118.438) -> R46.1 (MPD_RAW3) at (72.738,113.100). Raw monitor-PD current should not cross the board before the current-sense resistor.
 ```
 
 ## PASS: AP2112 bench thermal policy
