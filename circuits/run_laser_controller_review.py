@@ -148,6 +148,7 @@ def main() -> int:
         "circuits/check_laser_controller_pcb.py",
         "circuits/check_pcb_staging.py",
         "circuits/check_laser_controller_release_gate.py",
+        "circuits/check_layout_review_geometry.py",
         "circuits/check_laser_controller_release_readiness.py",
         "circuits/check_schematic_hierarchy_labels.py",
         "circuits/check_schematic_presentation.py",
@@ -417,6 +418,17 @@ def main() -> int:
                 "blocked_note": (
                     "The current PCB artifact has hand placement recovered, but routing, zones, "
                     "KiCad refill, DRC, and return-path review remain future fabrication work."
+                ),
+            },
+        ),
+        (
+            "Focused layout-geometry review",
+            ["python3", "circuits/check_layout_review_geometry.py", "circuits/laser_controller.kicad_pcb"],
+            {
+                "blocked_codes": {2},
+                "blocked_note": (
+                    "The board still has high-risk physical layout distances in buck, USB ESD, "
+                    "TIA summing-node, monitor-PD, or laser-current local loops."
                 ),
             },
         ),

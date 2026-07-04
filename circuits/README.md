@@ -44,6 +44,7 @@ python3 gen_laser_controller.py
 | `check_part_notes_completeness.py` | Part-note guardrail: verifies critical datasheet notes still carry pinout, layout, risk, and checker-evidence phrases. |
 | `check_source_documents.py` | Source-document guardrail: verifies required datasheet/manufacturer URLs and required local source/footprint artifacts are present; reports secondary/distributor source risks and vendor-CDN probe failures as warnings. |
 | `check_laser_controller_release_gate.py` | Generated-copper fabrication gate: fails on split nets, pending rail/zone nets, unacceptable laser cathode/anode current routes, or missing laser sense-return GND vias. |
+| `check_layout_review_geometry.py` | Focused layout-geometry gate for buck local loops, USB ESD placement, OPA380 summing-node loops, monitor-PD raw paths, and laser-current sense loops. |
 | `check_laser_controller_release_readiness.py` | Open fabrication/release blocker gate: keeps manual, source, laser-MPN, thermal, manufacturing, and external-interface blockers visible in the review wrapper. |
 | `check_power_thermal_budget.py` | AP2112 `+3V3` thermal guardrail for bench/no-RF versus sustained RF policies. |
 | `check_vin24_input_protection.py` | VIN_24V bench-topology and production input-protection guardrail for J5/J6, adapter/harness limit, fuse/TVS/reverse-protection decisions. |
@@ -262,7 +263,10 @@ below 12.5 mm.
 Current blocker: the custom PCB and generated-copper gates pass, but the board is
 not fabrication-released until KiCad ERC with schematic parity evidence, zone
 refill review, visual return-path review, procurement/source checks, and
-bring-up measurement blockers are closed. A 2026-07-04 GUI DRC screenshot is
+bring-up measurement blockers are closed. `check_layout_review_geometry.py`
+also currently blocks on high-risk physical distances in the buck, native USB
+ESD, TIA summing-node, monitor-PD raw, and laser-current sense loops. A
+2026-07-04 GUI DRC screenshot is
 captured in `review/signoff/2026-07-04-kicad-drc-zero-violations.md` and shows
 0 violations / 0 unconnected items with zone refill enabled, but schematic
 parity was not run in that DRC dialog. The checker also enforces same-layer spacing
