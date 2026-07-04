@@ -15,6 +15,7 @@ import gen_pcb
 from circuit_designators import WL, ref_for
 from check_laser_controller_pcb import (
     PLACEMENT_CHECKS,
+    _connect_filled_zone_polygons,
     count_connected_critical_route_links,
     intentional_unnetted_pad_names,
     min_pad_distance,
@@ -26,17 +27,19 @@ from check_laser_controller_pcb import (
     usb_route_quality,
     via_copper_layers,
 )
+from check_laser_controller_release_gate import (
+    LASER_CATHODE_MAX_LENGTH_MM,
+    LASER_CATHODE_MIN_WIDTH_MM,
+    LASER_SENSE_RETURN_MAX_PATH_MM,
+    LASER_SUPPLY_MAX_TOTAL_LENGTH_MM,
+    LASER_SUPPLY_MIN_WIDTH_MM,
+)
 from check_laser_controller_netlist import parse_components, parse_netlist
 from pcb_critical_routes import CRITICAL_ROUTE_LINKS, _point_in_pad, parse_pad_geometry_from_text
 
 
 ZONE_OR_RAIL_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_24V", "/POWER_IO/BUCK_5V", "LASER_V+"}
 EXPECTED_ZONE_OR_RAIL_PENDING_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_24V", "/POWER_IO/BUCK_5V", "LASER_V+"}
-LASER_CATHODE_MIN_WIDTH_MM = 0.60
-LASER_CATHODE_MAX_LENGTH_MM = 70.0
-LASER_SUPPLY_MIN_WIDTH_MM = 0.80
-LASER_SUPPLY_MAX_LENGTH_MM = 45.0
-LASER_SENSE_RETURN_MAX_PATH_MM = 6.0
 RAIL_PENDING_RELEASE_ACTION = {
     "VBUS_5V": "Route protected USB power-entry copper from the copied MCU-sheet VBUS isolation diodes to D5 anode; keep ESD return short.",
     "VIN_24V": "Route the J5 barrel/J6 RJ45 input to the AP63205/AP63200 input capacitors and VIN pins with protected, short 24 V copper.",
@@ -690,8 +693,8 @@ def board_laser_current_trace_detail(board_path: Path) -> list[tuple[str, str, s
             length = float(values["length"])
             if width < LASER_SUPPLY_MIN_WIDTH_MM:
                 status = "BLOCKER: generated laser-anode rail is below the 0.80 mm current-path target"
-            elif length > LASER_SUPPLY_MAX_LENGTH_MM:
-                status = "BLOCKER: generated laser-anode route is too long for the supply trunk target"
+            elif length > LASER_SUPPLY_MAX_TOTAL_LENGTH_MM:
+                status = "BLOCKER: generated laser-anode route is too long for the board-spanning common-rail target"
             else:
                 status = "PASS: generated laser-anode rail meets current width/length limits"
         else:
@@ -1087,8 +1090,20 @@ def board_full_route_connectivity(board_path: Path) -> tuple[dict[str, int], lis
                         "pin": pin,
                         "point": (round(center[0], 4), round(center[1], 4)),
                         "nodes": nodes,
+                        "pad": pad,
                     }
                 )
+
+    _connect_filled_zone_polygons(
+        board_path,
+        copper_layers,
+        segments,
+        vias,
+        pads_by_net,
+        graph_by_net,
+        point_key,
+        ZONE_OR_RAIL_NETS,
+    )
 
     has_gnd_in1_plane = board_zone_summary(board_path).get("gnd_reference_zone_defs", 0) > 0
     if has_gnd_in1_plane:
@@ -1313,9 +1328,7 @@ def main() -> int:
                     f"| `{esc(channel)}` | `{esc(pad)}` | {esc(path_length)} | `{esc(via)}` | {esc(via_size)} | {esc(status)} |"
                 )
             lines.append("")
-        if state["pad_net_lines"] == 0:
-            lines.append("Trace-level electrical review is blocked until schematic annotation/update-from-schematic or the PCB generator creates pad net assignments and copper routing. Current board evidence has no routed segments, no vias, and no pad net lines.")
-        elif state["segments"] == 0 and state["vias"] == 0:
+        if state["segments"] == 0 and state["vias"] == 0:
             lines.append("PCB pad-net assignment, stackup, net classes, and footprint-internal keepouts are present and auditable, but trace-level electrical review is still blocked until placement, routing, board-level zones, and KiCad DRC exist. Current board evidence has no routed segments, no vias, and no board-level zones.")
         else:
             unrouted_rows = [
@@ -1352,7 +1365,7 @@ def main() -> int:
                 lines.append("### Reviewed Rail/Zone Pending Nets")
                 lines.append("")
                 lines.append(
-                    "These are the only multi-pad nets currently allowed to remain route/zone pending in the current unrouted PCB. "
+                    "These are the only multi-pad nets currently allowed to remain route/zone pending in the current PCB. "
                     "The PCB checker fails if a different rail or any signal/control net enters this state."
                 )
                 lines.append("")

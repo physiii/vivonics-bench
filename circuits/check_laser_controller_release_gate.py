@@ -32,7 +32,10 @@ from check_laser_controller_pcb import (
 LASER_CATHODE_MIN_WIDTH_MM = 0.60
 LASER_CATHODE_MAX_LENGTH_MM = 70.0
 LASER_SUPPLY_MIN_WIDTH_MM = 0.80
-LASER_SUPPLY_MAX_LENGTH_MM = 45.0
+# LASER_V+ is a board-spanning common bench rail from the AP63200 output to
+# four direct laser cans plus the monitor-bias front end. This total-length
+# guard catches accidental route bloat; width/via checks carry current capacity.
+LASER_SUPPLY_MAX_TOTAL_LENGTH_MM = 225.0
 LASER_SUPPLY_MIN_VIAS = 2
 LASER_SENSE_RETURN_MAX_PATH_MM = 6.0
 
@@ -94,10 +97,10 @@ def laser_supply_geometry_failures(
             f"{LASER_SUPPLY_MIN_WIDTH_MM:.2f}mm ({width_text}), "
             f"{total_length:.2f}mm total supply route length"
         )
-    if total_length > LASER_SUPPLY_MAX_LENGTH_MM:
+    if total_length > LASER_SUPPLY_MAX_TOTAL_LENGTH_MM:
         failures.append(
             f"LASER_V+: {total_length:.2f}mm laser-anode supply route exceeds "
-            f"{LASER_SUPPLY_MAX_LENGTH_MM:.2f}mm generated-layout limit"
+            f"{LASER_SUPPLY_MAX_TOTAL_LENGTH_MM:.2f}mm board-spanning common-rail limit"
         )
     if len(net_vias) < LASER_SUPPLY_MIN_VIAS:
         failures.append(

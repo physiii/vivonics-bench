@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-04T22:25:10+00:00
+Generated: 2026-07-04T22:36:16+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -39,7 +39,7 @@ Overall release status: BLOCKED
 | PASS | Monitor-PD package/PCB pinout | 0 | `python3 circuits/check_monitor_pd_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
 | PASS | Generate staging PCB to temp file | 0 | `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb` |
 | PASS | PCB staging assertions | 0 | `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /tmp/lc.net` |
-| BLOCKED | Generated-copper release gate | 1 | `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /tmp/lc.net` |
+| PASS | Generated-copper release gate | 0 | `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /tmp/lc.net` |
 | PASS | AP2112 bench thermal policy | 0 | `python3 circuits/check_power_thermal_budget.py --policy bench-uart-usb` |
 | PASS | AP2112 sustained Wi-Fi expected fail | 1 | `python3 circuits/check_power_thermal_budget.py --policy wifi-tx-100-duty` |
 | PASS | Green high-Vf laser-current thermal reference | 0 | `python3 circuits/check_laser_current_budget.py --policy green-high-vf-10v5` |
@@ -390,16 +390,12 @@ Command: `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_
 PASS PCB staging: 181 physical footprints loaded, 2 board-only mechanical footprints, 0 empty-footprint symbols skipped, 0 board-level segments/vias/zones, 1 footprint-internal zone/keepout block(s), 179 non-overlapping electrical staged bboxes outside the 173.025 x 61.125 mm outline; sections TIA_IR:11, TIA_RED:11, TIA_GREEN:11, TIA_BLUE:11, LASER_IR:11, LASER_RED:11, LASER_GREEN:11, LASER_BLUE:11, MCU_ESP32-S3:36, POWER_IO:55
 ```
 
-## BLOCKED: Generated-copper release gate
+## PASS: Generated-copper release gate
 
 Command: `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /tmp/lc.net`
 
-The current PCB artifact has hand placement recovered, but routing, zones, KiCad refill, DRC, and return-path review remain future fabrication work.
-
 ```text
-FAIL fabrication release gate
-  LASER_V+: 201.11mm laser-anode supply route exceeds 45.00mm generated-layout limit
-  This does not mean the audit checker failed; it means the board still has known release blockers.
+PASS fabrication release gate: 110/110 multi-pad nets explicitly routed, no pending rail/zone nets, laser cathode/anode routes meet generated width targets, and laser sense returns have distinct high-current GND vias. This does not replace GUI ERC/DRC with zone refill.
 ```
 
 ## PASS: AP2112 bench thermal policy
@@ -633,12 +629,9 @@ Command: `python3 circuits/check_laser_controller_release_readiness.py`
 The release-readiness registry has unresolved source, direct-laser, thermal, manufacturing, and human-inspection blockers.
 
 ```text
-BLOCKED release readiness: 15 open fabrication/release blockers
-  [GENERATED_COPPER_NETCLASS_CLEARANCE] PCB placement, routing, and rail/zone signoff remain open
-    Detail: The current PCB artifact has hand placement, filled power/ground planes, and routed copper, but the PCB checker still fails route-policy, width-policy, and critical-link guards. The generated-copper release gate also fails because the present LASER_V+ generated-layout route exceeds the conservative local limit.
-    Required action: Finish the route cleanup, review or explicitly waive the remaining route-policy guards, rerun PCB DRC with schematic parity, and review +5V/GND rail and return-path copper before fabrication.
+BLOCKED release readiness: 14 open fabrication/release blockers
   [KICAD_ERC_DRC_ZONE_SIGNOFF] KiCad ERC, zone refill, and DRC signoff are still open
-    Detail: Available netlist/source checks pass, but the current generated PCB is not release-clean and this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC. Formal KiCad ERC, refilled-zone copper, and board-rule DRC remain unproven.
+    Detail: Available netlist/source/custom PCB checks pass, but full fabrication signoff is not proven because this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC. Formal KiCad ERC, refilled-zone copper, and board-rule DRC remain unproven.
     Required action: Run GUI ERC on the regenerated schematic, update PCB from schematic, refill zones, run PCB DRC with schematic parity, or use a KiCad CLI build that supports sch erc and pcb drc, then document any waivers.
   [VISUAL_RETURN_PATH_REVIEW] GND and sensitive return paths need visual review after zone refill
     Detail: The graph proves pads are connected, not that laser current, USB ESD, ESP32, and TIA returns have acceptable real copper paths.

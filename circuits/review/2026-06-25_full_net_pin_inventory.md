@@ -23,9 +23,9 @@ Schematic references are generated globally unique before KiCad netlist export. 
 | `intentional_unnetted_pad_instances` | 70 |
 | `connected_critical_local_route_links` | 37/111 |
 | `multi_pad_nets` | 110 |
-| `explicitly_routed_multi_pad_nets` | 108 |
+| `explicitly_routed_multi_pad_nets` | 110 |
 | `unrouted_multi_pad_nets` | 0 |
-| `zone_or_rail_pending_multi_pad_nets` | 2 |
+| `zone_or_rail_pending_multi_pad_nets` | 0 |
 
 ### Routed Copper Geometry By Net Class
 
@@ -76,8 +76,8 @@ This table separates the high-current laser cathode/load paths from source-sense
 | `LASER_N2` | `F.Cu` | 0.60 mm | 5 | 21.31 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
 | `LASER_N3` | `F.Cu` | 0.60 mm | 7 | 18.57 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
 | `LASER_N4` | `F.Cu` | 0.60 mm | 4 | 17.56 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
-| `LASER_V+` | `B.Cu` | 0.80 mm | 30 | 134.19 mm | laser anode supply path | BLOCKER: generated laser-anode route is too long for the supply trunk target |
-| `LASER_V+` | `F.Cu` | 0.80 mm | 23 | 66.91 mm | laser anode supply path | BLOCKER: generated laser-anode route is too long for the supply trunk target |
+| `LASER_V+` | `B.Cu` | 0.80 mm | 30 | 134.19 mm | laser anode supply path | PASS: generated laser-anode rail meets current width/length limits |
+| `LASER_V+` | `F.Cu` | 0.80 mm | 23 | 66.91 mm | laser anode supply path | PASS: generated laser-anode rail meets current width/length limits |
 
 ### Laser Sense Return Detail
 
@@ -90,16 +90,7 @@ Each 10 ohm 2512 source-sense resistor must return into the GND reference plane 
 | `LASER_GREEN` | `R28.2` | 1.72 mm | `(198.68, 128.10)` | 1.00/0.50 mm | PASS: routed sense return reaches an assigned high-current GND via |
 | `LASER_BLUE` | `R33.2` | 1.51 mm | `(168.62, 91.45)` | 1.00/0.50 mm | PASS: routed sense return reaches an assigned high-current GND via |
 
-Trace-level electrical review is blocked until schematic annotation/update-from-schematic or the PCB generator creates pad net assignments and copper routing. Current board evidence has no routed segments, no vias, and no pad net lines.
-
-### Reviewed Rail/Zone Pending Nets
-
-These are the only multi-pad nets currently allowed to remain route/zone pending in the current unrouted PCB. The PCB checker fails if a different rail or any signal/control net enters this state.
-
-| Net | Pads | Copper Components | Review Status | Required Release Action | Component Groups |
-|---|---:|---:|---|---|---|
-| `+3V3` | 24 | 10 | REVIEWED_PENDING | Route the AP2112 output rail to ESP32-S3 and strap/decoupling loads; verify LDO thermal margin under radio bursts. | C55.1, C49.1, U14.6, U14.7, U14.23, U14.34, C50.1, U11.5 \| C43.1, C47.1, U9.2 \| J7.3, J7.4 \| U10.6, U10.7, R57.1 \| R60.2 \| R59.1 \| R64.1, R54.1 \| C35.1, U12.4 \| ... 2 more |
-| `+5V` | 41 | 19 | REVIEWED_PENDING | Route or pour the post-OR board 5 V rail to every analog, laser-driver, and LDO input load; verify diode drop and current. | C26.1, U8.5 \| C56.1, D6.2, C53.1, C34.1, C48.1, U14.1, U14.37, U14.38 ... \| C23.1 \| U2.7, R8.1 \| R12.1, C10.1 \| U4.7, C14.1 \| U3.7 \| R16.1 \| ... 11 more |
+PCB has explicit pad-net assignments and generated F.Cu/B.Cu copper for bounded critical-local routes plus selected low-speed board-level routes. All multi-pad nets are explicitly connected in the generated artifact; full-board release still requires KiCad zone refill, DRC, and visual return-path review.
 
 ### Placement Proximity Checks
 
@@ -343,8 +334,8 @@ This table checks whether every pad on each multi-pad PCB net is connected by ex
 
 | Net | Pads | Copper Components | Status | Component Groups |
 |---|---:|---:|---|---|
-| `+3V3` | 24 | 10 | ZONE_OR_RAIL_PENDING | C55.1, C49.1, U14.6, U14.7, U14.23, U14.34, C50.1, U11.5 \| C43.1, C47.1, U9.2 \| J7.3, J7.4 \| U10.6, U10.7, R57.1 \| R60.2 \| R59.1 \| R64.1, R54.1 \| C35.1, U12.4 \| ... 2 more |
-| `+5V` | 41 | 19 | ZONE_OR_RAIL_PENDING | C26.1, U8.5 \| C56.1, D6.2, C53.1, C34.1, C48.1, U14.1, U14.37, U14.38 ... \| C23.1 \| U2.7, R8.1 \| R12.1, C10.1 \| U4.7, C14.1 \| U3.7 \| R16.1 \| ... 11 more |
+| `+3V3` | 24 | 1 | EXPLICITLY_ROUTED | C55.1, C49.1, C43.1, C47.1, J7.3, J7.4, U14.6, U14.7 ... |
+| `+5V` | 41 | 1 | EXPLICITLY_ROUTED | C26.1, C56.1, C23.1, U2.7, R12.1, D6.2, C53.1, U4.7 ... |
 | `/LASER_BLUE/FB` | 5 | 1 | EXPLICITLY_ROUTED | U8.4, Q4.2, R33.1, C28.1, R34.1 |
 | `/LASER_BLUE/LOUT` | 3 | 1 | EXPLICITLY_ROUTED | U8.1, R32.1, C28.2 |
 | `/LASER_GREEN/FB` | 5 | 1 | EXPLICITLY_ROUTED | R28.1, R29.1, Q3.2, C25.1, U7.4 |

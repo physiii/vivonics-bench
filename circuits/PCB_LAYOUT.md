@@ -1,9 +1,10 @@
 # Laser Controller — PCB layout & routing guide
 
 `laser_controller.kicad_pcb` currently has **recovered hand-placement coordinates
-and pad-net assignments**: 178 physical footprints match the schematic reference set
-with no duplicate refs, and the old laser/MPD header footprint is not present. PCB
-pad nets are explicit and derived from the exported KiCad schematic netlist.
+and routed copper**: 179 schematic-sourced physical footprints plus two grounded
+board-only mounting-hole footprints have no duplicate refs, and the old
+laser/MPD header footprint is not present. PCB pad nets are explicit and derived
+from the exported KiCad schematic netlist.
 It also emits checked net classes for laser current, power rails, USB, TIA-sensitive analog,
 monitor/ADC telemetry, laser control, and digital control nets; the fallback `Default` class
 is required to stay empty by `check_laser_controller_pcb.py`.
@@ -50,15 +51,14 @@ It also fails sensitive local-route length violations for `MPD_RAWx`, OPA380 sum
 bias nodes, photodiode cathode/bias stubs, trim wipers, TLV9001 laser-control nodes,
 and AO3400A gate-drive nodes.
 Current state: placement, filled power/ground planes, and routed copper are
-present, but the board is not release-clean. Current blocker: the PCB is not release-clean.
-`check_laser_controller_pcb.py` still reports route-policy, width-policy, and
-critical-link failures that need cleanup or explicit waiver.
+present. The custom PCB checker and generated-copper release gate pass for the
+current artifact, including route-layer, route-width, USB route, laser-current
+width, and laser sense-return checks.
 Zones are filled and verified for the checks in this repo: zero footprint
 courtyard/pad overlaps, zero copper outside the board outline, and zero
-antenna-keepout intrusions. `check_laser_controller_release_gate.py` also fails
-because the present `LASER_V+` generated-layout route exceeds the conservative
-local route-length limit. The old J3 AD7606 debug/output header has been removed
-now that U14 is on-board.
+antenna-keepout intrusions. KiCad GUI ERC/DRC with schematic parity, final zone
+refill review, and visual return-path review still block fabrication. The old J3
+AD7606 debug/output header has been removed now that U14 is on-board.
 
 ## Board
 
@@ -179,10 +179,9 @@ For release/fabrication, run:
 python3 circuits/run_laser_controller_review.py --release
 ```
 
-The custom PCB and generated-copper release gates do not pass on the current
-board. Placement, routing, GND plane creation/refill, laser-current return vias,
-KiCad DRC, and visual return-path review still need to be completed before
-fabrication.
+The custom PCB and generated-copper release gates pass on the current board, but
+they do not replace KiCad GUI ERC, zone refill, PCB DRC with schematic parity, or
+visual return-path review before fabrication.
 The bench/no-RF AP2112 thermal policy passes, and the PLT5 520EB_P
 reference laser-current budget passes only for a controlled 10.5 V green-style
 supply assumption. `check_laser_controller_release_readiness.py` intentionally

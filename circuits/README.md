@@ -239,34 +239,29 @@ photodiode/input/feedback/decoupling/bias cluster, every laser-driver
 gate/sense/control/compensation cluster, and every monitor-PD
 sense/reference/ADC-isolation cluster near the direct laser footprints.
 
-The current board artifact is not routed: measured evidence is 178 physical
-footprints with recovered hand-placement coordinates and no duplicate PCB refs,
-0 board-level segments, 0 vias, and one footprint-internal ESP32 antenna keepout
-zone. The old laser/MPD header footprint is not present. The PCB checker
-intentionally fails until all physical pad geometries are inside the board outline,
-USB/signal/control routes exist, a filled
-`In1.Cu` GND reference plane exists, and rail/zone routing is reviewed. It also
-checks intentional unnetted pad instances so OPA380 NC pads, AP2112 NC, USB ID,
-unused ESP32 pads, and paste/mechanical pads are explicit rather than silent
-floating copper. Once routing exists, the checker verifies copper uses named
-nets, positive widths, declared layers, net-class clearance, duplicate via
-stacks, board-boundary compliance, unsupported dangling copper endpoints/vias,
-non-power via policy, critical local-route connectivity, USB D+/D- length/skew,
-and route-layer/route-width policy.
+The current board artifact is routed for the available custom checks: measured
+evidence is 181 physical footprints, including two grounded board-only mounting
+holes, 1611 routed copper segments, 236 vias, four board-level zones, and one
+footprint-internal ESP32 antenna keepout. The old laser/MPD header footprint is
+not present. The PCB checker verifies intentional unnetted pad instances so
+OPA380 NC pads, AP2112 NC, USB ID, unused ESP32 pads, paste-only pads, and
+mechanical pads are explicit rather than silent floating copper. It also verifies
+copper uses named nets, positive widths, declared layers, net-class clearance,
+duplicate via stacks, board-boundary compliance, unsupported dangling copper
+endpoints/vias, non-power via policy, critical local-route connectivity, USB
+D+/D- length/skew, and route-layer/route-width policy.
 It also enforces a sensitive local-route length policy on 40 nets: raw laser
 monitor-PD inputs (`MPD_RAWx`) must stay at or below 12 mm, OPA380 summing nodes
 at or below 12 mm, photodiode cathode/bias stubs at or below 5 mm, local trim/
 bias nodes at 9-18 mm by function, laser gate nodes at or below 3 mm, laser
 op-amp output nodes at or below 7 mm, and laser sense-feedback loops at or
 below 12.5 mm.
-Current blocker: the PCB artifact has recovered placement but is not routed.
-`check_laser_controller_pcb.py` currently fails because final board-boundary and
-local placement limits are not met, USB routes are missing, no filled `In1.Cu`
-GND reference plane exists, and copper routing is absent. The generated-copper
-release gate also fails because signal/control multi-pad nets, rails, pours,
-laser-anode copper, and high-current laser sense returns are not routed. Once
-routing exists, the checker enforces same-layer spacing from laser-current
-copper to `TIA_Sensitive`, `MPD_RAWx`, and filtered `Monitor_ADC` copper.
+Current blocker: the custom PCB and generated-copper gates pass, but the board is
+not fabrication-released until KiCad ERC/DRC with schematic parity, zone refill
+review, visual return-path review, procurement/source checks, and bring-up
+measurement blockers are closed. The checker also enforces same-layer spacing
+from laser-current copper to `TIA_Sensitive`, `MPD_RAWx`, and filtered
+`Monitor_ADC` copper.
 `check_power_thermal_budget.py` separately enforces the AP2112 `+3V3` bench/no-RF thermal
 policy; it intentionally fails sustained Wi-Fi/BLE load cases on the current SOT-25 LDO.
 `check_ap6320x_package_pcb.py` separately enforces the AP63205/AP63200 package

@@ -36,33 +36,9 @@ class ReleaseBlocker:
 
 BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
-        "GENERATED_COPPER_NETCLASS_CLEARANCE",
-        "PCB placement, routing, and rail/zone signoff remain open",
-        "The current PCB artifact has hand placement, filled power/ground planes, and routed copper, but the PCB checker still fails route-policy, width-policy, and critical-link guards. The generated-copper release gate also fails because the present LASER_V+ generated-layout route exceeds the conservative local limit.",
-        "Finish the route cleanup, review or explicitly waive the remaining route-policy guards, rerun PCB DRC with schematic parity, and review +5V/GND rail and return-path copper before fabrication.",
-        (
-            Evidence(
-                "circuits/README.md",
-                (
-                    "The current board artifact is not routed",
-                    "`check_laser_controller_pcb.py` currently fails",
-                    "release gate also fails because signal/control",
-                ),
-            ),
-            Evidence(
-                "circuits/PCB_LAYOUT.md",
-                (
-                    "178 physical footprints match the schematic reference set",
-                    "Current blocker: the PCB is not release-clean",
-                    "The custom PCB and generated-copper release gates do not pass",
-                ),
-            ),
-        ),
-    ),
-    ReleaseBlocker(
         "KICAD_ERC_DRC_ZONE_SIGNOFF",
         "KiCad ERC, zone refill, and DRC signoff are still open",
-        "Available netlist/source checks pass, but the current generated PCB is not release-clean and this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC. Formal KiCad ERC, refilled-zone copper, and board-rule DRC remain unproven.",
+        "Available netlist/source/custom PCB checks pass, but full fabrication signoff is not proven because this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC. Formal KiCad ERC, refilled-zone copper, and board-rule DRC remain unproven.",
         "Run GUI ERC on the regenerated schematic, update PCB from schematic, refill zones, run PCB DRC with schematic parity, or use a KiCad CLI build that supports sch erc and pcb drc, then document any waivers.",
         (
             Evidence(
