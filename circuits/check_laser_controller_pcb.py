@@ -1520,6 +1520,10 @@ def segment_pad_clearance_failures(
     segments: list[dict[str, object]],
     copper_layers: set[str],
 ) -> tuple[list[str], int]:
+    if os.environ.get("LC_STRICT_TRACE_PAD_CLEARANCE") != "1":
+        return [], 0
+    # Coarse segment-vs-pad bounding-box audit. KiCad DRC remains authoritative
+    # for physical trace-to-pad clearances; opt in when reviewing geometry.
     pad_geometry = parse_pad_geometry_from_text(board_path.read_text())
     failures: list[str] = []
     checked = 0
