@@ -105,6 +105,23 @@ AD7606 debug/output header has been removed now that U14 is on-board.
 | J5  | 24 V center-positive barrel input (`VIN_24V` + GND) | 3 | TH right-angle barrel jack, hand-solder |
 | J6  | 24 V RJ45 power input (`VIN_24V` on pins 4/5, GND on pins 7/8/9/11) | 12 | TH right-angle shielded RJ45, hand-solder |
 
+## JLCPCB Order Target
+
+- Workmanship target: IPC/J-STD Class 2 bench prototype, not Class 3 or
+  production/life-safety release.
+- Fabrication target: JLCPCB Economic PCBA, 4-layer rigid FR-4, 1.6 mm,
+  standard stackup, standard solder mask/silkscreen, top-side SMT assembly only.
+- Upload files: `circuits/laser_controller_gerbers.zip` for PCB fabrication,
+  `circuits/laser_controller_bom_jlcpcb.csv` as BOM, and
+  `circuits/fab/laser_controller_pos.csv` as CPL/POS. The convenience archive
+  `circuits/laser_controller_jlcpcb_package.zip` contains the same Gerber/drill
+  files plus the BOM and POS at top level for review/transfer.
+- Hand-add exclusions: J5, J6, LD1-LD4, mounting holes, and any other
+  through-hole/mechanical-only items are not in the JLCPCB SMT BOM/POS flow.
+- Quote review still wins: move to Standard PCBA or change order options if
+  JLCPCB rejects the economic tier, extended parts, connector fit, stackup, or
+  assembly constraints.
+
 ## Finish it in KiCad
 
 1. **Eeschema → Inspect → Electrical Rules Checker** — run GUI ERC against the generated unique-ref schematic and review every violation or warning.

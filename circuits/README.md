@@ -63,6 +63,9 @@ python3 gen_laser_controller.py
 | `mcu.kicad_sch` | ESP32-S3-WROOM-1 + CP2102N USB-UART + two USB Mini-B connectors + discrete USB/VBUS ESD + reset/program/factory buttons. |
 | `power_io.kicad_sch` | 5V OR-ing, laser supply, on-board AD7606-4 signal ADC, and shared INA4180/LM4040 monitor-PD front end. |
 | `laser_controller_bom_jlcpcb.csv` | JLCPCB SMT assembly CSV (Comment, Designator, Footprint, LCSC); hand-add headers and direct laser cans are listed separately. |
+| `fab/laser_controller_pos.csv` | JLCPCB SMT CPL/POS CSV generated from the current PCB; designators match the JLCPCB BOM. |
+| `laser_controller_gerbers.zip` | Current PCB Gerber/drill zip for JLCPCB PCB fabrication upload. |
+| `laser_controller_jlcpcb_package.zip` | Flat review/transfer archive containing Gerber/drill files plus BOM and POS. |
 | `laser_controller.kicad_pro` | KiCad 7 project file. |
 | `LASER_MONITOR_PD_FEEDBACK.md` | Design note for the internal laser monitor photodiode feedback path and production APC implications. |
 | `LASER_CURRENT_THERMAL_BUDGET.md` | Laser current-loop thermal budget and common-rail bench limitation. |

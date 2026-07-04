@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-04T22:36:16+00:00
+Generated: 2026-07-04T22:43:47+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -629,7 +629,7 @@ Command: `python3 circuits/check_laser_controller_release_readiness.py`
 The release-readiness registry has unresolved source, direct-laser, thermal, manufacturing, and human-inspection blockers.
 
 ```text
-BLOCKED release readiness: 14 open fabrication/release blockers
+BLOCKED release readiness: 13 open fabrication/release blockers
   [KICAD_ERC_DRC_ZONE_SIGNOFF] KiCad ERC, zone refill, and DRC signoff are still open
     Detail: Available netlist/source/custom PCB checks pass, but full fabrication signoff is not proven because this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC. Formal KiCad ERC, refilled-zone copper, and board-rule DRC remain unproven.
     Required action: Run GUI ERC on the regenerated schematic, update PCB from schematic, refill zones, run PCB DRC with schematic parity, or use a KiCad CLI build that supports sch erc and pcb drc, then document any waivers.
@@ -666,9 +666,6 @@ BLOCKED release readiness: 14 open fabrication/release blockers
   [PASSIVE_PRODUCTION_AVL_AND_DERATING] Production passive AVL, pulse/surge derating, and temperature evidence are open
     Detail: The current derating gate covers bench steady-state voltage and power, not lifecycle, surge, pulse, or production procurement lock.
     Required action: Create a production procurement lock with final orderable passive datasheets, lifecycle/AVL state, pulse/surge/current derating, and board-temperature evidence.
-  [MANUFACTURING_CLASS_AND_FAB_TIER] Manufacturing class, fab tier, and release package constraints are not selected
-    Detail: The generated geometry is conservative, but IPC/J-STD class, final fabricator settings, and order-tier constraints are still not locked.
-    Required action: Select IPC/J-STD class, fab tier, stackup/rule settings, assembly assumptions, and release notes before ordering.
   [AD7606_SYSTEM_INTERFACE] On-board AD7606 firmware and bench-readout validation are still open
     Detail: The bench board routes VOUT1..4 into the on-board AD7606 and the hardware straps now have a checked 10 MHz / 100 kSPS default interface budget, but firmware implementation, timing on the real ESP32, scaling, and bench ADC readback remain system-level checks.
     Required action: Implement and scope the ESP32 AD7606 driver, verify RESET/CONVST/BUSY/CS/SCLK timing, confirm +/-5 V range scaling and oversampling assumptions in firmware, and compare readings against known optical/electrical inputs before relying on bench data.

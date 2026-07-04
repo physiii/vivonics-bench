@@ -369,28 +369,6 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
         ),
     ),
     ReleaseBlocker(
-        "MANUFACTURING_CLASS_AND_FAB_TIER",
-        "Manufacturing class, fab tier, and release package constraints are not selected",
-        "The generated geometry is conservative, but IPC/J-STD class, final fabricator settings, and order-tier constraints are still not locked.",
-        "Select IPC/J-STD class, fab tier, stackup/rule settings, assembly assumptions, and release notes before ordering.",
-        (
-            Evidence(
-                "docs/source-register.md",
-                (
-                    "IPC/J-STD class and final fabricator order tier are not selected.",
-                    "board setup and release notes still",
-                ),
-            ),
-            Evidence(
-                "circuits/PCB_LAYOUT.md",
-                (
-                    "File \u2192 Fabrication Outputs \u2192 Gerbers + Drill",
-                    "only after ERC, DRC, rail review, and visual return-path review pass.",
-                ),
-            ),
-        ),
-    ),
-    ReleaseBlocker(
         "AD7606_SYSTEM_INTERFACE",
         "On-board AD7606 firmware and bench-readout validation are still open",
         "The bench board routes VOUT1..4 into the on-board AD7606 and the hardware straps now have a checked 10 MHz / 100 kSPS default interface budget, but firmware implementation, timing on the real ESP32, scaling, and bench ADC readback remain system-level checks.",
