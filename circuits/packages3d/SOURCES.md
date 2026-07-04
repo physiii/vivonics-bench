@@ -26,9 +26,13 @@ KiCad 7 system library did not provide a footprint-matched STEP model.
 
 ## Generated project models
 
-- `Connector_PinHeader.3dshapes/PinHeader_4x04_P2.54mm_Vertical.step`
-  - Generated from the `Open_Automation:PinHeader_4x04_P2.54mm_Vertical`
-    footprint geometry: 2.54 mm pitch, 4x4 pins, black carrier, gold pins.
+- `Connector_PinHeader.3dshapes/PinHeader_2x04_P2.54mm_SMD_Vertical_C192300.step`
+  - Generated from the `Open_Automation:PinHeader_2x04_P2.54mm_SMD_Vertical_C192300`
+    footprint geometry.
+  - LCSC part checked: `C192300`
+  - Manufacturer part: BOOMELE `2.54-2*4P`
+  - Published package/spec basis: SMT, 2.54 mm pitch, 2 rows, 8 pins,
+    vertical, 2.54 mm row spacing.
 - `OptoDevice.3dshapes/LaserDiode_TO18-D5.6-3.step`
 - `OptoDevice.3dshapes/LaserDiode_TO56-3.step`
 
