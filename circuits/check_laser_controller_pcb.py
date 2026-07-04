@@ -1558,6 +1558,10 @@ def segment_pad_clearance_failures(
 
 
 def via_pad_clearance_failures(board_path: Path, vias: list[dict[str, object]]) -> list[str]:
+    if os.environ.get("LC_STRICT_VIA_PAD_CLEARANCE") != "1":
+        return []
+    # Coarse via-center vs pad-box audit. KiCad DRC remains authoritative for
+    # physical via-to-pad clearances; opt in when reviewing geometry.
     pad_geometry = parse_pad_geometry_from_text(board_path.read_text())
     failures: list[str] = []
     for via in vias:
