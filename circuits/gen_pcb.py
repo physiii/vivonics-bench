@@ -54,6 +54,10 @@ BOARD_W_MM = 173.025
 BOARD_H_MM = 61.125
 BOARD_X1_MM = BOARD_X0_MM + BOARD_W_MM
 BOARD_Y1_MM = BOARD_Y0_MM + BOARD_H_MM
+BOARD_MOUNTING_HOLES = (
+    ("H1", 161.9, 110.425, 0.0, 4.5, False),
+    ("H2", 55.85, 110.425, -0.1, -0.075, True),
+)
 _uu=[0]
 def uuid(): _uu[0]+=1; return f"b0b0b0b0-0000-4000-a000-{_uu[0]:012d}"
 
@@ -415,10 +419,16 @@ def outline(x0,y0,x1,y1):
     pts=[(x0,y0),(x1,y0),(x1,y1),(x0,y1),(x0,y0)]
     return "\n".join(f'  (gr_line (start {a[0]} {a[1]}) (end {b[0]} {b[1]}) (stroke (width 0.15) (type solid)) (layer "Edge.Cuts"))'
                      for a,b in zip(pts,pts[1:]))
-def mhole(x,y):
-    return (f'  (footprint "MountingHole:MountingHole_3.2mm_M3" (layer "F.Cu") (tstamp {uuid()}) (at {x} {y})\n'
-            f'    (attr exclude_from_pos_files exclude_from_bom)\n'
-            f'    (pad "" np_thru_hole circle (at 0 0) (size 3.2 3.2) (drill 3.2) (layers "*.Cu" "*.Mask")))')
+def grounded_mhole(ref, x, y, ref_x, ref_y, hide_ref=False):
+    hide = " hide" if hide_ref else ""
+    return (f'  (footprint "MountingHole_3.2mm_M3" (layer "F.Cu") (tstamp {uuid()}) (at {x} {y})\n'
+            f'    (attr through_hole)\n'
+            f'    (fp_text reference "{ref}" (at {ref_x} {ref_y}) (layer "F.SilkS"){hide}\n'
+            f'      (effects (font (size 1 1) (thickness 0.15))))\n'
+            f'    (fp_text value "M3" (at 0 -4.5) (layer "F.Fab")\n'
+            f'      (effects (font (size 1 1) (thickness 0.15))))\n'
+            f'    (pad "1" thru_hole circle (at 0 0) (size 7 7) (drill 3.2) (layers "*.Cu" "*.Mask"))\n'
+            f'  )')
 def text(s,x,y,size=2.0,layer="F.SilkS"):
     return f'  (gr_text "{s}" (at {x} {y}) (layer "{layer}") (effects (font (size {size} {size}) (thickness {size*0.15:.2f}))))'
 
@@ -554,6 +564,8 @@ def build_board(emit_routes=False):
     # ===== FLOORPLAN: current board outline, footprints staged outside =====
     BW,BH=BOARD_W_MM,BOARD_H_MM
     body.append(outline(BOARD_X0_MM,BOARD_Y0_MM,BOARD_X1_MM,BOARD_Y1_MM))
+    for ref, x, y, ref_x, ref_y, hide_ref in BOARD_MOUNTING_HOLES:
+        body.append(grounded_mhole(ref, x, y, ref_x, ref_y, hide_ref))
 
     def emit_fp(comp, x, y, rot=0, prefix=None):
         ref = comp["ref"]
@@ -622,6 +634,11 @@ def build_board(emit_routes=False):
     stage_sheet("POWER_IO", "POWER_IO", power_io_order, stage_y, cols=8, dx=25.0, dy=33.0)
 
     net_names, pad_nets_by_ref = build_pad_net_map(nets, board_ref_by_comp, sheets_by_ref)
+    if "GND" not in net_names:
+        raise RuntimeError("PCB net assignment failed: GND net missing for grounded mounting holes")
+    gnd_pad_net = (net_names.index("GND") + 1, "GND")
+    for ref, *_ in BOARD_MOUNTING_HOLES:
+        pad_nets_by_ref[ref]["1"] = gnd_pad_net
     for i, net_name in enumerate(net_names, 1):
         P.append(f'  (net {i} "{net_name}")')
     P += emit_net_classes(net_names)
