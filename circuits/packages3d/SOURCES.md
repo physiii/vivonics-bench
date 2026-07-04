@@ -26,9 +26,13 @@ KiCad 7 system library did not provide a footprint-matched STEP model.
 
 ## Generated project models
 
+- `Connector_PinHeader.3dshapes/PinHeader_4x04_P2.54mm_Vertical.step`
+  - Generated from the `Open_Automation:PinHeader_4x04_P2.54mm_Vertical`
+    footprint geometry: 2.54 mm pitch, 4x4 pins, black carrier, gold pins.
 - `OptoDevice.3dshapes/LaserDiode_TO18-D5.6-3.step`
 - `OptoDevice.3dshapes/LaserDiode_TO56-3.step`
 
-These were generated from the laser diode footprint geometry. The package body is
-centered at the model origin; the PCB keeps `offset (xyz 1 0 0)` so the three
-leads land on pad centers `(0, 0)`, `(1, 1)`, and `(2, 0)`.
+The laser diode models were generated from the laser diode footprint geometry.
+The package body is centered at the model origin; the PCB keeps
+`offset (xyz 1 0 0)` so the three leads land on pad centers `(0, 0)`, `(1, 1)`,
+and `(2, 0)`.
