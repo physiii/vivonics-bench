@@ -26,6 +26,7 @@ ESD_5V,"D7,D14,D9,D11,D12,D8",Diode_SMD:D_SOD-523,C5199850
 USB_MINI_B,"J2,J1",Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal,C46391
 24V DC IN Barrel Jack,J5,Connector_BarrelJack:BarrelJack_OD5.5_ID2.5,
 RJ45 Ethernet Jack,J6,Connector_RJ:RJ45_Amphenol_RJHSE538X,
+C192300,J7,Open_Automation:PinHeader_2x04_P2.54mm_SMD_Vertical_C192300,C192300
 4.7uH,L1,Open_Automation:L_5.4x5.3_H3,C408410
 10uH,L2,Open_Automation:L_4x4,C98364
 D7805I 780nm TO18 Laser+MPD,LD1,OptoDevice:LaserDiode_TO18-D5.6-3,

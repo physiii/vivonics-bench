@@ -219,6 +219,7 @@ def main() -> int:
         "D13": ("D_1N5819HW", "Diode_SMD:D_SOD-123", "1N5819HW-7-F", "C82544"),
         "J1": ("USB_MINI_B", "Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal", "920-462A2021S10101", "C46391"),
         "J2": ("USB_MINI_B", "Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal", "920-462A2021S10101", "C46391"),
+        "J7": ("C192300", "Open_Automation:PinHeader_2x04_P2.54mm_SMD_Vertical_C192300", "2.54-2*4P", "C192300"),
         "Q5": ("Q_L8050QLT1G", "Package_TO_SOT_SMD:SOT-23", "L8050QLT1G", "C49581"),
         "Q6": ("Q_L8550HQLT1G", "Package_TO_SOT_SMD:SOT-23", "L8550HQLT1G", "C39282"),
         "R55": ("22.1K", "Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder", "FRC0402F2212TS", "C2929993"),
@@ -549,6 +550,17 @@ def main() -> int:
             ("6", "GND", "power_out"),
         ]:
             expect_pin(ref, pin, function, pintype)
+    for pin, function in [
+        ("1", "GND"),
+        ("2", "GND"),
+        ("3", "+3V3"),
+        ("4", "+3V3"),
+        ("5", "+5V"),
+        ("6", "+5V"),
+        ("7", "VIN_24V"),
+        ("8", "VIN_24V"),
+    ]:
+        expect_pin("J7", pin, function, "passive")
 
     # Datasheet package pinouts and exact electrical intent.
     ldo = ref_for("POWER_IO", "U3V3")
@@ -716,6 +728,8 @@ def main() -> int:
         (barrel_j, "1"),
         (rj45_j, "4"),
         (rj45_j, "5"),
+        ("J7", "7"),
+        ("J7", "8"),
         (ref_for("POWER_IO", "RJR45PWR"), "1"),
         (ref_for("POWER_IO", "CIN24A"), "1"),
         (ref_for("POWER_IO", "CIN24B"), "1"),
@@ -762,10 +776,14 @@ def main() -> int:
         (ref_for("POWER_IO", "CADCAV3"), "1"),
         (ref_for("POWER_IO", "CADCAV4"), "1"),
         (ref_for("POWER_IO", "CADCBULK"), "1"),
+        ("J7", "5"),
+        ("J7", "6"),
     }
     plus3v3_nodes: set[tuple[str, str]] = {
         ("U9", "2"),
         (ldo, "5"),
+        ("J7", "3"),
+        ("J7", "4"),
         ("C43", "1"),
         ("C47", "1"),
         (ref_for("POWER_IO", "C3V3OUT"), "1"),
@@ -795,6 +813,8 @@ def main() -> int:
         ("U9", "1"),
         ("U9", "40"),
         ("U9", "41"),
+        ("J7", "1"),
+        ("J7", "2"),
         (cp2102, "3"),
         (cp2102, "29"),
         (ldo, "2"),
@@ -1039,8 +1059,8 @@ def main() -> int:
         for comp in assembled
         if not comp["lcsc"] or not comp["mpn"] or not comp["footprint"]
     ]
-    checks.append((len(comps) == 178, "component count", f"got {len(comps)}, expected 178"))
-    checks.append((len(assembled) == 172, "assembled component count", f"got {len(assembled)}, expected 172"))
+    checks.append((len(comps) == 179, "component count", f"got {len(comps)}, expected 179"))
+    checks.append((len(assembled) == 173, "assembled component count", f"got {len(assembled)}, expected 173"))
     checks.append((not missing_fields, "assembled component fields", f"missing {missing_fields}"))
 
     expected_lcsc_counts = {
@@ -1078,6 +1098,7 @@ def main() -> int:
         "C23061": 1,
         "C852624": 1,
         "C127509": 3,
+        "C192300": 1,
         "C964632": 1,
         "C1546": 1,
         "C408410": 1,
