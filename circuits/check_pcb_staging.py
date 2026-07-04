@@ -3,7 +3,7 @@
 
 This checker is for the intentional "fresh placement" state:
 
-* the 90 x 50 mm Edge.Cuts outline is preserved,
+* the generator-declared Edge.Cuts outline is preserved,
 * physical schematic footprints are loaded outside the outline,
 * every physical schematic footprint is loaded onto the staged PCB,
 * no board-level traces, vias, or zones are emitted,
@@ -22,8 +22,12 @@ import gen_pcb
 from check_laser_controller_netlist import parse_components
 
 
-BOARD_WIDTH_MM = 90.0
-BOARD_HEIGHT_MM = 50.0
+BOARD_X0_MM = gen_pcb.BOARD_X0_MM
+BOARD_Y0_MM = gen_pcb.BOARD_Y0_MM
+BOARD_X1_MM = gen_pcb.BOARD_X1_MM
+BOARD_Y1_MM = gen_pcb.BOARD_Y1_MM
+BOARD_WIDTH_MM = gen_pcb.BOARD_W_MM
+BOARD_HEIGHT_MM = gen_pcb.BOARD_H_MM
 OUTSIDE_MARGIN_MM = 5.0
 EXPECTED_EMPTY_FOOTPRINT_REFS: set[str] = set()
 SHEET_ORDER = [
@@ -210,10 +214,10 @@ def zone_bboxes(footprint_text: str) -> list[BBox]:
 
 def bbox_outside_outline(bbox: BBox) -> bool:
     return (
-        bbox[0] >= BOARD_WIDTH_MM + OUTSIDE_MARGIN_MM
-        or bbox[2] <= -OUTSIDE_MARGIN_MM
-        or bbox[1] >= BOARD_HEIGHT_MM + OUTSIDE_MARGIN_MM
-        or bbox[3] <= -OUTSIDE_MARGIN_MM
+        bbox[0] >= BOARD_X1_MM + OUTSIDE_MARGIN_MM
+        or bbox[2] <= BOARD_X0_MM - OUTSIDE_MARGIN_MM
+        or bbox[1] >= BOARD_Y1_MM + OUTSIDE_MARGIN_MM
+        or bbox[3] <= BOARD_Y0_MM - OUTSIDE_MARGIN_MM
     )
 
 
@@ -255,10 +259,10 @@ def main() -> int:
 
     edge_lines = top_level_edge_lines(board_text)
     expected_edge_lines = {
-        ((0.0, 0.0), (90.0, 0.0)),
-        ((90.0, 0.0), (90.0, 50.0)),
-        ((90.0, 50.0), (0.0, 50.0)),
-        ((0.0, 50.0), (0.0, 0.0)),
+        ((BOARD_X0_MM, BOARD_Y0_MM), (BOARD_X1_MM, BOARD_Y0_MM)),
+        ((BOARD_X1_MM, BOARD_Y0_MM), (BOARD_X1_MM, BOARD_Y1_MM)),
+        ((BOARD_X1_MM, BOARD_Y1_MM), (BOARD_X0_MM, BOARD_Y1_MM)),
+        ((BOARD_X0_MM, BOARD_Y1_MM), (BOARD_X0_MM, BOARD_Y0_MM)),
     }
     board_segments = top_level_count(board_text, "segment")
     board_vias = top_level_count(board_text, "via")
@@ -406,7 +410,8 @@ def main() -> int:
         f"{len(empty_refs)} empty-footprint symbols skipped, "
         f"0 board-level segments/vias/zones, "
         f"{footprint_zones} footprint-internal zone/keepout block(s), "
-        f"{len(bboxes)} non-overlapping staged bboxes outside the {BOARD_WIDTH_MM:.0f} x {BOARD_HEIGHT_MM:.0f} mm outline; "
+        f"{len(bboxes)} non-overlapping staged bboxes outside the "
+        f"{BOARD_WIDTH_MM:.3f} x {BOARD_HEIGHT_MM:.3f} mm outline; "
         f"sections {sheet_counts}"
     )
     return 0

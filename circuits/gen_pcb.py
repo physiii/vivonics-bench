@@ -3,11 +3,11 @@
 
 Board outline: x=30.975..204.000 mm, y=79.875..141.000 mm.
 
-All schematic footprints are staged outside the board outline by sheet so they
-can be dragged into the board manually in KiCad.  The generator intentionally
-emits no board traces, vias, or board-level copper zones.  Footprint-internal
-items such as the ESP32 antenna keepout are preserved as part of the loaded
-component footprint.
+All schematic footprints are staged below the board outline by sheet so they can
+be dragged into the board manually in KiCad.  The generator intentionally emits
+no board traces, vias, or board-level copper zones.  Footprint-internal items
+such as the ESP32 antenna keepout are preserved as part of the loaded component
+footprint.
 
 Reference numbering: automatic sequential per prefix (U1-U11, D1-D6, etc.).
 Pad net assignments are resolved from the exported KiCad netlist using the known
@@ -551,7 +551,7 @@ def build_board(emit_routes=False):
        LAYERS,'  (setup (pad_to_mask_clearance 0.05))','  (net 0 "")']
     body=[]
 
-    # ===== FLOORPLAN: current hand-placed board outline, footprints staged outside =====
+    # ===== FLOORPLAN: current board outline, footprints staged outside =====
     BW,BH=BOARD_W_MM,BOARD_H_MM
     body.append(outline(BOARD_X0_MM,BOARD_Y0_MM,BOARD_X1_MM,BOARD_Y1_MM))
 
@@ -568,7 +568,7 @@ def build_board(emit_routes=False):
 
     WL=["IR","RED","GREEN","BLUE"]
     stage_x = 115.0
-    stage_y = 8.0
+    stage_y = BOARD_Y1_MM + 15.0
 
     def ordered_parts(sheet_name, local_order):
         parts_by_ref = {p["ref"]: p for p in bysheet[sheet_name]}

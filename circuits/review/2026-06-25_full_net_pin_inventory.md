@@ -8,54 +8,89 @@ Schematic references are generated globally unique before KiCad netlist export. 
 
 | Metric | Value |
 |---|---:|
-| `footprint_objects` | 178 |
-| `referenced_footprints` | 178 |
-| `unique_references` | 178 |
+| `footprint_objects` | 181 |
+| `referenced_footprints` | 181 |
+| `unique_references` | 181 |
 | `copper_layers` | 4 |
-| `segments` | 0 |
-| `vias` | 0 |
-| `zones` | 1 |
+| `segments` | 1611 |
+| `vias` | 244 |
+| `zones` | 4 |
 | `pad_net_lines` | 0 |
-| `net_table_entries` | 686 |
+| `net_table_entries` | 696 |
 | `keepout_zones` | 1 |
-| `gnd_reference_zone_defs` | 0 |
-| `net_classes` | 8 |
-| `classified_nets` | 119 |
-| `placement_proximity_checks` | 16/111 PASS |
-| `intentional_unnetted_pad_instances` | 62 |
-| `connected_critical_local_route_links` | 0/111 |
+| `gnd_reference_zone_defs` | 1 |
+| `placement_proximity_checks` | 40/111 PASS |
+| `intentional_unnetted_pad_instances` | 70 |
+| `connected_critical_local_route_links` | 37/111 |
 | `multi_pad_nets` | 110 |
-| `explicitly_routed_multi_pad_nets` | 0 |
-| `unrouted_multi_pad_nets` | 103 |
-| `zone_or_rail_pending_multi_pad_nets` | 7 |
+| `explicitly_routed_multi_pad_nets` | 108 |
+| `unrouted_multi_pad_nets` | 0 |
+| `zone_or_rail_pending_multi_pad_nets` | 2 |
 
-| Net Class | Nets |
-|---|---:|
-| `Laser_Current` | 9 |
-| `Power_Rails` | 8 |
-| `USB` | 4 |
-| `TIA_Sensitive` | 24 |
-| `Monitor_ADC` | 21 |
-| `Laser_Control` | 16 |
-| `Digital_Control` | 30 |
-| `Default` | 7 |
+### Routed Copper Geometry By Net Class
+
+This table reports the generated routed copper that exists in the current PCB artifact. It does not waive KiCad zone refill, DRC, or manual current-path review.
+
+| Net Class | Segment Widths | Via Size/Drill |
+|---|---|---|
+| `Laser_Current` | 0.20mm x22, 0.60mm x51, 0.80mm x53 | 0.60/0.30mm x2, 1.20/0.60mm x6 |
+| `Power_Rails` | 0.25mm x201, 0.50mm x160, 0.60mm x172 | 0.60/0.30mm x40, 1.00/0.50mm x103, 1.00/0.60mm x1 |
+| `Switching_Power` | 0.50mm x10 | - |
+| `Switcher_Control` | 0.50mm x11 | - |
+| `USB` | 0.20mm x27, 0.25mm x19 | 0.60/0.30mm x2 |
+| `TIA_Sensitive` | 0.20mm x94, 0.25mm x58, 0.50mm x45 | 0.60/0.30mm x6 |
+| `Monitor_ADC` | 0.20mm x57, 0.25mm x213 | 0.60/0.30mm x27 |
+| `Laser_Control` | 0.25mm x101, 0.50mm x47 | 0.60/0.30mm x21 |
+| `Digital_Control` | 0.25mm x270 | 0.60/0.30mm x36 |
 
 ### USB Route Detail
 
 USB is checked as the copied MCU-sheet connector-to-endpoint routed copper chain for each D+/D- leg. The PCB checker fails if either chain exceeds the generated-board length limit, uses vias, leaves F.Cu, changes width, or exceeds the pair-skew limit.
 
-Pair routed-copper skew: 0.00 mm. BLOCKER: USB-UART D- USB section is unrouted: J1 D- to CP2102N D- /MCU_ESP32-S3/D-; USB-UART D- USB route layers mismatch: expected ['F.Cu'] got []; USB-UART D- USB route widths mismatch: expected 0.25 mm got []; USB-UART D+ USB section is unrouted: J1 D+ to CP2102N D+ /MCU_ESP32-S3/D+; USB-UART D+ USB route layers mismatch: expected ['F.Cu'] got []; USB-UART D+ USB route widths mismatch: expected 0.25 mm got []; Native USB D- USB section is unrouted: J2 D- to ESP32 GPIO19 /MCU_ESP32-S3/IO19; Native USB D- USB route layers mismatch: expected ['F.Cu'] got []; Native USB D- USB route widths mismatch: expected 0.25 mm got []; Native USB D+ USB section is unrouted: J2 D+ to ESP32 GPIO20 /MCU_ESP32-S3/IO20; Native USB D+ USB route layers mismatch: expected ['F.Cu'] got []; Native USB D+ USB route widths mismatch: expected 0.25 mm got []
+Pair routed-copper skew: 0.00 mm. BLOCKER: USB-UART D- USB route widths mismatch: expected 0.25 mm got [0.2]; USB-UART D+ USB route uses 2 vias; expected 0; USB-UART D+ USB route layers mismatch: expected ['F.Cu'] got ['B.Cu', 'F.Cu']; USB-UART D+ USB route widths mismatch: expected 0.25 mm got [0.2]
 
 | Chain | Section | Net | Segments | Length | Geometry | Status |
 |---|---|---|---:|---:|---|---|
-| `USB-UART D-` | J1 D- to CP2102N D- | `/MCU_ESP32-S3/D-` | 0 | 0.00 mm | -; widths -; vias 0 | BLOCKER: USB route section is missing |
-| `USB-UART D-` | total | `-` | 0 | 0.00 mm | -; widths -; vias 0 | PASS: measured chain is inside generated-board USB limits |
-| `USB-UART D+` | J1 D+ to CP2102N D+ | `/MCU_ESP32-S3/D+` | 0 | 0.00 mm | -; widths -; vias 0 | BLOCKER: USB route section is missing |
-| `USB-UART D+` | total | `-` | 0 | 0.00 mm | -; widths -; vias 0 | PASS: measured chain is inside generated-board USB limits |
-| `Native USB D-` | J2 D- to ESP32 GPIO19 | `/MCU_ESP32-S3/IO19` | 0 | 0.00 mm | -; widths -; vias 0 | BLOCKER: USB route section is missing |
-| `Native USB D-` | total | `-` | 0 | 0.00 mm | -; widths -; vias 0 | PASS: measured chain is inside generated-board USB limits |
-| `Native USB D+` | J2 D+ to ESP32 GPIO20 | `/MCU_ESP32-S3/IO20` | 0 | 0.00 mm | -; widths -; vias 0 | BLOCKER: USB route section is missing |
-| `Native USB D+` | total | `-` | 0 | 0.00 mm | -; widths -; vias 0 | PASS: measured chain is inside generated-board USB limits |
+| `USB-UART D-` | J1 D- to CP2102N D- | `/MCU_ESP32-S3/D-` | 11 | 20.95 mm | F.Cu; widths 0.20 mm; vias 0 | PASS: measured route section is present |
+| `USB-UART D-` | total | `-` | 11 | 20.95 mm | F.Cu; widths 0.20 mm; vias 0 | PASS: measured chain is inside generated-board USB limits |
+| `USB-UART D+` | J1 D+ to CP2102N D+ | `/MCU_ESP32-S3/D+` | 16 | 20.28 mm | B.Cu, F.Cu; widths 0.20 mm; vias 2 | PASS: measured route section is present |
+| `USB-UART D+` | total | `-` | 16 | 20.28 mm | B.Cu, F.Cu; widths 0.20 mm; vias 2 | PASS: measured chain is inside generated-board USB limits |
+| `Native USB D-` | J2 D- to ESP32 GPIO19 | `/MCU_ESP32-S3/IO19` | 9 | 26.66 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured route section is present |
+| `Native USB D-` | total | `-` | 9 | 26.66 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured chain is inside generated-board USB limits |
+| `Native USB D+` | J2 D+ to ESP32 GPIO20 | `/MCU_ESP32-S3/IO20` | 10 | 26.22 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured route section is present |
+| `Native USB D+` | total | `-` | 10 | 26.22 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured chain is inside generated-board USB limits |
+
+### Laser Current Trace Detail
+
+This table separates the high-current laser cathode/load paths from source-sense feedback copper. Any `BLOCKER` row is routed connectivity evidence only; it is not accepted current-path layout.
+
+| Net | Layer | Width | Segments | Total Length | Role | Status |
+|---|---|---:|---:|---:|---|---|
+| `/LASER_BLUE/FB` | `F.Cu` | 0.20 mm | 9 | 13.96 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
+| `/LASER_BLUE/FB` | `F.Cu` | 0.60 mm | 6 | 14.62 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
+| `/LASER_GREEN/FB` | `F.Cu` | 0.60 mm | 12 | 23.43 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
+| `/LASER_IR/FB` | `B.Cu` | 0.60 mm | 2 | 2.42 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
+| `/LASER_IR/FB` | `F.Cu` | 0.60 mm | 10 | 20.03 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
+| `/LASER_RED/FB` | `B.Cu` | 0.20 mm | 2 | 3.73 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
+| `/LASER_RED/FB` | `F.Cu` | 0.20 mm | 11 | 15.96 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
+| `LASER_N1` | `B.Cu` | 0.60 mm | 3 | 14.64 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
+| `LASER_N1` | `F.Cu` | 0.60 mm | 2 | 0.95 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
+| `LASER_N2` | `F.Cu` | 0.60 mm | 5 | 21.31 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
+| `LASER_N3` | `F.Cu` | 0.60 mm | 7 | 18.57 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
+| `LASER_N4` | `F.Cu` | 0.60 mm | 4 | 17.56 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
+| `LASER_V+` | `B.Cu` | 0.80 mm | 30 | 134.19 mm | laser anode supply path | BLOCKER: generated laser-anode route is too long for the supply trunk target |
+| `LASER_V+` | `F.Cu` | 0.80 mm | 23 | 66.91 mm | laser anode supply path | BLOCKER: generated laser-anode route is too long for the supply trunk target |
+
+### Laser Sense Return Detail
+
+Each 10 ohm 2512 source-sense resistor must return into the GND reference plane through a distinct high-current 0.60/0.30 mm via within 6.0 mm of routed GND copper.
+
+| Channel | Sense GND Pad | Routed GND Path | Via | Via Size/Drill | Status |
+|---|---|---:|---|---|---|
+| `LASER_IR` | `R18.2` | 1.45 mm | `(179.80, 128.18)` | 1.00/0.50 mm | PASS: routed sense return reaches an assigned high-current GND via |
+| `LASER_RED` | `R23.2` | 1.53 mm | `(185.05, 91.88)` | 1.00/0.50 mm | PASS: routed sense return reaches an assigned high-current GND via |
+| `LASER_GREEN` | `R28.2` | 1.72 mm | `(198.68, 128.10)` | 1.00/0.50 mm | PASS: routed sense return reaches an assigned high-current GND via |
+| `LASER_BLUE` | `R33.2` | 1.51 mm | `(168.62, 91.45)` | 1.00/0.50 mm | PASS: routed sense return reaches an assigned high-current GND via |
 
 Trace-level electrical review is blocked until schematic annotation/update-from-schematic or the PCB generator creates pad net assignments and copper routing. Current board evidence has no routed segments, no vias, and no pad net lines.
 
@@ -65,13 +100,8 @@ These are the only multi-pad nets currently allowed to remain route/zone pending
 
 | Net | Pads | Copper Components | Review Status | Required Release Action | Component Groups |
 |---|---:|---:|---|---|---|
-| `+3V3` | 22 | 22 | REVIEWED_PENDING | Route the AP2112 output rail to ESP32-S3 and strap/decoupling loads; verify LDO thermal margin under radio bursts. | U9.2 \| C43.1 \| R54.1 \| R59.1 \| R60.2 \| R52.1 \| R53.1 \| U10.6 \| ... 14 more |
-| `+5V` | 39 | 39 | REVIEWED_PENDING | Route or pour the post-OR board 5 V rail to every analog, laser-driver, and LDO input load; verify diode drop and current. | R2.1 \| U1.7 \| C2.1 \| R4.1 \| R6.1 \| U2.7 \| C6.1 \| R8.1 \| ... 31 more |
-| `/POWER_IO/BUCK_5V` | 5 | 5 | REVIEWED_PENDING | Route the AP63205 output from L1/C64/C65 to D6 anode; keep the switch loop compact and away from analog inputs. | D6.1 \| U15.1 \| C64.1 \| L1.2 \| C65.1 |
-| `GND` | 162 | 160 | REVIEWED_PENDING | Refill the In1.Cu GND zone, inspect islands/stitching, and keep laser-current return paths out of TIA summing-node returns. | C3.2 \| U1.4 \| C2.2 \| RV1.3 \| C4.2 \| C7.2 \| U2.4 \| C6.2 \| ... 152 more |
-| `LASER_V+` | 11 | 11 | REVIEWED_PENDING | Manual wide AP63200 laser-buck output rail from L2/C67/C68 to the direct LDx footprints; size for actual laser current and keep away from TIA/MPD analog nodes. | LD1.2 \| LD2.2 \| LD3.2 \| LD4.1 \| R61.1 \| L2.2 \| C67.1 \| U13.1 \| ... 3 more |
-| `VBUS_5V` | 8 | 8 | REVIEWED_PENDING | Route protected USB power-entry copper from the copied MCU-sheet VBUS isolation diodes to D5 anode; keep ESD return short. | C41.1 \| C42.1 \| R55.2 \| D9.2 \| D10.1 \| D13.1 \| D14.2 \| D5.1 |
-| `VIN_24V` | 11 | 11 | REVIEWED_PENDING | Route the J5 barrel/J6 RJ45 input to the AP63205/AP63200 input capacitors and VIN pins with protected, short 24 V copper. | J5.1 \| J6.4 \| J6.5 \| C61.1 \| C62.1 \| U15.2 \| U15.3 \| U16.2 \| ... 3 more |
+| `+3V3` | 24 | 10 | REVIEWED_PENDING | Route the AP2112 output rail to ESP32-S3 and strap/decoupling loads; verify LDO thermal margin under radio bursts. | C55.1, C49.1, U14.6, U14.7, U14.23, U14.34, C50.1, U11.5 \| C43.1, C47.1, U9.2 \| J7.3, J7.4 \| U10.6, U10.7, R57.1 \| R60.2 \| R59.1 \| R64.1, R54.1 \| C35.1, U12.4 \| ... 2 more |
+| `+5V` | 41 | 19 | REVIEWED_PENDING | Route or pour the post-OR board 5 V rail to every analog, laser-driver, and LDO input load; verify diode drop and current. | C26.1, U8.5 \| C56.1, D6.2, C53.1, C34.1, C48.1, U14.1, U14.37, U14.38 ... \| C23.1 \| U2.7, R8.1 \| R12.1, C10.1 \| U4.7, C14.1 \| U3.7 \| R16.1 \| ... 11 more |
 
 ### Placement Proximity Checks
 
@@ -79,117 +109,235 @@ These generated-board checks keep USB protection, ESP32-S3 support parts, AP2112
 
 | Check | Actual | Limit | Status |
 |---|---:|---:|---|
-| USB UART D- connector to ESD | 9.30 mm | 7.50 mm | FAIL |
-| USB UART D+ connector to ESD | 8.26 mm | 9.50 mm | PASS |
-| USB UART D- ESD to CP2102N | 12.66 mm | 10.00 mm | FAIL |
-| USB UART D+ ESD to CP2102N | 8.58 mm | 10.00 mm | PASS |
-| Native USB D- connector to ESD | 8.91 mm | 7.50 mm | FAIL |
-| Native USB D+ connector to ESD | 8.23 mm | 9.50 mm | PASS |
-| Native USB D- ESD to ESP32 GPIO19 | 22.87 mm | 4.50 mm | FAIL |
-| Native USB D+ ESD to ESP32 GPIO20 | 25.66 mm | 4.50 mm | FAIL |
-| AP2112 input cap at VIN | 5.11 mm | 4.00 mm | FAIL |
-| AP2112 100n output cap at VOUT | 6.39 mm | 4.00 mm | FAIL |
-| AP2112 bulk output cap at VOUT | 10.28 mm | 4.00 mm | FAIL |
-| ESP32 local 3V3 decap | 2.42 mm | 3.00 mm | PASS |
-| ESP32 EN capacitor | 36.06 mm | 4.00 mm | FAIL |
-| ESP32 EN pull-up | 36.12 mm | 5.00 mm | FAIL |
-| ESP32 BOOT pull-up | 25.08 mm | 4.00 mm | FAIL |
-| TIA_IR photodiode anode to OPA380 -IN | 11.17 mm | 5.50 mm | FAIL |
-| TIA_IR feedback trimmer at OPA380 -IN | 13.10 mm | 3.50 mm | FAIL |
-| TIA_IR feedback capacitor at OPA380 -IN | 7.72 mm | 2.50 mm | FAIL |
-| TIA_IR feedback trimmer at OPA380 OUT | 5.17 mm | 4.50 mm | FAIL |
-| TIA_IR feedback capacitor at OPA380 OUT | 3.84 mm | 2.50 mm | FAIL |
-| TIA_IR OPA380 supply decoupling | 3.97 mm | 2.50 mm | FAIL |
-| TIA_IR PD bias resistor at cathode | 13.79 mm | 4.50 mm | FAIL |
-| TIA_IR PD cathode bypass at cathode | 15.04 mm | 3.00 mm | FAIL |
+| USB UART D- connector to ESD | 9.93 mm | 7.50 mm | FAIL |
+| USB UART D+ connector to ESD | 8.25 mm | 9.50 mm | PASS |
+| USB UART D- ESD to CP2102N | 8.82 mm | 10.00 mm | PASS |
+| USB UART D+ ESD to CP2102N | 11.01 mm | 10.00 mm | FAIL |
+| Native USB D- connector to ESD | 10.40 mm | 7.50 mm | FAIL |
+| Native USB D+ connector to ESD | 8.70 mm | 9.50 mm | PASS |
+| Native USB D- ESD to ESP32 GPIO19 | 18.98 mm | 4.50 mm | FAIL |
+| Native USB D+ ESD to ESP32 GPIO20 | 20.35 mm | 4.50 mm | FAIL |
+| AP2112 input cap at VIN | 2.95 mm | 4.00 mm | PASS |
+| AP2112 100n output cap at VOUT | 2.10 mm | 4.00 mm | PASS |
+| AP2112 bulk output cap at VOUT | 2.19 mm | 4.00 mm | PASS |
+| ESP32 local 3V3 decap | 2.96 mm | 3.00 mm | PASS |
+| ESP32 EN capacitor | 44.54 mm | 4.00 mm | FAIL |
+| ESP32 EN pull-up | 44.61 mm | 5.00 mm | FAIL |
+| ESP32 BOOT pull-up | 33.03 mm | 4.00 mm | FAIL |
+| TIA_IR photodiode anode to OPA380 -IN | 20.02 mm | 5.50 mm | FAIL |
+| TIA_IR feedback trimmer at OPA380 -IN | 12.43 mm | 3.50 mm | FAIL |
+| TIA_IR feedback capacitor at OPA380 -IN | 7.54 mm | 2.50 mm | FAIL |
+| TIA_IR feedback trimmer at OPA380 OUT | 4.47 mm | 4.50 mm | PASS |
+| TIA_IR feedback capacitor at OPA380 OUT | 3.79 mm | 2.50 mm | FAIL |
+| TIA_IR OPA380 supply decoupling | 2.45 mm | 2.50 mm | PASS |
+| TIA_IR PD bias resistor at cathode | 20.12 mm | 4.50 mm | FAIL |
+| TIA_IR PD cathode bypass at cathode | 20.70 mm | 3.00 mm | FAIL |
 | TIA_IR VBIAS resistor at OPA380 +IN | 3.18 mm | 5.00 mm | PASS |
 | TIA_IR VBIAS capacitor at OPA380 +IN | 3.16 mm | 4.00 mm | PASS |
-| TIA_RED photodiode anode to OPA380 -IN | 11.01 mm | 5.50 mm | FAIL |
+| TIA_RED photodiode anode to OPA380 -IN | 19.33 mm | 5.50 mm | FAIL |
 | TIA_RED feedback trimmer at OPA380 -IN | 5.55 mm | 3.50 mm | FAIL |
 | TIA_RED feedback capacitor at OPA380 -IN | 3.84 mm | 2.50 mm | FAIL |
 | TIA_RED feedback trimmer at OPA380 OUT | 13.08 mm | 4.50 mm | FAIL |
 | TIA_RED feedback capacitor at OPA380 OUT | 7.72 mm | 2.50 mm | FAIL |
-| TIA_RED OPA380 supply decoupling | 7.49 mm | 2.50 mm | FAIL |
-| TIA_RED PD bias resistor at cathode | 14.75 mm | 4.50 mm | FAIL |
-| TIA_RED PD cathode bypass at cathode | 11.33 mm | 3.00 mm | FAIL |
+| TIA_RED OPA380 supply decoupling | 6.21 mm | 2.50 mm | FAIL |
+| TIA_RED PD bias resistor at cathode | 10.44 mm | 4.50 mm | FAIL |
+| TIA_RED PD cathode bypass at cathode | 8.74 mm | 3.00 mm | FAIL |
 | TIA_RED VBIAS resistor at OPA380 +IN | 9.99 mm | 5.00 mm | FAIL |
 | TIA_RED VBIAS capacitor at OPA380 +IN | 10.13 mm | 4.00 mm | FAIL |
-| TIA_GREEN photodiode anode to OPA380 -IN | 10.96 mm | 5.50 mm | FAIL |
-| TIA_GREEN feedback trimmer at OPA380 -IN | 5.48 mm | 3.50 mm | FAIL |
-| TIA_GREEN feedback capacitor at OPA380 -IN | 3.84 mm | 2.50 mm | FAIL |
-| TIA_GREEN feedback trimmer at OPA380 OUT | 12.98 mm | 4.50 mm | FAIL |
-| TIA_GREEN feedback capacitor at OPA380 OUT | 7.72 mm | 2.50 mm | FAIL |
-| TIA_GREEN OPA380 supply decoupling | 7.49 mm | 2.50 mm | FAIL |
-| TIA_GREEN PD bias resistor at cathode | 19.56 mm | 4.50 mm | FAIL |
-| TIA_GREEN PD cathode bypass at cathode | 17.14 mm | 3.00 mm | FAIL |
+| TIA_GREEN photodiode anode to OPA380 -IN | 8.60 mm | 5.50 mm | FAIL |
+| TIA_GREEN feedback trimmer at OPA380 -IN | 11.44 mm | 3.50 mm | FAIL |
+| TIA_GREEN feedback capacitor at OPA380 -IN | 6.48 mm | 2.50 mm | FAIL |
+| TIA_GREEN feedback trimmer at OPA380 OUT | 7.95 mm | 4.50 mm | FAIL |
+| TIA_GREEN feedback capacitor at OPA380 OUT | 5.06 mm | 2.50 mm | FAIL |
+| TIA_GREEN OPA380 supply decoupling | 4.56 mm | 2.50 mm | FAIL |
+| TIA_GREEN PD bias resistor at cathode | 18.36 mm | 4.50 mm | FAIL |
+| TIA_GREEN PD cathode bypass at cathode | 17.13 mm | 3.00 mm | FAIL |
 | TIA_GREEN VBIAS resistor at OPA380 +IN | 9.99 mm | 5.00 mm | FAIL |
 | TIA_GREEN VBIAS capacitor at OPA380 +IN | 10.13 mm | 4.00 mm | FAIL |
-| TIA_BLUE photodiode anode to OPA380 -IN | 12.87 mm | 5.50 mm | FAIL |
-| TIA_BLUE feedback trimmer at OPA380 -IN | 13.73 mm | 3.50 mm | FAIL |
-| TIA_BLUE feedback capacitor at OPA380 -IN | 7.72 mm | 2.50 mm | FAIL |
-| TIA_BLUE feedback trimmer at OPA380 OUT | 5.79 mm | 4.50 mm | FAIL |
-| TIA_BLUE feedback capacitor at OPA380 OUT | 3.84 mm | 2.50 mm | FAIL |
-| TIA_BLUE OPA380 supply decoupling | 3.97 mm | 2.50 mm | FAIL |
-| TIA_BLUE PD bias resistor at cathode | 10.76 mm | 4.50 mm | FAIL |
-| TIA_BLUE PD cathode bypass at cathode | 8.09 mm | 3.00 mm | FAIL |
-| TIA_BLUE VBIAS resistor at OPA380 +IN | 3.18 mm | 5.00 mm | PASS |
-| TIA_BLUE VBIAS capacitor at OPA380 +IN | 3.16 mm | 4.00 mm | PASS |
-| LASER_IR TLV9001 OUT to gate resistor | 4.07 mm | 3.50 mm | FAIL |
-| LASER_IR gate resistor to AO3400A gate | 4.88 mm | 2.50 mm | FAIL |
-| LASER_IR AO3400A source to sense resistor | 9.31 mm | 2.20 mm | FAIL |
-| LASER_IR sense feedback to TLV9001 -IN | 6.37 mm | 6.00 mm | FAIL |
-| LASER_IR isolated ISENSE tap at sense resistor | 8.47 mm | 3.50 mm | FAIL |
-| LASER_IR TLV9001 supply decoupling | 7.71 mm | 2.50 mm | FAIL |
-| LASER_IR PWM input resistor at TLV9001 +IN | 4.87 mm | 2.50 mm | FAIL |
-| LASER_IR command limiter at TLV9001 +IN | 6.61 mm | 3.00 mm | FAIL |
-| LASER_IR command filter cap at TLV9001 +IN | 8.31 mm | 3.00 mm | FAIL |
-| LASER_IR compensation cap at TLV9001 -IN | 1.92 mm | 2.50 mm | PASS |
-| LASER_IR compensation cap at TLV9001 OUT | 5.78 mm | 3.00 mm | FAIL |
-| LASER_RED TLV9001 OUT to gate resistor | 4.07 mm | 3.50 mm | FAIL |
-| LASER_RED gate resistor to AO3400A gate | 4.88 mm | 2.50 mm | FAIL |
-| LASER_RED AO3400A source to sense resistor | 9.31 mm | 2.20 mm | FAIL |
-| LASER_RED sense feedback to TLV9001 -IN | 6.37 mm | 6.00 mm | FAIL |
-| LASER_RED isolated ISENSE tap at sense resistor | 8.47 mm | 3.50 mm | FAIL |
-| LASER_RED TLV9001 supply decoupling | 7.71 mm | 2.50 mm | FAIL |
-| LASER_RED PWM input resistor at TLV9001 +IN | 4.87 mm | 2.50 mm | FAIL |
-| LASER_RED command limiter at TLV9001 +IN | 6.61 mm | 3.00 mm | FAIL |
-| LASER_RED command filter cap at TLV9001 +IN | 8.31 mm | 3.00 mm | FAIL |
-| LASER_RED compensation cap at TLV9001 -IN | 1.92 mm | 2.50 mm | PASS |
-| LASER_RED compensation cap at TLV9001 OUT | 5.78 mm | 3.00 mm | FAIL |
-| LASER_GREEN TLV9001 OUT to gate resistor | 4.07 mm | 3.50 mm | FAIL |
-| LASER_GREEN gate resistor to AO3400A gate | 4.88 mm | 2.50 mm | FAIL |
-| LASER_GREEN AO3400A source to sense resistor | 9.31 mm | 2.20 mm | FAIL |
-| LASER_GREEN sense feedback to TLV9001 -IN | 6.37 mm | 6.00 mm | FAIL |
-| LASER_GREEN isolated ISENSE tap at sense resistor | 8.47 mm | 3.50 mm | FAIL |
-| LASER_GREEN TLV9001 supply decoupling | 7.71 mm | 2.50 mm | FAIL |
-| LASER_GREEN PWM input resistor at TLV9001 +IN | 4.87 mm | 2.50 mm | FAIL |
-| LASER_GREEN command limiter at TLV9001 +IN | 6.61 mm | 3.00 mm | FAIL |
-| LASER_GREEN command filter cap at TLV9001 +IN | 8.31 mm | 3.00 mm | FAIL |
-| LASER_GREEN compensation cap at TLV9001 -IN | 1.92 mm | 2.50 mm | PASS |
-| LASER_GREEN compensation cap at TLV9001 OUT | 5.78 mm | 3.00 mm | FAIL |
-| LASER_BLUE TLV9001 OUT to gate resistor | 4.07 mm | 3.50 mm | FAIL |
-| LASER_BLUE gate resistor to AO3400A gate | 4.88 mm | 2.50 mm | FAIL |
-| LASER_BLUE AO3400A source to sense resistor | 9.31 mm | 2.20 mm | FAIL |
-| LASER_BLUE sense feedback to TLV9001 -IN | 6.37 mm | 6.00 mm | FAIL |
-| LASER_BLUE isolated ISENSE tap at sense resistor | 8.47 mm | 3.50 mm | FAIL |
-| LASER_BLUE TLV9001 supply decoupling | 7.71 mm | 2.50 mm | FAIL |
-| LASER_BLUE PWM input resistor at TLV9001 +IN | 4.87 mm | 2.50 mm | FAIL |
-| LASER_BLUE command limiter at TLV9001 +IN | 6.61 mm | 3.00 mm | FAIL |
-| LASER_BLUE command filter cap at TLV9001 +IN | 8.31 mm | 3.00 mm | FAIL |
-| LASER_BLUE compensation cap at TLV9001 -IN | 1.92 mm | 2.50 mm | PASS |
-| LASER_BLUE compensation cap at TLV9001 OUT | 5.78 mm | 3.00 mm | FAIL |
-| MPD_RAW1 direct LD monitor to sense resistor | 131.33 mm | 4.00 mm | FAIL |
-| MPD_RAW1 sense resistor to INA input | 7.39 mm | 4.00 mm | FAIL |
-| MPD1 ADC resistor to filter capacitor | 1.62 mm | 2.50 mm | PASS |
-| MPD_RAW2 direct LD monitor to sense resistor | 145.13 mm | 4.00 mm | FAIL |
-| MPD_RAW2 sense resistor to INA input | 5.63 mm | 4.00 mm | FAIL |
-| MPD2 ADC resistor to filter capacitor | 1.71 mm | 2.50 mm | PASS |
-| MPD_RAW3 direct LD monitor to sense resistor | 145.92 mm | 4.00 mm | FAIL |
-| MPD_RAW3 sense resistor to INA input | 7.38 mm | 4.00 mm | FAIL |
-| MPD3 ADC resistor to filter capacitor | 2.00 mm | 2.50 mm | PASS |
-| MPD_RAW4 spare sense resistor to INA input | 6.90 mm | 4.00 mm | FAIL |
-| MPD_AMP4 INA output to ADC resistor | 23.92 mm | 4.00 mm | FAIL |
+| TIA_BLUE photodiode anode to OPA380 -IN | 16.22 mm | 5.50 mm | FAIL |
+| TIA_BLUE feedback trimmer at OPA380 -IN | 7.47 mm | 3.50 mm | FAIL |
+| TIA_BLUE feedback capacitor at OPA380 -IN | 6.10 mm | 2.50 mm | FAIL |
+| TIA_BLUE feedback trimmer at OPA380 OUT | 7.31 mm | 4.50 mm | FAIL |
+| TIA_BLUE feedback capacitor at OPA380 OUT | 10.33 mm | 2.50 mm | FAIL |
+| TIA_BLUE OPA380 supply decoupling | 1.88 mm | 2.50 mm | PASS |
+| TIA_BLUE PD bias resistor at cathode | 13.12 mm | 4.50 mm | FAIL |
+| TIA_BLUE PD cathode bypass at cathode | 9.80 mm | 3.00 mm | FAIL |
+| TIA_BLUE VBIAS resistor at OPA380 +IN | 3.34 mm | 5.00 mm | PASS |
+| TIA_BLUE VBIAS capacitor at OPA380 +IN | 3.97 mm | 4.00 mm | PASS |
+| LASER_IR TLV9001 OUT to gate resistor | 2.70 mm | 3.50 mm | PASS |
+| LASER_IR gate resistor to AO3400A gate | 4.04 mm | 2.50 mm | FAIL |
+| LASER_IR AO3400A source to sense resistor | 4.86 mm | 2.20 mm | FAIL |
+| LASER_IR sense feedback to TLV9001 -IN | 3.62 mm | 6.00 mm | PASS |
+| LASER_IR isolated ISENSE tap at sense resistor | 2.57 mm | 3.50 mm | PASS |
+| LASER_IR TLV9001 supply decoupling | 4.83 mm | 2.50 mm | FAIL |
+| LASER_IR PWM input resistor at TLV9001 +IN | 2.44 mm | 2.50 mm | PASS |
+| LASER_IR command limiter at TLV9001 +IN | 4.51 mm | 3.00 mm | FAIL |
+| LASER_IR command filter cap at TLV9001 +IN | 5.89 mm | 3.00 mm | FAIL |
+| LASER_IR compensation cap at TLV9001 -IN | 6.74 mm | 2.50 mm | FAIL |
+| LASER_IR compensation cap at TLV9001 OUT | 4.99 mm | 3.00 mm | FAIL |
+| LASER_RED TLV9001 OUT to gate resistor | 2.70 mm | 3.50 mm | PASS |
+| LASER_RED gate resistor to AO3400A gate | 4.41 mm | 2.50 mm | FAIL |
+| LASER_RED AO3400A source to sense resistor | 5.66 mm | 2.20 mm | FAIL |
+| LASER_RED sense feedback to TLV9001 -IN | 3.62 mm | 6.00 mm | PASS |
+| LASER_RED isolated ISENSE tap at sense resistor | 2.38 mm | 3.50 mm | PASS |
+| LASER_RED TLV9001 supply decoupling | 1.73 mm | 2.50 mm | PASS |
+| LASER_RED PWM input resistor at TLV9001 +IN | 2.94 mm | 2.50 mm | FAIL |
+| LASER_RED command limiter at TLV9001 +IN | 4.51 mm | 3.00 mm | FAIL |
+| LASER_RED command filter cap at TLV9001 +IN | 5.89 mm | 3.00 mm | FAIL |
+| LASER_RED compensation cap at TLV9001 -IN | 5.78 mm | 2.50 mm | FAIL |
+| LASER_RED compensation cap at TLV9001 OUT | 1.92 mm | 3.00 mm | PASS |
+| LASER_GREEN TLV9001 OUT to gate resistor | 2.50 mm | 3.50 mm | PASS |
+| LASER_GREEN gate resistor to AO3400A gate | 3.75 mm | 2.50 mm | FAIL |
+| LASER_GREEN AO3400A source to sense resistor | 4.86 mm | 2.20 mm | FAIL |
+| LASER_GREEN sense feedback to TLV9001 -IN | 3.62 mm | 6.00 mm | PASS |
+| LASER_GREEN isolated ISENSE tap at sense resistor | 2.38 mm | 3.50 mm | PASS |
+| LASER_GREEN TLV9001 supply decoupling | 2.26 mm | 2.50 mm | PASS |
+| LASER_GREEN PWM input resistor at TLV9001 +IN | 2.44 mm | 2.50 mm | PASS |
+| LASER_GREEN command limiter at TLV9001 +IN | 4.51 mm | 3.00 mm | FAIL |
+| LASER_GREEN command filter cap at TLV9001 +IN | 5.89 mm | 3.00 mm | FAIL |
+| LASER_GREEN compensation cap at TLV9001 -IN | 6.79 mm | 2.50 mm | FAIL |
+| LASER_GREEN compensation cap at TLV9001 OUT | 2.42 mm | 3.00 mm | PASS |
+| LASER_BLUE TLV9001 OUT to gate resistor | 2.70 mm | 3.50 mm | PASS |
+| LASER_BLUE gate resistor to AO3400A gate | 4.58 mm | 2.50 mm | FAIL |
+| LASER_BLUE AO3400A source to sense resistor | 5.66 mm | 2.20 mm | FAIL |
+| LASER_BLUE sense feedback to TLV9001 -IN | 3.62 mm | 6.00 mm | PASS |
+| LASER_BLUE isolated ISENSE tap at sense resistor | 2.38 mm | 3.50 mm | PASS |
+| LASER_BLUE TLV9001 supply decoupling | 1.68 mm | 2.50 mm | PASS |
+| LASER_BLUE PWM input resistor at TLV9001 +IN | 2.94 mm | 2.50 mm | FAIL |
+| LASER_BLUE command limiter at TLV9001 +IN | 4.51 mm | 3.00 mm | FAIL |
+| LASER_BLUE command filter cap at TLV9001 +IN | 5.89 mm | 3.00 mm | FAIL |
+| LASER_BLUE compensation cap at TLV9001 -IN | 5.78 mm | 2.50 mm | FAIL |
+| LASER_BLUE compensation cap at TLV9001 OUT | 1.92 mm | 3.00 mm | PASS |
+| MPD_RAW1 direct LD monitor to sense resistor | 103.30 mm | 4.00 mm | FAIL |
+| MPD_RAW1 sense resistor to INA input | 7.71 mm | 4.00 mm | FAIL |
+| MPD1 ADC resistor to filter capacitor | 1.87 mm | 2.50 mm | PASS |
+| MPD_RAW2 direct LD monitor to sense resistor | 122.15 mm | 4.00 mm | FAIL |
+| MPD_RAW2 sense resistor to INA input | 5.75 mm | 4.00 mm | FAIL |
+| MPD2 ADC resistor to filter capacitor | 1.84 mm | 2.50 mm | PASS |
+| MPD_RAW3 direct LD monitor to sense resistor | 114.29 mm | 4.00 mm | FAIL |
+| MPD_RAW3 sense resistor to INA input | 3.88 mm | 4.00 mm | PASS |
+| MPD3 ADC resistor to filter capacitor | 2.63 mm | 2.50 mm | FAIL |
+| MPD_RAW4 spare sense resistor to INA input | 3.55 mm | 4.00 mm | PASS |
+| MPD_AMP4 INA output to ADC resistor | 2.06 mm | 4.00 mm | PASS |
 | MPD4 ADC resistor to filter capacitor | 1.81 mm | 2.50 mm | PASS |
+
+### Critical Local Route Connectivity
+
+These are generated F.Cu route-link connectivity checks for the same local clusters. Any `UNROUTED` entries are the next routing targets; they are not waived.
+
+| Route Link | Status |
+|---|---|
+| USB UART D- connector to ESD | UNROUTED |
+| USB UART D+ connector to ESD | UNROUTED |
+| USB UART D- ESD to CP2102N | UNROUTED |
+| USB UART D+ ESD to CP2102N | UNROUTED |
+| Native USB D- connector to ESD | UNROUTED |
+| Native USB D+ connector to ESD | UNROUTED |
+| Native USB D- ESD to ESP32 GPIO19 | UNROUTED |
+| Native USB D+ ESD to ESP32 GPIO20 | UNROUTED |
+| AP2112 input cap at VIN | ROUTED |
+| AP2112 100n output cap at VOUT | UNROUTED |
+| AP2112 bulk output cap at VOUT | ROUTED |
+| ESP32 local 3V3 decap | UNROUTED |
+| ESP32 EN capacitor | ROUTED |
+| ESP32 EN pull-up | ROUTED |
+| ESP32 BOOT pull-up | ROUTED |
+| TIA_IR photodiode anode to OPA380 -IN | ROUTED |
+| TIA_IR feedback trimmer at OPA380 -IN | UNROUTED |
+| TIA_IR feedback capacitor at OPA380 -IN | UNROUTED |
+| TIA_IR feedback trimmer at OPA380 OUT | UNROUTED |
+| TIA_IR feedback capacitor at OPA380 OUT | UNROUTED |
+| TIA_IR OPA380 supply decoupling | UNROUTED |
+| TIA_IR PD bias resistor at cathode | ROUTED |
+| TIA_IR PD cathode bypass at cathode | ROUTED |
+| TIA_IR VBIAS resistor at OPA380 +IN | ROUTED |
+| TIA_IR VBIAS capacitor at OPA380 +IN | ROUTED |
+| TIA_RED photodiode anode to OPA380 -IN | UNROUTED |
+| TIA_RED feedback trimmer at OPA380 -IN | UNROUTED |
+| TIA_RED feedback capacitor at OPA380 -IN | UNROUTED |
+| TIA_RED feedback trimmer at OPA380 OUT | UNROUTED |
+| TIA_RED feedback capacitor at OPA380 OUT | UNROUTED |
+| TIA_RED OPA380 supply decoupling | UNROUTED |
+| TIA_RED PD bias resistor at cathode | UNROUTED |
+| TIA_RED PD cathode bypass at cathode | UNROUTED |
+| TIA_RED VBIAS resistor at OPA380 +IN | UNROUTED |
+| TIA_RED VBIAS capacitor at OPA380 +IN | UNROUTED |
+| TIA_GREEN photodiode anode to OPA380 -IN | UNROUTED |
+| TIA_GREEN feedback trimmer at OPA380 -IN | UNROUTED |
+| TIA_GREEN feedback capacitor at OPA380 -IN | UNROUTED |
+| TIA_GREEN feedback trimmer at OPA380 OUT | UNROUTED |
+| TIA_GREEN feedback capacitor at OPA380 OUT | UNROUTED |
+| TIA_GREEN OPA380 supply decoupling | UNROUTED |
+| TIA_GREEN PD bias resistor at cathode | UNROUTED |
+| TIA_GREEN PD cathode bypass at cathode | UNROUTED |
+| TIA_GREEN VBIAS resistor at OPA380 +IN | UNROUTED |
+| TIA_GREEN VBIAS capacitor at OPA380 +IN | UNROUTED |
+| TIA_BLUE photodiode anode to OPA380 -IN | ROUTED |
+| TIA_BLUE feedback trimmer at OPA380 -IN | UNROUTED |
+| TIA_BLUE feedback capacitor at OPA380 -IN | UNROUTED |
+| TIA_BLUE feedback trimmer at OPA380 OUT | UNROUTED |
+| TIA_BLUE feedback capacitor at OPA380 OUT | UNROUTED |
+| TIA_BLUE OPA380 supply decoupling | ROUTED |
+| TIA_BLUE PD bias resistor at cathode | ROUTED |
+| TIA_BLUE PD cathode bypass at cathode | ROUTED |
+| TIA_BLUE VBIAS resistor at OPA380 +IN | ROUTED |
+| TIA_BLUE VBIAS capacitor at OPA380 +IN | ROUTED |
+| LASER_IR TLV9001 OUT to gate resistor | ROUTED |
+| LASER_IR gate resistor to AO3400A gate | UNROUTED |
+| LASER_IR AO3400A source to sense resistor | UNROUTED |
+| LASER_IR sense feedback to TLV9001 -IN | ROUTED |
+| LASER_IR isolated ISENSE tap at sense resistor | UNROUTED |
+| LASER_IR TLV9001 supply decoupling | UNROUTED |
+| LASER_IR PWM input resistor at TLV9001 +IN | UNROUTED |
+| LASER_IR command limiter at TLV9001 +IN | UNROUTED |
+| LASER_IR command filter cap at TLV9001 +IN | UNROUTED |
+| LASER_IR compensation cap at TLV9001 -IN | UNROUTED |
+| LASER_IR compensation cap at TLV9001 OUT | UNROUTED |
+| LASER_RED TLV9001 OUT to gate resistor | ROUTED |
+| LASER_RED gate resistor to AO3400A gate | UNROUTED |
+| LASER_RED AO3400A source to sense resistor | UNROUTED |
+| LASER_RED sense feedback to TLV9001 -IN | ROUTED |
+| LASER_RED isolated ISENSE tap at sense resistor | UNROUTED |
+| LASER_RED TLV9001 supply decoupling | UNROUTED |
+| LASER_RED PWM input resistor at TLV9001 +IN | UNROUTED |
+| LASER_RED command limiter at TLV9001 +IN | UNROUTED |
+| LASER_RED command filter cap at TLV9001 +IN | UNROUTED |
+| LASER_RED compensation cap at TLV9001 -IN | ROUTED |
+| LASER_RED compensation cap at TLV9001 OUT | ROUTED |
+| LASER_GREEN TLV9001 OUT to gate resistor | ROUTED |
+| LASER_GREEN gate resistor to AO3400A gate | UNROUTED |
+| LASER_GREEN AO3400A source to sense resistor | UNROUTED |
+| LASER_GREEN sense feedback to TLV9001 -IN | ROUTED |
+| LASER_GREEN isolated ISENSE tap at sense resistor | UNROUTED |
+| LASER_GREEN TLV9001 supply decoupling | UNROUTED |
+| LASER_GREEN PWM input resistor at TLV9001 +IN | UNROUTED |
+| LASER_GREEN command limiter at TLV9001 +IN | UNROUTED |
+| LASER_GREEN command filter cap at TLV9001 +IN | UNROUTED |
+| LASER_GREEN compensation cap at TLV9001 -IN | ROUTED |
+| LASER_GREEN compensation cap at TLV9001 OUT | ROUTED |
+| LASER_BLUE TLV9001 OUT to gate resistor | ROUTED |
+| LASER_BLUE gate resistor to AO3400A gate | UNROUTED |
+| LASER_BLUE AO3400A source to sense resistor | UNROUTED |
+| LASER_BLUE sense feedback to TLV9001 -IN | ROUTED |
+| LASER_BLUE isolated ISENSE tap at sense resistor | UNROUTED |
+| LASER_BLUE TLV9001 supply decoupling | UNROUTED |
+| LASER_BLUE PWM input resistor at TLV9001 +IN | UNROUTED |
+| LASER_BLUE command limiter at TLV9001 +IN | UNROUTED |
+| LASER_BLUE command filter cap at TLV9001 +IN | UNROUTED |
+| LASER_BLUE compensation cap at TLV9001 -IN | ROUTED |
+| LASER_BLUE compensation cap at TLV9001 OUT | ROUTED |
+| MPD_RAW1 direct LD monitor to sense resistor | UNROUTED |
+| MPD_RAW1 sense resistor to INA input | UNROUTED |
+| MPD1 ADC resistor to filter capacitor | ROUTED |
+| MPD_RAW2 direct LD monitor to sense resistor | UNROUTED |
+| MPD_RAW2 sense resistor to INA input | UNROUTED |
+| MPD2 ADC resistor to filter capacitor | UNROUTED |
+| MPD_RAW3 direct LD monitor to sense resistor | ROUTED |
+| MPD_RAW3 sense resistor to INA input | ROUTED |
+| MPD3 ADC resistor to filter capacitor | ROUTED |
+| MPD_RAW4 spare sense resistor to INA input | ROUTED |
+| MPD_AMP4 INA output to ADC resistor | ROUTED |
+| MPD4 ADC resistor to filter capacitor | ROUTED |
 
 ### Whole-Board Explicit Route Connectivity
 
@@ -197,116 +345,116 @@ This table checks whether every pad on each multi-pad PCB net is connected by ex
 
 | Net | Pads | Copper Components | Status | Component Groups |
 |---|---:|---:|---|---|
-| `/LASER_BLUE/FB` | 5 | 5 | UNROUTED | U8.4 \| Q4.2 \| R33.1 \| R34.1 \| C28.1 |
-| `/LASER_BLUE/LOUT` | 3 | 3 | UNROUTED | U8.1 \| R32.1 \| C28.2 |
-| `/LASER_GREEN/FB` | 5 | 5 | UNROUTED | U7.4 \| Q3.2 \| R28.1 \| R29.1 \| C25.1 |
-| `/LASER_GREEN/LOUT` | 3 | 3 | UNROUTED | U7.1 \| R27.1 \| C25.2 |
-| `/LASER_IR/FB` | 5 | 5 | UNROUTED | U5.4 \| Q1.2 \| R18.1 \| R19.1 \| C19.1 |
-| `/LASER_IR/LOUT` | 3 | 3 | UNROUTED | U5.1 \| R17.1 \| C19.2 |
-| `/LASER_RED/FB` | 5 | 5 | UNROUTED | U6.4 \| Q2.2 \| R23.1 \| R24.1 \| C22.1 |
-| `/LASER_RED/LOUT` | 3 | 3 | UNROUTED | U6.1 \| R22.1 \| C22.2 |
-| `/MCU_ESP32-S3/D+` | 3 | 3 | UNROUTED | U10.4 \| J1.3 \| D8.2 |
-| `/MCU_ESP32-S3/D-` | 3 | 3 | UNROUTED | U10.5 \| J1.2 \| D7.2 |
-| `/MCU_ESP32-S3/DTR` | 3 | 3 | UNROUTED | Q6.3 \| R50.1 \| U10.28 |
-| `/MCU_ESP32-S3/EN` | 6 | 6 | UNROUTED | U9.3 \| C44.1 \| R54.2 \| SW1.1 \| SW1.1 \| Q5.3 |
-| `/MCU_ESP32-S3/FACT` | 4 | 4 | UNROUTED | U9.39 \| SW3.1 \| SW3.1 \| R52.2 |
-| `/MCU_ESP32-S3/IO13` | 2 | 2 | UNROUTED | U9.21 \| R60.1 |
-| `/MCU_ESP32-S3/IO14` | 2 | 2 | UNROUTED | U9.22 \| R59.2 |
-| `/MCU_ESP32-S3/IO19` | 3 | 3 | UNROUTED | U9.13 \| J2.2 \| D12.2 |
-| `/MCU_ESP32-S3/IO20` | 3 | 3 | UNROUTED | U9.14 \| J2.3 \| D11.2 |
-| `/MCU_ESP32-S3/IO43` | 2 | 2 | UNROUTED | U9.37 \| U10.25 |
-| `/MCU_ESP32-S3/IO44` | 2 | 2 | UNROUTED | U9.36 \| U10.26 |
-| `/MCU_ESP32-S3/PROG` | 6 | 6 | UNROUTED | U9.27 \| SW2.1 \| SW2.1 \| Q6.2 \| R53.2 \| C46.1 |
-| `/MCU_ESP32-S3/RTS` | 3 | 3 | UNROUTED | Q5.2 \| R51.1 \| U10.24 |
-| `/POWER_IO/MPD_AMP1` | 2 | 2 | UNROUTED | U12.1 \| R43.1 |
-| `/POWER_IO/MPD_AMP2` | 2 | 2 | UNROUTED | U12.7 \| R45.1 |
-| `/POWER_IO/MPD_AMP3` | 2 | 2 | UNROUTED | U12.8 \| R47.1 |
-| `/POWER_IO/MPD_AMP4` | 2 | 2 | UNROUTED | U12.14 \| R49.1 |
-| `/POWER_IO/MPD_BIAS` | 12 | 12 | UNROUTED | U12.2 \| U12.6 \| U12.9 \| U12.13 \| U13.2 \| U13.3 \| C36.2 \| R41.1 \| ... 4 more |
-| `ADC_BUSY` | 2 | 2 | UNROUTED | U9.24 \| U14.14 |
-| `ADC_CS` | 2 | 2 | UNROUTED | U9.11 \| U14.13 |
-| `ADC_MISO_A` | 2 | 2 | UNROUTED | U9.23 \| U14.24 |
-| `ADC_MISO_B` | 2 | 2 | UNROUTED | U9.31 \| U14.25 |
-| `ADC_RESET` | 2 | 2 | UNROUTED | U9.25 \| U14.11 |
-| `ADC_SCLK` | 2 | 2 | UNROUTED | U9.10 \| U14.12 |
-| `CONVST` | 3 | 3 | UNROUTED | U9.8 \| U14.9 \| U14.10 |
-| `ISENSE1` | 2 | 2 | UNROUTED | R19.2 \| U9.4 |
-| `ISENSE2` | 2 | 2 | UNROUTED | R24.2 \| U9.5 |
-| `ISENSE3` | 2 | 2 | UNROUTED | R29.2 \| U9.6 |
-| `ISENSE4` | 2 | 2 | UNROUTED | R34.2 \| U9.7 |
-| `LASER_N1` | 2 | 2 | UNROUTED | Q1.3 \| LD1.1 |
-| `LASER_N2` | 2 | 2 | UNROUTED | Q2.3 \| LD2.1 |
-| `LASER_N3` | 2 | 2 | UNROUTED | Q3.3 \| LD3.1 |
-| `LASER_N4` | 2 | 2 | UNROUTED | Q4.3 \| LD4.3 |
-| `MPD1` | 3 | 3 | UNROUTED | U9.38 \| R43.2 \| C37.1 |
-| `MPD2` | 3 | 3 | UNROUTED | U9.15 \| R45.2 \| C38.1 |
-| `MPD3` | 3 | 3 | UNROUTED | U9.12 \| R47.2 \| C39.1 |
-| `MPD4` | 3 | 3 | UNROUTED | U9.17 \| R49.2 \| C40.1 |
-| `MPD_RAW1` | 3 | 3 | UNROUTED | LD1.3 \| U12.3 \| R42.1 |
-| `MPD_RAW2` | 3 | 3 | UNROUTED | LD2.3 \| U12.5 \| R44.1 |
-| `MPD_RAW3` | 3 | 3 | UNROUTED | LD3.3 \| U12.10 \| R46.1 |
-| `MPD_RAW4` | 2 | 2 | UNROUTED | U12.12 \| R48.1 |
-| `Net-(C57-Pad1)` | 2 | 2 | UNROUTED | U14.36 \| C57.1 |
-| `Net-(C58-Pad1)` | 2 | 2 | UNROUTED | U14.39 \| C58.1 |
-| `Net-(D1-A)` | 4 | 4 | UNROUTED | D1.2 \| U1.2 \| RV5.1 \| C1.1 |
-| `Net-(D1-K)` | 3 | 3 | UNROUTED | D1.1 \| R2.2 \| C3.1 |
-| `Net-(D10-A)` | 2 | 2 | UNROUTED | J1.1 \| D10.2 |
-| `Net-(D13-A)` | 2 | 2 | UNROUTED | J2.1 \| D13.2 |
-| `Net-(D2-A)` | 4 | 4 | UNROUTED | D2.2 \| U2.2 \| RV6.1 \| C5.1 |
-| `Net-(D2-K)` | 3 | 3 | UNROUTED | D2.1 \| R6.2 \| C7.1 |
-| `Net-(D3-A)` | 4 | 4 | UNROUTED | D3.2 \| U3.2 \| RV7.1 \| C9.1 |
-| `Net-(D3-K)` | 3 | 3 | UNROUTED | D3.1 \| R10.2 \| C11.1 |
-| `Net-(D4-A)` | 4 | 4 | UNROUTED | D4.2 \| U4.2 \| RV8.1 \| C13.1 |
-| `Net-(D4-K)` | 3 | 3 | UNROUTED | D4.1 \| R14.2 \| C15.1 |
-| `Net-(J6-Pad10)` | 2 | 2 | UNROUTED | J6.10 \| R63.2 |
-| `Net-(J6-Pad12)` | 2 | 2 | UNROUTED | J6.12 \| R64.2 |
-| `Net-(Q1-G)` | 2 | 2 | UNROUTED | R17.2 \| Q1.1 |
-| `Net-(Q2-G)` | 2 | 2 | UNROUTED | R22.2 \| Q2.1 |
-| `Net-(Q3-G)` | 2 | 2 | UNROUTED | R27.2 \| Q3.1 |
-| `Net-(Q4-G)` | 2 | 2 | UNROUTED | R32.2 \| Q4.1 |
-| `Net-(Q5-B)` | 2 | 2 | UNROUTED | Q5.1 \| R50.2 |
-| `Net-(Q6-B)` | 2 | 2 | UNROUTED | Q6.1 \| R51.2 |
-| `Net-(R12-Pad2)` | 2 | 2 | UNROUTED | R12.2 \| RV3.1 |
-| `Net-(R16-Pad2)` | 2 | 2 | UNROUTED | R16.2 \| RV4.1 |
-| `Net-(R4-Pad2)` | 2 | 2 | UNROUTED | R4.2 \| RV1.1 |
-| `Net-(R8-Pad2)` | 2 | 2 | UNROUTED | R8.2 \| RV2.1 |
-| `Net-(RV1-W)` | 2 | 2 | UNROUTED | RV1.2 \| R3.1 |
-| `Net-(RV2-W)` | 2 | 2 | UNROUTED | RV2.2 \| R7.1 |
-| `Net-(RV3-W)` | 2 | 2 | UNROUTED | RV3.2 \| R11.1 |
-| `Net-(RV4-W)` | 2 | 2 | UNROUTED | RV4.2 \| R15.1 |
-| `Net-(U1-+)` | 3 | 3 | UNROUTED | U1.3 \| R3.2 \| C4.1 |
-| `Net-(U10-VBUS)` | 4 | 4 | UNROUTED | U10.8 \| R55.1 \| R56.2 \| C45.1 |
-| `Net-(U10-~{RST})` | 2 | 2 | UNROUTED | U10.9 \| R57.2 |
-| `Net-(U10-~{SUSPEND})` | 2 | 2 | UNROUTED | R58.1 \| U10.11 |
-| `Net-(U14-REFCAPA)` | 3 | 3 | UNROUTED | U14.44 \| U14.45 \| C60.1 |
-| `Net-(U14-REFIN{slash}REFOUT)` | 2 | 2 | UNROUTED | U14.42 \| C59.1 |
-| `Net-(U15-BST)` | 2 | 2 | UNROUTED | U15.6 \| C63.2 |
-| `Net-(U15-SW)` | 3 | 3 | UNROUTED | U15.5 \| C63.1 \| L1.1 |
-| `Net-(U16-BST)` | 2 | 2 | UNROUTED | U16.6 \| C66.2 |
-| `Net-(U16-FB)` | 4 | 4 | UNROUTED | R61.2 \| R62.1 \| U16.1 \| C69.2 |
-| `Net-(U16-SW)` | 3 | 3 | UNROUTED | U16.5 \| C66.1 \| L2.1 |
-| `Net-(U2-+)` | 3 | 3 | UNROUTED | U2.3 \| R7.2 \| C8.1 |
-| `Net-(U3-+)` | 3 | 3 | UNROUTED | U3.3 \| R11.2 \| C12.1 |
-| `Net-(U4-+)` | 3 | 3 | UNROUTED | U4.3 \| R15.2 \| C16.1 |
-| `Net-(U5-+)` | 4 | 4 | UNROUTED | U5.3 \| R20.2 \| R21.1 \| C18.1 |
-| `Net-(U6-+)` | 4 | 4 | UNROUTED | U6.3 \| R25.2 \| R26.1 \| C21.1 |
-| `Net-(U7-+)` | 4 | 4 | UNROUTED | U7.3 \| R30.2 \| R31.1 \| C24.1 |
-| `Net-(U8-+)` | 4 | 4 | UNROUTED | U8.3 \| R35.2 \| R36.1 \| C27.1 |
-| `PWM1` | 2 | 2 | UNROUTED | R20.1 \| U9.18 |
-| `PWM2` | 2 | 2 | UNROUTED | R25.1 \| U9.19 |
-| `PWM3` | 2 | 2 | UNROUTED | R30.1 \| U9.20 |
-| `PWM4` | 2 | 2 | UNROUTED | R35.1 \| U9.9 |
-| `VOUT1` | 5 | 5 | UNROUTED | U1.6 \| RV5.2 \| RV5.3 \| C1.2 \| U14.49 |
-| `VOUT2` | 5 | 5 | UNROUTED | U2.6 \| RV6.2 \| RV6.3 \| C5.2 \| U14.51 |
-| `VOUT3` | 5 | 5 | UNROUTED | U3.6 \| RV7.2 \| RV7.3 \| C9.2 \| U14.57 |
-| `VOUT4` | 5 | 5 | UNROUTED | U4.6 \| RV8.2 \| RV8.3 \| C13.2 \| U14.59 |
-| `+3V3` | 22 | 22 | ZONE_OR_RAIL_PENDING | U9.2 \| C43.1 \| R54.1 \| R59.1 \| R60.2 \| R52.1 \| R53.1 \| U10.6 \| ... 14 more |
-| `+5V` | 39 | 39 | ZONE_OR_RAIL_PENDING | R2.1 \| U1.7 \| C2.1 \| R4.1 \| R6.1 \| U2.7 \| C6.1 \| R8.1 \| ... 31 more |
-| `/POWER_IO/BUCK_5V` | 5 | 5 | ZONE_OR_RAIL_PENDING | D6.1 \| U15.1 \| C64.1 \| L1.2 \| C65.1 |
-| `GND` | 162 | 160 | ZONE_OR_RAIL_PENDING | C3.2 \| U1.4 \| C2.2 \| RV1.3 \| C4.2 \| C7.2 \| U2.4 \| C6.2 \| ... 152 more |
-| `LASER_V+` | 11 | 11 | ZONE_OR_RAIL_PENDING | LD1.2 \| LD2.2 \| LD3.2 \| LD4.1 \| R61.1 \| L2.2 \| C67.1 \| U13.1 \| ... 3 more |
-| `VBUS_5V` | 8 | 8 | ZONE_OR_RAIL_PENDING | C41.1 \| C42.1 \| R55.2 \| D9.2 \| D10.1 \| D13.1 \| D14.2 \| D5.1 |
-| `VIN_24V` | 11 | 11 | ZONE_OR_RAIL_PENDING | J5.1 \| J6.4 \| J6.5 \| C61.1 \| C62.1 \| U15.2 \| U15.3 \| U16.2 \| ... 3 more |
+| `+3V3` | 24 | 10 | ZONE_OR_RAIL_PENDING | C55.1, C49.1, U14.6, U14.7, U14.23, U14.34, C50.1, U11.5 \| C43.1, C47.1, U9.2 \| J7.3, J7.4 \| U10.6, U10.7, R57.1 \| R60.2 \| R59.1 \| R64.1, R54.1 \| C35.1, U12.4 \| ... 2 more |
+| `+5V` | 41 | 19 | ZONE_OR_RAIL_PENDING | C26.1, U8.5 \| C56.1, D6.2, C53.1, C34.1, C48.1, U14.1, U14.37, U14.38 ... \| C23.1 \| U2.7, R8.1 \| R12.1, C10.1 \| U4.7, C14.1 \| U3.7 \| R16.1 \| ... 11 more |
+| `/LASER_BLUE/FB` | 5 | 1 | EXPLICITLY_ROUTED | U8.4, Q4.2, R33.1, C28.1, R34.1 |
+| `/LASER_BLUE/LOUT` | 3 | 1 | EXPLICITLY_ROUTED | U8.1, R32.1, C28.2 |
+| `/LASER_GREEN/FB` | 5 | 1 | EXPLICITLY_ROUTED | R28.1, R29.1, Q3.2, C25.1, U7.4 |
+| `/LASER_GREEN/LOUT` | 3 | 1 | EXPLICITLY_ROUTED | C25.2, U7.1, R27.1 |
+| `/LASER_IR/FB` | 5 | 1 | EXPLICITLY_ROUTED | Q1.2, R18.1, R19.1, C19.1, U5.4 |
+| `/LASER_IR/LOUT` | 3 | 1 | EXPLICITLY_ROUTED | R17.1, C19.2, U5.1 |
+| `/LASER_RED/FB` | 5 | 1 | EXPLICITLY_ROUTED | R24.1, C22.1, R23.1, Q2.2, U6.4 |
+| `/LASER_RED/LOUT` | 3 | 1 | EXPLICITLY_ROUTED | R22.1, C22.2, U6.1 |
+| `/MCU_ESP32-S3/D+` | 3 | 1 | EXPLICITLY_ROUTED | J1.3, D8.2, U10.4 |
+| `/MCU_ESP32-S3/D-` | 3 | 1 | EXPLICITLY_ROUTED | J1.2, D7.2, U10.5 |
+| `/MCU_ESP32-S3/DTR` | 3 | 1 | EXPLICITLY_ROUTED | Q6.3, U10.28, R50.1 |
+| `/MCU_ESP32-S3/EN` | 6 | 1 | EXPLICITLY_ROUTED | C44.1, U9.3, R54.2, Q5.3, SW1.1, SW1.1 |
+| `/MCU_ESP32-S3/FACT` | 4 | 1 | EXPLICITLY_ROUTED | U9.39, SW3.1, SW3.1, R52.2 |
+| `/MCU_ESP32-S3/IO13` | 2 | 1 | EXPLICITLY_ROUTED | R60.1, U9.21 |
+| `/MCU_ESP32-S3/IO14` | 2 | 1 | EXPLICITLY_ROUTED | U9.22, R59.2 |
+| `/MCU_ESP32-S3/IO19` | 3 | 1 | EXPLICITLY_ROUTED | D12.2, J2.2, U9.13 |
+| `/MCU_ESP32-S3/IO20` | 3 | 1 | EXPLICITLY_ROUTED | J2.3, U9.14, D11.2 |
+| `/MCU_ESP32-S3/IO43` | 2 | 1 | EXPLICITLY_ROUTED | U10.25, U9.37 |
+| `/MCU_ESP32-S3/IO44` | 2 | 1 | EXPLICITLY_ROUTED | U10.26, U9.36 |
+| `/MCU_ESP32-S3/PROG` | 6 | 1 | EXPLICITLY_ROUTED | C46.1, Q6.2, U9.27, SW2.1, SW2.1, R53.2 |
+| `/MCU_ESP32-S3/RTS` | 3 | 1 | EXPLICITLY_ROUTED | U10.24, R51.1, Q5.2 |
+| `/POWER_IO/BUCK_5V` | 5 | 1 | EXPLICITLY_ROUTED | D6.1, L1.2, C64.1, U15.1, C65.1 |
+| `/POWER_IO/MPD_AMP1` | 2 | 1 | EXPLICITLY_ROUTED | R43.1, U12.1 |
+| `/POWER_IO/MPD_AMP2` | 2 | 1 | EXPLICITLY_ROUTED | R45.1, U12.7 |
+| `/POWER_IO/MPD_AMP3` | 2 | 1 | EXPLICITLY_ROUTED | R47.1, U12.8 |
+| `/POWER_IO/MPD_AMP4` | 2 | 1 | EXPLICITLY_ROUTED | R49.1, U12.14 |
+| `/POWER_IO/MPD_BIAS` | 12 | 1 | EXPLICITLY_ROUTED | U13.2, U13.3, R48.2, C36.2, R42.2, R46.2, R44.2, R41.1 ... |
+| `ADC_BUSY` | 2 | 1 | EXPLICITLY_ROUTED | U14.14, U9.24 |
+| `ADC_CS` | 2 | 1 | EXPLICITLY_ROUTED | U14.13, U9.11 |
+| `ADC_MISO_A` | 2 | 1 | EXPLICITLY_ROUTED | U14.24, U9.23 |
+| `ADC_MISO_B` | 2 | 1 | EXPLICITLY_ROUTED | U14.25, U9.31 |
+| `ADC_RESET` | 2 | 1 | EXPLICITLY_ROUTED | U14.11, U9.25 |
+| `ADC_SCLK` | 2 | 1 | EXPLICITLY_ROUTED | U14.12, U9.10 |
+| `CONVST` | 3 | 1 | EXPLICITLY_ROUTED | U14.9, U14.10, U9.8 |
+| `GND` | 166 | 1 | EXPLICITLY_ROUTED | H1.1, H2.1, D14.1, C67.2, C44.2, C26.2, C55.2, C56.2 ... |
+| `ISENSE1` | 2 | 1 | EXPLICITLY_ROUTED | R19.2, U9.4 |
+| `ISENSE2` | 2 | 1 | EXPLICITLY_ROUTED | R24.2, U9.5 |
+| `ISENSE3` | 2 | 1 | EXPLICITLY_ROUTED | R29.2, U9.6 |
+| `ISENSE4` | 2 | 1 | EXPLICITLY_ROUTED | R34.2, U9.7 |
+| `LASER_N1` | 2 | 1 | EXPLICITLY_ROUTED | LD1.1, Q1.3 |
+| `LASER_N2` | 2 | 1 | EXPLICITLY_ROUTED | LD2.1, Q2.3 |
+| `LASER_N3` | 2 | 1 | EXPLICITLY_ROUTED | Q3.3, LD3.1 |
+| `LASER_N4` | 2 | 1 | EXPLICITLY_ROUTED | Q4.3, LD4.3 |
+| `LASER_V+` | 11 | 1 | EXPLICITLY_ROUTED | C67.1, LD1.2, U13.1, C68.1, L2.2, C36.1, LD4.1, R61.1 ... |
+| `MPD1` | 3 | 1 | EXPLICITLY_ROUTED | C37.1, R43.2, U9.38 |
+| `MPD2` | 3 | 1 | EXPLICITLY_ROUTED | C38.1, U9.15, R45.2 |
+| `MPD3` | 3 | 1 | EXPLICITLY_ROUTED | C39.1, R47.2, U9.12 |
+| `MPD4` | 3 | 1 | EXPLICITLY_ROUTED | R49.2, C40.1, U9.17 |
+| `MPD_RAW1` | 3 | 1 | EXPLICITLY_ROUTED | LD1.3, R42.1, U12.3 |
+| `MPD_RAW2` | 3 | 1 | EXPLICITLY_ROUTED | LD2.3, R44.1, U12.5 |
+| `MPD_RAW3` | 3 | 1 | EXPLICITLY_ROUTED | R46.1, LD3.3, U12.10 |
+| `MPD_RAW4` | 2 | 1 | EXPLICITLY_ROUTED | R48.1, U12.12 |
+| `Net-(C57-Pad1)` | 2 | 1 | EXPLICITLY_ROUTED | U14.36, C57.1 |
+| `Net-(C58-Pad1)` | 2 | 1 | EXPLICITLY_ROUTED | U14.39, C58.1 |
+| `Net-(D1-A)` | 4 | 1 | EXPLICITLY_ROUTED | C1.1, RV5.1, D1.2, U1.2 |
+| `Net-(D1-K)` | 3 | 1 | EXPLICITLY_ROUTED | C3.1, R2.2, D1.1 |
+| `Net-(D10-A)` | 2 | 1 | EXPLICITLY_ROUTED | J1.1, D10.2 |
+| `Net-(D13-A)` | 2 | 1 | EXPLICITLY_ROUTED | J2.1, D13.2 |
+| `Net-(D2-A)` | 4 | 1 | EXPLICITLY_ROUTED | U2.2, C5.1, D2.2, RV6.1 |
+| `Net-(D2-K)` | 3 | 1 | EXPLICITLY_ROUTED | C7.1, D2.1, R6.2 |
+| `Net-(D3-A)` | 4 | 1 | EXPLICITLY_ROUTED | U3.2, C9.1, RV7.1, D3.2 |
+| `Net-(D3-K)` | 3 | 1 | EXPLICITLY_ROUTED | C11.1, D3.1, R10.2 |
+| `Net-(D4-A)` | 4 | 1 | EXPLICITLY_ROUTED | RV8.1, C13.1, U4.2, D4.2 |
+| `Net-(D4-K)` | 3 | 1 | EXPLICITLY_ROUTED | C15.1, D4.1, R14.2 |
+| `Net-(J6-Pad10)` | 2 | 1 | EXPLICITLY_ROUTED | R63.2, J6.10 |
+| `Net-(J6-Pad12)` | 2 | 1 | EXPLICITLY_ROUTED | R64.2, J6.12 |
+| `Net-(Q1-G)` | 2 | 1 | EXPLICITLY_ROUTED | Q1.1, R17.2 |
+| `Net-(Q2-G)` | 2 | 1 | EXPLICITLY_ROUTED | R22.2, Q2.1 |
+| `Net-(Q3-G)` | 2 | 1 | EXPLICITLY_ROUTED | Q3.1, R27.2 |
+| `Net-(Q4-G)` | 2 | 1 | EXPLICITLY_ROUTED | Q4.1, R32.2 |
+| `Net-(Q5-B)` | 2 | 1 | EXPLICITLY_ROUTED | R50.2, Q5.1 |
+| `Net-(Q6-B)` | 2 | 1 | EXPLICITLY_ROUTED | Q6.1, R51.2 |
+| `Net-(R12-Pad2)` | 2 | 1 | EXPLICITLY_ROUTED | R12.2, RV3.1 |
+| `Net-(R16-Pad2)` | 2 | 1 | EXPLICITLY_ROUTED | R16.2, RV4.1 |
+| `Net-(R4-Pad2)` | 2 | 1 | EXPLICITLY_ROUTED | RV1.1, R4.2 |
+| `Net-(R8-Pad2)` | 2 | 1 | EXPLICITLY_ROUTED | R8.2, RV2.1 |
+| `Net-(RV1-W)` | 2 | 1 | EXPLICITLY_ROUTED | RV1.2, R3.1 |
+| `Net-(RV2-W)` | 2 | 1 | EXPLICITLY_ROUTED | R7.1, RV2.2 |
+| `Net-(RV3-W)` | 2 | 1 | EXPLICITLY_ROUTED | R11.1, RV3.2 |
+| `Net-(RV4-W)` | 2 | 1 | EXPLICITLY_ROUTED | R15.1, RV4.2 |
+| `Net-(U1-+)` | 3 | 1 | EXPLICITLY_ROUTED | C4.1, R3.2, U1.3 |
+| `Net-(U10-VBUS)` | 4 | 1 | EXPLICITLY_ROUTED | U10.8, R56.2, C45.1, R55.1 |
+| `Net-(U10-~{RST})` | 2 | 1 | EXPLICITLY_ROUTED | U10.9, R57.2 |
+| `Net-(U10-~{SUSPEND})` | 2 | 1 | EXPLICITLY_ROUTED | U10.11, R58.1 |
+| `Net-(U14-REFCAPA)` | 3 | 1 | EXPLICITLY_ROUTED | U14.44, U14.45, C60.1 |
+| `Net-(U14-REFIN{slash}REFOUT)` | 2 | 1 | EXPLICITLY_ROUTED | C59.1, U14.42 |
+| `Net-(U15-BST)` | 2 | 1 | EXPLICITLY_ROUTED | C63.2, U15.6 |
+| `Net-(U15-SW)` | 3 | 1 | EXPLICITLY_ROUTED | C63.1, L1.1, U15.5 |
+| `Net-(U16-BST)` | 2 | 1 | EXPLICITLY_ROUTED | U16.6, C66.2 |
+| `Net-(U16-FB)` | 4 | 1 | EXPLICITLY_ROUTED | U16.1, R62.1, R61.2, C69.2 |
+| `Net-(U16-SW)` | 3 | 1 | EXPLICITLY_ROUTED | L2.1, U16.5, C66.1 |
+| `Net-(U2-+)` | 3 | 1 | EXPLICITLY_ROUTED | U2.3, C8.1, R7.2 |
+| `Net-(U3-+)` | 3 | 1 | EXPLICITLY_ROUTED | U3.3, R11.2, C12.1 |
+| `Net-(U4-+)` | 3 | 1 | EXPLICITLY_ROUTED | R15.2, U4.3, C16.1 |
+| `Net-(U5-+)` | 4 | 1 | EXPLICITLY_ROUTED | R21.1, R20.2, C18.1, U5.3 |
+| `Net-(U6-+)` | 4 | 1 | EXPLICITLY_ROUTED | R25.2, C21.1, R26.1, U6.3 |
+| `Net-(U7-+)` | 4 | 1 | EXPLICITLY_ROUTED | R30.2, C24.1, U7.3, R31.1 |
+| `Net-(U8-+)` | 4 | 1 | EXPLICITLY_ROUTED | U8.3, C27.1, R35.2, R36.1 |
+| `PWM1` | 2 | 1 | EXPLICITLY_ROUTED | U9.18, R20.1 |
+| `PWM2` | 2 | 1 | EXPLICITLY_ROUTED | R25.1, U9.19 |
+| `PWM3` | 2 | 1 | EXPLICITLY_ROUTED | R30.1, U9.20 |
+| `PWM4` | 2 | 1 | EXPLICITLY_ROUTED | U9.9, R35.1 |
+| `VBUS_5V` | 8 | 1 | EXPLICITLY_ROUTED | D14.2, D10.1, D9.2, C41.1, D5.1, D13.1, C42.1, R55.2 |
+| `VIN_24V` | 13 | 1 | EXPLICITLY_ROUTED | C62.1, C61.1, U16.2, U16.3, J7.7, J7.8, U15.2, U15.3 ... |
+| `VOUT1` | 5 | 1 | EXPLICITLY_ROUTED | U14.49, C1.2, RV5.2, RV5.3, U1.6 |
+| `VOUT2` | 5 | 1 | EXPLICITLY_ROUTED | U2.6, C5.2, U14.51, RV6.2, RV6.3 |
+| `VOUT3` | 5 | 1 | EXPLICITLY_ROUTED | U3.6, C9.2, U14.57, RV7.2, RV7.3 |
+| `VOUT4` | 5 | 1 | EXPLICITLY_ROUTED | RV8.2, RV8.3, C13.2, U4.6, U14.59 |
 
 ## Pin Intent Coverage
 
@@ -314,8 +462,8 @@ Every exported netlist node is assigned a component-pin-level role. This is stri
 
 | Metric | Value |
 |---|---:|
-| `exported_netlist_nodes` | 581 |
-| `pin_intent_roles` | 581 |
+| `exported_netlist_nodes` | 589 |
+| `pin_intent_roles` | 589 |
 | `missing_pin_intent_roles` | 0 |
 
 ## Net Inventory
@@ -324,8 +472,8 @@ Total exported nets: **156**.
 
 | Net | Nodes | Intent / Review Note |
 |---|---|---|
-| `+3V3` | `C35.1`, `C43.1`, `C47.1`, `C49.1`, `C50.1`, `C55.1`, `R52.1`, `R53.1`, `R54.1`, `R57.1`, `R59.1`, `R60.2`, `R64.1`, `U10.6` `VDD`, `U10.7` `VREGIN`, `U11.5` `VOUT`, `U12.4` `VS`, `U14.23` `VDRIVE`, `U14.34` `REF_SELECT`, `U14.6` `PAR/SER/BYTE_SEL`, `U14.7` `STBY`, `U9.2` `3V3` | ESP32-S3 3.3 V rail from AP2112K output, plus MCU reset/boot pulls and decoupling. |
-| `+5V` | `C10.1`, `C14.1`, `C17.1`, `C2.1`, `C20.1`, `C23.1`, `C26.1`, `C34.1`, `C48.1`, `C51.1`, `C52.1`, `C53.1`, `C54.1`, `C56.1`, `C6.1`, `D5.2` `K`, `D6.2` `K`, `R10.1`, `R12.1`, `R14.1`, `R16.1`, `R2.1`, `R4.1`, `R6.1`, `R8.1`, `U1.7` `V+`, `U11.1` `VIN`, `U11.3` `EN`, `U14.1` `AVCC`, `U14.37` `AVCC`, `U14.38` `AVCC`, `U14.48` `AVCC`, `U2.7` `V+`, `U3.7` `V+`, `U4.7` `V+`, `U5.5` `V+`, `U6.5` `V+`, `U7.5` `V+`, `U8.5` `V+` | Board 5 V rail after USB/AP63205 Schottky OR-ing; feeds analog, laser-driver op amps, AD7606 AVCC, and 3V3 LDO input. |
+| `+3V3` | `C35.1`, `C43.1`, `C47.1`, `C49.1`, `C50.1`, `C55.1`, `J7.3` `+3V3`, `J7.4` `+3V3`, `R52.1`, `R53.1`, `R54.1`, `R57.1`, `R59.1`, `R60.2`, `R64.1`, `U10.6` `VDD`, `U10.7` `VREGIN`, `U11.5` `VOUT`, `U12.4` `VS`, `U14.23` `VDRIVE`, `U14.34` `REF_SELECT`, `U14.6` `PAR/SER/BYTE_SEL`, `U14.7` `STBY`, `U9.2` `3V3` | ESP32-S3 3.3 V rail from AP2112K output, plus MCU reset/boot pulls and decoupling. |
+| `+5V` | `C10.1`, `C14.1`, `C17.1`, `C2.1`, `C20.1`, `C23.1`, `C26.1`, `C34.1`, `C48.1`, `C51.1`, `C52.1`, `C53.1`, `C54.1`, `C56.1`, `C6.1`, `D5.2` `K`, `D6.2` `K`, `J7.5` `+5V`, `J7.6` `+5V`, `R10.1`, `R12.1`, `R14.1`, `R16.1`, `R2.1`, `R4.1`, `R6.1`, `R8.1`, `U1.7` `V+`, `U11.1` `VIN`, `U11.3` `EN`, `U14.1` `AVCC`, `U14.37` `AVCC`, `U14.38` `AVCC`, `U14.48` `AVCC`, `U2.7` `V+`, `U3.7` `V+`, `U4.7` `V+`, `U5.5` `V+`, `U6.5` `V+`, `U7.5` `V+`, `U8.5` `V+` | Board 5 V rail after USB/AP63205 Schottky OR-ing; feeds analog, laser-driver op amps, AD7606 AVCC, and 3V3 LDO input. |
 | `/LASER_BLUE/FB` | `C28.1`, `Q4.2` `S`, `R33.1`, `R34.1`, `U8.4` `-` | Laser current-loop feedback: AO3400A source / 10 ohm sense high side / TLV9001 inverting input. |
 | `/LASER_BLUE/LOUT` | `C28.2`, `R32.1`, `U8.1` | TLV9001 output and compensation node before the 1 k MOSFET gate resistor. |
 | `/LASER_GREEN/FB` | `C25.1`, `Q3.2` `S`, `R28.1`, `R29.1`, `U7.4` `-` | Laser current-loop feedback: AO3400A source / 10 ohm sense high side / TLV9001 inverting input. |
@@ -369,7 +517,7 @@ Total exported nets: **156**.
 | `ADC_RESET` | `U14.11` `RESET`, `U9.25` `GPIO48/SPICLK_N/SUBSPICLK_N_DIFF` | ESP32 GPIO48 reset output into the on-board AD7606-4 RESET pin. |
 | `ADC_SCLK` | `U14.12` `RD/SCLK`, `U9.10` `GPIO17/U1TXD/ADC2_CH6` | ESP32 GPIO17 serial clock into the on-board AD7606-4 RD/SCLK pin. |
 | `CONVST` | `U14.10` `CONVSTB`, `U14.9` `CONVSTA`, `U9.8` `GPIO15/U0RTS/ADC2_CH4/XTAL_32K_P` | ESP32 GPIO15 conversion-start output to the on-board AD7606-4 CONVSTA/CONVSTB pins. |
-| `GND` | `C10.2`, `C11.2`, `C12.2`, `C14.2`, `C15.2`, `C16.2`, `C17.2`, `C18.2`, `C2.2`, `C20.2`, `C21.2`, `C23.2`, `C24.2`, `C26.2`, `C27.2`, `C3.2`, `C34.2`, `C35.2`, `C37.2`, `C38.2`, `C39.2`, `C4.2`, `C40.2`, `C41.2`, `C42.2`, `C43.2`, `C44.2`, `C45.2`, `C46.2`, `C47.2`, `C48.2`, `C49.2`, `C50.2`, `C51.2`, `C52.2`, `C53.2`, `C54.2`, `C55.2`, `C56.2`, `C57.2`, `C58.2`, `C59.2`, `C6.2`, `C60.2`, `C61.2`, `C62.2`, `C64.2`, `C65.2`, `C67.2`, `C68.2`, `C7.2`, `C70.2` `-`, `C8.2`, `D11.1` `A1`, `D12.1` `A1`, `D14.1` `A1`, `D7.1` `A1`, `D8.1` `A1`, `D9.1` `A1`, `J1.5` `GND`, `J1.6` `GND`, `J2.5` `GND`, `J2.6` `GND`, `J5.2` `2`, `J5.3` `3`, `J6.11`, `J6.7`, `J6.8`, `J6.9`, `R18.2`, `R21.2`, `R23.2`, `R26.2`, `R28.2`, `R31.2`, `R33.2`, `R36.2`, `R41.2`, `R56.1`, `R58.2`, `R62.2`, `RV1.3`, `RV2.3`, `RV3.3`, `RV4.3`, `SW1.2` `2`, `SW2.2` `2`, `SW3.2` `2`, `U1.4` `V-`, `U10.29` `GND`, `U10.3` `GND`, `U11.2` `GND`, `U12.11` `GND`, `U14.16` `DB0`, `U14.17` `DB1`, `U14.18` `DB2`, `U14.19` `DB3`, `U14.2` `AGND`, `U14.20` `DB4`, `U14.21` `DB5`, `U14.22` `DB6`, `U14.26` `AGND`, `U14.27` `DB9`, `U14.28` `DB10`, `U14.29` `DB11`, `U14.3` `OS0`, `U14.30` `DB12`, `U14.31` `DB13`, `U14.32` `DB14/HBEN`, `U14.33` `DB15/BYTE_SEL`, `U14.35` `AGND`, `U14.4` `OS1`, `U14.40` `AGND`, `U14.41` `AGND`, `U14.43` `REFGND`, `U14.46` `REFGND`, `U14.47` `AGND`, `U14.5` `OS2`, `U14.50` `V1GND`, `U14.52` `V2GND`, `U14.53` `AGND`, `U14.54` `AGND`, `U14.55` `AGND`, `U14.56` `AGND`, `U14.58` `V3GND`, `U14.60` `V4GND`, `U14.61` `AGND`, `U14.62` `AGND`, `U14.63` `AGND`, `U14.64` `AGND`, `U14.8` `RANGE`, `U15.4` `GND`, `U16.4` `GND`, `U2.4` `V-`, `U3.4` `V-`, `U4.4` `V-`, `U5.2` `V-`, `U6.2` `V-`, `U7.2` `V-`, `U8.2` `V-`, `U9.1` `GND`, `U9.40` `GND`, `U9.41` `GND` | Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
+| `GND` | `C10.2`, `C11.2`, `C12.2`, `C14.2`, `C15.2`, `C16.2`, `C17.2`, `C18.2`, `C2.2`, `C20.2`, `C21.2`, `C23.2`, `C24.2`, `C26.2`, `C27.2`, `C3.2`, `C34.2`, `C35.2`, `C37.2`, `C38.2`, `C39.2`, `C4.2`, `C40.2`, `C41.2`, `C42.2`, `C43.2`, `C44.2`, `C45.2`, `C46.2`, `C47.2`, `C48.2`, `C49.2`, `C50.2`, `C51.2`, `C52.2`, `C53.2`, `C54.2`, `C55.2`, `C56.2`, `C57.2`, `C58.2`, `C59.2`, `C6.2`, `C60.2`, `C61.2`, `C62.2`, `C64.2`, `C65.2`, `C67.2`, `C68.2`, `C7.2`, `C70.2` `-`, `C8.2`, `D11.1` `A1`, `D12.1` `A1`, `D14.1` `A1`, `D7.1` `A1`, `D8.1` `A1`, `D9.1` `A1`, `J1.5` `GND`, `J1.6` `GND`, `J2.5` `GND`, `J2.6` `GND`, `J5.2` `2`, `J5.3` `3`, `J6.11`, `J6.7`, `J6.8`, `J6.9`, `J7.1` `GND`, `J7.2` `GND`, `R18.2`, `R21.2`, `R23.2`, `R26.2`, `R28.2`, `R31.2`, `R33.2`, `R36.2`, `R41.2`, `R56.1`, `R58.2`, `R62.2`, `RV1.3`, `RV2.3`, `RV3.3`, `RV4.3`, `SW1.2` `2`, `SW2.2` `2`, `SW3.2` `2`, `U1.4` `V-`, `U10.29` `GND`, `U10.3` `GND`, `U11.2` `GND`, `U12.11` `GND`, `U14.16` `DB0`, `U14.17` `DB1`, `U14.18` `DB2`, `U14.19` `DB3`, `U14.2` `AGND`, `U14.20` `DB4`, `U14.21` `DB5`, `U14.22` `DB6`, `U14.26` `AGND`, `U14.27` `DB9`, `U14.28` `DB10`, `U14.29` `DB11`, `U14.3` `OS0`, `U14.30` `DB12`, `U14.31` `DB13`, `U14.32` `DB14/HBEN`, `U14.33` `DB15/BYTE_SEL`, `U14.35` `AGND`, `U14.4` `OS1`, `U14.40` `AGND`, `U14.41` `AGND`, `U14.43` `REFGND`, `U14.46` `REFGND`, `U14.47` `AGND`, `U14.5` `OS2`, `U14.50` `V1GND`, `U14.52` `V2GND`, `U14.53` `AGND`, `U14.54` `AGND`, `U14.55` `AGND`, `U14.56` `AGND`, `U14.58` `V3GND`, `U14.60` `V4GND`, `U14.61` `AGND`, `U14.62` `AGND`, `U14.63` `AGND`, `U14.64` `AGND`, `U14.8` `RANGE`, `U15.4` `GND`, `U16.4` `GND`, `U2.4` `V-`, `U3.4` `V-`, `U4.4` `V-`, `U5.2` `V-`, `U6.2` `V-`, `U7.2` `V-`, `U8.2` `V-`, `U9.1` `GND`, `U9.40` `GND`, `U9.41` `GND` | Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
 | `ISENSE1` | `R19.2`, `U9.4` `GPIO4/TOUCH4/ADC1_CH3` | Laser source-sense telemetry through 1 k isolation into ESP32 ADC. |
 | `ISENSE2` | `R24.2`, `U9.5` `GPIO5/TOUCH5/ADC1_CH4` | Laser source-sense telemetry through 1 k isolation into ESP32 ADC. |
 | `ISENSE3` | `R29.2`, `U9.6` `GPIO6/TOUCH6/ADC1_CH5` | Laser source-sense telemetry through 1 k isolation into ESP32 ADC. |
@@ -424,7 +572,7 @@ Total exported nets: **156**.
 | `Net-(U15-BST)` | `C63.2`, `U15.6` `BST` | AP63205 bootstrap node between U15 BST and the 100 nF capacitor to the switch node. |
 | `Net-(U15-SW)` | `C63.1`, `L1.1` `1`, `U15.5` `SW` | AP63205 switch node: U15 SW pin, L1 switch-side pin, and the BST capacitor switch-side plate; keep this copper compact. |
 | `Net-(U16-BST)` | `C66.2`, `U16.6` `BST` | AP63200 bootstrap node between U16 BST and the 100 nF capacitor to the laser-buck switch node. |
-| `Net-(U16-FB)` | `C69.2`, `R61.2`, `R62.1`, `U16.1` `FB` | AP63200 laser-buck feedback node set by the 274k/22.1k divider and 100 pF feed-forward capacitor for about 10.72 V LASER_V+. |
+| `Net-(U16-FB)` | `C69.2`, `R61.2`, `R62.1`, `U16.1` `FB` | AP63200 laser-buck feedback node set by the 237k/22.1k divider and 100 pF feed-forward capacitor for about 9.3 V LASER_V+. |
 | `Net-(U16-SW)` | `C66.1`, `L2.1` `1`, `U16.5` `SW` | AP63200 laser-buck switch node: U16 SW pin, L2 switch-side pin, and the BST capacitor switch-side plate; keep away from MPD/TIA nodes. |
 | `Net-(U2-+)` | `C8.1`, `R7.2`, `U2.3` `+` | OPA380 non-inverting VBIAS node after trim/filter. |
 | `Net-(U3-+)` | `C12.1`, `R11.2`, `U3.3` `+` | OPA380 non-inverting VBIAS node after trim/filter. |
@@ -438,7 +586,7 @@ Total exported nets: **156**.
 | `PWM3` | `R30.1`, `U9.20` `GPIO12/TOUCH12/ADC2_CH1/FSPICLK/FSPIIO6/SUBSPICLK` | ESP32 PWM command into one laser-driver input resistor. |
 | `PWM4` | `R35.1`, `U9.9` `GPIO16/U0CTS/ADC2_CH5/XTAL_32K_N` | ESP32 PWM command into one laser-driver input resistor. |
 | `VBUS_5V` | `C41.1`, `C42.1`, `D10.1` `K`, `D13.1` `K`, `D14.2` `A2`, `D5.1` `A`, `D9.2` `A2`, `R55.2` | Joined USB VBUS after the copied MCU-sheet 1N5819HW isolation diodes, local VBUS ESD/bulk parts, and D5 anode into +5V OR-ing. |
-| `VIN_24V` | `C61.1`, `C62.1`, `C70.1` `+`, `J5.1` `1`, `J6.4`, `J6.5`, `R63.1`, `U15.2` `EN`, `U15.3` `IN`, `U16.2` `EN`, `U16.3` `IN` | 24 V center-positive barrel/RJ45 input after J5/J6, feeding the AP63205 +5 V buck and AP63200 laser buck input pins and local input capacitors. |
+| `VIN_24V` | `C61.1`, `C62.1`, `C70.1` `+`, `J5.1` `1`, `J6.4`, `J6.5`, `J7.7` `VIN_24V`, `J7.8` `VIN_24V`, `R63.1`, `U15.2` `EN`, `U15.3` `IN`, `U16.2` `EN`, `U16.3` `IN` | 24 V center-positive barrel/RJ45 input after J5/J6, feeding the AP63205 +5 V buck and AP63200 laser buck input pins and local input capacitors. |
 | `VOUT1` | `C1.2`, `RV5.2` `W`, `RV5.3`, `U1.6`, `U14.49` `V1` | OPA380 TIA output and feedback high side into the on-board AD7606-4 signal ADC. |
 | `VOUT2` | `C5.2`, `RV6.2` `W`, `RV6.3`, `U14.51` `V2`, `U2.6` | OPA380 TIA output and feedback high side into the on-board AD7606-4 signal ADC. |
 | `VOUT3` | `C9.2`, `RV7.2` `W`, `RV7.3`, `U14.57` `V3`, `U3.6` | OPA380 TIA output and feedback high side into the on-board AD7606-4 signal ADC. |
@@ -483,7 +631,7 @@ Total exported nets: **156**.
 
 ## Component Instance Inventory
 
-Total schematic components: **178**.
+Total schematic components: **179**.
 
 | Ref | Sheet | Value | Footprint | LCSC | MPN |
 |---|---|---|---|---|---|
@@ -548,6 +696,7 @@ Total schematic components: **178**.
 | `D9` | `/MCU_ESP32-S3/` | ESD_5V | `Diode_SMD:D_SOD-523` | `C5199850` | `LESD5D5.0CT1G(UMW)` |
 | `J1` | `/MCU_ESP32-S3/` | USB_MINI_B | `Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal` | `C46391` | `920-462A2021S10101` |
 | `J2` | `/MCU_ESP32-S3/` | USB_MINI_B | `Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal` | `C46391` | `920-462A2021S10101` |
+| `J7` | `/MCU_ESP32-S3/` | C192300 | `Open_Automation:PinHeader_2x04_P2.54mm_SMD_Vertical_C192300` | `C192300` | `2.54-2*4P` |
 | `Q5` | `/MCU_ESP32-S3/` | Q_L8050QLT1G | `Package_TO_SOT_SMD:SOT-23` | `C49581` | `L8050QLT1G` |
 | `Q6` | `/MCU_ESP32-S3/` | Q_L8550HQLT1G | `Package_TO_SOT_SMD:SOT-23` | `C39282` | `L8550HQLT1G` |
 | `R50` | `/MCU_ESP32-S3/` | 10K | `Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder` | `C191123` | `ERJ2RKF1002X` |
@@ -586,8 +735,8 @@ Total schematic components: **178**.
 | `C58` | `/POWER_IO/` | 1uF ADC REGCAP | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `C7472946` | `HGC0402R5105K250NTEJ` |
 | `C59` | `/POWER_IO/` | 10uF ADC REF | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `C318691` | `CL21A106KAYNNNG` |
 | `C60` | `/POWER_IO/` | 10uF ADC REFCAP | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `C318691` | `CL21A106KAYNNNG` |
-| `C61` | `/POWER_IO/` | 1uF 100V | `Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder` | `C13832` | `CL31B105KCHNNNE` |
-| `C62` | `/POWER_IO/` | 1uF 100V | `Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder` | `C13832` | `CL31B105KCHNNNE` |
+| `C61` | `/POWER_IO/` | 10uF 50V | `Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder` | `C89632` | `CL31B106KBHNNNE` |
+| `C62` | `/POWER_IO/` | 10uF 50V | `Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder` | `C89632` | `CL31B106KBHNNNE` |
 | `C63` | `/POWER_IO/` | 100nF BST | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `C83056` | `0402B104K160CT` |
 | `C64` | `/POWER_IO/` | 10uF 5V buck | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `C318691` | `CL21A106KAYNNNG` |
 | `C65` | `/POWER_IO/` | 10uF 5V buck | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `C318691` | `CL21A106KAYNNNG` |
@@ -611,7 +760,7 @@ Total schematic components: **178**.
 | `R47` | `/POWER_IO/` | 1k ADC | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2907002` | `FRC0603F1001TS` |
 | `R48` | `/POWER_IO/` | 240R MPD sense | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C114613` | `RC0603FR-07240RL` |
 | `R49` | `/POWER_IO/` | 1k ADC | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2907002` | `FRC0603F1001TS` |
-| `R61` | `/POWER_IO/` | 274k FB | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2942027` | `FRC0603F2743TS` |
+| `R61` | `/POWER_IO/` | 237k FB | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2998117` | `FRC0603F2373TS` |
 | `R62` | `/POWER_IO/` | 22.1K FB | `Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder` | `C2929993` | `FRC0402F2212TS` |
 | `R63` | `/POWER_IO/` | 10K | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C844918` | `CRCW060310K0FKEA` |
 | `R64` | `/POWER_IO/` | 10K | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C844918` | `CRCW060310K0FKEA` |
@@ -620,7 +769,7 @@ Total schematic components: **178**.
 | `U13` | `/POWER_IO/` | LM4040C50 5V | `Package_TO_SOT_SMD:SOT-23` | `C69316` | `LM4040C50IDBZR` |
 | `U14` | `/POWER_IO/` | AD7606BSTZ-4 | `Package_QFP:LQFP-64_10x10mm_P0.5mm` | `C51512` | `AD7606BSTZ-4RL` |
 | `U15` | `/POWER_IO/` | AP63205WU-7 5V BUCK | `Package_TO_SOT_SMD:TSOT-23-6` | `C2071056` | `AP63205WU-7` |
-| `U16` | `/POWER_IO/` | AP63200WU-7 10.7V BUCK | `Package_TO_SOT_SMD:TSOT-23-6` | `C2071868` | `AP63200WU-7` |
+| `U16` | `/POWER_IO/` | AP63200WU-7 9.3V BUCK | `Package_TO_SOT_SMD:TSOT-23-6` | `C2071868` | `AP63200WU-7` |
 | `C13` | `/TIA_BLUE/` | 10pF C0G | `Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder` | `C106245` | `CC0603JRNPO9BN100` |
 | `C14` | `/TIA_BLUE/` | 100nF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `C83056` | `0402B104K160CT` |
 | `C15` | `/TIA_BLUE/` | 1uF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `C7472946` | `HGC0402R5105K250NTEJ` |
@@ -724,15 +873,15 @@ Each row is a globally unique schematic/PCB designator. No repeated hierarchical
 | `C59` | `/POWER_IO/` | 10uF ADC REF | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `1` -> `Net-(U14-REFIN{slash}REFOUT)`<br>`2` -> `GND` | `1` / `Net-(U14-REFIN{slash}REFOUT)`: Capacitor pin participating in: AD7606-4 internal/reference output decoupling node at REFIN/REFOUT.<br>`2` / `GND`: Capacitor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
 | `C6` | `/TIA_RED/` | 100nF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `1` -> `+5V`<br>`2` -> `GND` | `1` / `+5V`: Capacitor pin participating in: Board 5 V rail after USB/AP63205 Schottky OR-ing; feeds analog, laser-driver op amps, AD7606 AVCC, and 3V3 LDO input.<br>`2` / `GND`: Capacitor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
 | `C60` | `/POWER_IO/` | 10uF ADC REFCAP | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `1` -> `Net-(U14-REFCAPA)`<br>`2` -> `GND` | `1` / `Net-(U14-REFCAPA)`: Capacitor pin participating in: AD7606-4 reference-buffer decoupling node tying REFCAPA and REFCAPB to the local reference capacitor.<br>`2` / `GND`: Capacitor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
-| `C61` | `/POWER_IO/` | 1uF 100V | `Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder` | `1` -> `VIN_24V`<br>`2` -> `GND` | `1` / `VIN_24V`: Capacitor pin participating in: 24 V center-positive barrel/RJ45 input after J5/J6, feeding the AP63205 +5 V buck and AP63200 laser buck input pins and local input capacitors.<br>`2` / `GND`: Capacitor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
-| `C62` | `/POWER_IO/` | 1uF 100V | `Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder` | `1` -> `VIN_24V`<br>`2` -> `GND` | `1` / `VIN_24V`: Capacitor pin participating in: 24 V center-positive barrel/RJ45 input after J5/J6, feeding the AP63205 +5 V buck and AP63200 laser buck input pins and local input capacitors.<br>`2` / `GND`: Capacitor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
+| `C61` | `/POWER_IO/` | 10uF 50V | `Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder` | `1` -> `VIN_24V`<br>`2` -> `GND` | `1` / `VIN_24V`: Capacitor pin participating in: 24 V center-positive barrel/RJ45 input after J5/J6, feeding the AP63205 +5 V buck and AP63200 laser buck input pins and local input capacitors.<br>`2` / `GND`: Capacitor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
+| `C62` | `/POWER_IO/` | 10uF 50V | `Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder` | `1` -> `VIN_24V`<br>`2` -> `GND` | `1` / `VIN_24V`: Capacitor pin participating in: 24 V center-positive barrel/RJ45 input after J5/J6, feeding the AP63205 +5 V buck and AP63200 laser buck input pins and local input capacitors.<br>`2` / `GND`: Capacitor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
 | `C63` | `/POWER_IO/` | 100nF BST | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `1` -> `Net-(U15-SW)`<br>`2` -> `Net-(U15-BST)` | `1` / `Net-(U15-SW)`: Power-supply capacitor pin participating in: AP63205 switch node: U15 SW pin, L1 switch-side pin, and the BST capacitor switch-side plate; keep this copper compact.<br>`2` / `Net-(U15-BST)`: Power-supply capacitor pin participating in: AP63205 bootstrap node between U15 BST and the 100 nF capacitor to the switch node. |
 | `C64` | `/POWER_IO/` | 10uF 5V buck | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `1` -> `/POWER_IO/BUCK_5V`<br>`2` -> `GND` | `1` / `/POWER_IO/BUCK_5V`: Power-supply capacitor pin participating in: AP63205 fixed 5 V buck output after L1 and output capacitors, before D6 OR-ing into the board +5 V rail.<br>`2` / `GND`: Power-supply capacitor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
 | `C65` | `/POWER_IO/` | 10uF 5V buck | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `1` -> `/POWER_IO/BUCK_5V`<br>`2` -> `GND` | `1` / `/POWER_IO/BUCK_5V`: Power-supply capacitor pin participating in: AP63205 fixed 5 V buck output after L1 and output capacitors, before D6 OR-ing into the board +5 V rail.<br>`2` / `GND`: Power-supply capacitor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
 | `C66` | `/POWER_IO/` | 100nF BST | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `1` -> `Net-(U16-SW)`<br>`2` -> `Net-(U16-BST)` | `1` / `Net-(U16-SW)`: Power-supply capacitor pin participating in: AP63200 laser-buck switch node: U16 SW pin, L2 switch-side pin, and the BST capacitor switch-side plate; keep away from MPD/TIA nodes.<br>`2` / `Net-(U16-BST)`: Power-supply capacitor pin participating in: AP63200 bootstrap node between U16 BST and the 100 nF capacitor to the laser-buck switch node. |
 | `C67` | `/POWER_IO/` | 10uF laser buck | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `1` -> `LASER_V+`<br>`2` -> `GND` | `1` / `LASER_V+`: Power-supply capacitor pin participating in: AP63200-generated shared bench laser anode / monitor-PD cathode rail to the direct LDx footprints and LM4040 monitor-bias front end.<br>`2` / `GND`: Power-supply capacitor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
 | `C68` | `/POWER_IO/` | 10uF laser buck | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `1` -> `LASER_V+`<br>`2` -> `GND` | `1` / `LASER_V+`: Power-supply capacitor pin participating in: AP63200-generated shared bench laser anode / monitor-PD cathode rail to the direct LDx footprints and LM4040 monitor-bias front end.<br>`2` / `GND`: Power-supply capacitor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
-| `C69` | `/POWER_IO/` | 100pF FF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `1` -> `LASER_V+`<br>`2` -> `Net-(U16-FB)` | `1` / `LASER_V+`: Power-supply capacitor pin participating in: AP63200-generated shared bench laser anode / monitor-PD cathode rail to the direct LDx footprints and LM4040 monitor-bias front end.<br>`2` / `Net-(U16-FB)`: Power-supply capacitor pin participating in: AP63200 laser-buck feedback node set by the 274k/22.1k divider and 100 pF feed-forward capacitor for about 10.72 V LASER_V+. |
+| `C69` | `/POWER_IO/` | 100pF FF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `1` -> `LASER_V+`<br>`2` -> `Net-(U16-FB)` | `1` / `LASER_V+`: Power-supply capacitor pin participating in: AP63200-generated shared bench laser anode / monitor-PD cathode rail to the direct LDx footprints and LM4040 monitor-bias front end.<br>`2` / `Net-(U16-FB)`: Power-supply capacitor pin participating in: AP63200 laser-buck feedback node set by the 237k/22.1k divider and 100 pF feed-forward capacitor for about 9.3 V LASER_V+. |
 | `C7` | `/TIA_RED/` | 1uF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `1` -> `Net-(D2-K)`<br>`2` -> `GND` | `1` / `Net-(D2-K)`: Capacitor pin participating in: SFH2201 cathode reverse-bias node: +5V through RB and local bypass CB.<br>`2` / `GND`: Capacitor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
 | `C70` | `/POWER_IO/` | 22uF 100V | `Capacitor_SMD:C_Elec_8x10.2` | `1` `+` -> `VIN_24V`<br>`2` `-` -> `GND` | `1` / `VIN_24V`: Capacitor pin participating in: 24 V center-positive barrel/RJ45 input after J5/J6, feeding the AP63205 +5 V buck and AP63200 laser buck input pins and local input capacitors.<br>`2` / `GND`: Capacitor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
 | `C8` | `/TIA_RED/` | 10uF | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `1` -> `Net-(U2-+)`<br>`2` -> `GND` | `1` / `Net-(U2-+)`: Capacitor pin participating in: OPA380 non-inverting VBIAS node after trim/filter.<br>`2` / `GND`: Capacitor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
@@ -755,6 +904,7 @@ Each row is a globally unique schematic/PCB designator. No repeated hierarchical
 | `J2` | `/MCU_ESP32-S3/` | USB_MINI_B | `Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal` | `1` `VBUS` -> `Net-(D13-A)`<br>`2` `D-` -> `/MCU_ESP32-S3/IO19`<br>`3` `D+` -> `/MCU_ESP32-S3/IO20`<br>`4` `ID` -> `unconnected-(J2-ID-Pad4)`<br>`5` `GND` -> `GND`<br>`6` `GND` -> `GND` | `1` / `Net-(D13-A)`: USB Mini-B VBUS entry into copied MCU-sheet VBUS isolation.<br>`2` / `/MCU_ESP32-S3/IO19`: USB Mini-B D- connector pin into the copied USB data path.<br>`3` / `/MCU_ESP32-S3/IO20`: USB Mini-B D+ connector pin into the copied USB data path.<br>`4` / `unconnected-(J2-ID-Pad4)`: Intentional no-connect for USB_MINI_B pin 4 `ID`.<br>`5` / `GND`: USB Mini-B signal ground.<br>`6` / `GND`: USB Mini-B shield tied to board GND. |
 | `J5` | `/POWER_IO/` | 24V DC IN | `Open_Automation:BarrelJack_OD5.5_ID2.5` | `1` `1` -> `VIN_24V`<br>`2` `2` -> `GND`<br>`3` `3` -> `GND` | `1` / `VIN_24V`: Center-positive barrel input pin feeding VIN_24V.<br>`2` / `GND`: Barrel sleeve ground return.<br>`3` / `GND`: Barrel jack switch/sleeve contact tied to board ground, matching the access-controller footprint convention. |
 | `J6` | `/POWER_IO/` | CONN_RJ45 | `Connector_RJ:RJ45_Amphenol_RJHSE538X` | `1` -> `unconnected-(J6-Pad1)`<br>`10` -> `Net-(J6-Pad10)`<br>`11` -> `GND`<br>`12` -> `Net-(J6-Pad12)`<br>`2` -> `unconnected-(J6-Pad2)`<br>`3` -> `unconnected-(J6-Pad3)`<br>`4` -> `VIN_24V`<br>`5` -> `VIN_24V`<br>`6` -> `unconnected-(J6-Pad6)`<br>`7` -> `GND`<br>`8` -> `GND`<br>`9` -> `GND` | `1` / `unconnected-(J6-Pad1)`: Intentional no-connect for CONN_RJ45 pin 1.<br>`10` / `Net-(J6-Pad10)`: RJ45 LED/contact pin current-limited to VIN_24V through R63, matching the access-controller RJ45 LED-resistor convention.<br>`11` / `GND`: RJ45 return/shield-related contact tied to GND, copied from the access-controller return convention.<br>`12` / `Net-(J6-Pad12)`: RJ45 LED/contact pin current-limited to +3V3 through R64, matching the access-controller RJ45 LED-resistor convention.<br>`2` / `unconnected-(J6-Pad2)`: Intentional no-connect for CONN_RJ45 pin 2.<br>`3` / `unconnected-(J6-Pad3)`: Intentional no-connect for CONN_RJ45 pin 3.<br>`4` / `VIN_24V`: RJ45 power contact feeding VIN_24V, copied from the access-controller POWER convention.<br>`5` / `VIN_24V`: RJ45 power contact feeding VIN_24V, copied from the access-controller POWER convention.<br>`6` / `unconnected-(J6-Pad6)`: Intentional no-connect for CONN_RJ45 pin 6.<br>`7` / `GND`: RJ45 return contact tied to GND, copied from the access-controller return convention.<br>`8` / `GND`: RJ45 return contact tied to GND, copied from the access-controller return convention.<br>`9` / `GND`: RJ45 return/shield-related contact tied to GND, copied from the access-controller return convention. |
+| `J7` | `/MCU_ESP32-S3/` | C192300 | `Open_Automation:PinHeader_2x04_P2.54mm_SMD_Vertical_C192300` | `1` `GND` -> `GND`<br>`2` `GND` -> `GND`<br>`3` `+3V3` -> `+3V3`<br>`4` `+3V3` -> `+3V3`<br>`5` `+5V` -> `+5V`<br>`6` `+5V` -> `+5V`<br>`7` `VIN_24V` -> `VIN_24V`<br>`8` `VIN_24V` -> `VIN_24V` | `1` / `GND`: J7 4x2 SMT utility header ground pin 1.<br>`2` / `GND`: J7 4x2 SMT utility header ground pin 2.<br>`3` / `+3V3`: J7 4x2 SMT utility header +3V3 pin 3.<br>`4` / `+3V3`: J7 4x2 SMT utility header +3V3 pin 4.<br>`5` / `+5V`: J7 4x2 SMT utility header +5V pin 5.<br>`6` / `+5V`: J7 4x2 SMT utility header +5V pin 6.<br>`7` / `VIN_24V`: J7 4x2 SMT utility header VIN_24V pin 7.<br>`8` / `VIN_24V`: J7 4x2 SMT utility header VIN_24V pin 8. |
 | `L1` | `/POWER_IO/` | 4.7uH | `Open_Automation:L_5.4x5.3_H3` | `1` `1` -> `Net-(U15-SW)`<br>`2` `2` -> `/POWER_IO/BUCK_5V` | `1` / `Net-(U15-SW)`: 4.7uH buck inductor switch-side pin.<br>`2` / `/POWER_IO/BUCK_5V`: 4.7uH AP63205 output inductor regulated-output side feeding BUCK_5V. |
 | `L2` | `/POWER_IO/` | 10uH | `Open_Automation:L_4x4` | `1` `1` -> `Net-(U16-SW)`<br>`2` `2` -> `LASER_V+` | `1` / `Net-(U16-SW)`: 10uH buck inductor switch-side pin.<br>`2` / `LASER_V+`: 10uH AP63200 laser-buck output inductor regulated-output side feeding LASER_V+. |
 | `LD1` | `/LASER_IR/` | D7805I 780nm TO18 STYLE-A LASER+MPD | `OptoDevice:LaserDiode_TO18-D5.6-3` | `1` `LD_K` -> `LASER_N1`<br>`2` `LD_A/PD_K/CASE` -> `LASER_V+`<br>`3` `PD_A` -> `MPD_RAW1` | `1` / `LASER_N1`: Direct TO-can laser diode cathode tied to the board low-side current-sink net LASER_Nx.<br>`2` / `LASER_V+`: Direct TO-can common laser anode / monitor-PD cathode / case tied to LASER_V+ for PLT/A-code cans.<br>`3` / `MPD_RAW1`: Direct TO-can internal monitor-PD anode exported as MPD_RAWx into the INA4180/LM4040 monitor front end. |
@@ -817,8 +967,8 @@ Each row is a globally unique schematic/PCB designator. No repeated hierarchical
 | `R59` | `/MCU_ESP32-S3/` | 10K | `Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder` | `1` -> `+3V3`<br>`2` -> `/MCU_ESP32-S3/IO14` | `1` / `+3V3`: Resistor pin participating in: ESP32-S3 3.3 V rail from AP2112K output, plus MCU reset/boot pulls and decoupling.<br>`2` / `/MCU_ESP32-S3/IO14`: Resistor pin participating in: Copied access-controller ESP32-S3 GPIO strap/support net with local 10 k pull-up. |
 | `R6` | `/TIA_RED/` | 1k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `+5V`<br>`2` -> `Net-(D2-K)` | `1` / `+5V`: Resistor pin participating in: Board 5 V rail after USB/AP63205 Schottky OR-ing; feeds analog, laser-driver op amps, AD7606 AVCC, and 3V3 LDO input.<br>`2` / `Net-(D2-K)`: Resistor pin participating in: SFH2201 cathode reverse-bias node: +5V through RB and local bypass CB. |
 | `R60` | `/MCU_ESP32-S3/` | 10K | `Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder` | `1` -> `/MCU_ESP32-S3/IO13`<br>`2` -> `+3V3` | `1` / `/MCU_ESP32-S3/IO13`: Resistor pin participating in: Copied access-controller ESP32-S3 GPIO strap/support net with local 10 k pull-up.<br>`2` / `+3V3`: Resistor pin participating in: ESP32-S3 3.3 V rail from AP2112K output, plus MCU reset/boot pulls and decoupling. |
-| `R61` | `/POWER_IO/` | 274k FB | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `LASER_V+`<br>`2` -> `Net-(U16-FB)` | `1` / `LASER_V+`: AP63200 laser-buck feedback resistor pin participating in: AP63200-generated shared bench laser anode / monitor-PD cathode rail to the direct LDx footprints and LM4040 monitor-bias front end.<br>`2` / `Net-(U16-FB)`: AP63200 laser-buck feedback resistor pin participating in: AP63200 laser-buck feedback node set by the 274k/22.1k divider and 100 pF feed-forward capacitor for about 10.72 V LASER_V+. |
-| `R62` | `/POWER_IO/` | 22.1K FB | `Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder` | `1` -> `Net-(U16-FB)`<br>`2` -> `GND` | `1` / `Net-(U16-FB)`: AP63200 laser-buck feedback resistor pin participating in: AP63200 laser-buck feedback node set by the 274k/22.1k divider and 100 pF feed-forward capacitor for about 10.72 V LASER_V+.<br>`2` / `GND`: AP63200 laser-buck feedback resistor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
+| `R61` | `/POWER_IO/` | 237k FB | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `LASER_V+`<br>`2` -> `Net-(U16-FB)` | `1` / `LASER_V+`: AP63200 laser-buck feedback resistor pin participating in: AP63200-generated shared bench laser anode / monitor-PD cathode rail to the direct LDx footprints and LM4040 monitor-bias front end.<br>`2` / `Net-(U16-FB)`: AP63200 laser-buck feedback resistor pin participating in: AP63200 laser-buck feedback node set by the 237k/22.1k divider and 100 pF feed-forward capacitor for about 9.3 V LASER_V+. |
+| `R62` | `/POWER_IO/` | 22.1K FB | `Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder` | `1` -> `Net-(U16-FB)`<br>`2` -> `GND` | `1` / `Net-(U16-FB)`: AP63200 laser-buck feedback resistor pin participating in: AP63200 laser-buck feedback node set by the 237k/22.1k divider and 100 pF feed-forward capacitor for about 9.3 V LASER_V+.<br>`2` / `GND`: AP63200 laser-buck feedback resistor pin participating in: Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths. |
 | `R63` | `/POWER_IO/` | 10K | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `VIN_24V`<br>`2` -> `Net-(J6-Pad10)` | `1` / `VIN_24V`: Resistor pin participating in: 24 V center-positive barrel/RJ45 input after J5/J6, feeding the AP63205 +5 V buck and AP63200 laser buck input pins and local input capacitors.<br>`2` / `Net-(J6-Pad10)`: Resistor pin participating in: RJ45 LED/contact node copied from the access-controller RJ45 convention: J6 pin 10 current-limited to VIN_24V through R63. |
 | `R64` | `/POWER_IO/` | 10K | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `+3V3`<br>`2` -> `Net-(J6-Pad12)` | `1` / `+3V3`: Resistor pin participating in: ESP32-S3 3.3 V rail from AP2112K output, plus MCU reset/boot pulls and decoupling.<br>`2` / `Net-(J6-Pad12)`: Resistor pin participating in: RJ45 LED/contact node copied from the access-controller RJ45 convention: J6 pin 12 current-limited to +3V3 through R64. |
 | `R7` | `/TIA_RED/` | 10k | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `1` -> `Net-(RV2-W)`<br>`2` -> `Net-(U2-+)` | `1` / `Net-(RV2-W)`: Resistor pin participating in: TIA VBIAS trimmer wiper through R1 into filtered OPA380 non-inverting input.<br>`2` / `Net-(U2-+)`: Resistor pin participating in: OPA380 non-inverting VBIAS node after trim/filter. |
@@ -841,7 +991,7 @@ Each row is a globally unique schematic/PCB designator. No repeated hierarchical
 | `U13` | `/POWER_IO/` | LM4040C50 5V | `Package_TO_SOT_SMD:SOT-23` | `1` `K` -> `LASER_V+`<br>`2` `A` -> `/POWER_IO/MPD_BIAS`<br>`3` `*` -> `/POWER_IO/MPD_BIAS` | `1` / `LASER_V+`: LM4040 cathode tied to LASER_V+ so the reference clamps the high-side monitor-bias drop.<br>`2` / `/POWER_IO/MPD_BIAS`: LM4040 anode tied to MPD_BIAS.<br>`3` / `/POWER_IO/MPD_BIAS`: LM4040 star pin tied to anode/MPD_BIAS per TI guidance for noisy environments. |
 | `U14` | `/POWER_IO/` | AD7606BSTZ-4 | `Package_QFP:LQFP-64_10x10mm_P0.5mm` | `1` `AVCC` -> `+5V`<br>`10` `CONVSTB` -> `CONVST`<br>`11` `RESET` -> `ADC_RESET`<br>`12` `RD/SCLK` -> `ADC_SCLK`<br>`13` `CS` -> `ADC_CS`<br>`14` `BUSY` -> `ADC_BUSY`<br>`15` `FRSTDATA` -> `unconnected-(U14-FRSTDATA-Pad15)`<br>`16` `DB0` -> `GND`<br>`17` `DB1` -> `GND`<br>`18` `DB2` -> `GND`<br>`19` `DB3` -> `GND`<br>`2` `AGND` -> `GND`<br>`20` `DB4` -> `GND`<br>`21` `DB5` -> `GND`<br>`22` `DB6` -> `GND`<br>`23` `VDRIVE` -> `+3V3`<br>`24` `DB7/DOUTA` -> `ADC_MISO_A`<br>`25` `DB8/DOUTB` -> `ADC_MISO_B`<br>`26` `AGND` -> `GND`<br>`27` `DB9` -> `GND`<br>`28` `DB10` -> `GND`<br>`29` `DB11` -> `GND`<br>`3` `OS0` -> `GND`<br>`30` `DB12` -> `GND`<br>`31` `DB13` -> `GND`<br>`32` `DB14/HBEN` -> `GND`<br>`33` `DB15/BYTE_SEL` -> `GND`<br>`34` `REF_SELECT` -> `+3V3`<br>`35` `AGND` -> `GND`<br>`36` `REGCAP` -> `Net-(C57-Pad1)`<br>`37` `AVCC` -> `+5V`<br>`38` `AVCC` -> `+5V`<br>`39` `REGCAP` -> `Net-(C58-Pad1)`<br>`4` `OS1` -> `GND`<br>`40` `AGND` -> `GND`<br>`41` `AGND` -> `GND`<br>`42` `REFIN/REFOUT` -> `Net-(U14-REFIN{slash}REFOUT)`<br>`43` `REFGND` -> `GND`<br>`44` `REFCAPA` -> `Net-(U14-REFCAPA)`<br>`45` `REFCAPB` -> `Net-(U14-REFCAPA)`<br>`46` `REFGND` -> `GND`<br>`47` `AGND` -> `GND`<br>`48` `AVCC` -> `+5V`<br>`49` `V1` -> `VOUT1`<br>`5` `OS2` -> `GND`<br>`50` `V1GND` -> `GND`<br>`51` `V2` -> `VOUT2`<br>`52` `V2GND` -> `GND`<br>`53` `AGND` -> `GND`<br>`54` `AGND` -> `GND`<br>`55` `AGND` -> `GND`<br>`56` `AGND` -> `GND`<br>`57` `V3` -> `VOUT3`<br>`58` `V3GND` -> `GND`<br>`59` `V4` -> `VOUT4`<br>`6` `PAR/SER/BYTE_SEL` -> `+3V3`<br>`60` `V4GND` -> `GND`<br>`61` `AGND` -> `GND`<br>`62` `AGND` -> `GND`<br>`63` `AGND` -> `GND`<br>`64` `AGND` -> `GND`<br>`7` `STBY` -> `+3V3`<br>`8` `RANGE` -> `GND`<br>`9` `CONVSTA` -> `CONVST` | `1` / `+5V`: AD7606-4 AVCC analog supply pin tied to the board 5V analog rail with local decoupling.<br>`10` / `CONVST`: AD7606-4 conversion-start input; CONVSTA and CONVSTB are tied together for simultaneous sampling.<br>`11` / `ADC_RESET`: AD7606-4 RESET input from ESP32 GPIO48.<br>`12` / `ADC_SCLK`: AD7606-4 RD/SCLK serial clock input from ESP32 GPIO17.<br>`13` / `ADC_CS`: AD7606-4 chip-select input from ESP32 GPIO18.<br>`14` / `ADC_BUSY`: AD7606-4 BUSY conversion-status output to ESP32 GPIO47.<br>`15` / `unconnected-(U14-FRSTDATA-Pad15)`: Intentional no-connect for AD7606BSTZ-4 pin 15 `FRSTDATA`.<br>`16` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`17` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`18` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`19` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`2` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`20` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`21` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`22` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`23` / `+3V3`: AD7606-4 VDRIVE/control strap pin tied to the ESP32 3.3V logic domain.<br>`24` / `ADC_MISO_A`: AD7606-4 DOUTA serial data output to ESP32 GPIO21.<br>`25` / `ADC_MISO_B`: AD7606-4 DOUTB serial data output to ESP32 GPIO38.<br>`26` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`27` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`28` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`29` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`3` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`30` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`31` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`32` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`33` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`34` / `+3V3`: AD7606-4 VDRIVE/control strap pin tied to the ESP32 3.3V logic domain.<br>`35` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`36` / `Net-(C57-Pad1)`: AD7606-4 internal regulator capacitor pin.<br>`37` / `+5V`: AD7606-4 AVCC analog supply pin tied to the board 5V analog rail with local decoupling.<br>`38` / `+5V`: AD7606-4 AVCC analog supply pin tied to the board 5V analog rail with local decoupling.<br>`39` / `Net-(C58-Pad1)`: AD7606-4 internal regulator capacitor pin.<br>`4` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`40` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`41` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`42` / `Net-(U14-REFIN{slash}REFOUT)`: AD7606-4 internal/reference output pin decoupled by the local reference capacitor.<br>`43` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`44` / `Net-(U14-REFCAPA)`: AD7606-4 reference-buffer capacitor pin.<br>`45` / `Net-(U14-REFCAPA)`: AD7606-4 reference-buffer capacitor pin.<br>`46` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`47` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`48` / `+5V`: AD7606-4 AVCC analog supply pin tied to the board 5V analog rail with local decoupling.<br>`49` / `VOUT1`: AD7606-4 analog input pin for one OPA380 TIA output channel.<br>`5` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`50` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`51` / `VOUT2`: AD7606-4 analog input pin for one OPA380 TIA output channel.<br>`52` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`53` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`54` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`55` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`56` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`57` / `VOUT3`: AD7606-4 analog input pin for one OPA380 TIA output channel.<br>`58` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`59` / `VOUT4`: AD7606-4 analog input pin for one OPA380 TIA output channel.<br>`6` / `+3V3`: AD7606-4 VDRIVE/control strap pin tied to the ESP32 3.3V logic domain.<br>`60` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`61` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`62` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`63` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`64` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`7` / `+3V3`: AD7606-4 VDRIVE/control strap pin tied to the ESP32 3.3V logic domain.<br>`8` / `GND`: AD7606-4 AGND/REFGND/input-ground or grounded parallel/oversampling/range strap pin.<br>`9` / `CONVST`: AD7606-4 conversion-start input; CONVSTA and CONVSTB are tied together for simultaneous sampling. |
 | `U15` | `/POWER_IO/` | AP63205WU-7 5V BUCK | `Package_TO_SOT_SMD:TSOT-23-6` | `1` `FB` -> `/POWER_IO/BUCK_5V`<br>`2` `EN` -> `VIN_24V`<br>`3` `IN` -> `VIN_24V`<br>`4` `GND` -> `GND`<br>`5` `SW` -> `Net-(U15-SW)`<br>`6` `BST` -> `Net-(U15-BST)` | `1` / `/POWER_IO/BUCK_5V`: AP63205 fixed-output FB pin tied to the BUCK_5V output node after L1.<br>`2` / `VIN_24V`: AP63205 EN tied to VIN_24V for always-on 5 V buck operation when the barrel/RJ45 input is present.<br>`3` / `VIN_24V`: AP63205 VIN from the protected 24 V barrel/RJ45 input.<br>`4` / `GND`: AP63205 ground return.<br>`5` / `Net-(U15-SW)`: AP63205 SW switch node into L1 and the bootstrap capacitor.<br>`6` / `Net-(U15-BST)`: AP63205 BST bootstrap pin with 100 nF to SW. |
-| `U16` | `/POWER_IO/` | AP63200WU-7 10.7V BUCK | `Package_TO_SOT_SMD:TSOT-23-6` | `1` `FB` -> `Net-(U16-FB)`<br>`2` `EN` -> `VIN_24V`<br>`3` `IN` -> `VIN_24V`<br>`4` `GND` -> `GND`<br>`5` `SW` -> `Net-(U16-SW)`<br>`6` `BST` -> `Net-(U16-BST)` | `1` / `Net-(U16-FB)`: AP63200 feedback pin at the 274k/22.1k divider midpoint for the 10.7 V laser rail.<br>`2` / `VIN_24V`: AP63200 EN tied to VIN_24V for always-on laser buck operation when the barrel/RJ45 input is present.<br>`3` / `VIN_24V`: AP63200 VIN from the protected 24 V barrel/RJ45 input.<br>`4` / `GND`: AP63200 ground return.<br>`5` / `Net-(U16-SW)`: AP63200 SW switch node into L2 and the bootstrap capacitor.<br>`6` / `Net-(U16-BST)`: AP63200 BST bootstrap pin with 100 nF to SW. |
+| `U16` | `/POWER_IO/` | AP63200WU-7 9.3V BUCK | `Package_TO_SOT_SMD:TSOT-23-6` | `1` `FB` -> `Net-(U16-FB)`<br>`2` `EN` -> `VIN_24V`<br>`3` `IN` -> `VIN_24V`<br>`4` `GND` -> `GND`<br>`5` `SW` -> `Net-(U16-SW)`<br>`6` `BST` -> `Net-(U16-BST)` | `1` / `Net-(U16-FB)`: AP63200 feedback pin at the 237k/22.1k divider midpoint for the 9.3 V laser rail.<br>`2` / `VIN_24V`: AP63200 EN tied to VIN_24V for always-on laser buck operation when the barrel/RJ45 input is present.<br>`3` / `VIN_24V`: AP63200 VIN from the protected 24 V barrel/RJ45 input.<br>`4` / `GND`: AP63200 ground return.<br>`5` / `Net-(U16-SW)`: AP63200 SW switch node into L2 and the bootstrap capacitor.<br>`6` / `Net-(U16-BST)`: AP63200 BST bootstrap pin with 100 nF to SW. |
 | `U2` | `/TIA_RED/` | OPA380AID | `Package_SO:SOIC-8_3.9x4.9mm_P1.27mm` | `1` `NC` -> `unconnected-(U2-NC-Pad1)`<br>`2` `-` -> `Net-(D2-A)`<br>`3` `+` -> `Net-(U2-+)`<br>`4` `V-` -> `GND`<br>`5` `NC` -> `unconnected-(U2-NC-Pad5)`<br>`6` -> `VOUT2`<br>`7` `V+` -> `+5V`<br>`8` `NC` -> `unconnected-(U2-NC-Pad8)` | `1` / `unconnected-(U2-NC-Pad1)`: Intentional no-connect for OPA380AID pin 1 `NC`.<br>`2` / `Net-(D2-A)`: OPA380 inverting summing input tied to SFH2201 anode and feedback network.<br>`3` / `Net-(U2-+)`: OPA380 non-inverting VBIAS input.<br>`4` / `GND`: OPA380 negative supply tied to board GND.<br>`5` / `unconnected-(U2-NC-Pad5)`: Intentional no-connect for OPA380AID pin 5 `NC`.<br>`6` / `VOUT2`: OPA380 TIA output to feedback high side and on-board AD7606 input.<br>`7` / `+5V`: OPA380 positive supply tied to +5V with local decoupling.<br>`8` / `unconnected-(U2-NC-Pad8)`: Intentional no-connect for OPA380AID pin 8 `NC`. |
 | `U3` | `/TIA_GREEN/` | OPA380AID | `Package_SO:SOIC-8_3.9x4.9mm_P1.27mm` | `1` `NC` -> `unconnected-(U3-NC-Pad1)`<br>`2` `-` -> `Net-(D3-A)`<br>`3` `+` -> `Net-(U3-+)`<br>`4` `V-` -> `GND`<br>`5` `NC` -> `unconnected-(U3-NC-Pad5)`<br>`6` -> `VOUT3`<br>`7` `V+` -> `+5V`<br>`8` `NC` -> `unconnected-(U3-NC-Pad8)` | `1` / `unconnected-(U3-NC-Pad1)`: Intentional no-connect for OPA380AID pin 1 `NC`.<br>`2` / `Net-(D3-A)`: OPA380 inverting summing input tied to SFH2201 anode and feedback network.<br>`3` / `Net-(U3-+)`: OPA380 non-inverting VBIAS input.<br>`4` / `GND`: OPA380 negative supply tied to board GND.<br>`5` / `unconnected-(U3-NC-Pad5)`: Intentional no-connect for OPA380AID pin 5 `NC`.<br>`6` / `VOUT3`: OPA380 TIA output to feedback high side and on-board AD7606 input.<br>`7` / `+5V`: OPA380 positive supply tied to +5V with local decoupling.<br>`8` / `unconnected-(U3-NC-Pad8)`: Intentional no-connect for OPA380AID pin 8 `NC`. |
 | `U4` | `/TIA_BLUE/` | OPA380AID | `Package_SO:SOIC-8_3.9x4.9mm_P1.27mm` | `1` `NC` -> `unconnected-(U4-NC-Pad1)`<br>`2` `-` -> `Net-(D4-A)`<br>`3` `+` -> `Net-(U4-+)`<br>`4` `V-` -> `GND`<br>`5` `NC` -> `unconnected-(U4-NC-Pad5)`<br>`6` -> `VOUT4`<br>`7` `V+` -> `+5V`<br>`8` `NC` -> `unconnected-(U4-NC-Pad8)` | `1` / `unconnected-(U4-NC-Pad1)`: Intentional no-connect for OPA380AID pin 1 `NC`.<br>`2` / `Net-(D4-A)`: OPA380 inverting summing input tied to SFH2201 anode and feedback network.<br>`3` / `Net-(U4-+)`: OPA380 non-inverting VBIAS input.<br>`4` / `GND`: OPA380 negative supply tied to board GND.<br>`5` / `unconnected-(U4-NC-Pad5)`: Intentional no-connect for OPA380AID pin 5 `NC`.<br>`6` / `VOUT4`: OPA380 TIA output to feedback high side and on-board AD7606 input.<br>`7` / `+5V`: OPA380 positive supply tied to +5V with local decoupling.<br>`8` / `unconnected-(U4-NC-Pad8)`: Intentional no-connect for OPA380AID pin 8 `NC`. |

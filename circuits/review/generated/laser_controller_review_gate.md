@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-04T21:32:53+00:00
+Generated: 2026-07-04T21:36:48+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -38,7 +38,27 @@ Overall release status: BLOCKED
 | PASS | Direct laser-can footprint pinout | 0 | `python3 circuits/check_laser_diode_footprints.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
 | PASS | Monitor-PD package/PCB pinout | 0 | `python3 circuits/check_monitor_pd_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
 | PASS | Generate staging PCB to temp file | 0 | `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb` |
-| FAIL | PCB staging assertions | 1 | `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /tmp/lc.net` |
+| PASS | PCB staging assertions | 0 | `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /tmp/lc.net` |
+| BLOCKED | Generated-copper release gate | 1 | `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /tmp/lc.net` |
+| PASS | AP2112 bench thermal policy | 0 | `python3 circuits/check_power_thermal_budget.py --policy bench-uart-usb` |
+| PASS | AP2112 sustained Wi-Fi expected fail | 1 | `python3 circuits/check_power_thermal_budget.py --policy wifi-tx-100-duty` |
+| PASS | Green high-Vf laser-current thermal reference | 0 | `python3 circuits/check_laser_current_budget.py --policy green-high-vf-10v5` |
+| PASS | Selected-diode max-current 9.3V laser-current reference | 0 | `python3 circuits/check_laser_current_budget.py --policy selected-diodes-max-9v3` |
+| PASS | PLT5 520EB_P monitor-PD high-side bias policy | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy plt5-520ebp-green-10v5` |
+| PASS | MPD ADC-scale-only policy | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy adc-scale-only-10v5` |
+| PASS | Selected-laser monitor-PD typical | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy selected-monitor-typ-9v3` |
+| PASS | Selected-laser monitor-PD high-end | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy selected-monitor-worst-9v3` |
+| PASS | Green high-Vf 12V laser-current expected fail | 1 | `python3 circuits/check_laser_current_budget.py --policy green-high-vf-12v` |
+| PASS | Selected-diode 9.3V typical (production gate, must PASS) | 0 | `python3 circuits/check_laser_current_budget.py --policy selected-diodes-typ-9v3` |
+| PASS | Selected-diode hardware clamp expected fail | 1 | `python3 circuits/check_laser_current_budget.py --policy selected-diodes-hardware-clamp-9v3` |
+| PASS | Low-Vf diode on green rail expected fail | 1 | `python3 circuits/check_laser_current_budget.py --policy low-vf-diode-on-10v5` |
+| BLOCKED | Open fabrication/release blockers | 2 | `python3 circuits/check_laser_controller_release_readiness.py` |
+| PASS | Regenerate audit inventory | 0 | `python3 circuits/generate_laser_controller_audit_tables.py /tmp/lc.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md` |
+| PASS | Export placement | 0 | `kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv` |
+| BLOCKED | KiCad ERC availability | 1 | `kicad-cli sch erc circuits/laser_controller.kicad_sch -o /tmp/lc_erc.rpt` |
+| BLOCKED | KiCad DRC availability | 1 | `kicad-cli pcb drc circuits/laser_controller.kicad_pcb -o /tmp/lc_drc.rpt` |
+| PASS | Git diff whitespace | 0 | `git diff --check` |
+| PASS | Trailing whitespace scan | 1 | `rg -n [ \t]+$ circuits docs -g *.md -g *.py -g *.kicad_sch -g *.kicad_pcb` |
 
 ## PASS: Python compile
 
@@ -362,11 +382,355 @@ wrote /tmp/lc_generated_staging.kicad_pcb  (190 blocks, 179 ref instances)
   refs: 179 unique
 ```
 
-## FAIL: PCB staging assertions
+## PASS: PCB staging assertions
 
 Command: `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /tmp/lc.net`
 
 ```text
-FAIL PCB staging
-  - Edge.Cuts outline mismatch: expected=[((0.0, 0.0), (90.0, 0.0)), ((0.0, 50.0), (0.0, 0.0)), ((90.0, 0.0), (90.0, 50.0)), ((90.0, 50.0), (0.0, 50.0))] got=[((30.975, 79.875), (204.0, 79.875)), ((30.975, 141.0), (30.975, 79.875)), ((204.0, 79.875), (204.0, 141.0)), ((204.0, 141.0), (30.975, 141.0))]
+PASS PCB staging: 179 physical footprints loaded, 0 empty-footprint symbols skipped, 0 board-level segments/vias/zones, 1 footprint-internal zone/keepout block(s), 179 non-overlapping staged bboxes outside the 173.025 x 61.125 mm outline; sections TIA_IR:11, TIA_RED:11, TIA_GREEN:11, TIA_BLUE:11, LASER_IR:11, LASER_RED:11, LASER_GREEN:11, LASER_BLUE:11, MCU_ESP32-S3:36, POWER_IO:55
 ```
+
+## BLOCKED: Generated-copper release gate
+
+Command: `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /tmp/lc.net`
+
+The current PCB artifact has hand placement recovered, but routing, zones, KiCad refill, DRC, and return-path review remain future fabrication work.
+
+```text
+FAIL fabrication release gate
+  LASER_V+: 201.11mm laser-anode supply route exceeds 45.00mm generated-layout limit
+  This does not mean the audit checker failed; it means the board still has known release blockers.
+```
+
+## PASS: AP2112 bench thermal policy
+
+Command: `python3 circuits/check_power_thermal_budget.py --policy bench-uart-usb`
+
+```text
+AP2112 thermal policy: bench-uart-usb
+  Bench policy: RF disabled, USB/UART control, ESP32 active current plus reset/boot pulls kept below 120 mA continuous at 85 degC.
+  constants: Vin=5.00V, Vout=3.30V, Iq(max)=80uA, thetaJA=184degC/W
+  load=120.0mA, ambient=85.0degC, dissipation=0.204W, rise=37.6degC, Tj=122.6degC
+  target Tj=125.0degC, margin=2.4degC, max continuous current at this ambient=127.6mA
+PASS AP2112 thermal policy: acceptable for the checked bench/no-RF continuous-current assumption. Sustained Wi-Fi/BLE remains a separate fail case.
+```
+
+## PASS: AP2112 sustained Wi-Fi expected fail
+
+Command: `python3 circuits/check_power_thermal_budget.py --policy wifi-tx-100-duty`
+
+```text
+AP2112 thermal policy: wifi-tx-100-duty
+  Espressif ESP32-S3-WROOM-1 Wi-Fi 802.11b 1 Mbps TX current at 100 percent duty cycle, 20.5 dBm.
+  constants: Vin=5.00V, Vout=3.30V, Iq(max)=80uA, thetaJA=184degC/W
+  load=355.0mA, ambient=25.0degC, dissipation=0.604W, rise=111.1degC, Tj=136.1degC
+  target Tj=125.0degC, margin=-11.1degC, max continuous current at this ambient=319.5mA
+FAIL AP2112 thermal policy: this 3V3 load needs a buck regulator, larger thermal package, lower ambient/current, or measured duty-cycle proof.
+```
+
+## PASS: Green high-Vf laser-current thermal reference
+
+Command: `python3 circuits/check_laser_current_budget.py --policy green-high-vf-10v5`
+
+```text
+Laser current-loop policy: green-high-vf-10v5
+  High-forward-voltage green reference using 7.0 V diode headroom and a 10.5 V laser rail. This is a thermal policy reference, not an approval to drive the selected Digikey-cart lasers at the 247.5 mA hardware command clamp.
+  command clamp: 3.30V * 30k/(10k+30k) / 10.0ohm = 247.5mA
+  sense resistor: drop=2.475V, power=0.613W, rating=2.0W
+  laser rail=10.50V, diode Vf(max)=7.00V, AO3400A Vds=1.02V, power=0.254W
+  at ambient=85.0degC and target Tj=125.0degC, AO3400A continuous power budget=0.320W
+  estimated safe laser rail window at this diode Vf/current: 9.97V to 10.77V
+PASS laser current-loop policy for this diode/supply assumption. Actual laser MPN and direct-footprint pinout still require release review.
+```
+
+## PASS: Selected-diode max-current 9.3V laser-current reference
+
+Command: `python3 circuits/check_laser_current_budget.py --policy selected-diodes-max-9v3`
+
+```text
+Selected laser current-loop policy: selected-diodes-max-9v3
+  Actual LD1-LD4 MPNs at datasheet maximum operating current/voltage on the production 9.3V common LASER_V+ reference. All selected diodes must pass this gate before production release.
+  hardware command clamp remains 247.5mA (3.30V * 30k/(10k+30k) / 10.0ohm)
+  AO3400A continuous budget=0.320W at ambient=85.0degC, target Tj=125.0degC
+  LD1 IR D7805I: datasheet maximum operating-current point; Popt=5mW, I=50.0mA (datasheet max 50.0mA), Vf=2.50V, LASER_V+=9.30V
+    sense drop=0.500V, sense power=0.025W, AO3400A Vds=6.30V, AO3400A power=0.315W
+    safe rail window at this current/Vf: 3.50V to 9.40V; source: US-Lasers D7805I 780nm 5mW datasheet
+  LD2 RED D6505I: datasheet maximum operating-current point; Popt=5mW, I=25.0mA (datasheet max 25.0mA), Vf=2.60V, LASER_V+=9.30V
+    sense drop=0.250V, sense power=0.006W, AO3400A Vds=6.45V, AO3400A power=0.161W
+    safe rail window at this current/Vf: 3.35V to 15.65V; source: Digikey D650-5I 650nm 5mW datasheet; lower-current source used conservatively because the US-Lasers mirror gives a conflicting 40mA typ / 60mA max operating-current table
+  LD3 GREEN PLT5 520EB_P: datasheet maximum operating-current point; Popt=20mW, I=78.0mA (datasheet max 78.0mA), Vf=6.10V, LASER_V+=9.30V
+    sense drop=0.780V, sense power=0.061W, AO3400A Vds=2.42V, AO3400A power=0.189W
+    safe rail window at this current/Vf: 7.38V to 10.98V; source: ams OSRAM PLT5 520EB_P datasheet
+  LD4 BLUE PLT5 450GB: datasheet maximum operating-current point; Popt=100mW, I=120.0mA (datasheet max 120.0mA), Vf=6.50V, LASER_V+=9.30V
+    sense drop=1.200V, sense power=0.144W, AO3400A Vds=1.60V, AO3400A power=0.192W
+    safe rail window at this current/Vf: 8.20V to 10.37V; source: ams OSRAM PLT5 450GB datasheet
+PASS selected laser current-loop policy for the checked current/rail assumptions. This does not waive optical safety, duty-cycle, firmware clamp, or temperature measurement.
+```
+
+## PASS: PLT5 520EB_P monitor-PD high-side bias policy
+
+Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy plt5-520ebp-green-10v5`
+
+```text
+Monitor-PD policy: plt5-520ebp-green-10v5
+  PLT5 520EB_P monitor-current reference case. The datasheet monitor current is specified at VRPD=5V and is not guaranteed as an accurate absolute power measurement. The bench circuit uses a high-side INA4180 sense path and LM4040-derived MPD_BIAS node. PLT5 450GB has no monitor photodiode, so MPD_RAW4 is only a spare/open front-end input.
+  front end: MPD_RAWx -> 240 ohm sense -> MPD_BIAS; INA4180 gain=20; 1k/100nF ADC-side RC
+  schematic connectivity checked against /tmp/lc.net
+  PLT5-style CH1: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
+  PLT5-style CH2: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
+  PLT5-style CH3: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
+  PLT5-style CH4: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
+  LASER_V+=10.50V, MPD_BIAS=5.50V -> monitor-PD reverse bias dark/off=5.00V; RC tau=0.10ms
+  LM4040 current: no-MPD=2.21mA, active MPD=1.61mA; INA linear monitor-current limit about 681uA, ESP32 11dB limit about 646uA, production guard about 604uA
+PASS monitor-PD policy for this scope. This does not replace per-laser datasheet pinout, reverse-bias, optical safety, and calibration review.
+```
+
+## PASS: MPD ADC-scale-only policy
+
+Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy adc-scale-only-10v5`
+
+```text
+Monitor-PD policy: adc-scale-only-10v5
+  ADC headroom check only for the high-side monitor front end. This does not approve any real laser MPN without its own pinout and reverse-bias review.
+  front end: MPD_RAWx -> 240 ohm sense -> MPD_BIAS; INA4180 gain=20; 1k/100nF ADC-side RC
+  schematic connectivity checked against /tmp/lc.net
+  PLT5-style CH1: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
+  PLT5-style CH2: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
+  PLT5-style CH3: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
+  PLT5-style CH4: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
+  LASER_V+=10.50V, MPD_BIAS=5.50V -> monitor-PD reverse bias dark/off=5.00V; RC tau=0.10ms
+  LM4040 current: no-MPD=2.21mA, active MPD=1.61mA; INA linear monitor-current limit about 681uA, ESP32 11dB limit about 646uA, production guard about 604uA
+PASS monitor-PD policy for this scope. This does not replace per-laser datasheet pinout, reverse-bias, optical safety, and calibration review.
+```
+
+## PASS: Selected-laser monitor-PD typical
+
+Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy selected-monitor-typ-9v3`
+
+```text
+Monitor-PD policy: selected-monitor-typ-9v3
+  Selected Digikey-cart monitor-current typical case. LD1 D7805I is 200uA typ, LD2 D6505I is 150uA typ, LD3 PLT5 520EB_P is 150uA typ, and LD4 PLT5 450GB has no monitor photodiode. This case should fit the local production ADC-headroom guard after the sense resistor was reduced to 240R.
+  front end: MPD_RAWx -> 240 ohm sense -> MPD_BIAS; INA4180 gain=20; 1k/100nF ADC-side RC
+  schematic connectivity checked against /tmp/lc.net
+  LD1 D7805I: typ monitor current=200uA -> sense=0.048V, ADC=0.96V, VRPD=4.95V
+  LD2 D6505I: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
+  LD3 PLT5 520EB_P: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
+  LD4 PLT5 450GB: no monitor photodiode; MPD_RAW4/MPD4 is spare/open
+  LASER_V+=9.30V, MPD_BIAS=4.30V -> monitor-PD reverse bias dark/off=5.00V; RC tau=0.10ms
+  LM4040 current: no-MPD=1.73mA, active MPD=1.23mA; INA linear monitor-current limit about 681uA, ESP32 11dB limit about 646uA, production guard about 604uA
+PASS monitor-PD policy for this scope. This does not replace per-laser datasheet pinout, reverse-bias, optical safety, and calibration review.
+```
+
+## PASS: Selected-laser monitor-PD high-end
+
+Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy selected-monitor-worst-9v3`
+
+```text
+Monitor-PD policy: selected-monitor-worst-9v3
+  Selected Digikey-cart monitor-current high-end case. D7805I max monitor current is 600uA and D6505I max monitor current is 300uA; PLT5 520EB_P has only a typical 150uA monitor-current value in the captured table and PLT5 450GB has no monitor PD. This high-end case should fit the local production ADC-headroom guard with the 240R/gain20 front end. It still needs optical calibration before MPD can be used as production feedback.
+  front end: MPD_RAWx -> 240 ohm sense -> MPD_BIAS; INA4180 gain=20; 1k/100nF ADC-side RC
+  schematic connectivity checked against /tmp/lc.net
+  LD1 D7805I: max monitor current=600uA -> sense=0.144V, ADC=2.88V, VRPD=4.86V
+  LD2 D6505I: max monitor current=300uA -> sense=0.072V, ADC=1.44V, VRPD=4.93V
+  LD3 PLT5 520EB_P: max monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
+  LD4 PLT5 450GB: no monitor photodiode; MPD_RAW4/MPD4 is spare/open
+  LASER_V+=9.30V, MPD_BIAS=4.30V -> monitor-PD reverse bias dark/off=5.00V; RC tau=0.10ms
+  LM4040 current: no-MPD=1.73mA, active MPD=0.68mA; INA linear monitor-current limit about 681uA, ESP32 11dB limit about 646uA, production guard about 604uA
+PASS monitor-PD policy for this scope. This does not replace per-laser datasheet pinout, reverse-bias, optical safety, and calibration review.
+```
+
+## PASS: Green high-Vf 12V laser-current expected fail
+
+Command: `python3 circuits/check_laser_current_budget.py --policy green-high-vf-12v`
+
+```text
+Laser current-loop policy: green-high-vf-12v
+  High-forward-voltage green reference at a 12 V laser rail; this is expected to fail the conservative continuous AO3400A thermal budget.
+  command clamp: 3.30V * 30k/(10k+30k) / 10.0ohm = 247.5mA
+  sense resistor: drop=2.475V, power=0.613W, rating=2.0W
+  laser rail=12.00V, diode Vf(max)=7.00V, AO3400A Vds=2.52V, power=0.625W
+  at ambient=85.0degC and target Tj=125.0degC, AO3400A continuous power budget=0.320W
+  estimated safe laser rail window at this diode Vf/current: 9.97V to 10.77V
+FAIL laser current-loop policy
+  AO3400A dissipates 0.625W, above 0.320W continuous budget at 85.0degC
+```
+
+## PASS: Selected-diode 9.3V typical (production gate, must PASS)
+
+Command: `python3 circuits/check_laser_current_budget.py --policy selected-diodes-typ-9v3`
+
+```text
+Selected laser current-loop policy: selected-diodes-typ-9v3
+  Actual LD1-LD4 MPNs at datasheet typical operating current/voltage on the production AP63200 LASER_V+ setting (~9.3V). This is the primary production thermal gate for the common-rail architecture.
+  hardware command clamp remains 247.5mA (3.30V * 30k/(10k+30k) / 10.0ohm)
+  AO3400A continuous budget=0.320W at ambient=85.0degC, target Tj=125.0degC
+  LD1 IR D7805I: datasheet typical operating point; Popt=5mW, I=35.0mA (datasheet max 50.0mA), Vf=2.10V, LASER_V+=9.30V
+    sense drop=0.350V, sense power=0.012W, AO3400A Vds=6.85V, AO3400A power=0.240W
+    safe rail window at this current/Vf: 2.95V to 11.59V; source: US-Lasers D7805I 780nm 5mW datasheet
+  LD2 RED D6505I: datasheet typical operating point; Popt=5mW, I=20.0mA (datasheet max 25.0mA), Vf=2.20V, LASER_V+=9.30V
+    sense drop=0.200V, sense power=0.004W, AO3400A Vds=6.90V, AO3400A power=0.138W
+    safe rail window at this current/Vf: 2.90V to 18.40V; source: Digikey D650-5I 650nm 5mW datasheet; lower-current source used conservatively because the US-Lasers mirror gives a conflicting 40mA typ / 60mA max operating-current table
+  LD3 GREEN PLT5 520EB_P: datasheet typical operating point; Popt=20mW, I=65.0mA (datasheet max 78.0mA), Vf=5.40V, LASER_V+=9.30V
+    sense drop=0.650V, sense power=0.042W, AO3400A Vds=3.25V, AO3400A power=0.211W
+    safe rail window at this current/Vf: 6.55V to 10.97V; source: ams OSRAM PLT5 520EB_P datasheet
+  LD4 BLUE PLT5 450GB: datasheet typical operating point; Popt=100mW, I=87.0mA (datasheet max 120.0mA), Vf=5.20V, LASER_V+=9.30V
+    sense drop=0.870V, sense power=0.076W, AO3400A Vds=3.23V, AO3400A power=0.281W
+    safe rail window at this current/Vf: 6.57V to 9.75V; source: ams OSRAM PLT5 450GB datasheet
+PASS selected laser current-loop policy for the checked current/rail assumptions. This does not waive optical safety, duty-cycle, firmware clamp, or temperature measurement.
+```
+
+## PASS: Selected-diode hardware clamp expected fail
+
+Command: `python3 circuits/check_laser_current_budget.py --policy selected-diodes-hardware-clamp-9v3`
+
+```text
+Selected laser current-loop policy: selected-diodes-hardware-clamp-9v3
+  Actual LD1-LD4 MPNs driven to the 247.5mA analog command clamp on the production 9.3V LASER_V+ setting. This is expected to fail: the clamp is an electrical upper bound, not a safe optical current limit.
+  hardware command clamp remains 247.5mA (3.30V * 30k/(10k+30k) / 10.0ohm)
+  AO3400A continuous budget=0.320W at ambient=85.0degC, target Tj=125.0degC
+  LD1 IR D7805I: hardware command clamp with datasheet max Vf for least-worst MOSFET heat; Popt=5mW, I=247.5mA (datasheet max 50.0mA), Vf=2.50V, LASER_V+=9.30V
+    sense drop=2.475V, sense power=0.613W, AO3400A Vds=4.33V, AO3400A power=1.070W
+    safe rail window at this current/Vf: 5.47V to 6.27V; source: US-Lasers D7805I 780nm 5mW datasheet
+  LD2 RED D6505I: hardware command clamp with datasheet max Vf for least-worst MOSFET heat; Popt=5mW, I=247.5mA (datasheet max 25.0mA), Vf=2.60V, LASER_V+=9.30V
+    sense drop=2.475V, sense power=0.613W, AO3400A Vds=4.23V, AO3400A power=1.046W
+    safe rail window at this current/Vf: 5.58V to 6.37V; source: Digikey D650-5I 650nm 5mW datasheet; lower-current source used conservatively because the US-Lasers mirror gives a conflicting 40mA typ / 60mA max operating-current table
+  LD3 GREEN PLT5 520EB_P: hardware command clamp with datasheet max Vf for least-worst MOSFET heat; Popt=20mW, I=247.5mA (datasheet max 78.0mA), Vf=6.10V, LASER_V+=9.30V
+    sense drop=2.475V, sense power=0.613W, AO3400A Vds=0.73V, AO3400A power=0.179W
+    safe rail window at this current/Vf: 9.07V to 9.87V; source: ams OSRAM PLT5 520EB_P datasheet
+  LD4 BLUE PLT5 450GB: hardware command clamp with datasheet max Vf for least-worst MOSFET heat; Popt=100mW, I=247.5mA (datasheet max 120.0mA), Vf=6.50V, LASER_V+=9.30V
+    sense drop=2.475V, sense power=0.613W, AO3400A Vds=0.33V, AO3400A power=0.080W
+    safe rail window at this current/Vf: 9.47V to 10.27V; source: ams OSRAM PLT5 450GB datasheet
+FAIL selected laser current-loop policy
+  LD1 D7805I: commanded 247.5mA exceeds datasheet operating-current max 50.0mA
+  LD1 D7805I: AO3400A dissipates 1.070W, above 0.320W continuous budget at 85.0degC
+  LD2 D6505I: commanded 247.5mA exceeds datasheet operating-current max 25.0mA
+  LD2 D6505I: AO3400A dissipates 1.046W, above 0.320W continuous budget at 85.0degC
+  LD3 PLT5 520EB_P: commanded 247.5mA exceeds datasheet operating-current max 78.0mA
+  LD4 PLT5 450GB: commanded 247.5mA exceeds datasheet operating-current max 120.0mA
+  LD4 PLT5 450GB: AO3400A Vds headroom is 0.33V, below 0.50V target
+```
+
+## PASS: Low-Vf diode on green rail expected fail
+
+Command: `python3 circuits/check_laser_current_budget.py --policy low-vf-diode-on-10v5`
+
+```text
+Laser current-loop policy: low-vf-diode-on-10v5
+  Low-forward-voltage red/IR-style diode on the green-sized 10.5 V common laser rail; this is expected to fail unless current is reduced.
+  command clamp: 3.30V * 30k/(10k+30k) / 10.0ohm = 247.5mA
+  sense resistor: drop=2.475V, power=0.613W, rating=2.0W
+  laser rail=10.50V, diode Vf(max)=2.50V, AO3400A Vds=5.53V, power=1.367W
+  at ambient=85.0degC and target Tj=125.0degC, AO3400A continuous power budget=0.320W
+  estimated safe laser rail window at this diode Vf/current: 5.47V to 6.27V
+FAIL laser current-loop policy
+  AO3400A dissipates 1.367W, above 0.320W continuous budget at 85.0degC
+```
+
+## BLOCKED: Open fabrication/release blockers
+
+Command: `python3 circuits/check_laser_controller_release_readiness.py`
+
+The release-readiness registry has unresolved source, direct-laser, thermal, manufacturing, and human-inspection blockers.
+
+```text
+BLOCKED release readiness: 15 open fabrication/release blockers
+  [GENERATED_COPPER_NETCLASS_CLEARANCE] PCB placement, routing, and rail/zone signoff remain open
+    Detail: The current PCB artifact has hand placement, filled power/ground planes, and routed copper, but the PCB checker still fails route-policy, width-policy, and critical-link guards. The generated-copper release gate also fails because the present LASER_V+ generated-layout route exceeds the conservative local limit.
+    Required action: Finish the route cleanup, review or explicitly waive the remaining route-policy guards, rerun PCB DRC with schematic parity, and review +5V/GND rail and return-path copper before fabrication.
+  [KICAD_ERC_DRC_ZONE_SIGNOFF] KiCad ERC, zone refill, and DRC signoff are still open
+    Detail: Available netlist/source checks pass, but the current generated PCB is not release-clean and this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC. Formal KiCad ERC, refilled-zone copper, and board-rule DRC remain unproven.
+    Required action: Run GUI ERC on the regenerated schematic, update PCB from schematic, refill zones, run PCB DRC with schematic parity, or use a KiCad CLI build that supports sch erc and pcb drc, then document any waivers.
+  [VISUAL_RETURN_PATH_REVIEW] GND and sensitive return paths need visual review after zone refill
+    Detail: The graph proves pads are connected, not that laser current, USB ESD, ESP32, and TIA returns have acceptable real copper paths.
+    Required action: After KiCad zone refill, inspect GND islands/stitching and keep laser-current returns away from TIA summing-node return paths.
+  [ACTUAL_LASER_MPN_DIRECT_FOOTPRINT] Actual laser MPN pin tables and direct footprints are not released
+    Detail: The Digikey cart MPNs have mixed pin-code behavior: D7805I, D6505I, and PLT5 520EB_P match the bench monitor front end, while PLT5 450GB has no monitor photodiode and its case pin must not be tied into MPD_RAW4.
+    Required action: Verify the exact per-MPN pin table against the direct LDx footprint wiring, inspect can/case handling, and document that PLT5 450GB has no MPD telemetry before laser bring-up.
+  [MONITOR_PD_FRONTEND_RANGE_CALIBRATION] Monitor-PD front-end range and calibration are not released
+    Detail: The exported netlist now proves the INA4180/LM4040 monitor topology is connected as intended, and the 240R/gain20 monitor scale covers the captured D7805I/D6505I/PLT5 520EB_P monitor-current range inside the local ADC-headroom guard. PLT5 450GB has no monitor photodiode, so MPD4 is not blue-source telemetry. Optical calibration and safety behavior are still unreleased.
+    Required action: Calibrate each source against an external optical meter and define firmware behavior for MPD telemetry before using it for production APC, normalization, or safety decisions.
+  [TIA_READOUT_RANGE_CALIBRATION] Signal-PD TIA readout range and optical calibration are not released
+    Detail: The exported netlist now proves the four SFH2201/OPA380 signal-PD channels feed VOUT1..4 into the AD7606 as intended, and the first-order TIA checker shows the present 2 MOhm feedback trim is a high-sensitivity, low-current bench range. At VBIAS = 1.5 V it has about +1.40 uA / -0.70 uA one-sided OPA380 headroom before the guarded output window clips; the SFH2201 1000 lx datasheet short-circuit-current example would need about 152 V of TIA swing at 2 MOhm and is intentionally an expected-fail case.
+    Required action: Define the real Vivonics optical photocurrent range at the SFH2201 under the bench optics, choose RF/VBIAS/firmware scaling for that range, shield or limit ambient light, and calibrate AD7606 counts against known optical/electrical inputs before using the signal-PD path for production measurements.
+  [PER_DIODE_LASER_THERMAL_BUDGET] Per-diode laser current and heat budget is still open
+    Detail: The selected-diode policies keep the old 10.72 V common rail as an expected-fail comparison for PLT5 450GB at typical current, while the 247.5 mA hardware clamp exceeds every selected laser MPN operating-current maximum.
+    Required action: Lower/rework LASER_V+ or use per-channel drivers, enforce real per-diode current limits before firmware can command the clamp, then measure driver/sense-resistor temperature and optical output during bring-up.
+  [AP2112_BENCH_MEASUREMENT_OR_REGULATOR_CHANGE] AP2112 bench thermal measurement and production regulator decision are open
+    Detail: The AP2112 is acceptable only for the bench no-RF policy. Sustained ESP32 wireless load fails the current SOT25 LDO budget.
+    Required action: Measure AP2112 package temperature and +3V3 current during bring-up, keep RF disabled for this bench board, or replace the rail before sustained Wi-Fi/BLE.
+  [VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT] 24 V barrel/RJ45 input protection and buck layout are not released
+    Detail: J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, but the 9.3 V all-channel hardware-clamp case exceeds the 500 mA J5 input budget and the current C64+C65/C67+C68 output capacitor set is below generic AP632 datasheet guidance.
+    Required action: Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; rework or justify the AP632 output capacitors; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.
+  [USB_CONNECTOR_OFFICIAL_DRAWING] Mini-B orderable connector and Wuerth land pattern still need release verification
+    Detail: The official Wuerth 65100516121 drawing is now captured and the USB/VBUS checker proves the electrical nets, but the active BOM metadata still names 920-462A2021S10101 / C46391 on a KiCad Wuerth 65100516121 footprint.
+    Required action: Verify that the orderable connector fits the Wuerth land pattern, pin-1 orientation, shield pads, board-edge orientation, and assembly source before fabrication.
+  [SS14_EXACT_ORDER_DATASHEET] Exact SS14 C2480 manufacturer datasheet and polarity are still order-time checks
+    Detail: The schematic and board assert diode polarity, but the source register still relies on distributor/order evidence plus a family reference.
+    Required action: Confirm the exact C2480 manufacturer datasheet, package polarity, and orderable part before board order.
+  [BOURNS_TRIMMER_WIPER_VISUAL] Bourns trimmer wiper orientation still needs visual PCB signoff
+    Detail: The schematic and netlist bound the VBIAS range, but the production board still needs a human pin-1/wiper orientation check.
+    Required action: Open the PCB in Pcbnew and verify RV1-RV4 pin-1/wiper orientation against the Bourns 3224 drawing before fabrication.
+  [PASSIVE_PRODUCTION_AVL_AND_DERATING] Production passive AVL, pulse/surge derating, and temperature evidence are open
+    Detail: The current derating gate covers bench steady-state voltage and power, not lifecycle, surge, pulse, or production procurement lock.
+    Required action: Create a production procurement lock with final orderable passive datasheets, lifecycle/AVL state, pulse/surge/current derating, and board-temperature evidence.
+  [MANUFACTURING_CLASS_AND_FAB_TIER] Manufacturing class, fab tier, and release package constraints are not selected
+    Detail: The generated geometry is conservative, but IPC/J-STD class, final fabricator settings, and order-tier constraints are still not locked.
+    Required action: Select IPC/J-STD class, fab tier, stackup/rule settings, assembly assumptions, and release notes before ordering.
+  [AD7606_SYSTEM_INTERFACE] On-board AD7606 firmware and bench-readout validation are still open
+    Detail: The bench board routes VOUT1..4 into the on-board AD7606 and the hardware straps now have a checked 10 MHz / 100 kSPS default interface budget, but firmware implementation, timing on the real ESP32, scaling, and bench ADC readback remain system-level checks.
+    Required action: Implement and scope the ESP32 AD7606 driver, verify RESET/CONVST/BUSY/CS/SCLK timing, confirm +/-5 V range scaling and oversampling assumptions in firmware, and compare readings against known optical/electrical inputs before relying on bench data.
+```
+
+## PASS: Regenerate audit inventory
+
+Command: `python3 circuits/generate_laser_controller_audit_tables.py /tmp/lc.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md`
+
+## PASS: Export placement
+
+Command: `kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv`
+
+```text
+Loading board
+```
+
+## BLOCKED: KiCad ERC availability
+
+Command: `kicad-cli sch erc circuits/laser_controller.kicad_sch -o /tmp/lc_erc.rpt`
+
+Installed KiCad CLI exposes only export here; run KiCad GUI ERC/DRC or a fuller KiCad CLI before fabrication.
+
+```text
+Maximum number of positional arguments exceeded
+Usage: sch [-h] {export}
+
+Optional arguments:
+  -h, --help	shows help message and exits
+
+Subcommands:
+  export
+```
+
+## BLOCKED: KiCad DRC availability
+
+Command: `kicad-cli pcb drc circuits/laser_controller.kicad_pcb -o /tmp/lc_drc.rpt`
+
+Installed KiCad CLI exposes only export here; run KiCad GUI ERC/DRC or a fuller KiCad CLI before fabrication.
+
+```text
+Maximum number of positional arguments exceeded
+Usage: pcb [-h] {export}
+
+Optional arguments:
+  -h, --help	shows help message and exits
+
+Subcommands:
+  export
+```
+
+## PASS: Git diff whitespace
+
+Command: `git diff --check`
+
+## PASS: Trailing whitespace scan
+
+Command: `rg -n [ \t]+$ circuits docs -g *.md -g *.py -g *.kicad_sch -g *.kicad_pcb`
