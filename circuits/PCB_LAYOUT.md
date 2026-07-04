@@ -49,15 +49,16 @@ trunks may use only their documented width sets.
 It also fails sensitive local-route length violations for `MPD_RAWx`, OPA380 summing/
 bias nodes, photodiode cathode/bias stubs, trim wipers, TLV9001 laser-control nodes,
 and AO3400A gate-drive nodes.
-Current state: placement and power planes are done, routing is not started.
-A first automated routing pass reached decent net connectivity (72/110
-multi-pad nets fully connected) but was rejected on review as low quality
--- thick/tangled traces, crude bends, hard to follow -- and has been fully
-stripped (0 segments, 0 vias) for a from-scratch re-route. Zones are
-filled and verified: zero footprint courtyard/pad overlaps, zero copper
-outside the board outline, zero antenna-keepout intrusions. `check_laser_controller_pcb.py`
-and `check_laser_controller_release_gate.py` both fail as expected with no
-routing present. The old J3 AD7606 debug/output header has been removed now that U14 is on-board.
+Current state: placement, filled power/ground planes, and routed copper are
+present, but the board is not release-clean. Current blocker: the PCB is not release-clean.
+`check_laser_controller_pcb.py` still reports route-policy, width-policy, and
+critical-link failures that need cleanup or explicit waiver.
+Zones are filled and verified for the checks in this repo: zero footprint
+courtyard/pad overlaps, zero copper outside the board outline, and zero
+antenna-keepout intrusions. `check_laser_controller_release_gate.py` also fails
+because the present `LASER_V+` generated-layout route exceeds the conservative
+local route-length limit. The old J3 AD7606 debug/output header has been removed
+now that U14 is on-board.
 
 ## Board
 

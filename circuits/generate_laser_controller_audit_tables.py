@@ -309,9 +309,9 @@ def pin_intent_for_node(
             "5": "AP63205 SW switch node into L1 and the bootstrap capacitor.",
             "6": "AP63205 BST bootstrap pin with 100 nF to SW.",
         }.get(pin, "Review required: AP63205 unknown pin.")
-    if value == "AP63200WU-7 10.7V BUCK":
+    if value == "AP63200WU-7 9.3V BUCK":
         return {
-            "1": "AP63200 feedback pin at the 274k/22.1k divider midpoint for the 10.7 V laser rail.",
+            "1": "AP63200 feedback pin at the 237k/22.1k divider midpoint for the 9.3 V laser rail.",
             "2": "AP63200 EN tied to VIN_24V for always-on laser buck operation when the barrel/RJ45 input is present.",
             "3": "AP63200 VIN from the protected 24 V barrel/RJ45 input.",
             "4": "AP63200 ground return.",
@@ -507,7 +507,7 @@ def pin_intent_for_node(
         return "Monitor-PD bias-reference capacitor participating in the 5V LASER_V+ to MPD_BIAS shunt reference."
     if value in {"10uF VIN", "10uF 5V buck", "10uF laser buck", "100nF BST", "100pF FF"}:
         return f"Power-supply capacitor pin participating in: {net_intent}"
-    if value in {"274k FB", "22.1K FB"}:
+    if value in {"237k FB", "22.1K FB"}:
         return f"AP63200 laser-buck feedback resistor pin participating in: {net_intent}"
 
     if footprint.startswith("Resistor_SMD"):

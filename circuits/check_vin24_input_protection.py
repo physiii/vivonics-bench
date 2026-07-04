@@ -113,7 +113,7 @@ def validate_current_topology(netlist_path: Path) -> list[str]:
         failures,
         comps,
         u16,
-        value="AP63200WU-7 10.7V BUCK",
+        value="AP63200WU-7 9.3V BUCK",
         footprint="Package_TO_SOT_SMD:TSOT-23-6",
         mpn="AP63200WU-7",
         lcsc="C2071868",

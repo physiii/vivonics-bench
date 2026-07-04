@@ -40,7 +40,7 @@ PLT5 450GB result:
   unconnected. `MPD_RAW4` remains a spare/open monitor front-end input at U12.
 - The laser-current policy uses 87 mA typ / 120 mA max and 5.2 V typ / 6.5 V max
   for the PLT5 450GB operating point.
-- At the present `LASER_V+ ~= 10.72 V` setting, `selected-diodes-typ-10v72`
+- At the old `LASER_V+ ~= 10.72 V` setting, `selected-diodes-typ-10v72`
   fails the conservative continuous AO3400A thermal budget for PLT5 450GB.
 - `selected-diodes-max-9v3` is the current passing common-rail reference for the
   selected diode max-current cases, assuming real current limiting and bench

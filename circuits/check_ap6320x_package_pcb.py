@@ -33,7 +33,7 @@ EXPECTED_COMPONENTS = {
     },
     "U16": {
         "sheet": "/POWER_IO/",
-        "value": "AP63200WU-7 10.7V BUCK",
+        "value": "AP63200WU-7 9.3V BUCK",
         "footprint": "Package_TO_SOT_SMD:TSOT-23-6",
         "mpn": "AP63200WU-7",
         "lcsc": "C2071868",
@@ -68,10 +68,10 @@ EXPECTED_COMPONENTS = {
     },
     "R61": {
         "sheet": "/POWER_IO/",
-        "value": "274k FB",
+        "value": "237k FB",
         "footprint": "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder",
-        "mpn": "FRC0603F2743TS",
-        "lcsc": "C2942027",
+        "mpn": "FRC0603F2373TS",
+        "lcsc": "C2998117",
     },
     "R62": {
         "sheet": "/POWER_IO/",

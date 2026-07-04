@@ -38,8 +38,8 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "GENERATED_COPPER_NETCLASS_CLEARANCE",
         "PCB placement, routing, and rail/zone signoff remain open",
-        "The current PCB artifact has recovered hand-placement coordinates and pad nets, not a routed fabrication layout. The PCB checker still fails while final board-boundary/proximity limits are not met, USB routes are missing, no filled In1.Cu GND reference plane exists, and routing is absent. The generated-copper release gate also fails because signal/control multi-pad nets, rails, pours, laser-anode copper, and high-current laser sense returns are not routed.",
-        "Finish placement inside the 90 x 50 mm outline, route USB/signal/control nets, add and refill rail/GND zones, add reviewed laser-current and high-current GND return copper, run PCB DRC with schematic parity, and review +5V/GND rail and return-path copper before fabrication.",
+        "The current PCB artifact has hand placement, filled power/ground planes, and routed copper, but the PCB checker still fails route-policy, width-policy, and critical-link guards. The generated-copper release gate also fails because the present LASER_V+ generated-layout route exceeds the conservative local limit.",
+        "Finish the route cleanup, review or explicitly waive the remaining route-policy guards, rerun PCB DRC with schematic parity, and review +5V/GND rail and return-path copper before fabrication.",
         (
             Evidence(
                 "circuits/README.md",
@@ -152,8 +152,8 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
             Evidence(
                 "docs/part-notes/INA4180A1IPWR.md",
                 (
-                    "selected-monitor-typ-10v72",
-                    "selected-monitor-worst-10v72",
+                    "selected-monitor-typ-9v3",
+                    "selected-monitor-worst-9v3",
                     "`600 uA` high-end monitor current maps",
                 ),
             ),
@@ -161,7 +161,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 "docs/part-notes/laser-harness-pin-code-compatibility.md",
                 (
                     "`D7805I` monitor current is checked",
-                    "selected-monitor-worst-10v72",
+                    "selected-monitor-worst-9v3",
                     "MPD still needs optical calibration",
                 ),
             ),
@@ -217,7 +217,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "PER_DIODE_LASER_THERMAL_BUDGET",
         "Per-diode laser current and heat budget is still open",
-        "The selected-diode policies now prove the present 10.72 V common rail fails the conservative continuous AO3400A budget for PLT5 450GB at typical current, and the 247.5 mA hardware clamp exceeds every selected laser MPN operating-current maximum.",
+        "The selected-diode policies keep the old 10.72 V common rail as an expected-fail comparison for PLT5 450GB at typical current, while the 247.5 mA hardware clamp exceeds every selected laser MPN operating-current maximum.",
         "Lower/rework LASER_V+ or use per-channel drivers, enforce real per-diode current limits before firmware can command the clamp, then measure driver/sense-resistor temperature and optical output during bring-up.",
         (
             Evidence(
@@ -277,8 +277,8 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT",
         "24 V barrel/RJ45 input protection and buck layout are not released",
-        "J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, but the 10.72 V all-channel hardware-clamp case exceeds the 500 mA J5 input budget and the current C61+C62/C64+C65/C67+C68 capacitor set is below generic AP632 datasheet guidance.",
-        "Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; rework or justify the AP632 input/output capacitors; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.",
+        "J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, but the 9.3 V all-channel hardware-clamp case exceeds the 500 mA J5 input budget and the current C64+C65/C67+C68 output capacitor set is below generic AP632 datasheet guidance.",
+        "Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; rework or justify the AP632 output capacitors; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.",
         (
             Evidence(
                 "circuits/POWER_TREE.md",
@@ -287,9 +287,9 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                     "production-protection",
                     "no fuse/PTC/TVS/reverse-protection/eFuse stage",
                     "bench-selected-max-9v3",
-                    "hardware-clamp-10v72",
+                    "hardware-clamp-9v3",
                     "datasheet-recommended-components",
-                    "C61+C62 provide only 2 uF VIN ceramic",
+                    "C61+C62 now provide 20 uF nominal VIN ceramic",
                 ),
             ),
             Evidence(
@@ -297,7 +297,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 (
                     "check_vin24_input_protection.py --policy production-protection",
                     "no fuse/PTC/TVS/reverse-protection",
-                    "C61+C62 = `2uF`",
+                    "C61+C62 = `20uF`",
                     "`2x22uF` style output capacitance",
                     "input range is `3.8 V` to `32 V`",
                 ),

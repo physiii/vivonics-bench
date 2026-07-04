@@ -115,7 +115,7 @@ POWER / IO
   reverse-protection/eFuse stage sits between J5/J6 and the AP632 buck inputs.
   BUCK_5V = U15 AP63205WU-7 from VIN_24V ; D6 ORs it with USB VBUS through D5 into +5V
   +3V3 = AP2112K-3.3 from +5V
-  LASER_V+ = U16 AP63200WU-7 from VIN_24V, set near 10.72V for the shared bench laser rail
+  LASER_V+ = U16 AP63200WU-7 from VIN_24V, set near 9.38V for the shared bench laser rail
   U14 AD7606BSTZ-4RL → VOUT1..4, CONVST, SCLK, CS, BUSY, RESET, DOUTA, DOUTB
   LD1..LD4 direct TO-can footprints carry LASER_N/MPD_RAW pairs + LASER_V+
   MPD_RAWx -> 240R sense -> MPD_BIAS ; INA4180A1 gain 20 -> 1k/100nF -> MPDx ESP32 ADC
@@ -164,13 +164,13 @@ procurement/assembly items listed below.
 | R (10k) | 10k 0603 1% | **C844918** | — | VBIAS / EN / BOOT pull-up resistors. |
 | R (240Ω) | 240Ω 0603 1% | **C114613** | — | monitor-PD high-side sense resistors. |
 | R (2.49k) | 2.49k 0603 1% | **C2099849** | — | LM4040/`MPD_BIAS` sink resistor. |
-| R61/R62/C69 | 274k / 22.1k / 100pF feedback set | **C2942027 / C2929993 / C1546** | — | AP63200 feedback divider and feed-forward capacitor for about 10.72 V `LASER_V+`. |
+| R61/R62/C69 | 237k / 22.1k / 100pF feedback set | **C2998117 / C2929993 / C1546** | — | AP63200 feedback divider and feed-forward capacitor for about 9.38 V `LASER_V+`. |
 | R (1k) | 1k 0603 1% | **C2907002** | — | gate / ISENSE-isolation / PD-bias / monitor-ADC isolation resistor. |
 | R (30k) | 30k 0603 1% | **C22984** | Basic | PWM command limiter pulldown. |
 | R (10Ω) | 10Ω 2512 2W 1% | **C5123624** | Basic | laser source-sense resistor. |
 | C (10pF) | 10pF C0G 0603 | **C106245** | Extended | Cf / loop-comp. |
 | C (1µF) | 1µF 0402 25V X5R | **C7472946** | — | PWM filter / PD-bias bypass / LDO input. |
-| C61-C62 | 1µF 1206 100V X7R | **C13832** | — | high-voltage `VIN_24V` ceramic input capacitors copied from access-controller PoE input filtering. |
+| C61-C62 | 10µF 1206 50V X7R | **C89632** | Extended | high-voltage `VIN_24V` ceramic input capacitors for AP632 local bypass. |
 | C70 | 22µF 100V SMD electrolytic | **C90264** | — | `VIN_24V` input bulk capacitor copied from access-controller PoE bulk input. |
 | C (100nF) | 100nF 0402 16V X7R | **C83056** | — | decoupling and monitor-PD low-pass filters. |
 | C (10µF) | 10µF 0805 25V X5R | **C318691** | — | bulk decoupling. |
@@ -277,14 +277,14 @@ KiCad TSOT-23-6 footprint geometry and local Open_Automation L1/L2 footprints.
 feedback, input-current, and inductor-stress policy. The selected-diode 9.3 V
 max-current reference passes the 500 mA J5 bench input rating, but the all-channel
 247.5 mA hardware-clamp case is an expected fail. The same checker also keeps the
-AP632 production component blocker visible: C61+C62 provide only 2 uF VIN ceramic
-and C64+C65/C67+C68 provide 20 uF per buck output, below the AP632 datasheet's
-generic 10 uF-plus input and 2x22 uF output reference guidance.
+AP632 production component blocker visible: C64+C65/C67+C68 provide 20 uF per
+buck output, below the AP632 datasheet's generic 2x22 uF output reference
+guidance. C61+C62 are now 20 uF nominal VIN ceramic input capacitance.
 `check_laser_current_budget.py` separately checks the laser command clamp, selected
 LD1-LD4 current limits, sense resistor power, AO3400A heat, and safe `LASER_V+`
 window for the selected diode forward voltage. The selected-diode policies show
-that the present 10.72 V rail fails the conservative continuous PLT5 450GB case,
-that a reduced 9.3 V common-rail reference passes the selected max-current cases,
+that the old 10.72 V rail fails the conservative continuous PLT5 450GB case,
+that the present 9.3 V common-rail reference passes the selected max-current cases,
 and that the 247.5 mA hardware clamp is not a safe diode current limit.
 `check_passive_derating.py` verifies all assembled passive MPNs against explicit bench
 voltage/power ratings; current worst cases are `R57` at 40.0% resistor power,

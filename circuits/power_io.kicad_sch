@@ -853,7 +853,7 @@
     (property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder" (at 115.57 85.09 0) (effects (font (size 1.0 1.0)) hide))
     (property "Datasheet" "" (at 115.57 85.09 0) (effects (font (size 1.0 1.0)) hide))
     (property "Part Number" "CL31B106KBHNNNE" (at 115.57 85.09 0) (effects (font (size 1.0 1.0)) hide))
-    (property "LCSC" "C3080136" (at 115.57 85.09 0) (effects (font (size 1.0 1.0)) hide))
+    (property "LCSC" "C89632" (at 115.57 85.09 0) (effects (font (size 1.0 1.0)) hide))
     (pin "1" (uuid c1d2e3f4-6000-4000-a000-000000000856))
     (pin "2" (uuid c1d2e3f4-6000-4000-a000-000000000857))
     (instances
@@ -870,7 +870,7 @@
     (property "Footprint" "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder" (at 129.54 85.09 0) (effects (font (size 1.0 1.0)) hide))
     (property "Datasheet" "" (at 129.54 85.09 0) (effects (font (size 1.0 1.0)) hide))
     (property "Part Number" "CL31B106KBHNNNE" (at 129.54 85.09 0) (effects (font (size 1.0 1.0)) hide))
-    (property "LCSC" "C3080136" (at 129.54 85.09 0) (effects (font (size 1.0 1.0)) hide))
+    (property "LCSC" "C89632" (at 129.54 85.09 0) (effects (font (size 1.0 1.0)) hide))
     (pin "1" (uuid c1d2e3f4-6000-4000-a000-000000000859))
     (pin "2" (uuid c1d2e3f4-6000-4000-a000-000000000860))
     (instances
@@ -1204,7 +1204,7 @@
     (property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" (at 267.97 132.08 0) (effects (font (size 1.0 1.0)) hide))
     (property "Datasheet" "" (at 267.97 132.08 0) (effects (font (size 1.0 1.0)) hide))
     (property "Part Number" "FRC0603F2373TS" (at 267.97 132.08 0) (effects (font (size 1.0 1.0)) hide))
-    (property "LCSC" "C2942028" (at 267.97 132.08 0) (effects (font (size 1.0 1.0)) hide))
+    (property "LCSC" "C2998117" (at 267.97 132.08 0) (effects (font (size 1.0 1.0)) hide))
     (pin "1" (uuid c1d2e3f4-6000-4000-a000-000000000927))
     (pin "2" (uuid c1d2e3f4-6000-4000-a000-000000000928))
     (instances

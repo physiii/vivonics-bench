@@ -289,7 +289,7 @@ def scenario_failures(scenario: Scenario) -> tuple[list[str], list[str]]:
         f"{VIN_ABS_MAX_V:.0f}V, J5 bench connector limit={BARREL_CONNECTOR_LIMIT_A * 1000:.0f}mA"
     )
     print(
-        f"  AP63200 feedback: 0.8V * (1 + 274k/22.1k) = "
+        f"  AP63200 feedback: 0.8V * (1 + 237k/22.1k) = "
         f"{actual_laser_vout_from_feedback():.2f}V"
     )
     print(
@@ -315,7 +315,7 @@ def scenario_failures(scenario: Scenario) -> tuple[list[str], list[str]]:
 
 def production_recommendation_failures() -> list[str]:
     failures: list[str] = []
-    input_ceramic_u_f = 2.0
+    input_ceramic_u_f = 20.0
     buck5_output_u_f = 20.0
     laser_output_u_f = 20.0
     recommended_input_ceramic_u_f = 10.0

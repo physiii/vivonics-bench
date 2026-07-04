@@ -71,8 +71,8 @@ Current/voltage implication:
   remains required.
 - `PLT5 520EB_P` is checked at 65 mA typ / 78 mA max and 5.4 V typ / 6.1 V max.
 - `PLT5 450GB` is checked at 87 mA typ / 120 mA max and 5.2 V typ / 6.5 V max.
-- `selected-diodes-typ-10v72` fails the conservative continuous AO3400A budget
-  for the blue PLT5 450GB at the present `LASER_V+ ~= 10.72 V` setting.
+- `selected-diodes-typ-10v72` preserves the old 10.72 V expected-fail comparison
+  for the blue PLT5 450GB.
 - `selected-diodes-max-9v3` is the current passing common-rail reference for the
   selected diode max-current cases, assuming real current limiting.
 - `selected-diodes-hardware-clamp-10v72` fails because the 247.5 mA analog clamp
@@ -94,7 +94,7 @@ Monitor-current implication:
   guard: D7805I max maps to about `2.88 V` and D6505I max maps to about
   `1.44 V`. This proves ADC headroom only; MPD still needs optical calibration
   before production APC/safety feedback.
-- The `selected-monitor-typ-10v72` and `selected-monitor-worst-10v72` policies
+- The `selected-monitor-typ-9v3` and `selected-monitor-worst-9v3` policies
   now pass for ADC headroom with the 240R/gain20 scale.
 
 Required action before laser bring-up:

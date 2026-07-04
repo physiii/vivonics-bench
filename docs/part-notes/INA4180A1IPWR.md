@@ -35,8 +35,8 @@ Release / layout implication:
   `LASER_V+` is 10.5 V.
 - The topology is pin-compatible with LD1 `D7805I`, LD2 `D6505I`, and LD3
   `PLT5 520EB_P`. The monitor sense resistor was reduced from `750R` to
-  `240R` so `selected-monitor-typ-10v72` and
-  `selected-monitor-worst-10v72` fit the local ADC-headroom guard; D7805I
+  `240R` so `selected-monitor-typ-9v3` and
+  `selected-monitor-worst-9v3` fit the local ADC-headroom guard; D7805I
   `600 uA` high-end monitor current maps to about `2.88 V`.
 - This is source telemetry, not a calibrated optical-power guarantee or a
   production APC waiver. Actual laser MPN pinout, monitor-PD reverse-bias limit,

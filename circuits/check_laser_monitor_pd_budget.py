@@ -133,9 +133,9 @@ POLICIES = {
             "reverse-bias review."
         ),
     ),
-    "selected-monitor-typ-10v72": Policy(
-        name="selected-monitor-typ-10v72",
-        laser_vplus_v=10.72,
+    "selected-monitor-typ-9v3": Policy(
+        name="selected-monitor-typ-9v3",
+        laser_vplus_v=9.30,
         channels=SELECTED_LASER_CHANNELS,
         current_point="typ",
         require_reference_bias=True,
@@ -147,9 +147,9 @@ POLICIES = {
             "the sense resistor was reduced to 240R."
         ),
     ),
-    "selected-monitor-worst-10v72": Policy(
-        name="selected-monitor-worst-10v72",
-        laser_vplus_v=10.72,
+    "selected-monitor-worst-9v3": Policy(
+        name="selected-monitor-worst-9v3",
+        laser_vplus_v=9.30,
         channels=SELECTED_LASER_CHANNELS,
         current_point="max",
         require_reference_bias=True,
@@ -161,6 +161,28 @@ POLICIES = {
             "This high-end case should fit the local production ADC-headroom "
             "guard with the 240R/gain20 front end. It still needs optical "
             "calibration before MPD can be used as production feedback."
+        ),
+    ),
+    "selected-monitor-typ-10v72": Policy(
+        name="selected-monitor-typ-10v72",
+        laser_vplus_v=10.72,
+        channels=SELECTED_LASER_CHANNELS,
+        current_point="typ",
+        require_reference_bias=True,
+        description=(
+            "Legacy 10.72V selected Digikey-cart monitor-current typical case "
+            "kept as a high-rail comparison."
+        ),
+    ),
+    "selected-monitor-worst-10v72": Policy(
+        name="selected-monitor-worst-10v72",
+        laser_vplus_v=10.72,
+        channels=SELECTED_LASER_CHANNELS,
+        current_point="max",
+        require_reference_bias=True,
+        description=(
+            "Legacy 10.72V selected Digikey-cart monitor-current high-end case "
+            "kept as a high-rail comparison."
         ),
     ),
 }

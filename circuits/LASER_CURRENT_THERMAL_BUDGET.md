@@ -105,17 +105,18 @@ source notes. Datasheet values used by the executable policy are:
 | LD3 green | PLT5 520EB_P | 20 mW | 65 mA typ, 78 mA max | 5.4 V typ, 6.1 V max | ams OSRAM datasheet |
 | LD4 blue | PLT5 450GB | 100 mW | 87 mA typ, 120 mA max | 5.2 V typ, 6.5 V max | ams OSRAM datasheet |
 
-At the present AP63200 feedback setting (`LASER_V+ ~= 10.72 V`), the selected
+At the old AP63200 feedback setting (`LASER_V+ ~= 10.72 V`), the selected
 diodes at typical current mostly pass, but the blue PLT5 450GB channel fails the
-conservative continuous AO3400A budget:
+conservative continuous AO3400A budget. This remains as an expected-fail
+high-rail comparison:
 
 ```text
 python3 circuits/check_laser_current_budget.py --policy selected-diodes-typ-10v72
 ```
 
-The reduced common-rail reference below passes for the selected diodes at
-datasheet maximum operating current/voltage, but it is not the current schematic
-feedback setting and still assumes firmware/hardware current limiting:
+The present 9.3 V-class common-rail reference below passes for the selected
+diodes at datasheet maximum operating current/voltage and still assumes
+firmware/hardware current limiting:
 
 ```text
 python3 circuits/check_laser_current_budget.py --policy selected-diodes-max-9v3
@@ -134,7 +135,7 @@ Current bench board:
 - Use a current-limited external `LASER_V+` supply.
 - Set `LASER_V+` from the actual diode forward-voltage table, not from habit.
 - Treat the 247.5 mA clamp as an upper bound, not the default operating point.
-- The present `LASER_V+ ~= 10.72 V` setting is not accepted for continuous
+- The old `LASER_V+ ~= 10.72 V` setting is not accepted for continuous
   PLT5 450GB typical-current operation under the conservative 85 degC / 125 degC
   AO3400A policy.
 - A reduced common rail near 9.3 V is the current checked bench reference for
@@ -172,7 +173,7 @@ a reduced 9.3 V common-rail reference:
 python3 circuits/check_laser_current_budget.py --policy selected-diodes-max-9v3
 ```
 
-Expected fail for the present 10.72 V common rail at typical selected-diode
+Expected fail for the old 10.72 V common rail at typical selected-diode
 currents because the blue PLT5 450GB AO3400A dissipation is too high:
 
 ```text
