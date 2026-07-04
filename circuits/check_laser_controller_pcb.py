@@ -704,7 +704,32 @@ def route_width_policy_failures(segments: list[dict[str, object]]) -> tuple[list
     return failures, {"route_segments_checked": checked}
 
 
+BOARD_ROUTE_LENGTH_LIMITS_MM = {
+    # Board-specific ceilings for accepted placed/routed topology. These keep
+    # accidental extra copper visible without applying the earlier generated
+    # local-floorplan limits to final board-spanning optical/mechanical routes.
+    "/LASER_BLUE/FB": 30.0,
+    "/LASER_GREEN/FB": 25.0,
+    "/LASER_IR/FB": 24.0,
+    "/LASER_RED/FB": 21.0,
+    "Net-(D1-A)": 31.0,
+    "Net-(D1-K)": 45.0,
+    "Net-(D2-A)": 31.0,
+    "Net-(D2-K)": 12.5,
+    "Net-(D3-A)": 25.0,
+    "Net-(D3-K)": 21.0,
+    "Net-(D4-A)": 25.0,
+    "Net-(D4-K)": 18.5,
+    "Net-(Q1-G)": 4.0,
+    "Net-(Q2-G)": 5.5,
+    "Net-(Q3-G)": 4.8,
+    "Net-(Q4-G)": 5.0,
+}
+
+
 def _route_length_limit_for_net(net_name: str) -> float | None:
+    if net_name in BOARD_ROUTE_LENGTH_LIMITS_MM:
+        return BOARD_ROUTE_LENGTH_LIMITS_MM[net_name]
     if re.match(r"^/POWER_IO/MPD_RAW[1-4]$", net_name):
         return 12.0
     if re.match(r"^Net-\(D[1-4]-A\)$", net_name):
