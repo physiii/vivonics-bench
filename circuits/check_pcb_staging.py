@@ -30,6 +30,7 @@ BOARD_WIDTH_MM = gen_pcb.BOARD_W_MM
 BOARD_HEIGHT_MM = gen_pcb.BOARD_H_MM
 OUTSIDE_MARGIN_MM = 5.0
 EXPECTED_EMPTY_FOOTPRINT_REFS: set[str] = set()
+BOARD_ONLY_FOOTPRINT_REFS = {ref for ref, *_ in gen_pcb.BOARD_MOUNTING_HOLES}
 SHEET_ORDER = [
     "TIA_IR",
     "TIA_RED",
@@ -148,6 +149,9 @@ def bbox_from_points(points: list[tuple[float, float]]) -> BBox:
 
 def footprint_bbox(block: str) -> BBox | None:
     at = re.search(r'^\s*\(at\s+([-\d.]+)\s+([-\d.]+)(?:\s+([-\d.]+))?\)', block, re.M)
+    if not at:
+        first_line = block.splitlines()[0] if block.splitlines() else ""
+        at = re.search(r'\(at\s+([-\d.]+)\s+([-\d.]+)(?:\s+([-\d.]+))?\)', first_line)
     if not at:
         return None
     ox = float(at.group(1))
@@ -309,8 +313,9 @@ def main() -> int:
         failures.append(f"empty-footprint refs changed: expected={sorted(EXPECTED_EMPTY_FOOTPRINT_REFS)} got={sorted(empty_refs)}")
     if duplicate_refs:
         failures.append(f"duplicate footprint references: {duplicate_refs}")
+    allowed_refs = expected_refs | BOARD_ONLY_FOOTPRINT_REFS
     missing_refs = sorted(expected_refs - actual_ref_set)
-    extra_refs = sorted(actual_ref_set - expected_refs)
+    extra_refs = sorted(actual_ref_set - allowed_refs)
     if missing_refs:
         failures.append(f"missing physical footprints: {missing_refs}")
     if extra_refs:
@@ -340,7 +345,7 @@ def main() -> int:
     outside_failures = [
         f"{ref} bbox={tuple(round(value, 3) for value in bbox)}"
         for ref, bbox in sorted(bboxes.items())
-        if not bbox_outside_outline(bbox)
+        if ref not in BOARD_ONLY_FOOTPRINT_REFS and not bbox_outside_outline(bbox)
     ]
     if outside_failures:
         failures.append("footprints not staged outside outline: " + "; ".join(outside_failures[:20]))
@@ -401,16 +406,20 @@ def main() -> int:
             print(f"  - {failure}")
         return 1
 
+    staged_electrical_bboxes = [
+        ref for ref in bboxes if ref not in BOARD_ONLY_FOOTPRINT_REFS
+    ]
     sheet_counts = ", ".join(
         f"{sheet}:{len(refs_by_sheet.get(sheet, set()) & actual_ref_set)}" for sheet in SHEET_ORDER
     )
     print(
         "PASS PCB staging: "
         f"{len(actual_ref_set)} physical footprints loaded, "
+        f"{len(BOARD_ONLY_FOOTPRINT_REFS & actual_ref_set)} board-only mechanical footprints, "
         f"{len(empty_refs)} empty-footprint symbols skipped, "
         f"0 board-level segments/vias/zones, "
         f"{footprint_zones} footprint-internal zone/keepout block(s), "
-        f"{len(bboxes)} non-overlapping staged bboxes outside the "
+        f"{len(staged_electrical_bboxes)} non-overlapping electrical staged bboxes outside the "
         f"{BOARD_WIDTH_MM:.3f} x {BOARD_HEIGHT_MM:.3f} mm outline; "
         f"sections {sheet_counts}"
     )

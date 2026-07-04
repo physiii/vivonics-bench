@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-04T21:36:48+00:00
+Generated: 2026-07-04T22:25:10+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -378,8 +378,8 @@ PASS monitor-PD package/PCB guard: U12/U13 schematic pin nets, local MPD sense/f
 Command: `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb`
 
 ```text
-wrote /tmp/lc_generated_staging.kicad_pcb  (190 blocks, 179 ref instances)
-  refs: 179 unique
+wrote /tmp/lc_generated_staging.kicad_pcb  (192 blocks, 181 ref instances)
+  refs: 181 unique
 ```
 
 ## PASS: PCB staging assertions
@@ -387,7 +387,7 @@ wrote /tmp/lc_generated_staging.kicad_pcb  (190 blocks, 179 ref instances)
 Command: `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /tmp/lc.net`
 
 ```text
-PASS PCB staging: 179 physical footprints loaded, 0 empty-footprint symbols skipped, 0 board-level segments/vias/zones, 1 footprint-internal zone/keepout block(s), 179 non-overlapping staged bboxes outside the 173.025 x 61.125 mm outline; sections TIA_IR:11, TIA_RED:11, TIA_GREEN:11, TIA_BLUE:11, LASER_IR:11, LASER_RED:11, LASER_GREEN:11, LASER_BLUE:11, MCU_ESP32-S3:36, POWER_IO:55
+PASS PCB staging: 181 physical footprints loaded, 2 board-only mechanical footprints, 0 empty-footprint symbols skipped, 0 board-level segments/vias/zones, 1 footprint-internal zone/keepout block(s), 179 non-overlapping electrical staged bboxes outside the 173.025 x 61.125 mm outline; sections TIA_IR:11, TIA_RED:11, TIA_GREEN:11, TIA_BLUE:11, LASER_IR:11, LASER_RED:11, LASER_GREEN:11, LASER_BLUE:11, MCU_ESP32-S3:36, POWER_IO:55
 ```
 
 ## BLOCKED: Generated-copper release gate

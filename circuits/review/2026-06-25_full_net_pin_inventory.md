@@ -13,7 +13,7 @@ Schematic references are generated globally unique before KiCad netlist export. 
 | `unique_references` | 181 |
 | `copper_layers` | 4 |
 | `segments` | 1611 |
-| `vias` | 244 |
+| `vias` | 236 |
 | `zones` | 4 |
 | `pad_net_lines` | 0 |
 | `net_table_entries` | 696 |
@@ -33,28 +33,28 @@ This table reports the generated routed copper that exists in the current PCB ar
 
 | Net Class | Segment Widths | Via Size/Drill |
 |---|---|---|
-| `Laser_Current` | 0.20mm x22, 0.60mm x51, 0.80mm x53 | 0.60/0.30mm x2, 1.20/0.60mm x6 |
-| `Power_Rails` | 0.25mm x201, 0.50mm x160, 0.60mm x172 | 0.60/0.30mm x40, 1.00/0.50mm x103, 1.00/0.60mm x1 |
-| `Switching_Power` | 0.50mm x10 | - |
-| `Switcher_Control` | 0.50mm x11 | - |
-| `USB` | 0.20mm x27, 0.25mm x19 | 0.60/0.30mm x2 |
-| `TIA_Sensitive` | 0.20mm x94, 0.25mm x58, 0.50mm x45 | 0.60/0.30mm x6 |
-| `Monitor_ADC` | 0.20mm x57, 0.25mm x213 | 0.60/0.30mm x27 |
-| `Laser_Control` | 0.25mm x101, 0.50mm x47 | 0.60/0.30mm x21 |
-| `Digital_Control` | 0.25mm x270 | 0.60/0.30mm x36 |
+| `Laser_Current` | 0.20mm x22, 0.60mm x51, 0.80mm x53 | 1.20/0.60mm x4 |
+| `Power_Rails` | 0.25mm x185, 0.30mm x6, 0.50mm x179, 0.60mm x163 | 0.60/0.30mm x40, 1.00/0.50mm x103, 1.00/0.60mm x1 |
+| `Switching_Power` | 0.40mm x10 | - |
+| `Switcher_Control` | 0.20mm x11 | - |
+| `USB` | 0.25mm x46 | - |
+| `TIA_Sensitive` | 0.20mm x186, 0.25mm x11 | 0.60/0.30mm x6 |
+| `Monitor_ADC` | 0.20mm x270 | 0.60/0.30mm x27 |
+| `Laser_Control` | 0.20mm x148 | 0.60/0.30mm x19 |
+| `Digital_Control` | 0.20mm x270 | 0.60/0.30mm x36 |
 
 ### USB Route Detail
 
 USB is checked as the copied MCU-sheet connector-to-endpoint routed copper chain for each D+/D- leg. The PCB checker fails if either chain exceeds the generated-board length limit, uses vias, leaves F.Cu, changes width, or exceeds the pair-skew limit.
 
-Pair routed-copper skew: 0.00 mm. BLOCKER: USB-UART D- USB route widths mismatch: expected 0.25 mm got [0.2]; USB-UART D+ USB route uses 2 vias; expected 0; USB-UART D+ USB route layers mismatch: expected ['F.Cu'] got ['B.Cu', 'F.Cu']; USB-UART D+ USB route widths mismatch: expected 0.25 mm got [0.2]
+Pair routed-copper skew: 0.00 mm. PASS: USB generated-board route quality gate passed
 
 | Chain | Section | Net | Segments | Length | Geometry | Status |
 |---|---|---|---:|---:|---|---|
-| `USB-UART D-` | J1 D- to CP2102N D- | `/MCU_ESP32-S3/D-` | 11 | 20.95 mm | F.Cu; widths 0.20 mm; vias 0 | PASS: measured route section is present |
-| `USB-UART D-` | total | `-` | 11 | 20.95 mm | F.Cu; widths 0.20 mm; vias 0 | PASS: measured chain is inside generated-board USB limits |
-| `USB-UART D+` | J1 D+ to CP2102N D+ | `/MCU_ESP32-S3/D+` | 16 | 20.28 mm | B.Cu, F.Cu; widths 0.20 mm; vias 2 | PASS: measured route section is present |
-| `USB-UART D+` | total | `-` | 16 | 20.28 mm | B.Cu, F.Cu; widths 0.20 mm; vias 2 | PASS: measured chain is inside generated-board USB limits |
+| `USB-UART D-` | J1 D- to CP2102N D- | `/MCU_ESP32-S3/D-` | 11 | 20.95 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured route section is present |
+| `USB-UART D-` | total | `-` | 11 | 20.95 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured chain is inside generated-board USB limits |
+| `USB-UART D+` | J1 D+ to CP2102N D+ | `/MCU_ESP32-S3/D+` | 16 | 20.28 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured route section is present |
+| `USB-UART D+` | total | `-` | 16 | 20.28 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured chain is inside generated-board USB limits |
 | `Native USB D-` | J2 D- to ESP32 GPIO19 | `/MCU_ESP32-S3/IO19` | 9 | 26.66 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured route section is present |
 | `Native USB D-` | total | `-` | 9 | 26.66 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured chain is inside generated-board USB limits |
 | `Native USB D+` | J2 D+ to ESP32 GPIO20 | `/MCU_ESP32-S3/IO20` | 10 | 26.22 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured route section is present |
@@ -69,10 +69,8 @@ This table separates the high-current laser cathode/load paths from source-sense
 | `/LASER_BLUE/FB` | `F.Cu` | 0.20 mm | 9 | 13.96 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
 | `/LASER_BLUE/FB` | `F.Cu` | 0.60 mm | 6 | 14.62 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
 | `/LASER_GREEN/FB` | `F.Cu` | 0.60 mm | 12 | 23.43 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
-| `/LASER_IR/FB` | `B.Cu` | 0.60 mm | 2 | 2.42 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
-| `/LASER_IR/FB` | `F.Cu` | 0.60 mm | 10 | 20.03 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
-| `/LASER_RED/FB` | `B.Cu` | 0.20 mm | 2 | 3.73 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
-| `/LASER_RED/FB` | `F.Cu` | 0.20 mm | 11 | 15.96 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
+| `/LASER_IR/FB` | `F.Cu` | 0.60 mm | 12 | 22.45 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
+| `/LASER_RED/FB` | `F.Cu` | 0.20 mm | 13 | 19.69 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
 | `LASER_N1` | `B.Cu` | 0.60 mm | 3 | 14.64 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
 | `LASER_N1` | `F.Cu` | 0.60 mm | 2 | 0.95 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
 | `LASER_N2` | `F.Cu` | 0.60 mm | 5 | 21.31 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
