@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-04T23:11:58+00:00
+Generated: 2026-07-04T23:34:22+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -133,11 +133,11 @@ Command: `python3 circuits/check_source_documents.py`
 
 ```text
 WARN Alpha & Omega AO3400A datasheet: reachable; Primary source reachable from this shell; manual release-time latest-revision verification remains required. [HEAD HTTP 200, type=application/pdf, length=317848]
-WARN JLCPCB via-design article: not reachable; Advisory article only; JLCPCB quote capability page wins. [GET failed: HTTP Error 429: Too Many Requests; HEAD failed: HTTP Error 429: Too Many Requests]
+WARN JLCPCB via-design article: reachable; Advisory article only; JLCPCB quote capability page wins. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN Vishay SS12-SS16 family datasheet: reachable; Family reference only; exact LCSC C2480 manufacturer must be confirmed at order. [HEAD HTTP 200, type=application/pdf, length=1174123]
 WARN LCSC C2480 SS14 order page: reachable; Distributor/order source, not a replacement for final order-time manufacturer confirmation. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C408410 MWSA0503S-4R7MT inductor page: reachable; Distributor/order source for the AP63205 4.7uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN JLCPCB C98364 WPN4020H100MT inductor page: not reachable; Distributor/order source for the AP63200 10uH inductor; final AVL should retain a manufacturer datasheet copy. [GET failed: HTTP Error 429: Too Many Requests; HEAD failed: HTTP Error 429: Too Many Requests]
+WARN JLCPCB C98364 WPN4020H100MT inductor page: reachable; Distributor/order source for the AP63200 10uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN Wuerth Mini/Micro USB family page: reachable; Family/product page; exact 65100516121 drawing is required separately above. [HEAD HTTP 200, type=text/html; charset=UTF-8, length=1]
 WARN LCSC C5120592 Wuerth 65100516121 Mini-B order page: reachable; Distributor/order source for the Wuerth Mini-B part used by the active J1/J2 BOM metadata. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN Farnell mirror of Wuerth 65100516121 drawing: reachable; Distributor mirror only; the official Wuerth drawing URL is the required source. [HEAD HTTP 200, type=application/pdf, length=276116]
@@ -405,24 +405,20 @@ Command: `python3 circuits/check_layout_review_geometry.py circuits/laser_contro
 The board still has high-risk physical layout distances in buck, USB ESD, TIA summing-node, monitor-PD, or laser-current local loops.
 
 ```text
-BLOCKED layout geometry review: 17 high-risk layout distances exceed targets
-  [buck-input] AP63205 local VIN ceramic near U15: 36.26 mm exceeds 8.00 mm; U15.3 (VIN_24V) at (86.163,114.675) -> C61.1 (VIN_24V) at (50.400,120.638). Buck VIN ceramic should be local to the regulator VIN/GND loop, not only near the power connector.
-  [buck-input] AP63200 local VIN ceramic near U16: 55.28 mm exceeds 8.00 mm; U16.3 (VIN_24V) at (104.388,136.162) -> C62.1 (VIN_24V) at (49.150,138.412). Laser buck VIN ceramic should be local to the AP63200 VIN/GND loop.
-  [buck-output] AP63200 inductor-to-output-cap loop: 8.96 mm exceeds 7.00 mm; L2.2 (LASER_V+) at (109.150,135.875) -> C68.1 (LASER_V+) at (105.537,127.675). Laser buck output capacitor should sit close to the inductor output node.
-  [usb-esd] Native USB D- connector-to-ESD distance: 10.40 mm exceeds 7.50 mm; J2.2 (/MCU_ESP32-S3/IO19) at (34.800,102.375) -> D12.2 (/MCU_ESP32-S3/IO19) at (45.175,103.050). USB ESD clamp should be near the connector before the trace enters the board.
-  [usb-esd] Native USB D- ESD-to-ESP32 distance: 18.98 mm exceeds 4.50 mm; D12.2 (/MCU_ESP32-S3/IO19) at (45.175,103.050) -> U9.13 (/MCU_ESP32-S3/IO19) at (63.125,96.895). USB D-/D+ routes should keep the clamp and protected device path compact.
-  [usb-esd] Native USB D+ ESD-to-ESP32 distance: 20.35 mm exceeds 4.50 mm; D11.2 (/MCU_ESP32-S3/IO20) at (43.375,103.050) -> U9.14 (/MCU_ESP32-S3/IO20) at (63.125,98.165). USB D-/D+ routes should keep the clamp and protected device path compact.
+BLOCKED layout geometry review: 13 high-risk layout distances exceed targets
+  [usb-esd] Native USB D- ESD-to-ESP32 distance: 18.57 mm exceeds 4.50 mm; D12.2 (/MCU_ESP32-S3/IO19) at (45.175,101.650) -> U9.13 (/MCU_ESP32-S3/IO19) at (63.125,96.895). USB D-/D+ routes should keep the clamp and protected device path compact.
+  [usb-esd] Native USB D+ ESD-to-ESP32 distance: 20.06 mm exceeds 4.50 mm; D11.2 (/MCU_ESP32-S3/IO20) at (43.375,101.650) -> U9.14 (/MCU_ESP32-S3/IO20) at (63.125,98.165). USB D-/D+ routes should keep the clamp and protected device path compact.
   [tia-sensitive] IR signal photodiode anode to OPA380 summing node: 20.02 mm exceeds 6.00 mm; D1.2 (Net-(D1-A)) at (156.165,102.438) -> U1.2 (Net-(D1-A)) at (142.531,87.782). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
-  [tia-sensitive] Red signal photodiode anode to OPA380 summing node: 19.33 mm exceeds 6.00 mm; D2.2 (Net-(D2-A)) at (140.190,102.438) -> U2.2 (Net-(D2-A)) at (122.625,110.500). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
-  [tia-sensitive] Green signal photodiode anode to OPA380 summing node: 8.60 mm exceeds 6.00 mm; D3.2 (Net-(D3-A)) at (156.165,118.438) -> U3.2 (Net-(D3-A)) at (159.695,126.275). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
+  [tia-sensitive] Red signal photodiode anode to OPA380 summing node: 16.59 mm exceeds 6.00 mm; D2.2 (Net-(D2-A)) at (140.190,102.438) -> U2.2 (Net-(D2-A)) at (123.895,105.550). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
+  [tia-sensitive] Green signal photodiode anode to OPA380 summing node: 12.99 mm exceeds 6.00 mm; D3.2 (Net-(D3-A)) at (156.165,118.438) -> U3.2 (Net-(D3-A)) at (158.425,131.225). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
   [tia-sensitive] Blue signal photodiode anode to OPA380 summing node: 16.22 mm exceeds 6.00 mm; D4.2 (Net-(D4-A)) at (140.165,118.438) -> U4.2 (Net-(D4-A)) at (134.450,133.620). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
-  [monitor-pd] IR monitor-PD raw path from LD1 to sense resistor: 103.30 mm exceeds 25.00 mm; LD1.3 (MPD_RAW1) at (170.880,118.438) -> R42.1 (MPD_RAW1) at (67.600,116.300). Raw monitor-PD current should not cross the board before the current-sense resistor.
-  [monitor-pd] Red monitor-PD raw path from LD2 to sense resistor: 122.15 mm exceeds 25.00 mm; LD2.3 (MPD_RAW2) at (186.880,102.438) -> R44.1 (MPD_RAW2) at (65.525,116.367). Raw monitor-PD current should not cross the board before the current-sense resistor.
+  [monitor-pd] IR monitor-PD raw path from LD1 to sense resistor: 103.36 mm exceeds 25.00 mm; LD1.3 (MPD_RAW1) at (170.880,118.438) -> R42.1 (MPD_RAW1) at (67.600,114.475). Raw monitor-PD current should not cross the board before the current-sense resistor.
+  [monitor-pd] Red monitor-PD raw path from LD2 to sense resistor: 121.96 mm exceeds 25.00 mm; LD2.3 (MPD_RAW2) at (186.880,102.438) -> R44.1 (MPD_RAW2) at (65.525,114.543). Raw monitor-PD current should not cross the board before the current-sense resistor.
   [monitor-pd] Green monitor-PD raw path from LD3 to sense resistor: 114.29 mm exceeds 25.00 mm; LD3.3 (MPD_RAW3) at (186.900,118.438) -> R46.1 (MPD_RAW3) at (72.738,113.100). Raw monitor-PD current should not cross the board before the current-sense resistor.
-  [laser-current] IR laser FET source to sense resistor: 4.86 mm exceeds 3.00 mm; Q1.2 (/LASER_IR/FB) at (168.773,131.522) -> R18.1 (/LASER_IR/FB) at (172.261,128.142). Laser current sense loop should be tight to avoid injecting error and current-loop noise.
-  [laser-current] Red laser FET source to sense resistor: 5.66 mm exceeds 3.00 mm; Q2.2 (/LASER_RED/FB) at (197.225,88.475) -> R23.1 (/LASER_RED/FB) at (192.650,91.800). Laser current sense loop should be tight to avoid injecting error and current-loop noise.
-  [laser-current] Green laser FET source to sense resistor: 4.86 mm exceeds 3.00 mm; Q3.2 (/LASER_GREEN/FB) at (187.400,131.550) -> R28.1 (/LASER_GREEN/FB) at (190.888,128.169). Laser current sense loop should be tight to avoid injecting error and current-loop noise.
-  [laser-current] Blue laser FET source to sense resistor: 5.66 mm exceeds 3.00 mm; Q4.2 (/LASER_BLUE/FB) at (177.925,88.188) -> R33.1 (/LASER_BLUE/FB) at (173.250,91.375). Laser current sense loop should be tight to avoid injecting error and current-loop noise.
+  [laser-current] IR laser FET source to sense resistor: 5.49 mm exceeds 3.00 mm; Q1.2 (/LASER_IR/FB) at (170.673,133.397) -> R18.1 (/LASER_IR/FB) at (172.261,128.142). Laser current sense loop should be tight to avoid injecting error and current-loop noise.
+  [laser-current] Red laser FET source to sense resistor: 5.85 mm exceeds 3.00 mm; Q2.2 (/LASER_RED/FB) at (195.325,86.600) -> R23.1 (/LASER_RED/FB) at (192.650,91.800). Laser current sense loop should be tight to avoid injecting error and current-loop noise.
+  [laser-current] Green laser FET source to sense resistor: 5.49 mm exceeds 3.00 mm; Q3.2 (/LASER_GREEN/FB) at (189.300,133.425) -> R28.1 (/LASER_GREEN/FB) at (190.888,128.169). Laser current sense loop should be tight to avoid injecting error and current-loop noise.
+  [laser-current] Blue laser FET source to sense resistor: 5.77 mm exceeds 3.00 mm; Q4.2 (/LASER_BLUE/FB) at (176.025,86.312) -> R33.1 (/LASER_BLUE/FB) at (173.250,91.375). Laser current sense loop should be tight to avoid injecting error and current-loop noise.
 ```
 
 ## PASS: AP2112 bench thermal policy

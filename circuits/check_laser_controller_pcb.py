@@ -251,8 +251,8 @@ def parse_footprint_geometry(board_path: Path) -> dict[str, dict[str, object]]:
             ly = float(at.group(2))
             pads.setdefault(pad_name, []).append(
                 (
-                    gx + lx * cos(theta) - ly * sin(theta),
-                    gy + lx * sin(theta) + ly * cos(theta),
+                    gx + lx * cos(theta) + ly * sin(theta),
+                    gy - lx * sin(theta) + ly * cos(theta),
                 )
             )
         geometry[ref] = {"origin": (gx, gy), "pads": pads}
