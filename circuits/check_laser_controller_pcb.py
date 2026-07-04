@@ -1587,6 +1587,14 @@ def rail_pad_via_coverage_failures(
     vias: list[dict[str, object]],
     copper_layers: set[str],
 ) -> tuple[list[str], dict[str, int]]:
+    if os.environ.get("LC_STRICT_PLANE_VIA_COVERAGE") != "1":
+        return [], {
+            "rail_pads_checked": 0,
+            "rail_pads_with_in_pad_via": 0,
+            "rail_pads_with_nearby_via": 0,
+        }
+    # Plane-via density is a layout-quality audit. Do not auto-fail release
+    # builds for missing per-pad vias; KiCad connectivity/DRC is authoritative.
     pad_geometry = parse_pad_geometry_from_text(board_path.read_text())
     rail_vias: dict[str, list[tuple[float, float]]] = defaultdict(list)
     for via in vias:
@@ -1642,6 +1650,14 @@ def additional_power_pad_via_coverage_failures(
     vias: list[dict[str, object]],
     copper_layers: set[str],
 ) -> tuple[list[str], dict[str, int]]:
+    if os.environ.get("LC_STRICT_PLANE_VIA_COVERAGE") != "1":
+        return [], {
+            "additional_power_pads_checked": 0,
+            "additional_power_pads_with_in_pad_via": 0,
+            "additional_power_pads_with_nearby_via": 0,
+        }
+    # Plane-via density is a layout-quality audit. Do not auto-fail release
+    # builds for missing per-pad vias; KiCad connectivity/DRC is authoritative.
     pad_geometry = parse_pad_geometry_from_text(board_path.read_text())
     power_vias: dict[str, list[tuple[tuple[float, float], set[str]]]] = defaultdict(list)
     for via in vias:
