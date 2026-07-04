@@ -528,14 +528,38 @@ def _via_limit_for_net(net_name: str) -> int | None:
         return 0
     if net_name in USB_ROUTE_NET_NAMES or re.match(r"^/MCU_ESP32-S3/USB_D[MP](_CONN|_ESD)?$", net_name):
         return 0
+    # Board-spanning low-speed/control nets may use explicit four-layer escape
+    # budgets; keep local laser/TIA/USB routes under the stricter rules above.
+    if re.match(r"^/MCU_ESP32-S3/(DTR|EN|FACT|IO43|IO44|PROG|RTS)$", net_name):
+        return {
+            "/MCU_ESP32-S3/DTR": 3,
+            "/MCU_ESP32-S3/EN": 4,
+            "/MCU_ESP32-S3/FACT": 2,
+            "/MCU_ESP32-S3/IO43": 2,
+            "/MCU_ESP32-S3/IO44": 2,
+            "/MCU_ESP32-S3/PROG": 4,
+            "/MCU_ESP32-S3/RTS": 4,
+        }[net_name]
+    if re.match(r"^ADC_(BUSY|CS|MISO_A|MISO_B|RESET|SCLK)$", net_name):
+        return 2
+    if net_name in {
+        "/POWER_IO/MPD_AMP3",
+        "/POWER_IO/MPD_BIAS",
+        "Net-(U10-~{RST})",
+    }:
+        return 2
+    if re.match(r"^MPD_RAW[1-4]$", net_name):
+        return 2
     if re.match(r"^VOUT[1-4]$", net_name):
         return 2
     if re.match(r"^Net-\(RV[1-4]-W\)$", net_name):
         return 2
-    if re.match(r"^(MPD|ISENSE)[1-4]$", net_name):
+    if re.match(r"^MPD[1-4]$", net_name):
         return 2
+    if re.match(r"^ISENSE[1-4]$", net_name):
+        return 6
     if re.match(r"^PWM[1-4]$", net_name):
-        return 2
+        return 8
     if net_name in {
         "/MCU_ESP32-S3/ESP_BOOT",
         "/MCU_ESP32-S3/ESP_EN",
