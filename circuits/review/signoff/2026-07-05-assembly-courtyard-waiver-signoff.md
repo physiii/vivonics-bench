@@ -10,6 +10,7 @@ Commands run:
 ```bash
 /usr/bin/python3 circuits/check_kicad_pcbnew_drc_report.py
 /usr/bin/python3 circuits/check_courtyard_overlap_triage.py
+python3 circuits/check_layout_review_geometry.py
 python3 circuits/check_jlcpcb_order_package.py
 ```
 
@@ -21,9 +22,23 @@ Observed result:
 - Courtyard triage reports 0 F.Fab/body-box overlaps.
 - All 4 courtyard-only warnings are covered by explicit waivers in
   `circuits/review/assembly_clearance_waivers.json`.
+- `check_layout_review_geometry.py` passes, including the D4-to-U4 sensitive
+  blue-channel geometry referenced by the courtyard waiver.
 - `check_jlcpcb_order_package.py` passes for the Gerber/drill archive, flat
   JLCPCB package archive, BOM/POS designator match, J7 C192300 metadata, and
   required board labels.
+
+Reverified after category-1 checkpoint `c3633d5` at
+`2026-07-05T06:04:00-05:00`:
+
+```bash
+/usr/bin/python3 circuits/check_courtyard_overlap_triage.py
+python3 circuits/check_layout_review_geometry.py
+```
+
+Observed result: 4 native courtyard warnings, 0 F.Fab/body-box overlaps, 4/4
+covered by explicit courtyard-only waivers, and 15 high-risk layout distances
+within targets.
 
 ## Waived Pairs
 
