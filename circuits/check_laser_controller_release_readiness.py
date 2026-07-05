@@ -438,6 +438,17 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 ),
             ),
             Evidence(
+                "circuits/review/calibration/first_article_firmware_validation_template.csv",
+                (
+                    "ad7606_timing,U14_CONTROL,RESET/CONVST/BUSY/CS/SCLK,\"SCLK <=10 MHz, sample <=100 kSPS\"",
+                    "ad7606_readback,ADC_MISO_A,DOUTA,32 SCLK edges per sample",
+                    "ad7606_readback,ADC_MISO_B,DOUTB,32 SCLK edges per sample",
+                    "ad7606_scaling,RANGE_OS,\"+/-5 V, no oversampling\",152.59 uV/LSB",
+                    "ad7606_channel_order,VOUT1..4,AD7606 V1/V2/V3/V4,known channel ordering",
+                    "ad7606_known_input,VOUT1..4,known voltage or TIA input,counts match expected value",
+                ),
+            ),
+            Evidence(
                 "circuits/review/calibration/first_article_optical_calibration_template.csv",
                 (
                     "adc_readback,U14 V1,PD CH1,VOUT1->AD7606 V1",

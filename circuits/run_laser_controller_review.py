@@ -161,6 +161,7 @@ def main() -> int:
         "circuits/check_ad7606_package_pcb.py",
         "circuits/check_ad7606_interface_budget.py",
         "circuits/check_ad7606_first_article_signoff.py",
+        "circuits/check_firmware_validation_template.py",
         "circuits/check_optical_calibration_template.py",
         "circuits/check_tia_readout_budget.py",
         "circuits/check_tia_first_article_signoff.py",
@@ -253,6 +254,7 @@ def main() -> int:
         ),
         ("AD7606 interface budget", ["python3", "circuits/check_ad7606_interface_budget.py", str(NETLIST_PATH)], {}),
         ("AD7606 first-article firmware/readback signoff", ["python3", "circuits/check_ad7606_first_article_signoff.py"], {}),
+        ("Firmware/readback validation template", ["python3", "circuits/check_firmware_validation_template.py"], {}),
         ("Optical/readout calibration template", ["python3", "circuits/check_optical_calibration_template.py"], {}),
         (
             "TIA readout budget",

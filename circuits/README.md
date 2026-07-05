@@ -58,6 +58,7 @@ python3 gen_laser_controller.py
 | `check_laser_bringup_template.py` | First-article laser bring-up measurement-template guardrail for LD1-LD4 current-limit, safety-fixture, optical-output, temperature, and firmware-shutoff rows. |
 | `check_tia_readout_budget.py` | SFH2201/OPA380 signal-PD TIA guardrail: exact topology into AD7606, VBIAS/common-mode bound, OPA380 output headroom, and bright-ambient expected-fail range check. |
 | `check_optical_calibration_template.py` | First-article optical/readout calibration-template guardrail for LD1-LD4 monitor-PD handling, D1-D4 signal-PD calibration, and U14 V1-V4 AD7606 known-input readback rows. |
+| `check_firmware_validation_template.py` | First-article AD7606 firmware/readback validation-template guardrail for timing, both DOUT lines, scaling, channel order, and known-input rows. |
 | `check_ad7606_package_pcb.py` | AD7606 package/PCB guardrail: verifies U14 schematic pin nets, C51-C60 AVCC/VDRIVE/REGCAP/reference capacitor identities and pad nets, current PCB pad nets, FRSTDATA no-connect, and installed KiCad LQFP-64 pad geometry. |
 | `check_ap6320x_package_pcb.py` | AP63205/AP63200 package/PCB guardrail: verifies U15/U16 schematic pin nets, current PCB pad nets, KiCad TSOT-23-6 pad geometry, and local L1/L2 inductor footprint geometry. |
 | `check_passive_derating.py` | Passive voltage/power guardrail for every assembled capacitor, resistor, and SMD trimmer MPN in the exported netlist. |
