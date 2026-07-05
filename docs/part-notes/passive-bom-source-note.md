@@ -5,6 +5,7 @@ Source:
 - Generated netlist fields: value, footprint, `Part Number`, and `LCSC`
 - Checker: `circuits/check_laser_controller_netlist.py`
 - Derating checker: `circuits/check_passive_derating.py`
+- First-article passive AVL lock: `docs/part-notes/passive-first-article-avl-lock.md`
 
 Current passive families:
 - 10 pF C0G 0603: `CC0603JRNPO9BN100`, LCSC `C106245`
@@ -36,6 +37,8 @@ Current verification:
 
 Open production gap:
 - Commodity passive voltage ratings and resistor steady-state power are now
-  encoded for the bench design. Production still needs a procurement lock file
-  with lifecycle/AVL status, pulse/surge/current derating, final manufacturer
-  datasheets for every orderable passive, and board-temperature measurement.
+  encoded for the bench design, and the first-article passive MPN/LCSC set is
+  locked against the exported netlist. Production still needs quote-time
+  lifecycle/stock review, approved substitute policy, pulse/surge/current derating,
+  final manufacturer datasheets for every orderable passive, and
+  board-temperature measurement.

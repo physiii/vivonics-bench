@@ -248,24 +248,33 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ),
     ReleaseBlocker(
         "PASSIVE_PRODUCTION_AVL_AND_DERATING",
-        "Production passive AVL, pulse/surge derating, and temperature evidence are open",
-        "The current derating gate covers bench steady-state voltage and power, not lifecycle, surge, pulse, or production procurement lock.",
-        "Create a production procurement lock with final orderable passive datasheets, lifecycle/AVL state, pulse/surge/current derating, and board-temperature evidence.",
+        "Passive quote-time lifecycle, pulse/surge derating, and temperature evidence are open",
+        "The first-article passive MPN/LCSC set is now locked against the exported netlist, and the steady-state voltage/power derating gate passes. This still does not prove current JLCPCB/LCSC stock/lifecycle state, field pulse/surge/current derating, substitute approval, or board-temperature measurement.",
+        "At order time, verify every locked passive C-code in the JLCPCB quote, reject or explicitly review substitutions, then capture production pulse/surge/current derating and board-temperature evidence before field or production release.",
         (
             Evidence(
                 "docs/part-notes/passive-bom-source-note.md",
                 (
-                    "Production still needs a procurement lock file",
+                    "First-article passive AVL lock",
                     "pulse/surge/current derating",
                     "board-temperature measurement.",
                 ),
             ),
             Evidence(
+                "docs/part-notes/passive-first-article-avl-lock.md",
+                (
+                    "Quote-time lifecycle/stock check required",
+                    "Board-temperature measurement remains required",
+                    "Pulse/surge/current derating remains required",
+                    "Production release still needs current quote evidence",
+                ),
+            ),
+            Evidence(
                 "docs/source-register.md",
                 (
-                    "Production still needs",
-                    "pulse/surge/current derating",
-                    "board-temperature evidence.",
+                    "check_passive_avl_lock.py",
+                    "24 passive MPN/LCSC pairs",
+                    "quote-time lifecycle/stock",
                 ),
             ),
         ),

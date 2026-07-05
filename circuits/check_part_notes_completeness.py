@@ -328,7 +328,7 @@ NOTE_CHECKS: tuple[NoteCheck, ...] = (
             "value, footprint, `Part Number`, and `LCSC`",
             "10 ohm 2512 2 W laser sense resistors",
             "every assembled capacitor, resistor, and SMD trimmer MPN",
-            "Production still needs a procurement lock file",
+            "First-article passive AVL lock",
             "pulse/surge/current derating",
         ),
     ),
