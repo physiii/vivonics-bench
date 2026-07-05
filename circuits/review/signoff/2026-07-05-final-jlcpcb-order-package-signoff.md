@@ -34,6 +34,7 @@ for bench measurements, optical safety behavior, production, or field use.
 - Focused layout-geometry review: PASS
 - Native courtyard-overlap triage: PASS with zero native courtyard-overlap warnings
 - 3D model coverage: PASS
+- Signal-PD footprint geometry: PASS
 
 ## Upload Artifacts
 
@@ -49,8 +50,8 @@ PTH/NPTH drills, JLCPCB BOM, and JLCPCB POS.
 ## SHA256
 
 ```text
-779bb2ffdc30c36c6164d9c59acc8935f254f53b39b32918c1fd444aa28ebf5a  circuits/laser_controller_gerbers.zip
-dc8b56bfd2428a1fb2520c764bcb6b9535549035c4af0c54a6c3de573880c422  circuits/laser_controller_jlcpcb_package.zip
+42365bf0697468d30fa5726056dc71ca4be0e10af7e39a55974b20ed9d0f9b8a  circuits/laser_controller_gerbers.zip
+2103e3355e4557ae804ec947f877193e2f73b58f510119cecb9dea673a6fac7c  circuits/laser_controller_jlcpcb_package.zip
 c985588c42b516108a990abaa858db2317fe038ba447fa666fffdc0fb52e5c69  circuits/laser_controller_bom_jlcpcb.csv
 01d409619b390781c282bc85f94f3ef17147f1ed58604099071c7d2da5d730ff  circuits/fab/laser_controller_pos.csv
 ```

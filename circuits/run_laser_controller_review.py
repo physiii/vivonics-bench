@@ -175,6 +175,7 @@ def main() -> int:
         "circuits/check_kicad_pcbnew_drc_report.py",
         "circuits/check_courtyard_overlap_triage.py",
         "circuits/check_3d_model_coverage.py",
+        "circuits/check_signal_pd_footprint_geometry.py",
         "circuits/check_laser_controller_release_readiness.py",
         "circuits/check_schematic_hierarchy_labels.py",
         "circuits/check_schematic_presentation.py",
@@ -536,6 +537,11 @@ def main() -> int:
         (
             "3D model coverage",
             ["/usr/bin/python3", "circuits/check_3d_model_coverage.py"],
+            {},
+        ),
+        (
+            "Signal-PD footprint geometry",
+            ["/usr/bin/python3", "circuits/check_signal_pd_footprint_geometry.py"],
             {},
         ),
         ("AP2112 bench thermal policy", ["python3", "circuits/check_power_thermal_budget.py", "--policy", "bench-uart-usb"], {}),
