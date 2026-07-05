@@ -58,11 +58,14 @@ def run_step(
     *,
     expected_codes: set[int] | None = None,
     blocked_codes: set[int] | None = None,
+    deferred_codes: set[int] | None = None,
     blocked_note: str = "",
+    deferred_note: str = "",
     unavailable_if_export_only: bool = False,
 ) -> StepResult:
     expected_codes = expected_codes or {0}
     blocked_codes = blocked_codes or set()
+    deferred_codes = deferred_codes or set()
     completed = subprocess.run(
         command,
         cwd=REPO_DIR,
@@ -76,6 +79,8 @@ def run_step(
         return StepResult(name, command, "PASS", completed.returncode, output)
     if completed.returncode in blocked_codes:
         return StepResult(name, command, "BLOCKED", completed.returncode, output, blocked_note)
+    if completed.returncode in deferred_codes:
+        return StepResult(name, command, "DEFERRED", completed.returncode, output, deferred_note)
     if unavailable_if_export_only and (
         "Subcommands:" in output and "export" in output and "erc" not in output and "drc" not in output
     ):
@@ -94,7 +99,7 @@ def command_text(command: list[str]) -> str:
     return " ".join(command)
 
 
-def write_report(results: list[StepResult], release_blocked: bool) -> None:
+def write_report(results: list[StepResult], order_blocked: bool, release_blocked: bool) -> None:
     REPORT_DIR.mkdir(parents=True, exist_ok=True)
     now = _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat()
     lines = [
@@ -103,9 +108,11 @@ def write_report(results: list[StepResult], release_blocked: bool) -> None:
         f"Generated: {now}",
         "",
         "This is a generated local audit artifact. It proves only the checks listed below.",
-        "Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.",
+        "JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.",
+        "`DEFERRED` rows are first-article or production-release work that cannot be closed by Gerber/BOM/POS generation alone.",
         "",
-        f"Overall release status: {'BLOCKED' if release_blocked else 'AVAILABLE_GATES_PASS'}",
+        f"JLCPCB order package status: {'BLOCKED' if order_blocked else 'READY'}",
+        f"First-article/production release status: {'BLOCKED' if release_blocked else 'AVAILABLE_GATES_PASS'}",
         "",
         "| Status | Step | Return | Command |",
         "|---|---|---:|---|",
@@ -609,13 +616,15 @@ def main() -> int:
             {"expected_codes": {1}},
         ),
         (
-            "Open fabrication/release blockers",
+            "Open first-article/production blockers",
             ["python3", "circuits/check_laser_controller_release_readiness.py"],
             {
-                "blocked_codes": {2},
-                "blocked_note": (
-                    "The release-readiness registry has unresolved source, direct-laser, "
-                    "thermal, manufacturing, and human-inspection blockers."
+                "deferred_codes": {2},
+                "deferred_note": (
+                    "The release-readiness registry has unresolved calibration, firmware, "
+                    "thermal, protection, procurement, and measurement blockers. These block "
+                    "bench-use/production release, but they do not block uploading the current "
+                    "verified Gerber/BOM/POS package for first-article fabrication."
                 ),
             },
         ),
@@ -719,8 +728,9 @@ def main() -> int:
         if result.status == "FAIL":
             break
 
-    release_blocked = any(result.status in {"FAIL", "BLOCKED"} for result in results)
-    write_report(results, release_blocked)
+    order_blocked = any(result.status in {"FAIL", "BLOCKED"} for result in results)
+    release_blocked = any(result.status in {"FAIL", "BLOCKED", "DEFERRED"} for result in results)
+    write_report(results, order_blocked, release_blocked)
     print(f"Review report: {REPORT_PATH}")
 
     if any(result.status == "FAIL" for result in results):

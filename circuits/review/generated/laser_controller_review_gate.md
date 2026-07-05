@@ -1,11 +1,13 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T12:05:34+00:00
+Generated: 2026-07-05T12:13:15+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
-Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
+JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
+`DEFERRED` rows are first-article or production-release work that cannot be closed by Gerber/BOM/POS generation alone.
 
-Overall release status: BLOCKED
+JLCPCB order package status: READY
+First-article/production release status: BLOCKED
 
 | Status | Step | Return | Command |
 |---|---|---:|---|
@@ -69,7 +71,7 @@ Overall release status: BLOCKED
 | PASS | Laser bring-up measurement template | 0 | `python3 circuits/check_laser_bringup_template.py` |
 | PASS | Laser first-article bring-up signoff | 0 | `python3 circuits/check_laser_first_article_signoff.py` |
 | PASS | Low-Vf diode on green rail expected fail | 1 | `python3 circuits/check_laser_current_budget.py --policy low-vf-diode-on-10v5` |
-| BLOCKED | Open fabrication/release blockers | 2 | `python3 circuits/check_laser_controller_release_readiness.py` |
+| DEFERRED | Open first-article/production blockers | 2 | `python3 circuits/check_laser_controller_release_readiness.py` |
 | PASS | Regenerate audit inventory | 0 | `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md` |
 | PASS | Export placement | 0 | `/snap/bin/kicad.kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv` |
 | PASS | JLCPCB order package | 0 | `python3 circuits/check_jlcpcb_order_package.py` |
@@ -789,14 +791,14 @@ FAIL laser current-loop policy
   AO3400A dissipates 0.551W, above 0.320W continuous budget at 85.0degC
 ```
 
-## BLOCKED: Open fabrication/release blockers
+## DEFERRED: Open first-article/production blockers
 
 Command: `python3 circuits/check_laser_controller_release_readiness.py`
 
-The release-readiness registry has unresolved source, direct-laser, thermal, manufacturing, and human-inspection blockers.
+The release-readiness registry has unresolved calibration, firmware, thermal, protection, procurement, and measurement blockers. These block bench-use/production release, but they do not block uploading the current verified Gerber/BOM/POS package for first-article fabrication.
 
 ```text
-BLOCKED release readiness: 7 open fabrication/release blockers
+BLOCKED production release readiness: 7 open first-article/production blockers
   [MONITOR_PD_FRONTEND_RANGE_CALIBRATION] Monitor-PD front-end range and calibration are not released
     Detail: The exported netlist now proves the INA4180/LM4040 monitor topology is connected as intended, and the 240R/gain20 monitor scale covers the captured D7805I/D6505I/PLT5 520EB_P monitor-current range inside the local ADC-headroom guard. The first-article signoff requires external optical-meter calibration before MPD telemetry is used for APC, normalization, or safety behavior. PLT5 450GB has no monitor photodiode, so MPD4 is not blue-source telemetry. Measured optical calibration and firmware behavior are still unreleased.
     Required action: Calibrate each monitor-capable source against an external optical meter, record dark/off counts, response slope, saturation threshold, setpoint, and optical-power reading, and verify firmware fail-shutoff behavior before using MPD telemetry for production APC, normalization, or safety decisions.
@@ -829,18 +831,18 @@ Command: `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/
 Command: `/snap/bin/kicad.kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv`
 
 ```text
-07:05:31: Debug: Adding duplicate image handler for 'PNG file'
-07:05:31: Debug: Adding duplicate image handler for 'JPEG file'
-07:05:31: Debug: Adding duplicate image handler for 'TIFF file'
-07:05:31: Debug: Adding duplicate image handler for 'GIF file'
-07:05:31: Debug: Adding duplicate image handler for 'PNM file'
-07:05:31: Debug: Adding duplicate image handler for 'PCX file'
-07:05:31: Debug: Adding duplicate image handler for 'IFF file'
-07:05:31: Debug: Adding duplicate image handler for 'Windows icon file'
-07:05:31: Debug: Adding duplicate image handler for 'Windows cursor file'
-07:05:31: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-07:05:31: Debug: Adding duplicate image handler for 'TGA file'
-07:05:31: Debug: Adding duplicate image handler for 'XPM file'
+07:13:12: Debug: Adding duplicate image handler for 'PNG file'
+07:13:12: Debug: Adding duplicate image handler for 'JPEG file'
+07:13:12: Debug: Adding duplicate image handler for 'TIFF file'
+07:13:12: Debug: Adding duplicate image handler for 'GIF file'
+07:13:12: Debug: Adding duplicate image handler for 'PNM file'
+07:13:12: Debug: Adding duplicate image handler for 'PCX file'
+07:13:12: Debug: Adding duplicate image handler for 'IFF file'
+07:13:12: Debug: Adding duplicate image handler for 'Windows icon file'
+07:13:12: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:13:12: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:13:12: Debug: Adding duplicate image handler for 'TGA file'
+07:13:12: Debug: Adding duplicate image handler for 'XPM file'
 Wrote position data to '/tmp/lc_pos.csv'.
 ```
 
@@ -866,18 +868,18 @@ Saved ERC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/
 Command: `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
-07:05:32: Debug: Adding duplicate image handler for 'PNG file'
-07:05:32: Debug: Adding duplicate image handler for 'JPEG file'
-07:05:32: Debug: Adding duplicate image handler for 'TIFF file'
-07:05:32: Debug: Adding duplicate image handler for 'GIF file'
-07:05:32: Debug: Adding duplicate image handler for 'PNM file'
-07:05:32: Debug: Adding duplicate image handler for 'PCX file'
-07:05:32: Debug: Adding duplicate image handler for 'IFF file'
-07:05:32: Debug: Adding duplicate image handler for 'Windows icon file'
-07:05:32: Debug: Adding duplicate image handler for 'Windows cursor file'
-07:05:32: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-07:05:32: Debug: Adding duplicate image handler for 'TGA file'
-07:05:32: Debug: Adding duplicate image handler for 'XPM file'
+07:13:13: Debug: Adding duplicate image handler for 'PNG file'
+07:13:13: Debug: Adding duplicate image handler for 'JPEG file'
+07:13:13: Debug: Adding duplicate image handler for 'TIFF file'
+07:13:13: Debug: Adding duplicate image handler for 'GIF file'
+07:13:13: Debug: Adding duplicate image handler for 'PNM file'
+07:13:13: Debug: Adding duplicate image handler for 'PCX file'
+07:13:13: Debug: Adding duplicate image handler for 'IFF file'
+07:13:13: Debug: Adding duplicate image handler for 'Windows icon file'
+07:13:13: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:13:13: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:13:13: Debug: Adding duplicate image handler for 'TGA file'
+07:13:13: Debug: Adding duplicate image handler for 'XPM file'
 Found 4 violations
 Found 0 unconnected items
 Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt
@@ -888,18 +890,18 @@ Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/
 Command: `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
-07:05:33: Debug: Adding duplicate image handler for 'PNG file'
-07:05:33: Debug: Adding duplicate image handler for 'JPEG file'
-07:05:33: Debug: Adding duplicate image handler for 'TIFF file'
-07:05:33: Debug: Adding duplicate image handler for 'GIF file'
-07:05:33: Debug: Adding duplicate image handler for 'PNM file'
-07:05:33: Debug: Adding duplicate image handler for 'PCX file'
-07:05:33: Debug: Adding duplicate image handler for 'IFF file'
-07:05:33: Debug: Adding duplicate image handler for 'Windows icon file'
-07:05:33: Debug: Adding duplicate image handler for 'Windows cursor file'
-07:05:33: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-07:05:33: Debug: Adding duplicate image handler for 'TGA file'
-07:05:33: Debug: Adding duplicate image handler for 'XPM file'
+07:13:14: Debug: Adding duplicate image handler for 'PNG file'
+07:13:14: Debug: Adding duplicate image handler for 'JPEG file'
+07:13:14: Debug: Adding duplicate image handler for 'TIFF file'
+07:13:14: Debug: Adding duplicate image handler for 'GIF file'
+07:13:14: Debug: Adding duplicate image handler for 'PNM file'
+07:13:14: Debug: Adding duplicate image handler for 'PCX file'
+07:13:14: Debug: Adding duplicate image handler for 'IFF file'
+07:13:14: Debug: Adding duplicate image handler for 'Windows icon file'
+07:13:14: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:13:14: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:13:14: Debug: Adding duplicate image handler for 'TGA file'
+07:13:14: Debug: Adding duplicate image handler for 'XPM file'
 Found 4 violations
 Found 0 unconnected items
 Found 0 schematic parity issues

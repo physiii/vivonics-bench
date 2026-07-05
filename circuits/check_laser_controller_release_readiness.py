@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Track open fabrication/release blockers for the bench laser controller.
+"""Track open first-article and production-release blockers.
 
 Exit codes:
   0: no open blockers are registered
   1: blocker registry evidence is inconsistent with the repo docs
-  2: one or more known blockers remain open
+  2: one or more known first-article/production blockers remain open
 
-This is not another electrical-rule checker. It makes the unresolved manual,
-source, direct-laser, thermal, and manufacturing checks visible in the same wrapper
-as the generated schematic and PCB gates.
+This is not another electrical-rule checker and it is not a Gerber-package
+validator. It makes unresolved manual calibration, firmware, thermal,
+protection, procurement, and production-release checks visible next to the
+generated schematic and PCB gates.
 """
 from __future__ import annotations
 
@@ -451,7 +452,7 @@ def main() -> int:
         print("PASS release readiness: no open blockers registered")
         return 0
 
-    print(f"BLOCKED release readiness: {len(BLOCKERS)} open fabrication/release blockers")
+    print(f"BLOCKED production release readiness: {len(BLOCKERS)} open first-article/production blockers")
     for blocker in BLOCKERS:
         print(f"  [{blocker.blocker_id}] {blocker.title}")
         print(f"    Detail: {blocker.detail}")
