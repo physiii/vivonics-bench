@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T09:01:35+00:00
+Generated: 2026-07-05T09:05:31+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -160,8 +160,9 @@ WARN LCSC C114613 RC0603FR-07240RL 240 ohm resistor page: reachable; Distributor
 WARN LRC L8050QLT1G transistor datasheet: reachable; Manufacturer datasheet for the Q5 NPN SOT-23 auto-reset transistor. [HEAD HTTP 200, type=application/pdf, length=543317]
 WARN LCSC C39282 L8550HQLT1G transistor page: reachable; Distributor/order source for the Q6 PNP SOT-23 auto-reset transistor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C127509 K2-1102SP-C4SC-04 switch page: reachable; Distributor/order source for the SW1-SW3 tactile reset/program/factory buttons. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
+WARN LCSC C192300 2x4 SMT pin header page: reachable; Distributor/order source for J7; page identifies BOOMELE 2.54-2*4P as SMD, 2 rows, 8 pins, surface-mount vertical. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C5123624 10 ohm 2512 sense resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-PASS source-document evidence: 22 required online sources, 27 required local artifacts, and 17 secondary/open-risk sources reviewed
+PASS source-document evidence: 22 required online sources, 27 required local artifacts, and 18 secondary/open-risk sources reviewed
 ```
 
 ## PASS: Passive derating assertions

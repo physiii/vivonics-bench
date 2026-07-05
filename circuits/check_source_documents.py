@@ -284,6 +284,12 @@ WARNING_ONLINE = [
         note="Distributor/order source for the SW1-SW3 tactile reset/program/factory buttons.",
     ),
     OnlineEvidence(
+        "LCSC C192300 2x4 SMT pin header page",
+        "https://www.lcsc.com/product-detail/C192300.html",
+        False,
+        note="Distributor/order source for J7; page identifies BOOMELE 2.54-2*4P as SMD, 2 rows, 8 pins, surface-mount vertical.",
+    ),
+    OnlineEvidence(
         "JLCPCB C5123624 10 ohm 2512 sense resistor page",
         "https://jlcpcb.com/partdetail/Milliohm-HoCR2512_2W_10R_1/C5123624",
         False,
