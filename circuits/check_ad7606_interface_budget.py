@@ -80,7 +80,7 @@ def require_unconnected_pin(
         for net, nodes in sorted(nets.items())
         if any(node_ref == ref and node_pin == pin for node_ref, node_pin, _, _ in nodes)
     ]
-    if connected:
+    if any(not net.startswith("unconnected-") for net in connected):
         errors.append(f"{ref}.{pin}: expected intentional no-connect, got net(s) {connected}")
 
 

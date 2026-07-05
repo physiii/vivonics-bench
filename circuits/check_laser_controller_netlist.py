@@ -74,6 +74,18 @@ def canon_net(net: str) -> str:
     return CANON_NET_ALIASES.get(net, net)
 
 
+def canon_pin_function(function: str, pin: str) -> str:
+    """Normalize KiCad 10 legacy-netlist pinfunction suffixes.
+
+    KiCad 10 exports library pin names as e.g. ``V+_7`` where older KiCad
+    exported ``V+``.  The suffix is redundant with the exported pin number.
+    """
+    suffix = f"_{pin}"
+    if pin and function.endswith(suffix):
+        return function[: -len(suffix)]
+    return function
+
+
 def net_nodes(
     nets: dict[str, list[tuple[str, str, str, str]]],
     net: str,
@@ -90,24 +102,63 @@ def net_nodes(
 def parse_netlist(path: Path) -> dict[str, list[tuple[str, str, str, str]]]:
     nets: dict[str, list[tuple[str, str, str, str]]] = {}
     current: str | None = None
+    current_nodes: list[tuple[str, str, str, str]] = []
+    net_depth = 0
+    in_node = False
+    node_depth = 0
+    node_fields: dict[str, str] = {}
     for line in path.read_text().splitlines():
         text = line.strip()
-        if text.startswith("(net "):
+        if current is None and text == "(net":
+            current = ""
+            current_nodes = []
+            net_depth = line.count("(") - line.count(")")
+            continue
+        if current is None and text.startswith("(net "):
             match = re.search(r'\(name "([^"]*)"\)', text)
             current = match.group(1) if match else ""
             nets[current] = []
-        elif current is not None and text.startswith("(node "):
+        elif current is not None and not in_node and text.startswith("(name "):
+            match = re.search(r'\(name "([^"]*)"\)', text)
+            if match:
+                current = match.group(1)
+        elif current is not None and not in_node and text == "(node":
+            in_node = True
+            node_depth = line.count("(") - line.count(")")
+            node_fields = {}
+        elif current is not None and not in_node and text.startswith("(node "):
             fields = dict(re.findall(r'\((ref|pin|pinfunction|pintype) "([^"]*)"\)', text))
-            nets[current].append(
+            current_nodes.append(
                 (
                     fields.get("ref", ""),
                     fields.get("pin", ""),
-                    fields.get("pinfunction", ""),
+                    canon_pin_function(fields.get("pinfunction", ""), fields.get("pin", "")),
                     fields.get("pintype", ""),
                 )
             )
-        elif current is not None and text == ")":
-            current = None
+        elif in_node:
+            found = re.search(r'\((ref|pin|pinfunction|pintype) "([^"]*)"\)', text)
+            if found:
+                node_fields[found.group(1)] = found.group(2)
+            node_depth += line.count("(") - line.count(")")
+            if node_depth == 0:
+                current_nodes.append(
+                    (
+                        node_fields.get("ref", ""),
+                        node_fields.get("pin", ""),
+                        canon_pin_function(
+                            node_fields.get("pinfunction", ""),
+                            node_fields.get("pin", ""),
+                        ),
+                        node_fields.get("pintype", ""),
+                    )
+                )
+                in_node = False
+        if current is not None:
+            net_depth += line.count("(") - line.count(")")
+            if not in_node and net_depth == 0:
+                nets[current] = current_nodes
+                current = None
     return nets
 
 
@@ -118,7 +169,7 @@ def parse_components(path: Path) -> list[dict[str, str]]:
     block: list[str] = []
     for line in path.read_text().splitlines():
         text = line.strip()
-        if not in_comp and text.startswith("(comp (ref "):
+        if not in_comp and (text.startswith("(comp (ref ") or text == "(comp"):
             in_comp = True
             block = [line]
             depth = line.count("(") - line.count(")")
@@ -128,24 +179,32 @@ def parse_components(path: Path) -> list[dict[str, str]]:
         if in_comp and depth == 0:
             joined = "\n".join(block)
             def match(pattern: str) -> str:
-                found = re.search(pattern, joined)
+                found = re.search(pattern, joined, re.MULTILINE | re.DOTALL)
                 return found.group(1) if found else ""
+            def first_match(*patterns: str) -> str:
+                return next((value for value in (match(pattern) for pattern in patterns) if value), "")
             def line_match(pattern: str) -> str:
                 found = re.search(pattern, joined, re.MULTILINE)
                 return found.group(1) if found else ""
-            sheet_tstamps = match(r'\(sheetpath \(names "[^"]*"\) \(tstamps "([^"]*)"\)\)')
+            sheet_tstamps = match(r'\(sheetpath\s+\(names "[^"]*"\)\s+\(tstamps "([^"]*)"\)\s*\)')
             comp_tstamp = line_match(r'^\s+\(tstamps "([^"]*)"\)\)+\s*$')
             path_parts = [part for part in sheet_tstamps.split("/") if part]
             if comp_tstamp:
                 path_parts.append(comp_tstamp)
             comps.append(
                 {
-                    "ref": match(r'\(comp \(ref "([^"]+)"\)'),
+                    "ref": first_match(r'\(comp \(ref "([^"]+)"\)', r'^\s*\(ref "([^"]+)"\)'),
                     "value": match(r'\(value "([^"]*)"\)'),
                     "footprint": match(r'\(footprint "([^"]*)"\)'),
-                    "lcsc": match(r'\(field \(name "LCSC"\) "([^"]*)"\)'),
-                    "mpn": match(r'\(field \(name "Part Number"\) "([^"]*)"\)'),
-                    "sheet": match(r'\(sheetpath \(names "([^"]*)"\)'),
+                    "lcsc": first_match(
+                        r'\(field \(name "LCSC"\) "([^"]*)"\)',
+                        r'\(property\s+\(name "LCSC"\)\s+\(value "([^"]*)"\)\s*\)',
+                    ),
+                    "mpn": first_match(
+                        r'\(field \(name "Part Number"\) "([^"]*)"\)',
+                        r'\(property\s+\(name "Part Number"\)\s+\(value "([^"]*)"\)\s*\)',
+                    ),
+                    "sheet": match(r'\(sheetpath\s+\(names "([^"]*)"\)'),
                     "sheetfile": match(r'\(property \(name "Sheetfile"\) \(value "([^"]*)"\)\)'),
                     "sheetname": match(r'\(property \(name "Sheetname"\) \(value "([^"]*)"\)\)'),
                     "path": "/" + "/".join(path_parts) if path_parts else "",
@@ -195,8 +254,6 @@ def main() -> int:
         canonical_net = canon_net(net)
         covered_exact_nets.add(canonical_net)
         expected_set = set(expected)
-        if canonical_net == "GND":
-            expected_set -= {("H1", "1"), ("H2", "1")}
         actual = {(ref, pin) for ref, pin, _, _ in net_nodes(nets, net)}
         checks.append((actual == expected_set, net, f"expected {sorted(expected_set)}, got {sorted(actual)}"))
 
@@ -477,7 +534,7 @@ def main() -> int:
         ("9", "~{RST}", "input"),
         ("10", "NC", "no_connect"),
         ("11", "~{SUSPEND}", "output"),
-        ("12", "SUSPEND", "output"),
+        ("12", "SUSPEND", "output+no_connect"),
         ("13", "CHREN", "output+no_connect"),
         ("14", "CHR1", "output+no_connect"),
         ("15", "CHR0", "output+no_connect"),
@@ -599,7 +656,7 @@ def main() -> int:
         ("13", "GPIO19/U1RTS/ADC2_CH8/CLK_OUT2/USB_D-", "bidirectional"),
         ("14", "GPIO20/U1CTS/ADC2_CH9/CLK_OUT1/USB_D+", "bidirectional"),
         ("15", "GPIO3/TOUCH3/ADC1_CH2", "bidirectional"),
-        ("16", "GPIO46", "bidirectional"),
+        ("16", "GPIO46", "bidirectional+no_connect"),
         ("17", "GPIO9/TOUCH9/ADC1_CH8/FSPIHD/SUBSPIHD", "bidirectional"),
         ("18", "GPIO10/TOUCH10/ADC1_CH9/FSPICS0/FSPIIO4/SUBSPICS0", "bidirectional"),
         ("19", "GPIO11/TOUCH11/ADC2_CH0/FSPID/FSPIIO5/SUBSPID", "bidirectional"),
@@ -609,16 +666,16 @@ def main() -> int:
         ("23", "GPIO21", "bidirectional"),
         ("24", "GPIO47/SPICLK_P/SUBSPICLK_P_DIFF", "bidirectional"),
         ("25", "GPIO48/SPICLK_N/SUBSPICLK_N_DIFF", "bidirectional"),
-        ("26", "GPIO45", "bidirectional"),
+        ("26", "GPIO45", "bidirectional+no_connect"),
         ("27", "GPIO0/BOOT", "bidirectional"),
-        ("28", "SPIIO6/GPIO35/FSPID/SUBSPID", "bidirectional"),
-        ("29", "SPIIO7/GPIO36/FSPICLK/SUBSPICLK", "bidirectional"),
-        ("30", "SPIDQS/GPIO37/FSPIQ/SUBSPIQ", "bidirectional"),
+        ("28", "SPIIO6/GPIO35/FSPID/SUBSPID", "bidirectional+no_connect"),
+        ("29", "SPIIO7/GPIO36/FSPICLK/SUBSPICLK", "bidirectional+no_connect"),
+        ("30", "SPIDQS/GPIO37/FSPIQ/SUBSPIQ", "bidirectional+no_connect"),
         ("31", "GPIO38/FSPIWP/SUBSPIWP", "bidirectional"),
-        ("32", "MTCK/GPIO39/CLK_OUT3/SUBSPICS1", "bidirectional"),
-        ("33", "MTDO/GPIO40/CLK_OUT2", "bidirectional"),
-        ("34", "MTDI/GPIO41/CLK_OUT1", "bidirectional"),
-        ("35", "MTMS/GPIO42", "bidirectional"),
+        ("32", "MTCK/GPIO39/CLK_OUT3/SUBSPICS1", "bidirectional+no_connect"),
+        ("33", "MTDO/GPIO40/CLK_OUT2", "bidirectional+no_connect"),
+        ("34", "MTDI/GPIO41/CLK_OUT1", "bidirectional+no_connect"),
+        ("35", "MTMS/GPIO42", "bidirectional+no_connect"),
         ("36", "U0RXD/GPIO44/CLK_OUT2", "bidirectional"),
         ("37", "U0TXD/GPIO43/CLK_OUT1", "bidirectional"),
         ("38", "GPIO2/TOUCH2/ADC1_CH1", "bidirectional"),
@@ -647,9 +704,9 @@ def main() -> int:
             ("1", "VBUS", "power_out"),
             ("2", "D-", "passive"),
             ("3", "D+", "passive"),
-            ("4", "ID", "passive"),
-            ("5", "GND", "power_out"),
-            ("6", "GND", "power_out"),
+            ("4", "ID", "passive+no_connect"),
+            ("5", "GND", "passive"),
+            ("6", "GND", "passive"),
         ]:
             expect_pin(ref, pin, function, pintype)
     for pin, function in [
@@ -1162,7 +1219,7 @@ def main() -> int:
         for comp in assembled
         if not comp["lcsc"] or not comp["mpn"] or not comp["footprint"]
     ]
-    checks.append((len(comps) == 179, "component count", f"got {len(comps)}, expected 179"))
+    checks.append((len(comps) == 181, "component count", f"got {len(comps)}, expected 181"))
     checks.append((len(assembled) == 173, "assembled component count", f"got {len(assembled)}, expected 173"))
     checks.append((not missing_fields, "assembled component fields", f"missing {missing_fields}"))
 

@@ -120,7 +120,7 @@ def board_pad_nets(board_text: str) -> dict[str, dict[str, set[str]]]:
             continue
         for pad in pad_blocks(block):
             pad_match = re.search(r'\(pad\s+(?:"([^"]*)"|([^\s\)]+))', pad)
-            net_match = re.search(r'\(net\s+\d+\s+"([^"]*)"\)', pad)
+            net_match = re.search(r'\(net(?:\s+\d+)?\s+"([^"]*)"\)', pad)
             if not pad_match or not net_match:
                 continue
             pad_name = pad_match.group(1) if pad_match.group(1) is not None else pad_match.group(2)

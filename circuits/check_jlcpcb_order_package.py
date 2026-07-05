@@ -44,6 +44,12 @@ REQUIRED_BOARD_TEXT = {
     ("PD CH3", "F.SilkS"),
     ("PD CH4", "F.SilkS"),
 }
+ALLOWED_BOTTOM_REFS = {"D1", "D2", "D3", "D4", "LD1", "LD2", "LD3", "LD4"}
+REQUIRED_TOP_TIA_REFS = {
+    "U1", "U2", "U3", "U4",
+    "RV5", "RV6", "RV7", "RV8",
+    "C1", "C2", "C5", "C6", "C9", "C10", "C13", "C14",
+}
 
 
 def read_csv(path: Path) -> list[dict[str, str]]:
@@ -242,6 +248,36 @@ def verify_board_text() -> list[str]:
     return failures
 
 
+def verify_optical_side_placement() -> list[str]:
+    failures: list[str] = []
+    layers = footprint_layers()
+    bottom_refs = {ref for ref, side in layers.items() if side == "bottom"}
+
+    unexpected_bottom = sorted(bottom_refs - ALLOWED_BOTTOM_REFS)
+    missing_bottom = sorted(ALLOWED_BOTTOM_REFS - bottom_refs)
+    if unexpected_bottom:
+        failures.append(
+            "unexpected bottom-side footprints outside optical PD/LD set: "
+            + ", ".join(unexpected_bottom)
+        )
+    if missing_bottom:
+        failures.append(
+            "optical PD/LD footprints not on bottom side: "
+            + ", ".join(missing_bottom)
+        )
+
+    wrong_top = sorted(
+        ref for ref in REQUIRED_TOP_TIA_REFS
+        if layers.get(ref) != "top"
+    )
+    if wrong_top:
+        failures.append(
+            "TIA SMT footprints must be top-side for single-sided SMT assembly: "
+            + ", ".join(wrong_top)
+        )
+    return failures
+
+
 def main() -> int:
     failures: list[str] = []
     try:
@@ -269,6 +305,7 @@ def main() -> int:
     bom_pos_failures, bom_count, pos_count = verify_bom_pos()
     failures.extend(bom_pos_failures)
     failures.extend(verify_board_text())
+    failures.extend(verify_optical_side_placement())
 
     if failures:
         print(f"FAIL JLCPCB order package: {len(failures)} issue(s)")
@@ -280,7 +317,7 @@ def main() -> int:
         "PASS JLCPCB order package: "
         f"{len(files)} Gerber/drill files, package archive includes BOM/POS, "
         f"{bom_count}/{pos_count} BOM/POS designators match, J7 is C192300 2x4 SMD, "
-        "PD/laser labels and backside vivonics mark are present"
+        "only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present"
     )
     return 0
 
