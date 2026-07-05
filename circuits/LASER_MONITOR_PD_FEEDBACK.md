@@ -84,6 +84,11 @@ the selected monitor-current spread inside the local ADC-headroom guard:
 `600 uA` high-end value maps to about `2.88 V`, and `D6505I` high-end monitor
 current (`0.3 mA`) maps to about `1.44 V`. This fixes ADC headroom only; MPD
 still requires optical calibration before production APC or safety feedback.
+Follow
+`circuits/review/signoff/2026-07-05-monitor-pd-first-article-calibration-signoff.md`
+for first-article external-power-meter calibration and firmware fail-shutoff
+requirements before using MPD telemetry for APC, normalization, or safety
+behavior.
 
 Recommended bench control architecture:
 

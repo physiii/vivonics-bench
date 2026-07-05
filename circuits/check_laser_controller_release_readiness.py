@@ -78,9 +78,21 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "MONITOR_PD_FRONTEND_RANGE_CALIBRATION",
         "Monitor-PD front-end range and calibration are not released",
-        "The exported netlist now proves the INA4180/LM4040 monitor topology is connected as intended, and the 240R/gain20 monitor scale covers the captured D7805I/D6505I/PLT5 520EB_P monitor-current range inside the local ADC-headroom guard. PLT5 450GB has no monitor photodiode, so MPD4 is not blue-source telemetry. Optical calibration and safety behavior are still unreleased.",
-        "Calibrate each source against an external optical meter and define firmware behavior for MPD telemetry before using it for production APC, normalization, or safety decisions.",
+        "The exported netlist now proves the INA4180/LM4040 monitor topology is connected as intended, and the 240R/gain20 monitor scale covers the captured D7805I/D6505I/PLT5 520EB_P monitor-current range inside the local ADC-headroom guard. The first-article signoff requires external optical-meter calibration before MPD telemetry is used for APC, normalization, or safety behavior. PLT5 450GB has no monitor photodiode, so MPD4 is not blue-source telemetry. Measured optical calibration and firmware behavior are still unreleased.",
+        "Calibrate each monitor-capable source against an external optical meter, record dark/off counts, response slope, saturation threshold, setpoint, and optical-power reading, and verify firmware fail-shutoff behavior before using MPD telemetry for production APC, normalization, or safety decisions.",
         (
+            Evidence(
+                "circuits/review/signoff/2026-07-05-monitor-pd-first-article-calibration-signoff.md",
+                (
+                    "LD4` PLT5 450GB has no monitor photodiode",
+                    "treat `MPD_RAW4` / `MPD4` as spare/open, not blue-source telemetry",
+                    "external optical power meter for each monitor-capable source",
+                    "Monitor-PD telemetry must not raise current above the per-channel",
+                    "Record dark/off ADC counts, response slope, saturation threshold",
+                    "Firmware must fail shutoff or inhibit the source",
+                    "does not close production APC",
+                ),
+            ),
             Evidence(
                 "docs/part-notes/INA4180A1IPWR.md",
                 (

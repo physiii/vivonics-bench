@@ -167,6 +167,7 @@ def main() -> int:
         "circuits/check_laser_driver_package_pcb.py",
         "circuits/check_laser_diode_footprints.py",
         "circuits/check_monitor_pd_package_pcb.py",
+        "circuits/check_monitor_pd_first_article_signoff.py",
         "circuits/check_laser_first_article_signoff.py",
         "circuits/check_laser_current_budget.py",
         "circuits/check_laser_monitor_pd_budget.py",
@@ -524,6 +525,11 @@ def main() -> int:
                 "--policy",
                 "selected-monitor-worst-9v3",
             ],
+            {},
+        ),
+        (
+            "Monitor-PD first-article calibration signoff",
+            ["python3", "circuits/check_monitor_pd_first_article_signoff.py"],
             {},
         ),
         (
