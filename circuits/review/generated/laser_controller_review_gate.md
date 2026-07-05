@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T05:00:59+00:00
+Generated: 2026-07-05T05:08:34+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -133,14 +133,14 @@ Command: `python3 circuits/check_source_documents.py`
 
 ```text
 WARN Alpha & Omega AO3400A datasheet: reachable; Primary source reachable from this shell; manual release-time latest-revision verification remains required. [HEAD HTTP 200, type=application/pdf, length=317848]
-WARN JLCPCB via-design article: reachable; Advisory article only; JLCPCB quote capability page wins. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
+WARN JLCPCB via-design article: reachable; Advisory article only; JLCPCB quote capability page wins. [GET HTTP 206, type=text/html; charset=utf-8, first_bytes=4096]
 WARN Vishay SS12-SS16 family datasheet: reachable; Family reference only; current C2480 order identity is captured in the 2026-07-04 signoff. [HEAD HTTP 200, type=application/pdf, length=1174123]
 WARN LCSC C2480 SS14 order page: reachable; Distributor/order source matching the 2026-07-04 C2480 MDD SS14 signoff. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C408410 MWSA0503S-4R7MT inductor page: reachable; Distributor/order source for the AP63205 4.7uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C98364 WPN4020H100MT inductor page: reachable; Distributor/order source for the AP63200 10uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN Wuerth Mini/Micro USB family page: reachable; Family/product page; exact 65100516121 drawing is required separately above. [HEAD HTTP 200, type=text/html; charset=UTF-8, length=1]
 WARN LCSC C5120592 Wuerth 65100516121 Mini-B order page: reachable; Distributor/order source for the Wuerth Mini-B part used by the active J1/J2 BOM metadata. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN Farnell mirror of Wuerth 65100516121 drawing: reachable; Distributor mirror only; the official Wuerth drawing URL is the required source. [GET HTTP 206, type=application/pdf, first_bytes=4096]
+WARN Farnell mirror of Wuerth 65100516121 drawing: reachable; Distributor mirror only; the official Wuerth drawing URL is the required source. [HEAD HTTP 200, type=application/pdf, length=276116]
 WARN LCSC C2907002 FRC0603F1001TS 1k resistor page: reachable; Distributor/order source for active 1k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C22984 30k resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C844918 CRCW060310K0FKEA 10k resistor page: reachable; Distributor/order source for active 10k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
@@ -149,7 +149,7 @@ WARN LRC L8050QLT1G transistor datasheet: reachable; Manufacturer datasheet for 
 WARN LCSC C39282 L8550HQLT1G transistor page: reachable; Distributor/order source for the Q6 PNP SOT-23 auto-reset transistor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C127509 K2-1102SP-C4SC-04 switch page: reachable; Distributor/order source for the SW1-SW3 tactile reset/program/factory buttons. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C5123624 10 ohm 2512 sense resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-PASS source-document evidence: 22 required online sources, 26 required local artifacts, and 17 secondary/open-risk sources reviewed
+PASS source-document evidence: 22 required online sources, 27 required local artifacts, and 17 secondary/open-risk sources reviewed
 ```
 
 ## PASS: Passive derating assertions
@@ -637,13 +637,10 @@ Command: `python3 circuits/check_laser_controller_release_readiness.py`
 The release-readiness registry has unresolved source, direct-laser, thermal, manufacturing, and human-inspection blockers.
 
 ```text
-BLOCKED release readiness: 9 open fabrication/release blockers
+BLOCKED release readiness: 8 open fabrication/release blockers
   [KICAD_ERC_DRC_ZONE_SIGNOFF] KiCad ERC and schematic-parity signoff are still open
     Detail: Available netlist/source/custom PCB checks pass, and a 2026-07-04 GUI DRC screenshot captures refilled-zone DRC with 0 violations and 0 unconnected items. Full fabrication signoff is still not proven because this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC, and the captured GUI DRC did not run schematic parity. Formal KiCad ERC and native schematic-parity evidence remain unproven.
     Required action: Run GUI ERC on the regenerated schematic, update PCB from schematic, refill zones, run PCB DRC with schematic parity, or use a KiCad CLI build that supports sch erc and pcb drc, then document any waivers/reports.
-  [VISUAL_RETURN_PATH_REVIEW] GND and sensitive return paths need visual review after zone refill
-    Detail: The graph proves pads are connected, not that laser current, USB ESD, ESP32, and TIA returns have acceptable real copper paths.
-    Required action: After KiCad zone refill, inspect GND islands/stitching and keep laser-current returns away from TIA summing-node return paths.
   [MONITOR_PD_FRONTEND_RANGE_CALIBRATION] Monitor-PD front-end range and calibration are not released
     Detail: The exported netlist now proves the INA4180/LM4040 monitor topology is connected as intended, and the 240R/gain20 monitor scale covers the captured D7805I/D6505I/PLT5 520EB_P monitor-current range inside the local ADC-headroom guard. PLT5 450GB has no monitor photodiode, so MPD4 is not blue-source telemetry. Optical calibration and safety behavior are still unreleased.
     Required action: Calibrate each source against an external optical meter and define firmware behavior for MPD telemetry before using it for production APC, normalization, or safety decisions.

@@ -45,4 +45,5 @@ Open release risks:
 - AP2112 is acceptable only under the documented bench/no-RF 120 mA continuous
   +3V3 policy unless measured rail current and regulator temperature prove more
   margin.
-- GUI DRC and visual RF/return-path review still required.
+- GUI ERC/DRC with schematic parity remains required; return-path layout
+  review is signed off for the current PCB artifact.

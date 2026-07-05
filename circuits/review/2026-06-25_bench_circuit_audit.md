@@ -146,7 +146,7 @@ PCB evidence:
 | TIA sensitive nets | Summing-node, photodiode-bias, feedback, VBIAS, and local decoupling nets pass schematic/source checks; PCB placement and local-route proximity still need final layout signoff. |
 | Monitor PD nets | `MPD_RAWx`, `MPD_BIAS`, INA4180, LM4040, sense, filter, and isolation parts pass schematic/source checks; direct laser-to-monitor-front-end PCB proximity still needs placement/routing. |
 | ESP32 antenna | Footprint-internal antenna keepout is present with the ESP32 footprint; final antenna edge placement and copper/part clearance still need visual DRC review. |
-| Pending rails | `VBUS_5V`, `+5V`, `+3V3`, `LASER_V+`, and `GND` remain route/zone pending and need KiCad refill/DRC plus visual return-path signoff. |
+| Pending rails | Superseded for the current routed artifact: custom PCB/release gates now report no rail/zone pending nets, and return-path layout signoff is captured in `circuits/review/signoff/2026-07-04-return-path-layout-signoff.md`. Native KiCad ERC/DRC/parity evidence still remains open. |
 
 The current generated-board report is
 `circuits/review/generated/laser_controller_review_gate.md`; the full generated
@@ -158,8 +158,10 @@ These are not optional:
 
 1. Run KiCad ERC on the regenerated schematic and document any waiver.
 2. Refill zones and run KiCad PCB DRC with schematic parity.
-3. Review `+5V` and `GND` rail/zone copper visually after refill.
-4. Inspect return paths so laser current does not share the TIA summing-node return path.
+3. `+5V`/`GND` rail and return-path layout review is closed for the current
+   PCB by `circuits/review/signoff/2026-07-04-return-path-layout-signoff.md`;
+   re-open after reroutes or failed bench noise/ripple evidence.
+4. Native KiCad ERC/DRC/parity evidence remains open.
 5. Selected laser MPN/can pin-code/direct `LDx` footprint mapping is closed by
    `circuits/review/signoff/2026-07-04-direct-laser-mpn-footprint-signoff.md`;
    inspect received diode orientation before soldering.

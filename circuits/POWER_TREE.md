@@ -4,7 +4,8 @@ Generated design state: 2026-06-30.
 
 This is the rail and power-path review for `laser_controller.kicad_sch` and
 `laser_controller.kicad_pcb`. It complements the netlist/PCB checkers; it does
-not replace GUI ERC, zone refill, PCB DRC, or visual return-path review.
+not replace GUI ERC, schematic parity, native KiCad PCB DRC, or bench
+measurements.
 The PCB's copper planes follow the `~/projects/access-controller` reference
 pattern: a single full-board `GND` flood on `In1.Cu` (no outer-layer `GND`
 fill -- `F.Cu`/`B.Cu` are pure signal layers), and `In2.Cu` split into
@@ -19,8 +20,9 @@ regions) is meant to be explicit trunk-trace routing, not a wide flood -- see
 1611 routed copper segments, 236 vias, and passes the custom PCB and
 generated-copper release gates. A 2026-07-04 GUI DRC screenshot captures
 refilled-zone DRC with zero violations and zero unconnected items, but schematic
-parity was not run in that dialog. KiCad GUI ERC, native schematic-parity
-evidence, and visual return-path review are still separate release
+parity was not run in that dialog. The 2026-07-04 return-path layout signoff
+captures the current GND/via/sensitive-route review for this routed PCB.
+KiCad GUI ERC and native schematic-parity evidence remain separate release
 requirements.
 
 ## Rail Table
@@ -30,10 +32,10 @@ requirements.
 | `VIN_24V` | J5 center-positive barrel jack and J6 RJ45 pins 4/5 | U15 AP63205 input, U16 AP63200 input, C61-C62 10 uF/50 V ceramic input caps, C70 22 uF/100 V bulk input cap | The copied barrel jack is rated 30 V / 500 mA. The copied RJ45 footprint follows the access-controller convention: pins 4/5 are power and pins 7/8/9/11 are return. AP63205/AP63200 are 32 V-max input parts, so 24 V nominal leaves limited transient margin: 80 percent of the J5 voltage rating and 75 percent of the AP632 input maximum before transients. `check_vin24_input_protection.py --policy bench-topology` passes the current direct-input topology, but `production-protection` intentionally fails because J5/J6 and U15/U16 IN pins share one `VIN_24V` net with no fuse/PTC/TVS/reverse-protection/eFuse stage. `check_buck_input_power_budget.py --policy bench-selected-max-9v3` passes the selected-diode max-current 9.3 V reference, but `hardware-clamp-9v3` fails the 500 mA J5 input rating and `datasheet-recommended-components` still fails because the buck output banks are below the AP632 2x22 uF reference-table guidance. | Schematic/netlist path is correct and current PCB copper is routed for the custom checks; input protection, KiCad DRC, and visual power-entry review remain open. | Select the adapter/RJ45 harness current limit, add protection/fusing/TVS if needed for production, review protected 24 V copper to both buck input loops, then refill zones and run DRC. |
 | `VBUS_5V` | J1/J2 Mini-B VBUS through copied MCU-sheet isolation diodes | D5 anode, CP2102N VBUS-sense divider, VBUS ESD clamps | USB input current limit depends on host/source and firmware power behavior. D5 must carry board +5 V load when USB powered. | Schematic/netlist path is correct through the copied 1N5819HW isolation diodes and current PCB copper is routed for the custom checks. | Verify USB entry current limit, D5 current/temperature, connector shield return, and ESD return during final DRC/visual review. |
 | `/POWER_IO/BUCK_5V` | U15 AP63205 buck output through L1/C64/C65 | D6 anode | This is the onboard 5 V source from `VIN_24V`. The AP63205 switch loop and diode-OR path must stay compact and away from analog inputs. The current C64+C65 bank is 20 uF nominal, below the AP63205 2x22 uF reference table value, so production needs capacitance rework or measured ripple/transient/stability proof. | Schematic/netlist path is correct and current PCB copper is routed for the custom checks. | Verify switch-loop area, current width, output ripple/transient response, and diode/regulator temperature. |
-| `+5V` | D5/D6 cathode OR output | OPA380s, TLV9001s, AP2112 input, TIA bias branches, local decoupling | Analog/load rail after Schottky OR-ing. D5/D6 cathodes carry board +5 V load; TLV9001/OPA380 supply branches are low-current distribution only. | Netlist membership is correct and current PCB copper plus the checked plane-zone definitions connect the rail for the custom checks. | Refill zones and run DRC; verify diode drop, load current, and return paths during visual review. |
+| `+5V` | D5/D6 cathode OR output | OPA380s, TLV9001s, AP2112 input, TIA bias branches, local decoupling | Analog/load rail after Schottky OR-ing. D5/D6 cathodes carry board +5 V load; TLV9001/OPA380 supply branches are low-current distribution only. | Netlist membership is correct and current PCB copper plus the checked plane-zone definitions connect the rail for the custom checks; return-path layout signoff is captured for this PCB artifact. | Run native KiCad DRC/parity; verify diode drop, load current, and rail noise during bring-up. |
 | `+3V3` | U11 AP2112K-3.3 | ESP32-S3-WROOM-1, EN/BOOT pulls, local caps | AP2112K is pin-correct and electrically rated for 600 mA, but SOT25 thermal resistance is the real limit from a 5 V source. The accepted bench policy is RF disabled and <=120 mA continuous +3V3 load. | Netlist membership is correct and current PCB copper plus the checked plane-zone definitions connect the rail for the custom checks. | `check_power_thermal_budget.py --policy bench-uart-usb` must pass. Sustained Wi-Fi/BLE requires a buck regulator, larger thermal package, or measured duty-cycle proof. |
 | `LASER_V+` | U16 AP63200 adjustable buck output through L2/C67/C68 | LD1-LD4 common laser anode / monitor-PD cathode rail | The bench rail is set near 9.38 V by R61/R62, not raw 24 V. Actual stress still depends on diode MPNs, forward voltage, current clamp, and duty cycle. The selected-diode 9.3 V common-rail reference passes the selected max-current cases, while the older 10.72 V comparison remains documented as an expected-fail thermal guard. `check_buck_input_power_budget.py` still shows the all-channel 247.5 mA hardware-clamp case exceeds the J5 500 mA input budget. The current C67+C68 bank is 20 uF nominal, below the AP63200 2x22 uF reference-table output capacitance. | Current PCB routes the common rail from U16/L2 to the direct laser footprints and monitor-bias front end with 0.80 mm copper and full-size vias for the custom release gate. | `check_laser_current_budget.py` must pass for each selected diode/supply assumption. Verify AP63200 buck layout, output capacitance/ripple/stability, width/current/temperature rise, duty cycle, and board stackup; keep final review away from TIA summing nodes and MPD_RAW traces. |
-| `GND` | J1/J2 shield/GND, J5 barrel return, J6 RJ45 return pins, IC grounds | Entire board return | Mixed analog, digital, USB ESD, buck-switching, and laser-current returns share this net; layout must control return paths. | Netlist membership is correct and the current PCB has routed GND copper, vias, and an `In1.Cu` GND reference-plane zone definition for the custom checks. | Refill the GND reference zone, inspect for islands/stitching, keep buck hot-loop returns tight, and keep laser current return out of TIA summing-node return path. |
+| `GND` | J1/J2 shield/GND, J5 barrel return, J6 RJ45 return pins, IC grounds | Entire board return | Mixed analog, digital, USB ESD, buck-switching, and laser-current returns share this net; layout must control return paths. | Netlist membership is correct, the current PCB has routed GND copper, 101 GND vias, and a filled `In1.Cu` GND reference-plane zone. The 2026-07-04 return-path signoff records local laser-sense and buck-return vias plus sensitive-route spacing. | Run native KiCad DRC/parity; re-open return-path review after any reroute or if bench noise/ripple measurements show coupling. |
 
 ## Datasheet-Driven Notes
 
@@ -100,13 +102,12 @@ Block fabrication until:
 1. GUI ERC passes on the generated unique-reference schematic.
 2. Zones are refilled in KiCad.
 3. PCB DRC with schematic parity passes.
-4. `GND` has a visually reviewed return path after zone refill.
-5. AP2112 bench/no-RF thermal policy is accepted and measured during bring-up,
+4. AP2112 bench/no-RF thermal policy is accepted and measured during bring-up,
    or the regulator is replaced before sustained Wi-Fi/BLE use.
-6. Received laser-can orientation is inspected against the signed-off MPN/footprint
+5. Received laser-can orientation is inspected against the signed-off MPN/footprint
    mapping before soldering.
-7. Each selected diode and `LASER_V+` setting passes the laser current thermal budget.
-8. `check_vin24_input_protection.py --policy bench-topology` passes, the
+6. Each selected diode and `LASER_V+` setting passes the laser current thermal budget.
+7. `check_vin24_input_protection.py --policy bench-topology` passes, the
    expected-fail `production-protection` blocker is designed out or explicitly
    accepted with a production input-protection rationale, and
    `check_buck_input_power_budget.py --policy bench-selected-max-9v3` passes,
@@ -120,5 +121,4 @@ Block fabrication until:
 must pass before fabrication. It passes on the current routed artifact for
 explicit multi-pad connectivity, laser cathode/anode current-copper width and
 length limits, and distinct high-current GND vias for the laser sense returns.
-This does not replace KiCad GUI ERC, zone refill, PCB DRC with schematic parity,
-or visual return-path review.
+This does not replace KiCad GUI ERC or PCB DRC with schematic parity.

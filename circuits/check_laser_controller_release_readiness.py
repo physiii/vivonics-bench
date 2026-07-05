@@ -68,29 +68,6 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
         ),
     ),
     ReleaseBlocker(
-        "VISUAL_RETURN_PATH_REVIEW",
-        "GND and sensitive return paths need visual review after zone refill",
-        "The graph proves pads are connected, not that laser current, USB ESD, ESP32, and TIA returns have acceptable real copper paths.",
-        "After KiCad zone refill, inspect GND islands/stitching and keep laser-current returns away from TIA summing-node return paths.",
-        (
-            Evidence(
-                "circuits/POWER_TREE.md",
-                (
-                    "Mixed analog, digital, USB ESD, buck-switching, and laser-current returns share this net",
-                    "`GND` has a visually reviewed return path after zone refill.",
-                    "keep laser current return out of TIA summing-node return path.",
-                ),
-            ),
-            Evidence(
-                "circuits/PCB_LAYOUT.md",
-                (
-                    "visual return-path review",
-                    "cluster is still a visual review item.",
-                ),
-            ),
-        ),
-    ),
-    ReleaseBlocker(
         "MONITOR_PD_FRONTEND_RANGE_CALIBRATION",
         "Monitor-PD front-end range and calibration are not released",
         "The exported netlist now proves the INA4180/LM4040 monitor topology is connected as intended, and the 240R/gain20 monitor scale covers the captured D7805I/D6505I/PLT5 520EB_P monitor-current range inside the local ADC-headroom guard. PLT5 450GB has no monitor photodiode, so MPD4 is not blue-source telemetry. Optical calibration and safety behavior are still unreleased.",

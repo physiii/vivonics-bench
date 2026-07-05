@@ -350,7 +350,7 @@ These subsystems are ready for fabrication once routing is complete:
 |---|---|
 | **Immediate (schematic)** | Resolve USB connector footprint/BOM; lock D6505I source; set LASER_V+ to 9.3V or per-channel |
 | **Immediate (PCB)** | Route the board; create GND reference plane; run KiCad GUI ERC; run KiCad GUI DRC |
-| **Before board order** | Add 24V protection (fuse + TVS minimum); fix AP632 input capacitance; visual Bourns wiper check; visual return-path review |
+| **Before board order** | Add 24V protection (fuse + TVS minimum); fix or justify AP632 output capacitance; Bourns wiper and return-path reviews are closed by 2026-07-04 signoffs |
 | **Bring-up** | Measure AP2112 temperature; measure buck ripple/stability; verify AD7606 firmware timing; calibrate TIA gain per channel |
 | **Production engineering** | Replace AP2112 with buck regulator; redesign laser driver for per-channel rails or proper current-source; add 570nm laser channel; optical calibration procedure; EMC pre-compliance |
 | **Production manufacturing** | Lock production AVL; IPC class selection; fab tier selection; assembly partner; test fixture design |

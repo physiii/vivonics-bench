@@ -416,8 +416,8 @@ def main() -> int:
             {
                 "blocked_codes": {1},
                 "blocked_note": (
-                    "The current PCB artifact has hand placement recovered, but routing, zones, "
-                    "KiCad refill, DRC, and return-path review remain future fabrication work."
+                    "The current PCB artifact has hand placement recovered, but routing/zones "
+                    "or native KiCad DRC/parity evidence still block fabrication."
                 ),
             },
         ),

@@ -49,7 +49,7 @@ RAIL_PENDING_RELEASE_ACTION = {
     "+5V": "Route or pour the post-OR board 5 V rail to every analog, laser-driver, and LDO input load; verify diode drop and current.",
     "+3V3": "Route the AP2112 output rail to ESP32-S3 and strap/decoupling loads; verify LDO thermal margin under radio bursts.",
     "LASER_V+": "Manual wide AP63200 laser-buck output rail from L2/C67/C68 to the direct LDx footprints; size for actual laser current and keep away from TIA/MPD analog nodes.",
-    "GND": "Refill the In1.Cu GND zone, inspect islands/stitching, and keep laser-current return paths out of TIA summing-node returns.",
+    "GND": "Maintain the signed-off In1.Cu GND reference zone and keep laser-current return paths out of TIA summing-node returns after any reroute.",
 }
 
 
@@ -71,7 +71,7 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
     if net == "+3V3":
         return "ESP32-S3 3.3 V rail from AP2112K output, plus MCU reset/boot pulls and decoupling."
     if net == "GND":
-        return "Common board return. Layout still must keep high-current laser returns away from TIA summing-node return paths."
+        return "Common board return. The 2026-07-04 return-path signoff covers the current layout; reroutes must keep high-current laser returns away from TIA summing-node return paths."
     if net == "LASER_V+":
         return "AP63200-generated shared bench laser anode / monitor-PD cathode rail to the direct LDx footprints and LM4040 monitor-bias front end."
     if net == "VBUS_5V":
@@ -1324,14 +1324,13 @@ def main() -> int:
                     "PCB has explicit pad-net assignments and generated copper for bounded critical-local routes plus "
                     "selected low-speed board-level routes, but the current artifact is not fully connected by explicit "
                     f"copper. Unrouted signal/control nets: {unrouted_nets}. Rail/zone pending nets: {pending_nets}. "
-                    "Full-board release still requires routing fixes, KiCad zone refill, DRC, and visual return-path review."
+                    "Full-board release still requires routing fixes and native KiCad DRC/parity review."
                 )
             else:
                 lines.append(
                     "PCB has explicit pad-net assignments and generated F.Cu/B.Cu copper for bounded critical-local "
                     "routes plus selected low-speed board-level routes. All multi-pad nets are explicitly connected "
-                    "in the generated artifact; full-board release still requires KiCad zone refill, DRC, and visual "
-                    "return-path review."
+                    "in the generated artifact; full-board release still requires native KiCad DRC/parity review."
                 )
         if full_route_rows:
             pending_rail_rows = [

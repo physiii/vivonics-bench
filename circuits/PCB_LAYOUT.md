@@ -56,9 +56,10 @@ current artifact, including route-layer, route-width, USB route, laser-current
 width, and laser sense-return checks.
 Zones are filled and verified for the checks in this repo: zero footprint
 courtyard/pad overlaps, zero copper outside the board outline, and zero
-antenna-keepout intrusions. KiCad GUI ERC/DRC with schematic parity, final zone
-refill review, and visual return-path review still block fabrication. The old J3
-AD7606 debug/output header has been removed now that U14 is on-board.
+antenna-keepout intrusions. The 2026-07-04 return-path layout signoff captures
+the current GND/via/sensitive-route review. KiCad GUI ERC/DRC with schematic
+parity still blocks fabrication. The old J3 AD7606 debug/output header has
+been removed now that U14 is on-board.
 
 ## Board
 
@@ -128,7 +129,7 @@ AD7606 debug/output header has been removed now that U14 is on-board.
 2. **Pcbnew → Tools → Update PCB from Schematic** (F8) — syncs netlist + refs.
 3. Refill/review the `In1.Cu` `GND` zone per `POWER_TREE.md`.
 4. Run **DRC** with refilled zones and schematic parity for 0 unwaived unrouted/violations.
-5. **File → Fabrication Outputs → Gerbers + Drill** only after ERC, DRC, rail review, and visual return-path review pass.
+5. **File → Fabrication Outputs → Gerbers + Drill** only after ERC, DRC, and final quote/package review pass.
 
 Partial evidence captured on 2026-07-04: `review/signoff/2026-07-04-kicad-drc-zero-violations.md`
 records a zone-refilled GUI DRC screenshot with 0 violations and 0 unconnected
@@ -217,17 +218,18 @@ python3 circuits/run_laser_controller_review.py --release
 ```
 
 The custom PCB and generated-copper release gates pass on the current board, but
-they do not replace KiCad GUI ERC, zone refill, PCB DRC with schematic parity, or
-visual return-path review before fabrication.
+they do not replace KiCad GUI ERC or PCB DRC with schematic parity.
 The bench/no-RF AP2112 thermal policy passes, and the PLT5 520EB_P
 reference laser-current budget passes only for a controlled 10.5 V green-style
 supply assumption. `check_laser_controller_release_readiness.py` intentionally
 reports the remaining open blockers. KiCad GUI ERC, zone refill, PCB DRC with
 schematic parity, AP2112 bring-up temperature measurement, per-diode
-laser-current thermal budget, and visual return-path review still must pass
-before fabrication. The selected direct-laser MPN/footprint pad-net mapping is
-closed by `review/signoff/2026-07-04-direct-laser-mpn-footprint-signoff.md`;
-received diode orientation still must be inspected before soldering.
+laser-current thermal budget, and other remaining release blockers still must
+pass before fabrication. The selected direct-laser MPN/footprint pad-net mapping
+is closed by `review/signoff/2026-07-04-direct-laser-mpn-footprint-signoff.md`;
+the return-path layout review is closed by
+`review/signoff/2026-07-04-return-path-layout-signoff.md`; received diode
+orientation still must be inspected before soldering.
 
 ## BOM Summary
 
