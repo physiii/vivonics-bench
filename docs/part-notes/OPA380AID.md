@@ -31,6 +31,10 @@ Current design:
   bench readout range. At VBIAS = 1.5 V and RF = 2 MOhm the first-order
   OPA380 headroom is about +1.40 uA / -0.70 uA before the guarded output
   window clips; optical signal range is still a production calibration blocker.
+- `circuits/review/signoff/2026-07-05-tia-first-article-calibration-signoff.md`
+  records the first-article dark-offset, known-input calibration, ambient
+  shielding, RF/VBIAS, and AD7606 scaling requirements before production
+  measurement use.
 
 Layout notes:
 - The summing node must stay short, guarded, and away from switching/laser

@@ -129,9 +129,22 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "TIA_READOUT_RANGE_CALIBRATION",
         "Signal-PD TIA readout range and optical calibration are not released",
-        "The exported netlist now proves the four SFH2201/OPA380 signal-PD channels feed VOUT1..4 into the AD7606 as intended, and the first-order TIA checker shows the present 2 MOhm feedback trim is a high-sensitivity, low-current bench range. At VBIAS = 1.5 V it has about +1.40 uA / -0.70 uA one-sided OPA380 headroom before the guarded output window clips; the SFH2201 1000 lx datasheet short-circuit-current example would need about 152 V of TIA swing at 2 MOhm and is intentionally an expected-fail case.",
-        "Define the real Vivonics optical photocurrent range at the SFH2201 under the bench optics, choose RF/VBIAS/firmware scaling for that range, shield or limit ambient light, and calibrate AD7606 counts against known optical/electrical inputs before using the signal-PD path for production measurements.",
+        "The exported netlist now proves the four SFH2201/OPA380 signal-PD channels feed VOUT1..4 into the AD7606 as intended, and the first-order TIA checker shows the present 2 MOhm feedback trim is a high-sensitivity, low-current bench range. At VBIAS = 1.5 V it has about +1.40 uA / -0.70 uA one-sided OPA380 headroom before the guarded output window clips; the SFH2201 1000 lx datasheet short-circuit-current example would need about 152 V of TIA swing at 2 MOhm and is intentionally an expected-fail case. The first-article signoff now requires dark-offset capture, ambient shielding, known-input calibration, RF/VBIAS recording, and AD7606 scaling checks.",
+        "Define the real Vivonics optical photocurrent range at the SFH2201 under the bench optics, choose RF/VBIAS/firmware scaling for that range, shield or limit ambient light, calibrate AD7606 counts against known optical/electrical inputs, and verify firmware saturation/out-of-range behavior before using the signal-PD path for production measurements.",
         (
+            Evidence(
+                "circuits/review/signoff/2026-07-05-tia-first-article-calibration-signoff.md",
+                (
+                    "2 Mohm feedback trim as a high-sensitivity, low-current",
+                    "Start with VBIAS target 1.5 V",
+                    "covered or optically shielded during dark-offset",
+                    "Calibrate `VOUT1..4` one channel at a time",
+                    "known electrical current injection or a calibrated optical input",
+                    "Confirm AD7606 +/-5 V scaling for `VOUT1..4`",
+                    "Firmware must flag saturation, out-of-range counts, dark-offset drift",
+                    "does not close production measurement release",
+                ),
+            ),
             Evidence(
                 "docs/part-notes/OPA380AID.md",
                 (

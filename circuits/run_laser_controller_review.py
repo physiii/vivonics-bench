@@ -158,6 +158,7 @@ def main() -> int:
         "circuits/check_ad7606_package_pcb.py",
         "circuits/check_ad7606_interface_budget.py",
         "circuits/check_tia_readout_budget.py",
+        "circuits/check_tia_first_article_signoff.py",
         "circuits/check_ap6320x_package_pcb.py",
         "circuits/check_buck_input_power_budget.py",
         "circuits/check_vin24_input_protection.py",
@@ -248,6 +249,7 @@ def main() -> int:
             ["python3", "circuits/check_tia_readout_budget.py", "--netlist", str(NETLIST_PATH)],
             {},
         ),
+        ("TIA first-article calibration signoff", ["python3", "circuits/check_tia_first_article_signoff.py"], {}),
         (
             "TIA bright-ambient expected fail",
             [
