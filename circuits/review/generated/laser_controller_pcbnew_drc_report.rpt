@@ -1,15 +1,7 @@
 ** Drc report for /home/andy/projects/vivonics/vivonics/bench/circuits/laser_controller.kicad_pcb **
-** Created on 2026-07-05 02:27:44 **
+** Created on 2026-07-05 03:52:46 **
 
-** Found 14 DRC violations **
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: warning
-    @(123.2600 mm, 108.0250 mm): Footprint U2
-    @(126.2000 mm, 105.5500 mm): Footprint D2
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: warning
-    @(123.3175 mm, 101.4275 mm): Footprint C8
-    @(126.2000 mm, 105.5500 mm): Footprint D2
+** Found 4 DRC violations **
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: warning
     @(101.0000 mm, 135.4500 mm): Footprint C62
@@ -21,43 +13,11 @@
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: warning
     @(136.9250 mm, 134.2550 mm): Footprint U4
-    @(136.8500 mm, 136.1200 mm): Footprint D4
+    @(141.6500 mm, 137.0200 mm): Footprint D4
 [courtyards_overlap]: Courtyards overlap
     Rule: board setup constraints courtyard; Severity: warning
-    @(159.0600 mm, 128.7500 mm): Footprint U3
-    @(160.9250 mm, 131.4750 mm): Footprint D3
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: warning
-    @(161.1085 mm, 134.9900 mm): Footprint R11
-    @(160.9250 mm, 131.4750 mm): Footprint D3
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: warning
-    @(84.6000 mm, 113.0000 mm): Footprint C61
+    @(83.1000 mm, 112.0000 mm): Footprint C61
     @(88.0250 mm, 109.9250 mm): Footprint L1
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: warning
-    @(84.6000 mm, 113.0000 mm): Footprint C61
-    @(85.0250 mm, 115.6250 mm): Footprint U15
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: warning
-    @(128.2000 mm, 102.2500 mm): Footprint C6
-    @(126.2000 mm, 105.5500 mm): Footprint D2
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: warning
-    @(126.9500 mm, 102.2500 mm): Footprint C7
-    @(126.2000 mm, 105.5500 mm): Footprint D2
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: warning
-    @(126.2000 mm, 105.5500 mm): Footprint D2
-    @(125.3495 mm, 101.6815 mm): Footprint R6
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: warning
-    @(159.0025 mm, 135.0000 mm): Footprint C12
-    @(160.9250 mm, 131.4750 mm): Footprint D3
-[courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: warning
-    @(144.7500 mm, 90.2825 mm): Footprint D1
-    @(145.0060 mm, 88.4175 mm): Footprint U1
 
 ** Found 0 unconnected pads **
 

@@ -38,13 +38,13 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "KICAD_ERC_DRC_ZONE_SIGNOFF",
         "Native KiCad ERC/DRC signoff is still open",
-        "Available netlist/source/custom PCB checks pass, the local schematic/PCB parity checker passes, a 2026-07-04 GUI DRC screenshot captures refilled-zone DRC with 0 violations and 0 unconnected items, and the system-Python Pcbnew report refills zones in memory with 0 unconnected pads, 0 footprint errors, and 14 documented courtyard-overlap warnings. The current courtyard triage blocks fabrication because 6 of those native warnings also have F.Fab/body-box overlaps and 8 are courtyard-only assembly-clearance warnings. Full fabrication signoff is still not proven because this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC, and neither the screenshot nor the headless Pcbnew report runs native schematic ERC/parity. Formal schematic ERC and native schematic-parity evidence remain unproven.",
-        "Run GUI ERC on the regenerated schematic, update PCB from schematic, resolve the F.Fab/body-box overlaps with a safe layout reroute or package/placement change, refill zones, run PCB DRC with schematic parity and review/waive any remaining courtyard-only warnings, or use a KiCad CLI build that supports sch erc and pcb drc, then document any waivers/reports.",
+        "Available netlist/source/custom PCB checks pass, the local schematic/PCB parity checker passes, a 2026-07-04 GUI DRC screenshot captures refilled-zone DRC with 0 violations and 0 unconnected items, and the system-Python Pcbnew report refills zones in memory with 0 unconnected pads, 0 footprint errors, and 4 documented courtyard-overlap warnings. The current courtyard triage shows 0 F.Fab/body-box overlaps; all 4 remaining courtyard-only assembly-spacing warnings are explicitly waived in circuits/review/assembly_clearance_waivers.json. Full fabrication signoff is still not proven because this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC, and neither the screenshot nor the headless Pcbnew report runs native schematic ERC/parity. Formal schematic ERC and native schematic-parity evidence remain unproven.",
+        "Run GUI ERC on the regenerated schematic, update PCB from schematic, refill zones, run PCB DRC with schematic parity, review the explicit courtyard-only waivers against the selected JLCPCB assembly parts, or use a KiCad CLI build that supports sch erc and pcb drc, then document the final reports.",
         (
             Evidence(
                 "circuits/review/generated/laser_controller_pcbnew_drc_report.rpt",
                 (
-                    "Found 14 DRC violations",
+                    "Found 4 DRC violations",
                     "[courtyards_overlap]",
                     "Severity: warning",
                     "Found 0 unconnected pads",
@@ -54,10 +54,12 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
             Evidence(
                 "circuits/review/generated/laser_controller_courtyard_overlap_triage.md",
                 (
-                    "Native courtyard-overlap pairs: 14",
-                    "F.Fab/body-box overlaps: 6",
-                    "Courtyard-only overlaps: 8",
-                    "Resolve with a KiCad layout edit and reroute",
+                    "Native courtyard-overlap pairs: 4",
+                    "F.Fab/body-box overlaps: 0",
+                    "Courtyard-only overlaps: 4",
+                    "Waived courtyard-only overlaps: 4",
+                    "Unwaived courtyard-only overlaps: 0",
+                    "All native courtyard warnings are covered by explicit assembly-clearance waivers",
                 ),
             ),
             Evidence(

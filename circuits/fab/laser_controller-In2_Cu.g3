@@ -1,12 +1,12 @@
 %TF.GenerationSoftware,KiCad,Pcbnew,7.0.11+dfsg-1build4*%
-%TF.CreationDate,2026-07-05T01:58:25-05:00*%
+%TF.CreationDate,2026-07-05T03:49:55-05:00*%
 %TF.ProjectId,laser_controller,6c617365-725f-4636-9f6e-74726f6c6c65,rev?*%
 %TF.SameCoordinates,Original*%
 %TF.FileFunction,Copper,L3,Inr*%
 %TF.FilePolarity,Positive*%
 %FSLAX46Y46*%
 G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
-G04 Created by KiCad (PCBNEW 7.0.11+dfsg-1build4) date 2026-07-05 01:58:25*
+G04 Created by KiCad (PCBNEW 7.0.11+dfsg-1build4) date 2026-07-05 03:49:55*
 %MOMM*%
 %LPD*%
 G01*
@@ -451,8 +451,8 @@ X65534088Y-110811252D03*
 X174775000Y-115325000D03*
 X163200000Y-115325000D03*
 %TO.N,Net-(D1-K)*%
+X144750000Y-98000000D03*
 X140800000Y-85600000D03*
-X140800000Y-92550000D03*
 %TO.N,Net-(J6-Pad12)*%
 X46675000Y-127550000D03*
 %TO.N,Net-(U6-+)*%
