@@ -740,7 +740,10 @@ BOARD_ROUTE_LENGTH_LIMITS_MM = {
     "Net-(D3-A)": 25.0,
     "Net-(D3-K)": 21.0,
     "Net-(D4-A)": 25.0,
-    "Net-(D4-K)": 18.5,
+    # D4 is rotated/shifted in the hand layout to clear the U4 package body.
+    # Its cathode still returns to the local R14/C15 pullup/filter branch, but
+    # the body-clear escape is longer than the earlier overlapped placement.
+    "Net-(D4-K)": 26.0,
     "Net-(Q1-G)": 4.0,
     "Net-(Q2-G)": 5.5,
     "Net-(Q3-G)": 4.8,
