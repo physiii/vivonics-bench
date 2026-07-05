@@ -11,9 +11,14 @@ from pathlib import Path
 
 DEFAULT_BOARD = Path(__file__).resolve().parent / "laser_controller.kicad_pcb"
 DEFAULT_KICAD_3DMODELS = Path("/usr/share/kicad/3dmodels")
-J7_EXPECTED_MODEL = "Connector_PinHeader_2.54mm.3dshapes/PinHeader_2x04_P2.54mm_Vertical_SMD.step"
-J7_EXPECTED_OFFSET = (1.27, 3.81, 0.0)
+J7_EXPECTED_MODEL = "packages3d/Connector_PinHeader.3dshapes/PinHeader_2x04_P2.54mm_SMD_Vertical_C192300.step"
+J7_EXPECTED_OFFSET = (0.0, 0.0, 0.0)
+J7_EXPECTED_SCALE = (1.0, 1.0, 1.0)
+J7_EXPECTED_ROTATION = (0.0, 0.0, 0.0)
+J7_EXPECTED_STEP_BBOX = (-1.10, -1.10, 0.0, 3.64, 8.72, 8.50)
+J7_EXPECTED_GRID_CENTER = (1.27, 3.81)
 OFFSET_TOLERANCE_MM = 0.001
+BBOX_TOLERANCE_MM = 0.01
 
 
 def ensure_pcbnew():
@@ -77,7 +82,26 @@ def expand_model_path(raw: str, env: dict[str, str], board_path: Path) -> tuple[
     return path, None
 
 
-def check_j7_model(fp) -> list[str]:
+def step_bbox(path: Path) -> tuple[float, float, float, float, float, float] | None:
+    points: list[tuple[float, float, float]] = []
+    text = path.read_text(errors="replace")
+    for match in re.finditer(r"CARTESIAN_POINT\([^,]*,\(([^)]*)\)\)", text):
+        coords = [
+            float(value)
+            for value in re.findall(
+                r"[-+]?\d+(?:\.\d*)?(?:[Ee][-+]?\d+)?|[-+]?\.\d+(?:[Ee][-+]?\d+)?",
+                match.group(1),
+            )
+        ]
+        if len(coords) == 3:
+            points.append((coords[0], coords[1], coords[2]))
+    if not points:
+        return None
+    xs, ys, zs = zip(*points)
+    return (min(xs), min(ys), min(zs), max(xs), max(ys), max(zs))
+
+
+def check_j7_model(fp, env: dict[str, str], board_path: Path) -> list[str]:
     failures: list[str] = []
     models = list(fp.Models())
     if not models:
@@ -96,6 +120,43 @@ def check_j7_model(fp) -> list[str]:
             "J7 3D model offset is "
             f"({offset[0]:.3f}, {offset[1]:.3f}, {offset[2]:.3f}); "
             f"expected ({J7_EXPECTED_OFFSET[0]:.3f}, {J7_EXPECTED_OFFSET[1]:.3f}, {J7_EXPECTED_OFFSET[2]:.3f})"
+        )
+    scale = (float(model.m_Scale.x), float(model.m_Scale.y), float(model.m_Scale.z))
+    if any(abs(actual - expected) > OFFSET_TOLERANCE_MM for actual, expected in zip(scale, J7_EXPECTED_SCALE)):
+        failures.append(
+            "J7 3D model scale is "
+            f"({scale[0]:.3f}, {scale[1]:.3f}, {scale[2]:.3f}); "
+            f"expected ({J7_EXPECTED_SCALE[0]:.3f}, {J7_EXPECTED_SCALE[1]:.3f}, {J7_EXPECTED_SCALE[2]:.3f})"
+        )
+    rotation = (float(model.m_Rotation.x), float(model.m_Rotation.y), float(model.m_Rotation.z))
+    if any(abs(actual - expected) > OFFSET_TOLERANCE_MM for actual, expected in zip(rotation, J7_EXPECTED_ROTATION)):
+        failures.append(
+            "J7 3D model rotation is "
+            f"({rotation[0]:.3f}, {rotation[1]:.3f}, {rotation[2]:.3f}); "
+            f"expected ({J7_EXPECTED_ROTATION[0]:.3f}, {J7_EXPECTED_ROTATION[1]:.3f}, {J7_EXPECTED_ROTATION[2]:.3f})"
+        )
+    resolved, error = expand_model_path(model.m_Filename, env, board_path)
+    if error is not None or resolved is None:
+        failures.append(f"J7: {error or 'could not resolve model path'}")
+        return failures
+    bbox = step_bbox(resolved)
+    if bbox is None:
+        failures.append(f"J7: could not read STEP geometry bbox from {resolved}")
+        return failures
+    if any(abs(actual - expected) > BBOX_TOLERANCE_MM for actual, expected in zip(bbox, J7_EXPECTED_STEP_BBOX)):
+        failures.append(
+            "J7 C192300 STEP bbox is "
+            f"({bbox[0]:.2f}, {bbox[1]:.2f}, {bbox[2]:.2f}, {bbox[3]:.2f}, {bbox[4]:.2f}, {bbox[5]:.2f}); "
+            f"expected ({J7_EXPECTED_STEP_BBOX[0]:.2f}, {J7_EXPECTED_STEP_BBOX[1]:.2f}, "
+            f"{J7_EXPECTED_STEP_BBOX[2]:.2f}, {J7_EXPECTED_STEP_BBOX[3]:.2f}, "
+            f"{J7_EXPECTED_STEP_BBOX[4]:.2f}, {J7_EXPECTED_STEP_BBOX[5]:.2f})"
+        )
+    center = ((bbox[0] + bbox[3]) / 2 + offset[0], (bbox[1] + bbox[4]) / 2 + offset[1])
+    if any(abs(actual - expected) > BBOX_TOLERANCE_MM for actual, expected in zip(center, J7_EXPECTED_GRID_CENTER)):
+        failures.append(
+            "J7 C192300 model XY center after offset is "
+            f"({center[0]:.2f}, {center[1]:.2f}); "
+            f"expected pad-grid center ({J7_EXPECTED_GRID_CENTER[0]:.2f}, {J7_EXPECTED_GRID_CENTER[1]:.2f})"
         )
     return failures
 
@@ -139,7 +200,7 @@ def main() -> int:
     if j7 is None:
         failures.append("J7 footprint missing")
     else:
-        failures.extend(check_j7_model(j7))
+        failures.extend(check_j7_model(j7, env, args.board))
 
     if failures:
         print(f"FAIL 3D model coverage: {len(failures)} issue(s)")
