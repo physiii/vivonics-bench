@@ -171,6 +171,10 @@ evidence remain open.
   zero board-level segments, so these spacing minima still need to be measured
   after placement/routing. Cross-layer overlap near the dense direct-laser
   cluster is still a visual review item.
+- Local fanout DRC clearances use the JLCPCB 1 oz FR4 manufacturing floor
+  (0.10 mm track/space) where dense SMD escapes cannot satisfy the broader
+  analog keepaway rules; the custom checker still owns the larger functional
+  separation checks above.
 - **USB D+/D−**: short USB routes with copied-sheet discrete ESD at each connector.
 - **Antenna keep-out**: copper-free zone around ESP32 antenna (top edge).
 - **Decoupling**: 100 nF adjacent to each IC V+ pin.
