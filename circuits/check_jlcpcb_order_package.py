@@ -9,6 +9,7 @@ owned by check_laser_controller_release_readiness.py.
 from __future__ import annotations
 
 import csv
+import json
 import re
 import sys
 import zipfile
@@ -23,19 +24,8 @@ POS_PATH = FAB_DIR / "laser_controller_pos.csv"
 GERBER_ZIP_PATH = CIRCUITS_DIR / "laser_controller_gerbers.zip"
 PACKAGE_ZIP_PATH = CIRCUITS_DIR / "laser_controller_jlcpcb_package.zip"
 
-GERBER_FILES = (
-    "laser_controller-F_Cu.gtl",
-    "laser_controller-In1_Cu.g2",
-    "laser_controller-In2_Cu.g3",
-    "laser_controller-B_Cu.gbl",
-    "laser_controller-F_Paste.gtp",
-    "laser_controller-B_Paste.gbp",
-    "laser_controller-F_Silkscreen.gto",
-    "laser_controller-B_Silkscreen.gbo",
-    "laser_controller-F_Mask.gts",
-    "laser_controller-B_Mask.gbs",
-    "laser_controller-Edge_Cuts.gm1",
-    "laser_controller-job.gbrjob",
+GERBER_JOB_FILE = "laser_controller-job.gbrjob"
+DRILL_FILES = (
     "laser_controller-NPTH.drl",
     "laser_controller-PTH.drl",
 )
@@ -59,6 +49,27 @@ REQUIRED_BOARD_TEXT = {
 def read_csv(path: Path) -> list[dict[str, str]]:
     with path.open(newline="") as handle:
         return list(csv.DictReader(handle))
+
+
+def gerber_files() -> tuple[str, ...]:
+    job_path = FAB_DIR / GERBER_JOB_FILE
+    if not job_path.exists():
+        raise FileNotFoundError(f"missing Gerber job file: {job_path}")
+
+    with job_path.open() as handle:
+        job = json.load(handle)
+
+    plotted_files = tuple(
+        entry["Path"]
+        for entry in job.get("FilesAttributes", [])
+        if isinstance(entry, dict) and entry.get("Path")
+    )
+    if len(plotted_files) != 11:
+        raise ValueError(
+            f"{job_path.name}: expected 11 plotted Gerber layers, found {len(plotted_files)}"
+        )
+
+    return plotted_files + (GERBER_JOB_FILE,) + DRILL_FILES
 
 
 def bom_designators(rows: list[dict[str, str]]) -> set[str]:
@@ -175,7 +186,13 @@ def verify_board_text() -> list[str]:
 
 def main() -> int:
     failures: list[str] = []
-    source_paths = {name: FAB_DIR / name for name in GERBER_FILES}
+    try:
+        files = gerber_files()
+    except (FileNotFoundError, json.JSONDecodeError, ValueError) as exc:
+        files = ()
+        failures.append(str(exc))
+
+    source_paths = {name: FAB_DIR / name for name in files}
     source_paths.update(
         {
             "laser_controller_bom_jlcpcb.csv": BOM_PATH,
@@ -187,9 +204,9 @@ def main() -> int:
         if not path.exists():
             failures.append(f"missing required artifact: {path}")
 
-    failures.extend(verify_zip(GERBER_ZIP_PATH, GERBER_FILES, source_paths))
+    failures.extend(verify_zip(GERBER_ZIP_PATH, files, source_paths))
     failures.extend(
-        verify_zip(PACKAGE_ZIP_PATH, GERBER_FILES + PACKAGE_ONLY_FILES, source_paths)
+        verify_zip(PACKAGE_ZIP_PATH, files + PACKAGE_ONLY_FILES, source_paths)
     )
     bom_pos_failures, bom_count, pos_count = verify_bom_pos()
     failures.extend(bom_pos_failures)
@@ -203,7 +220,7 @@ def main() -> int:
 
     print(
         "PASS JLCPCB order package: "
-        f"{len(GERBER_FILES)} Gerber/drill files, package archive includes BOM/POS, "
+        f"{len(files)} Gerber/drill files, package archive includes BOM/POS, "
         f"{bom_count}/{pos_count} BOM/POS designators match, J7 is C192300 2x4 SMD, "
         "PD/laser labels and backside vivonics mark are present"
     )

@@ -1,15 +1,7 @@
 ** Drc report for laser_controller.kicad_pcb **
-** Created on 2026-07-05T09:16:32-0500 **
+** Created on 2026-07-05T09:43:18-0500 **
 
-** Found 2 DRC violations **
-[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
-    Local override; error
-    @(133.4000 mm, 135.7500 mm): Via [GND] on F.Cu - B.Cu
-    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
-[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
-    Rule: board setup constraints hole; error
-    @(133.4000 mm, 135.7500 mm): Via [GND] on F.Cu - B.Cu
-    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+** Found 0 DRC violations **
 
 ** Found 0 unconnected pads **
 
