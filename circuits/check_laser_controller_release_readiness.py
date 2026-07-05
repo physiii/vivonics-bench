@@ -238,6 +238,18 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 ),
             ),
             Evidence(
+                "circuits/review/calibration/first_article_laser_bringup_template.csv",
+                (
+                    "LD1,INFRARED,D7805I,38.0",
+                    "LD2,RED,D6505I,23.0",
+                    "LD3,GREEN,PLT5 520EB_P,76.2",
+                    "LD4,BLUE,PLT5 450GB,105.5",
+                    "driver/sense-resistor temperature",
+                    "external optical power",
+                    "shutoff behavior",
+                ),
+            ),
+            Evidence(
                 "circuits/LASER_CURRENT_THERMAL_BUDGET.md",
                 (
                     "per-channel analog command limits",
