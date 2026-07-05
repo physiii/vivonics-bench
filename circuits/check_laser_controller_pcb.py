@@ -1780,33 +1780,102 @@ def different_net_pad_overlap_failures(board_path: Path) -> tuple[list[str], int
     return failures, checked_pairs
 
 
-def count_connected_critical_route_links(
+def critical_route_link_statuses(
+    board_path: Path,
     segments: list[dict[str, object]],
-    geometry: dict[str, dict[str, object]],
+    vias: list[dict[str, object]],
+    copper_layers: set[str],
     board_ref_by_comp: dict[tuple[str, str], str],
     expected_pad_nets: dict[str, dict[str, str]],
-) -> int:
-    graph_by_net: dict[str, dict[tuple[float, float], set[tuple[float, float]]]] = defaultdict(lambda: defaultdict(set))
+) -> list[tuple[str, bool]]:
+    RouteNode = tuple[float, float, str]
+
+    def route_node(point: tuple[float, float], layer: str) -> RouteNode:
+        return (round(point[0], 4), round(point[1], 4), layer)
+
+    pad_geometry = parse_pad_geometry_from_text(board_path.read_text())
+    graph_by_net: dict[str, dict[RouteNode, set[RouteNode]]] = defaultdict(lambda: defaultdict(set))
+    route_points_by_net_layer: dict[tuple[str, str], set[tuple[float, float]]] = defaultdict(set)
+
     for segment in segments:
         net = str(segment["net"])
-        a = _point_key(segment["a"])  # type: ignore[arg-type]
-        b = _point_key(segment["b"])  # type: ignore[arg-type]
+        layer = str(segment["layer"])
+        a = route_node(segment["a"], layer)  # type: ignore[arg-type]
+        b = route_node(segment["b"], layer)  # type: ignore[arg-type]
         graph_by_net[net][a].add(b)
         graph_by_net[net][b].add(a)
+        route_points_by_net_layer[(net, layer)].add((a[0], a[1]))
+        route_points_by_net_layer[(net, layer)].add((b[0], b[1]))
 
-    def connected(net: str, start: tuple[float, float], end: tuple[float, float]) -> bool:
-        start_key = _point_key(start)
-        end_key = _point_key(end)
-        if start_key == end_key:
+    for via in vias:
+        net = str(via["net"])
+        point = via["at"]
+        assert isinstance(point, tuple)
+        nodes = [route_node(point, layer) for layer in sorted(via_copper_layers(via, copper_layers))]
+        for node in nodes:
+            route_points_by_net_layer[(net, node[2])].add((node[0], node[1]))
+        for index, node in enumerate(nodes):
+            for other in nodes[index + 1:]:
+                graph_by_net[net][node].add(other)
+                graph_by_net[net][other].add(node)
+
+    pads_by_net: dict[str, list[dict[str, object]]] = defaultdict(list)
+    for ref, pad_map in pad_geometry.items():
+        for pin, pad_list in pad_map.items():
+            for pad in pad_list:
+                net = str(pad.get("net", ""))
+                if not net:
+                    continue
+                center = (float(pad["x"]), float(pad["y"]))
+                nodes = {route_node(center, layer) for layer in _pad_layers(pad, copper_layers)}
+                for index, node in enumerate(sorted(nodes)):
+                    for other in sorted(nodes)[index + 1:]:
+                        graph_by_net[net][node].add(other)
+                        graph_by_net[net][other].add(node)
+                for node in list(nodes):
+                    for route_point in route_points_by_net_layer.get((net, node[2]), set()):
+                        if _point_in_pad(route_point, pad, 0.01):
+                            routed_node = route_node(route_point, node[2])
+                            graph_by_net[net][node].add(routed_node)
+                            graph_by_net[net][routed_node].add(node)
+                pads_by_net[net].append(
+                    {
+                        "ref": ref,
+                        "pin": pin,
+                        "point": (round(center[0], 4), round(center[1], 4)),
+                        "nodes": nodes,
+                        "pad": pad,
+                    }
+                )
+
+    _connect_filled_zone_polygons(
+        board_path,
+        copper_layers,
+        segments,
+        vias,
+        pads_by_net,
+        graph_by_net,
+        route_node,
+    )
+
+    def pad_nodes(ref: str, pin: str) -> set[RouteNode]:
+        nodes: set[RouteNode] = set()
+        for pad in pad_geometry[ref][pin]:
+            center = (float(pad["x"]), float(pad["y"]))
+            nodes.update(route_node(center, layer) for layer in _pad_layers(pad, copper_layers))
+        return nodes
+
+    def connected(net: str, starts: set[RouteNode], ends: set[RouteNode]) -> bool:
+        if starts & ends:
             return True
         graph = graph_by_net.get(net, {})
-        if start_key not in graph or end_key not in graph:
+        if not starts or not ends:
             return False
-        queue: deque[tuple[float, float]] = deque([start_key])
-        seen = {start_key}
+        queue: deque[RouteNode] = deque(starts)
+        seen = set(starts)
         while queue:
             node = queue.popleft()
-            if node == end_key:
+            if node in ends:
                 return True
             for neighbor in graph.get(node, set()):
                 if neighbor not in seen:
@@ -1814,20 +1883,40 @@ def count_connected_critical_route_links(
                     queue.append(neighbor)
         return False
 
-    count = 0
-    for _, args, _ in CRITICAL_ROUTE_LINKS:
+    statuses: list[tuple[str, bool]] = []
+    for description, args, _ in CRITICAL_ROUTE_LINKS:
         sheet_a, ref_a, pin_a, sheet_b, ref_b, pin_b = args
         board_a = board_ref_by_comp[(sheet_a, ref_for(sheet_a, ref_a))]
         board_b = board_ref_by_comp[(sheet_b, ref_for(sheet_b, ref_b))]
         net_a = expected_pad_nets[board_a][pin_a]
         net_b = expected_pad_nets[board_b][pin_b]
         if net_a != net_b:
+            statuses.append((description, False))
             continue
-        start = geometry[board_a]["pads"][pin_a][0]  # type: ignore[index]
-        end = geometry[board_b]["pads"][pin_b][0]  # type: ignore[index]
-        if connected(net_a, start, end):
-            count += 1
-    return count
+        statuses.append((description, connected(net_a, pad_nodes(board_a, pin_a), pad_nodes(board_b, pin_b))))
+    return statuses
+
+
+def count_connected_critical_route_links(
+    board_path: Path,
+    segments: list[dict[str, object]],
+    vias: list[dict[str, object]],
+    copper_layers: set[str],
+    board_ref_by_comp: dict[tuple[str, str], str],
+    expected_pad_nets: dict[str, dict[str, str]],
+) -> int:
+    return sum(
+        1
+        for _, connected in critical_route_link_statuses(
+            board_path,
+            segments,
+            vias,
+            copper_layers,
+            board_ref_by_comp,
+            expected_pad_nets,
+        )
+        if connected
+    )
 
 
 def parse_board_net_classes(board_path: Path) -> dict[str, set[str]]:
@@ -2481,8 +2570,10 @@ def main() -> int:
             failures.append(f"{description}: {actual_mm:.2f} mm exceeds {limit_mm:.2f} mm")
 
     routed_critical_links = count_connected_critical_route_links(
+        board_path,
         actual_segments,
-        footprint_geometry,
+        actual_vias,
+        declared_layers,
         expected_board_ref_by_comp,
         expected_pad_nets,
     )

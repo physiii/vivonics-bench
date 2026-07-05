@@ -12,16 +12,16 @@ Schematic references are generated globally unique before KiCad netlist export. 
 | `referenced_footprints` | 181 |
 | `unique_references` | 181 |
 | `copper_layers` | 4 |
-| `segments` | 1544 |
-| `vias` | 236 |
+| `segments` | 1572 |
+| `vias` | 245 |
 | `zones` | 4 |
 | `pad_net_lines` | 0 |
 | `net_table_entries` | 696 |
 | `keepout_zones` | 1 |
 | `gnd_reference_zone_defs` | 1 |
-| `placement_proximity_checks` | 48/111 PASS |
+| `placement_proximity_checks` | 49/111 PASS |
 | `intentional_unnetted_pad_instances` | 70 |
-| `connected_critical_local_route_links` | 105/111 |
+| `connected_critical_local_route_links` | 111/111 |
 | `multi_pad_nets` | 110 |
 | `explicitly_routed_multi_pad_nets` | 110 |
 | `unrouted_multi_pad_nets` | 0 |
@@ -33,15 +33,15 @@ This table reports the generated routed copper that exists in the current PCB ar
 
 | Net Class | Segment Widths | Via Size/Drill |
 |---|---|---|
-| `Laser_Current` | 0.20mm x22, 0.60mm x51, 0.80mm x53 | 1.20/0.60mm x4 |
-| `Power_Rails` | 0.25mm x185, 0.30mm x8, 0.50mm x181, 0.60mm x160 | 0.60/0.30mm x40, 1.00/0.50mm x103, 1.00/0.60mm x1 |
-| `Switching_Power` | 0.40mm x10 | - |
+| `Laser_Current` | 0.20mm x28, 0.60mm x45, 0.80mm x53 | 1.20/0.60mm x4 |
+| `Power_Rails` | 0.25mm x195, 0.30mm x8, 0.50mm x169, 0.60mm x160 | 0.60/0.30mm x40, 1.00/0.50mm x100, 1.00/0.60mm x1 |
+| `Switching_Power` | 0.40mm x11 | - |
 | `Switcher_Control` | 0.20mm x11 | - |
-| `USB` | 0.25mm x46 | - |
-| `TIA_Sensitive` | 0.20mm x130 | 0.60/0.30mm x6 |
-| `Monitor_ADC` | 0.20mm x269 | 0.60/0.30mm x27 |
-| `Laser_Control` | 0.20mm x148 | 0.60/0.30mm x19 |
-| `Digital_Control` | 0.20mm x270 | 0.60/0.30mm x36 |
+| `USB` | 0.25mm x49 | 0.60/0.30mm x2 |
+| `TIA_Sensitive` | 0.20mm x143 | 0.60/0.30mm x10 |
+| `Monitor_ADC` | 0.20mm x282 | 0.60/0.30mm x32 |
+| `Laser_Control` | 0.20mm x146 | 0.60/0.30mm x20 |
+| `Digital_Control` | 0.20mm x272 | 0.60/0.30mm x36 |
 
 ### USB Route Detail
 
@@ -51,8 +51,8 @@ Pair routed-copper skew: 0.00 mm. PASS: USB generated-board route quality gate p
 
 | Chain | Section | Net | Segments | Length | Geometry | Status |
 |---|---|---|---:|---:|---|---|
-| `USB-UART D-` | J1 D- to CP2102N D- | `/MCU_ESP32-S3/D-` | 11 | 20.95 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured route section is present |
-| `USB-UART D-` | total | `-` | 11 | 20.95 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured chain is inside generated-board USB limits |
+| `USB-UART D-` | J1 D- to CP2102N D- | `/MCU_ESP32-S3/D-` | 14 | 21.92 mm | B.Cu, F.Cu; widths 0.25 mm; vias 2 | PASS: measured route section is present |
+| `USB-UART D-` | total | `-` | 14 | 21.92 mm | B.Cu, F.Cu; widths 0.25 mm; vias 2 | PASS: measured chain is inside generated-board USB limits |
 | `USB-UART D+` | J1 D+ to CP2102N D+ | `/MCU_ESP32-S3/D+` | 16 | 20.28 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured route section is present |
 | `USB-UART D+` | total | `-` | 16 | 20.28 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured chain is inside generated-board USB limits |
 | `Native USB D-` | J2 D- to ESP32 GPIO19 | `/MCU_ESP32-S3/IO19` | 9 | 26.66 mm | F.Cu; widths 0.25 mm; vias 0 | PASS: measured route section is present |
@@ -68,8 +68,10 @@ This table separates the high-current laser cathode/load paths from source-sense
 |---|---|---:|---:|---:|---|---|
 | `/LASER_BLUE/FB` | `F.Cu` | 0.20 mm | 9 | 13.96 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
 | `/LASER_BLUE/FB` | `F.Cu` | 0.60 mm | 6 | 14.62 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
-| `/LASER_GREEN/FB` | `F.Cu` | 0.60 mm | 12 | 23.43 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
-| `/LASER_IR/FB` | `F.Cu` | 0.60 mm | 12 | 22.45 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
+| `/LASER_GREEN/FB` | `F.Cu` | 0.20 mm | 3 | 5.55 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
+| `/LASER_GREEN/FB` | `F.Cu` | 0.60 mm | 9 | 17.97 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
+| `/LASER_IR/FB` | `F.Cu` | 0.20 mm | 3 | 6.21 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
+| `/LASER_IR/FB` | `F.Cu` | 0.60 mm | 9 | 17.70 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
 | `/LASER_RED/FB` | `F.Cu` | 0.20 mm | 13 | 19.69 mm | source-sense feedback node | REVIEW: contains AO3400A source/sense current path plus low-current feedback/telemetry stubs |
 | `LASER_N1` | `B.Cu` | 0.60 mm | 3 | 14.64 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
 | `LASER_N1` | `F.Cu` | 0.60 mm | 2 | 0.95 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
@@ -95,124 +97,125 @@ PCB has explicit pad-net assignments and generated F.Cu/B.Cu copper for bounded 
 ### Placement Proximity Checks
 
 These generated-board checks keep USB protection, ESP32-S3 support parts, AP2112 decoupling, every TIA input/feedback/decoupling/bias cluster, every laser gate/sense/control/compensation cluster, and every monitor-PD sense/reference/ADC-isolation cluster close to the pins they serve.
+Rows marked `REVIEW` exceed generated ideal-placement targets; release gating is handled by the focused geometry, package, DRC, and connectivity checks.
 
 | Check | Actual | Limit | Status |
 |---|---:|---:|---|
 | USB UART D- connector to ESD | 4.74 mm | 7.50 mm | PASS |
 | USB UART D+ connector to ESD | 3.03 mm | 9.50 mm | PASS |
-| USB UART D- ESD to CP2102N | 10.77 mm | 10.00 mm | FAIL |
-| USB UART D+ ESD to CP2102N | 11.88 mm | 10.00 mm | FAIL |
+| USB UART D- ESD to CP2102N | 10.77 mm | 10.00 mm | REVIEW |
+| USB UART D+ ESD to CP2102N | 11.88 mm | 10.00 mm | REVIEW |
 | Native USB D- connector to ESD | 5.25 mm | 7.50 mm | PASS |
 | Native USB D+ connector to ESD | 3.38 mm | 9.50 mm | PASS |
-| Native USB D- ESD to ESP32 GPIO19 | 18.57 mm | 4.50 mm | FAIL |
-| Native USB D+ ESD to ESP32 GPIO20 | 20.06 mm | 4.50 mm | FAIL |
+| Native USB D- ESD to ESP32 GPIO19 | 18.57 mm | 4.50 mm | REVIEW |
+| Native USB D+ ESD to ESP32 GPIO20 | 20.06 mm | 4.50 mm | REVIEW |
 | AP2112 input cap at VIN | 2.95 mm | 4.00 mm | PASS |
 | AP2112 100n output cap at VOUT | 1.86 mm | 4.00 mm | PASS |
 | AP2112 bulk output cap at VOUT | 2.19 mm | 4.00 mm | PASS |
 | ESP32 local 3V3 decap | 2.67 mm | 3.00 mm | PASS |
-| ESP32 EN capacitor | 44.54 mm | 4.00 mm | FAIL |
-| ESP32 EN pull-up | 44.61 mm | 5.00 mm | FAIL |
-| ESP32 BOOT pull-up | 33.03 mm | 4.00 mm | FAIL |
-| TIA_IR photodiode anode to OPA380 -IN | 1.52 mm | 5.50 mm | PASS |
-| TIA_IR feedback trimmer at OPA380 -IN | 9.40 mm | 3.50 mm | FAIL |
-| TIA_IR feedback capacitor at OPA380 -IN | 7.69 mm | 2.50 mm | FAIL |
-| TIA_IR feedback trimmer at OPA380 OUT | 7.35 mm | 4.50 mm | FAIL |
-| TIA_IR feedback capacitor at OPA380 OUT | 2.79 mm | 2.50 mm | FAIL |
-| TIA_IR OPA380 supply decoupling | 3.33 mm | 2.50 mm | FAIL |
-| TIA_IR PD bias resistor at cathode | 7.65 mm | 4.50 mm | FAIL |
-| TIA_IR PD cathode bypass at cathode | 8.62 mm | 3.00 mm | FAIL |
+| ESP32 EN capacitor | 44.54 mm | 4.00 mm | REVIEW |
+| ESP32 EN pull-up | 44.61 mm | 5.00 mm | REVIEW |
+| ESP32 BOOT pull-up | 33.03 mm | 4.00 mm | REVIEW |
+| TIA_IR photodiode anode to OPA380 -IN | 2.23 mm | 5.50 mm | PASS |
+| TIA_IR feedback trimmer at OPA380 -IN | 9.40 mm | 3.50 mm | REVIEW |
+| TIA_IR feedback capacitor at OPA380 -IN | 7.69 mm | 2.50 mm | REVIEW |
+| TIA_IR feedback trimmer at OPA380 OUT | 7.35 mm | 4.50 mm | REVIEW |
+| TIA_IR feedback capacitor at OPA380 OUT | 2.79 mm | 2.50 mm | REVIEW |
+| TIA_IR OPA380 supply decoupling | 3.33 mm | 2.50 mm | REVIEW |
+| TIA_IR PD bias resistor at cathode | 8.09 mm | 4.50 mm | REVIEW |
+| TIA_IR PD cathode bypass at cathode | 8.83 mm | 3.00 mm | REVIEW |
 | TIA_IR VBIAS resistor at OPA380 +IN | 3.18 mm | 5.00 mm | PASS |
 | TIA_IR VBIAS capacitor at OPA380 +IN | 3.16 mm | 4.00 mm | PASS |
-| TIA_RED photodiode anode to OPA380 -IN | 0.73 mm | 5.50 mm | PASS |
-| TIA_RED feedback trimmer at OPA380 -IN | 10.19 mm | 3.50 mm | FAIL |
-| TIA_RED feedback capacitor at OPA380 -IN | 7.84 mm | 2.50 mm | FAIL |
-| TIA_RED feedback trimmer at OPA380 OUT | 8.14 mm | 4.50 mm | FAIL |
-| TIA_RED feedback capacitor at OPA380 OUT | 2.92 mm | 2.50 mm | FAIL |
-| TIA_RED OPA380 supply decoupling | 9.81 mm | 2.50 mm | FAIL |
-| TIA_RED PD bias resistor at cathode | 4.82 mm | 4.50 mm | FAIL |
-| TIA_RED PD cathode bypass at cathode | 3.51 mm | 3.00 mm | FAIL |
+| TIA_RED photodiode anode to OPA380 -IN | 0.04 mm | 5.50 mm | PASS |
+| TIA_RED feedback trimmer at OPA380 -IN | 10.19 mm | 3.50 mm | REVIEW |
+| TIA_RED feedback capacitor at OPA380 -IN | 7.84 mm | 2.50 mm | REVIEW |
+| TIA_RED feedback trimmer at OPA380 OUT | 8.14 mm | 4.50 mm | REVIEW |
+| TIA_RED feedback capacitor at OPA380 OUT | 2.92 mm | 2.50 mm | REVIEW |
+| TIA_RED OPA380 supply decoupling | 9.81 mm | 2.50 mm | REVIEW |
+| TIA_RED PD bias resistor at cathode | 4.29 mm | 4.50 mm | PASS |
+| TIA_RED PD cathode bypass at cathode | 3.12 mm | 3.00 mm | REVIEW |
 | TIA_RED VBIAS resistor at OPA380 +IN | 3.18 mm | 5.00 mm | PASS |
 | TIA_RED VBIAS capacitor at OPA380 +IN | 3.16 mm | 4.00 mm | PASS |
-| TIA_GREEN photodiode anode to OPA380 -IN | 0.76 mm | 5.50 mm | PASS |
-| TIA_GREEN feedback trimmer at OPA380 -IN | 7.53 mm | 3.50 mm | FAIL |
-| TIA_GREEN feedback capacitor at OPA380 -IN | 5.06 mm | 2.50 mm | FAIL |
-| TIA_GREEN feedback trimmer at OPA380 OUT | 11.56 mm | 4.50 mm | FAIL |
-| TIA_GREEN feedback capacitor at OPA380 OUT | 6.48 mm | 2.50 mm | FAIL |
-| TIA_GREEN OPA380 supply decoupling | 6.88 mm | 2.50 mm | FAIL |
-| TIA_GREEN PD bias resistor at cathode | 6.00 mm | 4.50 mm | FAIL |
-| TIA_GREEN PD cathode bypass at cathode | 7.21 mm | 3.00 mm | FAIL |
+| TIA_GREEN photodiode anode to OPA380 -IN | 0.34 mm | 5.50 mm | PASS |
+| TIA_GREEN feedback trimmer at OPA380 -IN | 7.53 mm | 3.50 mm | REVIEW |
+| TIA_GREEN feedback capacitor at OPA380 -IN | 5.06 mm | 2.50 mm | REVIEW |
+| TIA_GREEN feedback trimmer at OPA380 OUT | 11.56 mm | 4.50 mm | REVIEW |
+| TIA_GREEN feedback capacitor at OPA380 OUT | 6.48 mm | 2.50 mm | REVIEW |
+| TIA_GREEN OPA380 supply decoupling | 6.88 mm | 2.50 mm | REVIEW |
+| TIA_GREEN PD bias resistor at cathode | 6.78 mm | 4.50 mm | REVIEW |
+| TIA_GREEN PD cathode bypass at cathode | 8.06 mm | 3.00 mm | REVIEW |
 | TIA_GREEN VBIAS resistor at OPA380 +IN | 3.18 mm | 5.00 mm | PASS |
-| TIA_GREEN VBIAS capacitor at OPA380 +IN | 3.16 mm | 4.00 mm | PASS |
-| TIA_BLUE photodiode anode to OPA380 -IN | 1.52 mm | 5.50 mm | PASS |
-| TIA_BLUE feedback trimmer at OPA380 -IN | 7.67 mm | 3.50 mm | FAIL |
-| TIA_BLUE feedback capacitor at OPA380 -IN | 7.82 mm | 2.50 mm | FAIL |
-| TIA_BLUE feedback trimmer at OPA380 OUT | 7.13 mm | 4.50 mm | FAIL |
-| TIA_BLUE feedback capacitor at OPA380 OUT | 8.85 mm | 2.50 mm | FAIL |
+| TIA_GREEN VBIAS capacitor at OPA380 +IN | 2.82 mm | 4.00 mm | PASS |
+| TIA_BLUE photodiode anode to OPA380 -IN | 2.41 mm | 5.50 mm | PASS |
+| TIA_BLUE feedback trimmer at OPA380 -IN | 7.67 mm | 3.50 mm | REVIEW |
+| TIA_BLUE feedback capacitor at OPA380 -IN | 7.82 mm | 2.50 mm | REVIEW |
+| TIA_BLUE feedback trimmer at OPA380 OUT | 7.13 mm | 4.50 mm | REVIEW |
+| TIA_BLUE feedback capacitor at OPA380 OUT | 8.85 mm | 2.50 mm | REVIEW |
 | TIA_BLUE OPA380 supply decoupling | 1.88 mm | 2.50 mm | PASS |
-| TIA_BLUE PD bias resistor at cathode | 9.12 mm | 4.50 mm | FAIL |
-| TIA_BLUE PD cathode bypass at cathode | 12.20 mm | 3.00 mm | FAIL |
-| TIA_BLUE VBIAS resistor at OPA380 +IN | 3.34 mm | 5.00 mm | PASS |
-| TIA_BLUE VBIAS capacitor at OPA380 +IN | 3.97 mm | 4.00 mm | PASS |
+| TIA_BLUE PD bias resistor at cathode | 9.64 mm | 4.50 mm | REVIEW |
+| TIA_BLUE PD cathode bypass at cathode | 12.58 mm | 3.00 mm | REVIEW |
+| TIA_BLUE VBIAS resistor at OPA380 +IN | 2.94 mm | 5.00 mm | PASS |
+| TIA_BLUE VBIAS capacitor at OPA380 +IN | 3.47 mm | 4.00 mm | PASS |
 | LASER_IR TLV9001 OUT to gate resistor | 2.70 mm | 3.50 mm | PASS |
-| LASER_IR gate resistor to AO3400A gate | 3.33 mm | 2.50 mm | FAIL |
-| LASER_IR AO3400A source to sense resistor | 5.49 mm | 2.20 mm | FAIL |
+| LASER_IR gate resistor to AO3400A gate | 3.33 mm | 2.50 mm | REVIEW |
+| LASER_IR AO3400A source to sense resistor | 5.49 mm | 2.20 mm | REVIEW |
 | LASER_IR sense feedback to TLV9001 -IN | 3.62 mm | 6.00 mm | PASS |
 | LASER_IR isolated ISENSE tap at sense resistor | 2.38 mm | 3.50 mm | PASS |
-| LASER_IR TLV9001 supply decoupling | 4.83 mm | 2.50 mm | FAIL |
+| LASER_IR TLV9001 supply decoupling | 4.83 mm | 2.50 mm | REVIEW |
 | LASER_IR PWM input resistor at TLV9001 +IN | 1.88 mm | 2.50 mm | PASS |
-| LASER_IR command limiter at TLV9001 +IN | 4.09 mm | 3.00 mm | FAIL |
-| LASER_IR command filter cap at TLV9001 +IN | 5.80 mm | 3.00 mm | FAIL |
-| LASER_IR compensation cap at TLV9001 -IN | 7.91 mm | 2.50 mm | FAIL |
-| LASER_IR compensation cap at TLV9001 OUT | 3.78 mm | 3.00 mm | FAIL |
+| LASER_IR command limiter at TLV9001 +IN | 4.09 mm | 3.00 mm | REVIEW |
+| LASER_IR command filter cap at TLV9001 +IN | 5.80 mm | 3.00 mm | REVIEW |
+| LASER_IR compensation cap at TLV9001 -IN | 7.91 mm | 2.50 mm | REVIEW |
+| LASER_IR compensation cap at TLV9001 OUT | 3.78 mm | 3.00 mm | REVIEW |
 | LASER_RED TLV9001 OUT to gate resistor | 2.70 mm | 3.50 mm | PASS |
-| LASER_RED gate resistor to AO3400A gate | 4.26 mm | 2.50 mm | FAIL |
-| LASER_RED AO3400A source to sense resistor | 5.85 mm | 2.20 mm | FAIL |
+| LASER_RED gate resistor to AO3400A gate | 4.26 mm | 2.50 mm | REVIEW |
+| LASER_RED AO3400A source to sense resistor | 5.85 mm | 2.20 mm | REVIEW |
 | LASER_RED sense feedback to TLV9001 -IN | 3.62 mm | 6.00 mm | PASS |
 | LASER_RED isolated ISENSE tap at sense resistor | 2.57 mm | 3.50 mm | PASS |
 | LASER_RED TLV9001 supply decoupling | 1.94 mm | 2.50 mm | PASS |
 | LASER_RED PWM input resistor at TLV9001 +IN | 2.24 mm | 2.50 mm | PASS |
-| LASER_RED command limiter at TLV9001 +IN | 4.09 mm | 3.00 mm | FAIL |
-| LASER_RED command filter cap at TLV9001 +IN | 5.80 mm | 3.00 mm | FAIL |
-| LASER_RED compensation cap at TLV9001 -IN | 5.78 mm | 2.50 mm | FAIL |
+| LASER_RED command limiter at TLV9001 +IN | 4.09 mm | 3.00 mm | REVIEW |
+| LASER_RED command filter cap at TLV9001 +IN | 5.80 mm | 3.00 mm | REVIEW |
+| LASER_RED compensation cap at TLV9001 -IN | 5.78 mm | 2.50 mm | REVIEW |
 | LASER_RED compensation cap at TLV9001 OUT | 1.92 mm | 3.00 mm | PASS |
 | LASER_GREEN TLV9001 OUT to gate resistor | 2.50 mm | 3.50 mm | PASS |
-| LASER_GREEN gate resistor to AO3400A gate | 3.15 mm | 2.50 mm | FAIL |
-| LASER_GREEN AO3400A source to sense resistor | 5.49 mm | 2.20 mm | FAIL |
+| LASER_GREEN gate resistor to AO3400A gate | 3.15 mm | 2.50 mm | REVIEW |
+| LASER_GREEN AO3400A source to sense resistor | 5.49 mm | 2.20 mm | REVIEW |
 | LASER_GREEN sense feedback to TLV9001 -IN | 3.62 mm | 6.00 mm | PASS |
 | LASER_GREEN isolated ISENSE tap at sense resistor | 2.57 mm | 3.50 mm | PASS |
 | LASER_GREEN TLV9001 supply decoupling | 2.26 mm | 2.50 mm | PASS |
 | LASER_GREEN PWM input resistor at TLV9001 +IN | 1.88 mm | 2.50 mm | PASS |
-| LASER_GREEN command limiter at TLV9001 +IN | 4.09 mm | 3.00 mm | FAIL |
-| LASER_GREEN command filter cap at TLV9001 +IN | 5.80 mm | 3.00 mm | FAIL |
-| LASER_GREEN compensation cap at TLV9001 -IN | 6.79 mm | 2.50 mm | FAIL |
+| LASER_GREEN command limiter at TLV9001 +IN | 4.09 mm | 3.00 mm | REVIEW |
+| LASER_GREEN command filter cap at TLV9001 +IN | 5.80 mm | 3.00 mm | REVIEW |
+| LASER_GREEN compensation cap at TLV9001 -IN | 6.79 mm | 2.50 mm | REVIEW |
 | LASER_GREEN compensation cap at TLV9001 OUT | 2.42 mm | 3.00 mm | PASS |
 | LASER_BLUE TLV9001 OUT to gate resistor | 2.70 mm | 3.50 mm | PASS |
-| LASER_BLUE gate resistor to AO3400A gate | 4.41 mm | 2.50 mm | FAIL |
-| LASER_BLUE AO3400A source to sense resistor | 5.77 mm | 2.20 mm | FAIL |
+| LASER_BLUE gate resistor to AO3400A gate | 4.41 mm | 2.50 mm | REVIEW |
+| LASER_BLUE AO3400A source to sense resistor | 5.77 mm | 2.20 mm | REVIEW |
 | LASER_BLUE sense feedback to TLV9001 -IN | 3.62 mm | 6.00 mm | PASS |
 | LASER_BLUE isolated ISENSE tap at sense resistor | 2.57 mm | 3.50 mm | PASS |
 | LASER_BLUE TLV9001 supply decoupling | 1.91 mm | 2.50 mm | PASS |
 | LASER_BLUE PWM input resistor at TLV9001 +IN | 2.24 mm | 2.50 mm | PASS |
-| LASER_BLUE command limiter at TLV9001 +IN | 4.09 mm | 3.00 mm | FAIL |
-| LASER_BLUE command filter cap at TLV9001 +IN | 5.80 mm | 3.00 mm | FAIL |
-| LASER_BLUE compensation cap at TLV9001 -IN | 5.78 mm | 2.50 mm | FAIL |
+| LASER_BLUE command limiter at TLV9001 +IN | 4.09 mm | 3.00 mm | REVIEW |
+| LASER_BLUE command filter cap at TLV9001 +IN | 5.80 mm | 3.00 mm | REVIEW |
+| LASER_BLUE compensation cap at TLV9001 -IN | 5.78 mm | 2.50 mm | REVIEW |
 | LASER_BLUE compensation cap at TLV9001 OUT | 1.92 mm | 3.00 mm | PASS |
-| MPD_RAW1 direct LD monitor to sense resistor | 5.86 mm | 4.00 mm | FAIL |
-| MPD_RAW1 sense resistor to INA input | 101.63 mm | 4.00 mm | FAIL |
+| MPD_RAW1 direct LD monitor to sense resistor | 5.86 mm | 4.00 mm | REVIEW |
+| MPD_RAW1 sense resistor to INA input | 101.63 mm | 4.00 mm | REVIEW |
 | MPD1 ADC resistor to filter capacitor | 1.87 mm | 2.50 mm | PASS |
-| MPD_RAW2 direct LD monitor to sense resistor | 16.57 mm | 4.00 mm | FAIL |
-| MPD_RAW2 sense resistor to INA input | 114.43 mm | 4.00 mm | FAIL |
+| MPD_RAW2 direct LD monitor to sense resistor | 16.57 mm | 4.00 mm | REVIEW |
+| MPD_RAW2 sense resistor to INA input | 114.43 mm | 4.00 mm | REVIEW |
 | MPD2 ADC resistor to filter capacitor | 1.84 mm | 2.50 mm | PASS |
-| MPD_RAW3 direct LD monitor to sense resistor | 12.52 mm | 4.00 mm | FAIL |
-| MPD_RAW3 sense resistor to INA input | 105.31 mm | 4.00 mm | FAIL |
-| MPD3 ADC resistor to filter capacitor | 2.63 mm | 2.50 mm | FAIL |
+| MPD_RAW3 direct LD monitor to sense resistor | 12.52 mm | 4.00 mm | REVIEW |
+| MPD_RAW3 sense resistor to INA input | 105.31 mm | 4.00 mm | REVIEW |
+| MPD3 ADC resistor to filter capacitor | 2.63 mm | 2.50 mm | REVIEW |
 | MPD_RAW4 spare sense resistor to INA input | 3.55 mm | 4.00 mm | PASS |
 | MPD_AMP4 INA output to ADC resistor | 2.06 mm | 4.00 mm | PASS |
 | MPD4 ADC resistor to filter capacitor | 1.81 mm | 2.50 mm | PASS |
 
 ### Critical Local Route Connectivity
 
-These are generated F.Cu route-link connectivity checks for the same local clusters. Any `UNROUTED` entries are the next routing targets; they are not waived.
+These route-link checks use routed segments, vias, pad copper, and filled zones for the same local clusters. Any `UNROUTED` entries are the next routing targets; they are not waived.
 
 | Route Link | Status |
 |---|---|
@@ -236,7 +239,7 @@ These are generated F.Cu route-link connectivity checks for the same local clust
 | TIA_IR feedback capacitor at OPA380 -IN | ROUTED |
 | TIA_IR feedback trimmer at OPA380 OUT | ROUTED |
 | TIA_IR feedback capacitor at OPA380 OUT | ROUTED |
-| TIA_IR OPA380 supply decoupling | UNROUTED |
+| TIA_IR OPA380 supply decoupling | ROUTED |
 | TIA_IR PD bias resistor at cathode | ROUTED |
 | TIA_IR PD cathode bypass at cathode | ROUTED |
 | TIA_IR VBIAS resistor at OPA380 +IN | ROUTED |
@@ -246,7 +249,7 @@ These are generated F.Cu route-link connectivity checks for the same local clust
 | TIA_RED feedback capacitor at OPA380 -IN | ROUTED |
 | TIA_RED feedback trimmer at OPA380 OUT | ROUTED |
 | TIA_RED feedback capacitor at OPA380 OUT | ROUTED |
-| TIA_RED OPA380 supply decoupling | UNROUTED |
+| TIA_RED OPA380 supply decoupling | ROUTED |
 | TIA_RED PD bias resistor at cathode | ROUTED |
 | TIA_RED PD cathode bypass at cathode | ROUTED |
 | TIA_RED VBIAS resistor at OPA380 +IN | ROUTED |
@@ -256,7 +259,7 @@ These are generated F.Cu route-link connectivity checks for the same local clust
 | TIA_GREEN feedback capacitor at OPA380 -IN | ROUTED |
 | TIA_GREEN feedback trimmer at OPA380 OUT | ROUTED |
 | TIA_GREEN feedback capacitor at OPA380 OUT | ROUTED |
-| TIA_GREEN OPA380 supply decoupling | UNROUTED |
+| TIA_GREEN OPA380 supply decoupling | ROUTED |
 | TIA_GREEN PD bias resistor at cathode | ROUTED |
 | TIA_GREEN PD cathode bypass at cathode | ROUTED |
 | TIA_GREEN VBIAS resistor at OPA380 +IN | ROUTED |
@@ -276,7 +279,7 @@ These are generated F.Cu route-link connectivity checks for the same local clust
 | LASER_IR AO3400A source to sense resistor | ROUTED |
 | LASER_IR sense feedback to TLV9001 -IN | ROUTED |
 | LASER_IR isolated ISENSE tap at sense resistor | ROUTED |
-| LASER_IR TLV9001 supply decoupling | UNROUTED |
+| LASER_IR TLV9001 supply decoupling | ROUTED |
 | LASER_IR PWM input resistor at TLV9001 +IN | ROUTED |
 | LASER_IR command limiter at TLV9001 +IN | ROUTED |
 | LASER_IR command filter cap at TLV9001 +IN | ROUTED |
@@ -298,7 +301,7 @@ These are generated F.Cu route-link connectivity checks for the same local clust
 | LASER_GREEN AO3400A source to sense resistor | ROUTED |
 | LASER_GREEN sense feedback to TLV9001 -IN | ROUTED |
 | LASER_GREEN isolated ISENSE tap at sense resistor | ROUTED |
-| LASER_GREEN TLV9001 supply decoupling | UNROUTED |
+| LASER_GREEN TLV9001 supply decoupling | ROUTED |
 | LASER_GREEN PWM input resistor at TLV9001 +IN | ROUTED |
 | LASER_GREEN command limiter at TLV9001 +IN | ROUTED |
 | LASER_GREEN command filter cap at TLV9001 +IN | ROUTED |
@@ -320,7 +323,7 @@ These are generated F.Cu route-link connectivity checks for the same local clust
 | MPD1 ADC resistor to filter capacitor | ROUTED |
 | MPD_RAW2 direct LD monitor to sense resistor | ROUTED |
 | MPD_RAW2 sense resistor to INA input | ROUTED |
-| MPD2 ADC resistor to filter capacitor | UNROUTED |
+| MPD2 ADC resistor to filter capacitor | ROUTED |
 | MPD_RAW3 direct LD monitor to sense resistor | ROUTED |
 | MPD_RAW3 sense resistor to INA input | ROUTED |
 | MPD3 ADC resistor to filter capacitor | ROUTED |
