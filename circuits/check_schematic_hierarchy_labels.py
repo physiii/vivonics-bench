@@ -31,12 +31,10 @@ MCU_CHILD_LABELS = {
     "IO21": "input",
     "IO9": "input",
     "IO10": "output",
-    "I2C_DATA": "input",
     "IO6": "input",
     "IO8": "input",
     "IO11": "output",
     "IO16": "output",
-    "I2C_CLK": "input",
     "IO15": "output",
     "IO7": "input",
     "3V3": "input",
@@ -138,9 +136,7 @@ EXPECTED_ROOT_GLOBAL_COUNTS = Counter(
 
 
 LOCAL_LABEL_DENYLIST = set(EXPECTED_ROOT_GLOBAL_COUNTS)
-ALLOWED_LOCAL_LABEL_COLLISIONS = {
-    "power_io.kicad_sch": {f"MPD_RAW{i}" for i in range(1, 5)},
-}
+ALLOWED_LOCAL_LABEL_COLLISIONS = {}
 
 SCHEMATIC_TEXT_DENYLIST = {
     "mcu.kicad_sch": {

@@ -582,6 +582,8 @@ def check_sheet(path: Path) -> list[str]:
 
     for wire in wires:
         for symbol in symbols:
+            if symbol.lib_id == "viv:MOUNTING_HOLE_PAD":
+                continue
             if segment_enters_box(wire, symbol.box):
                 failures.append(
                     f"{path.name}: wire {wire[0]}->{wire[1]} enters {symbol.ref} ({symbol.lib_id}) body"

@@ -1,5 +1,6 @@
 (fp_lib_table
   (version 7)
+  (lib (name "Button_Switch_SMD")(type "KiCad")(uri "${KIPRJMOD}/lib/Button_Switch_SMD.pretty")(options "")(descr "Project-local aliases for KiCad button switch footprints"))
   (lib (name "Espressif")(type "KiCad")(uri "${KIPRJMOD}/lib/Espressif.pretty")(options "")(descr "Project-local copy of office Espressif footprints"))
   (lib (name "Open_Automation")(type "KiCad")(uri "${KIPRJMOD}/lib/Open_Automation.pretty")(options "")(descr "Project-local copy of office Open Automation footprints"))
 )

@@ -712,12 +712,16 @@ def build_sch_content(title,date,rev,parts,power,wires,junctions,labels,texts,mu
         if len(label) == 4:
             t,x,y,j = label
             shape = "passive"
-        else:
+            size = 1.27
+        elif len(label) == 5:
             t,x,y,j,shape = label
-        if t.startswith("H:"):
-            P.append(f'  (hierarchical_label "{t[2:]}" (shape {shape}) (at {fmt(x)} {fmt(y)} 0) (effects (font (size 1.27 1.27)) (justify {j})) (uuid {uid()}))')
+            size = 1.27
         else:
-            P.append(f'  (label "{t}" (at {fmt(x)} {fmt(y)} 0) (effects (font (size 1.27 1.27)) (justify {j} bottom)) (uuid {uid()}))')
+            t,x,y,j,shape,size = label
+        if t.startswith("H:"):
+            P.append(f'  (hierarchical_label "{t[2:]}" (shape {shape}) (at {fmt(x)} {fmt(y)} 0) (effects (font (size {fmt(size)} {fmt(size)})) (justify {j})) (uuid {uid()}))')
+        else:
+            P.append(f'  (label "{t}" (at {fmt(x)} {fmt(y)} 0) (effects (font (size {fmt(size)} {fmt(size)})) (justify {j} bottom)) (uuid {uid()}))')
     for t,x,y,sz in texts: P.append(f'  (text "{t}" (at {fmt(x)} {fmt(y)} 0) (effects (font (size {sz} {sz})) (justify left)) (uuid {uid()}))')
     P+=['  (sheet_instances','    (path "/" (page "1"))',"  )",")"]
     txt="\n".join(P)+"\n"
@@ -756,8 +760,9 @@ def build_tia_channel(sheet_name: str):
     wires += [[anode,(anode[0],nIN[1]),nIN], [pin(parts,"RB","2"),cathode], [cathode,pin(parts,"CB","1")]]
     add_rail(power,wires,"+5V",pin(parts,"RB","1"))
     add_rail(power,wires,"GND",pin(parts,"CB","2"))
-    add_label(labels, anode, "PD_ANODE", justify="left")
-    add_label(labels, cathode, "PD_CATHODE", justify="left")
+    add_stub(wires, labels, anode, "right", "PD_ANODE", dist=10.16)
+    cathode_label = pin(parts,"CB","1")
+    labels.append(("PD_CATHODE", cathode_label[0], cathode_label[1], "right", "passive", 0.7))
     # feedback: −IN → left rail up ; out → right rail up ; RVFB (Rf trim) ∥ C1 (Cf) bridge across the top
     rvfb_w = pin(parts,"RVFB","2")
     wires += [
@@ -774,12 +779,16 @@ def build_tia_channel(sheet_name: str):
     node=(pin(parts,"C11","1")[0],pIN[1])
     add_rail(power,wires,"+5V",pin(parts,"RT","1")); add_rail(power,wires,"GND",pin(parts,"RV11","3"))
     add_rail(power,wires,"GND",pin(parts,"C11","2"))
+    wiper_anchor = snap_point(((pin(parts,"RV11","2")[0] + pin(parts,"R1","1")[0]) / 2, pin(parts,"RV11","2")[1]))
     wires += [[pin(parts,"RT","2"),pin(parts,"RV11","1")],
-              [pin(parts,"RV11","2"),pin(parts,"R1","1")],
+              [pin(parts,"RV11","2"),wiper_anchor,pin(parts,"R1","1")],
               [pin(parts,"R1","2"),node], [node,pin(parts,"C11","1")], [node,pIN]]
     junctions.append(node)
-    add_label(labels, pin(parts,"RT","2"), "VBIAS_TOP", justify="left")
-    add_label(labels, pin(parts,"RV11","2"), "VBIAS_WIPER", justify="left")
+    add_stub(wires, labels, pin(parts,"RT","2"), "right", "VBIAS_TOP", dist=10.16)
+    wiper_label = snap_point((wiper_anchor[0], wiper_anchor[1] + 7.62))
+    wires.append([wiper_anchor, wiper_label])
+    junctions.append(wiper_anchor)
+    labels.append(("VBIAS_WIPER", wiper_label[0], wiper_label[1], "left"))
     add_label(labels, node, "VBIAS", justify="left")
     labels.append(("H:V_OUT",OUT[0]+10.16,oy,"left","output"))
     texts=[
@@ -831,15 +840,23 @@ def build_laser_driver(sheet_name: str):
     wires += [[pin(parts,"R21","2"),pnode,pIN], [pnode,pin(parts,"C21","1")], [pnode,pin(parts,"R22","1")]]
     add_rail(power,wires,"GND",pin(parts,"C21","2"))
     add_rail(power,wires,"GND",pin(parts,"R22","2"))
-    wires += [[OUT,pin(parts,"R31","1")], [pin(parts,"R31","2"),pin(parts,"Q1","1")],
+    lout_anchor = snap_point(((OUT[0] + pin(parts,"R31","1")[0]) / 2, OUT[1]))
+    gate_anchor = snap_point(((pin(parts,"R31","2")[0] + pin(parts,"Q1","1")[0]) / 2, pin(parts,"Q1","1")[1]))
+    wires += [[OUT,lout_anchor,pin(parts,"R31","1")], [pin(parts,"R31","2"),gate_anchor,pin(parts,"Q1","1")],
               [pin(parts,"Q1","2"),pin(parts,"R11","1")]]
     add_rail(power,wires,"GND",pin(parts,"R11","2"))
     sense=pin(parts,"R11","1")
     wires += [[sense,pin(parts,"R12","1")]]
     junctions=[pnode,sense,OUT]
     add_label(labels, pnode, "CMD_FILTER", justify="left")
-    add_label(labels, pin(parts,"R31","1"), "LOUT", justify="left")
-    add_label(labels, pin(parts,"Q1","1"), "GATE", justify="left")
+    lout_label = snap_point((lout_anchor[0], lout_anchor[1] - 7.62))
+    wires.append([lout_anchor, lout_label])
+    junctions.append(lout_anchor)
+    labels.append(("LOUT", lout_label[0], lout_label[1], "left"))
+    gate_label = snap_point((gate_anchor[0], gate_anchor[1] - 7.62))
+    wires.append([gate_anchor, gate_label])
+    junctions.append(gate_anchor)
+    labels.append(("GATE", gate_label[0], gate_label[1], "left"))
     add_stub(wires,labels,pin(parts,"R21","1"),"left","H:PWM_IN",shape="input")
     add_stub(wires,labels,pin(parts,"R12","2"),"right","H:ISENSE",shape="output")
     cN=pin(parts,"Q1","3"); top=snap_point((cN[0],cN[1]-6.35))            # drain -> LASER_N and direct LD cathode
@@ -1146,10 +1163,18 @@ def build_power_io():
         (rj45_gnd_right_x, rj45_gnd_y),
         (rj45_gnd_symbol[0], rj45_gnd_y),
     ])
-    wires.append([pin(parts,"RJR45PWR","2"), pin(parts,"JRJ45","10")])
-    wires.append([pin(parts,"RJR45LED","2"), pin(parts,"JRJ45","12")])
-    add_label(labels, pin(parts,"RJR45PWR","2"), "RJ45_PWR_DETECT", justify="right")
-    add_label(labels, pin(parts,"RJR45LED","2"), "RJ45_LED_CONTACT", justify="right")
+    rj45_pwr_label_anchor = snap_point(((pin(parts,"RJR45PWR","2")[0] + pin(parts,"JRJ45","10")[0]) / 2, pin(parts,"RJR45PWR","2")[1]))
+    wires.append([pin(parts,"RJR45PWR","2"), rj45_pwr_label_anchor, pin(parts,"JRJ45","10")])
+    rj45_pwr_label = snap_point((rj45_pwr_label_anchor[0], rj45_pwr_label_anchor[1] - 5.08))
+    wires.append([rj45_pwr_label_anchor, rj45_pwr_label])
+    junctions.append(rj45_pwr_label_anchor)
+    labels.append(("RJ45_PWR_DETECT", rj45_pwr_label[0], rj45_pwr_label[1], "right"))
+    rj45_led_label_anchor = snap_point(((pin(parts,"RJR45LED","2")[0] + pin(parts,"JRJ45","12")[0]) / 2, pin(parts,"RJR45LED","2")[1]))
+    wires.append([pin(parts,"RJR45LED","2"), rj45_led_label_anchor, pin(parts,"JRJ45","12")])
+    rj45_led_label = snap_point((rj45_led_label_anchor[0], rj45_led_label_anchor[1] + 10.16))
+    wires.append([rj45_led_label_anchor, rj45_led_label])
+    junctions.append(rj45_led_label_anchor)
+    labels.append(("RJ45_LED_CONTACT", rj45_led_label[0], rj45_led_label[1], "right"))
     rj45_pwr_tap = ppt(20.32, 69.85)
     rj45_led_tap = ppt(20.32, 86.36)
     wires.append([pin(parts,"RJR45PWR","1"), rj45_pwr_tap])
@@ -1288,7 +1313,7 @@ def build_power_io():
         adc_ref_pin = pin(parts,"UADC",adc_pin)
         jog = (adc_ref_pin[0] - 8.89, adc_ref_pin[1])
         wires.append([adc_ref_pin, jog, (jog[0], cap_top[1]), cap_top])
-        add_label(labels, cap_top, f"ADC_{cap}", justify="left")
+        add_stub(wires, labels, cap_top, "left", f"ADC_{cap}", dist=10.16)
         add_rail(power,wires,"GND",pin(parts,cap,"2"))
     refcap_top = pin(parts,"CREFCAP","1")
     refcap_a = pin(parts,"UADC","44")
@@ -1296,7 +1321,7 @@ def build_power_io():
     refcap_jog = (refcap_a[0] - 8.89, refcap_a[1])
     wires.append([refcap_a, refcap_jog, (refcap_jog[0], refcap_b[1]), refcap_b])
     wires.append([refcap_jog, (refcap_jog[0], refcap_top[1]), refcap_top])
-    add_label(labels, refcap_top, "ADC_REFCAP", justify="left")
+    add_stub(wires, labels, refcap_top, "left", "ADC_REFCAP", dist=10.16)
     add_rail(power,wires,"GND",pin(parts,"CREFCAP","2"))
     # monitor PD telemetry: hold PD cathode-to-anode bias near 5V, sense monitor current high-side,
     # then feed a low-impedance filtered voltage into the ESP32 ADC.
@@ -1325,7 +1350,7 @@ def build_power_io():
         amp = f"MPD_AMP{i}"
         add_stub(wires,labels,pin(parts,f"RMPD{i}","1"),"left",f"H:{raw}",dist=14,shape="input")
         add_stub(wires,labels,pin(parts,f"RMPD{i}","2"),"right","MPD_BIAS",dist=11)
-        add_stub(wires,labels,pin(parts,"UMPD",ina_in_plus[i]),"left",raw,dist=8.89)
+        add_stub(wires,labels,pin(parts,"UMPD",ina_in_plus[i]),"left",f"H:{raw}",dist=8.89,shape="input")
         add_stub(wires,labels,pin(parts,"UMPD",ina_in_minus[i]),"left","MPD_BIAS",dist=8.89)
         add_stub(wires,labels,pin(parts,"UMPD",ina_out[i]),"right",amp,dist=12)
         add_stub(wires,labels,pin(parts,f"RADC{i}","1"),"left",amp,dist=12)
