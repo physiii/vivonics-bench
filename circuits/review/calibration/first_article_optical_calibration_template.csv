@@ -1,0 +1,13 @@
+category,target_ref,channel_label,signal_path,fixture_input,required_measurements,release_blocker
+monitor_pd,LD1,INFRARED,MPD_RAW1->MPD1,external optical power meter on LD1 output,dark/off counts; response slope; saturation threshold; setpoint; optical power; firmware fail-shutoff,MONITOR_PD_FRONTEND_RANGE_CALIBRATION
+monitor_pd,LD2,RED,MPD_RAW2->MPD2,external optical power meter on LD2 output,dark/off counts; response slope; saturation threshold; setpoint; optical power; firmware fail-shutoff,MONITOR_PD_FRONTEND_RANGE_CALIBRATION
+monitor_pd,LD3,GREEN,MPD_RAW3->MPD3,external optical power meter on LD3 output,dark/off counts; response slope; saturation threshold; setpoint; optical power; firmware fail-shutoff,MONITOR_PD_FRONTEND_RANGE_CALIBRATION
+monitor_pd,LD4,BLUE,MPD_RAW4->MPD4,no monitor photodiode on PLT5 450GB,verify spare/open input; no blue optical telemetry; firmware ignores MPD4 for APC,MONITOR_PD_FRONTEND_RANGE_CALIBRATION
+signal_pd,D1,PD CH1,SFH2201->OPA380->VOUT1,known electrical current injection or calibrated optical input at D1,RF trim; VBIAS; dark ADC counts; response slope; noise floor; saturation threshold; ambient condition,TIA_READOUT_RANGE_CALIBRATION
+signal_pd,D2,PD CH2,SFH2201->OPA380->VOUT2,known electrical current injection or calibrated optical input at D2,RF trim; VBIAS; dark ADC counts; response slope; noise floor; saturation threshold; ambient condition,TIA_READOUT_RANGE_CALIBRATION
+signal_pd,D3,PD CH3,SFH2201->OPA380->VOUT3,known electrical current injection or calibrated optical input at D3,RF trim; VBIAS; dark ADC counts; response slope; noise floor; saturation threshold; ambient condition,TIA_READOUT_RANGE_CALIBRATION
+signal_pd,D4,PD CH4,SFH2201->OPA380->VOUT4,known electrical current injection or calibrated optical input at D4,RF trim; VBIAS; dark ADC counts; response slope; noise floor; saturation threshold; ambient condition,TIA_READOUT_RANGE_CALIBRATION
+adc_readback,U14 V1,PD CH1,VOUT1->AD7606 V1,known voltage or known TIA calibration input on VOUT1,RESET/CONVST/BUSY/CS/SCLK timing; DOUT readback; +/-5 V scaling; known-input counts,AD7606_SYSTEM_INTERFACE
+adc_readback,U14 V2,PD CH2,VOUT2->AD7606 V2,known voltage or known TIA calibration input on VOUT2,RESET/CONVST/BUSY/CS/SCLK timing; DOUT readback; +/-5 V scaling; known-input counts,AD7606_SYSTEM_INTERFACE
+adc_readback,U14 V3,PD CH3,VOUT3->AD7606 V3,known voltage or known TIA calibration input on VOUT3,RESET/CONVST/BUSY/CS/SCLK timing; DOUT readback; +/-5 V scaling; known-input counts,AD7606_SYSTEM_INTERFACE
+adc_readback,U14 V4,PD CH4,VOUT4->AD7606 V4,known voltage or known TIA calibration input on VOUT4,RESET/CONVST/BUSY/CS/SCLK timing; DOUT readback; +/-5 V scaling; known-input counts,AD7606_SYSTEM_INTERFACE

@@ -122,6 +122,17 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 ),
             ),
             Evidence(
+                "circuits/review/calibration/first_article_optical_calibration_template.csv",
+                (
+                    "monitor_pd,LD1,INFRARED,MPD_RAW1->MPD1",
+                    "monitor_pd,LD2,RED,MPD_RAW2->MPD2",
+                    "monitor_pd,LD3,GREEN,MPD_RAW3->MPD3",
+                    "monitor_pd,LD4,BLUE,MPD_RAW4->MPD4",
+                    "firmware fail-shutoff",
+                    "no blue optical telemetry",
+                ),
+            ),
+            Evidence(
                 "docs/part-notes/INA4180A1IPWR.md",
                 (
                     "selected-monitor-typ-9v3",
@@ -171,6 +182,17 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                     "Confirm AD7606 +/-5 V scaling for `VOUT1..4`",
                     "Firmware must flag saturation, out-of-range counts, dark-offset drift",
                     "does not close production measurement release",
+                ),
+            ),
+            Evidence(
+                "circuits/review/calibration/first_article_optical_calibration_template.csv",
+                (
+                    "signal_pd,D1,PD CH1,SFH2201->OPA380->VOUT1",
+                    "signal_pd,D2,PD CH2,SFH2201->OPA380->VOUT2",
+                    "signal_pd,D3,PD CH3,SFH2201->OPA380->VOUT3",
+                    "signal_pd,D4,PD CH4,SFH2201->OPA380->VOUT4",
+                    "RF trim; VBIAS; dark ADC counts",
+                    "saturation threshold; ambient condition",
                 ),
             ),
             Evidence(
@@ -382,6 +404,16 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                     "16-bit twos-complement with 152.59 uV/LSB",
                     "Apply known voltages or known TIA calibration inputs to VOUT1..4",
                     "does not close firmware implementation",
+                ),
+            ),
+            Evidence(
+                "circuits/review/calibration/first_article_optical_calibration_template.csv",
+                (
+                    "adc_readback,U14 V1,PD CH1,VOUT1->AD7606 V1",
+                    "adc_readback,U14 V2,PD CH2,VOUT2->AD7606 V2",
+                    "adc_readback,U14 V3,PD CH3,VOUT3->AD7606 V3",
+                    "adc_readback,U14 V4,PD CH4,VOUT4->AD7606 V4",
+                    "+/-5 V scaling; known-input counts",
                 ),
             ),
             Evidence(
