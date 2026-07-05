@@ -421,6 +421,17 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 ),
             ),
             Evidence(
+                "circuits/review/signoff/2026-07-05-ad7606-category-review.md",
+                (
+                    "Rank 4, high",
+                    "read-after-conversion firmware",
+                    "`digital_timing`",
+                    "`dout_readback`",
+                    "`scaling_channel_order_known_input`",
+                    "not a cleared production measurement release",
+                ),
+            ),
+            Evidence(
                 "circuits/review/calibration/first_article_firmware_validation_template.csv",
                 (
                     "ad7606_timing,U14_CONTROL,RESET/CONVST/BUSY/CS/SCLK,\"SCLK <=10 MHz, sample <=100 kSPS\"",
