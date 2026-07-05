@@ -176,6 +176,16 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 ),
             ),
             Evidence(
+                "circuits/review/signoff/2026-07-05-laser-category-review.md",
+                (
+                    "Rank 2, critical",
+                    "one-channel-at-a-time laser bring-up",
+                    "`laser_bringup`",
+                    "`laser_safety_fixture`",
+                    "not a cleared production laser release",
+                ),
+            ),
+            Evidence(
                 "circuits/review/calibration/first_article_laser_bringup_template.csv",
                 (
                     "LD1,INFRARED,D7805I,38.0",
