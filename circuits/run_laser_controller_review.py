@@ -156,6 +156,7 @@ def main() -> int:
         "circuits/check_schematic_hierarchy_labels.py",
         "circuits/check_schematic_presentation.py",
         "circuits/check_power_thermal_budget.py",
+        "circuits/check_power_bringup_template.py",
         "circuits/check_ap2112_first_article_signoff.py",
         "circuits/check_ad7606_package_pcb.py",
         "circuits/check_ad7606_interface_budget.py",
@@ -320,6 +321,7 @@ def main() -> int:
             {},
         ),
         ("AP632 first-article buck validation signoff", ["python3", "circuits/check_ap632_first_article_signoff.py"], {}),
+        ("Power/input bring-up measurement template", ["python3", "circuits/check_power_bringup_template.py"], {}),
         (
             "VIN24 bench input topology",
             [

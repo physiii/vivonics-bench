@@ -48,6 +48,7 @@ python3 gen_laser_controller.py
 | `check_laser_controller_release_readiness.py` | Open fabrication/release blocker gate: keeps manual, source, laser-MPN, thermal, manufacturing, and external-interface blockers visible in the review wrapper. |
 | `check_jlcpcb_order_package.py` | JLCPCB prototype order-package gate: verifies Gerber/drill zip contents, BOM/POS designator match, J7 C192300 2x4 SMD header metadata, required board labels, and the flat transfer archive. |
 | `check_power_thermal_budget.py` | AP2112 `+3V3` thermal guardrail for bench/no-RF versus sustained RF policies. |
+| `check_power_bringup_template.py` | First-article power/input bring-up measurement-template guardrail for J5/VIN24, AP632 rails, post-OR +5V, LASER_V+, and AP2112 +3V3 rows. |
 | `check_vin24_input_protection.py` | VIN_24V bench-topology and production input-protection guardrail for J5/J6, adapter/harness limit, fuse/TVS/reverse-protection decisions. |
 | `check_laser_driver_control_loop.py` | Laser-driver control-loop guardrail for PWM divider topology, TLV9001 input/output range, AO3400A gate drive, and the hardware-clamp gate-margin expected fail. |
 | `check_laser_driver_package_pcb.py` | Laser-driver package/PCB guardrail: verifies U5-U8 TLV9001 and Q1-Q4 AO3400A schematic pin nets, local sense/command/gate/compensation component identities, current PCB pad nets, and KiCad SOT-23-5/SOT-23/2512/0603/0402/0603-cap geometry. |

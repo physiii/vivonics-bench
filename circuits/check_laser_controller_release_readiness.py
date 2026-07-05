@@ -298,6 +298,14 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 ),
             ),
             Evidence(
+                "circuits/review/calibration/first_article_power_bringup_template.csv",
+                (
+                    "ldo,U11,+3V3,\"<=120 mA continuous, RF disabled\"",
+                    "USB/UART control firmware only; Wi-Fi/BLE disabled",
+                    "measure +3V3 rail current; AP2112 package temperature",
+                ),
+            ),
+            Evidence(
                 "circuits/POWER_THERMAL_BUDGET.md",
                 (
                     "Measure AP2112 package temperature and +3V3 rail current during first bring-up.",
@@ -329,6 +337,17 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                     "Measure startup overshoot, steady ripple, and load-step transient",
                     "Measure U15, U16, L1, L2, D6, C64-C65, and C67-C68 temperature",
                     "does not close production input protection",
+                ),
+            ),
+            Evidence(
+                "circuits/review/calibration/first_article_power_bringup_template.csv",
+                (
+                    "input,J5,VIN_24V,\"24.0 V, <=300 mA current limit\"",
+                    "input_gap,VIN24_PROTECTION,VIN_24V,production not released",
+                    "buck,U15,/POWER_IO/BUCK_5V,5 V rail verification",
+                    "rail,D5/D6,+5V,post-OR rail verification",
+                    "buck,U16,LASER_V+,9.3 V-class rail verification",
+                    "define fuse/current-limit; reverse-polarity; transient/TVS; RJ45 harness limit",
                 ),
             ),
             Evidence(
