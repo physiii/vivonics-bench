@@ -154,6 +154,7 @@ def main() -> int:
         "circuits/check_schematic_hierarchy_labels.py",
         "circuits/check_schematic_presentation.py",
         "circuits/check_power_thermal_budget.py",
+        "circuits/check_ap2112_first_article_signoff.py",
         "circuits/check_ad7606_package_pcb.py",
         "circuits/check_ad7606_interface_budget.py",
         "circuits/check_tia_readout_budget.py",
@@ -460,6 +461,7 @@ def main() -> int:
             },
         ),
         ("AP2112 bench thermal policy", ["python3", "circuits/check_power_thermal_budget.py", "--policy", "bench-uart-usb"], {}),
+        ("AP2112 first-article no-RF signoff", ["python3", "circuits/check_ap2112_first_article_signoff.py"], {}),
         (
             "AP2112 sustained Wi-Fi expected fail",
             ["python3", "circuits/check_power_thermal_budget.py", "--policy", "wifi-tx-100-duty"],

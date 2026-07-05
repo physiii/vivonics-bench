@@ -187,10 +187,19 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ),
     ReleaseBlocker(
         "AP2112_BENCH_MEASUREMENT_OR_REGULATOR_CHANGE",
-        "AP2112 bench thermal measurement and production regulator decision are open",
-        "The AP2112 is acceptable only for the bench no-RF policy. Sustained ESP32 wireless load fails the current SOT25 LDO budget.",
-        "Measure AP2112 package temperature and +3V3 current during bring-up, keep RF disabled for this bench board, or replace the rail before sustained Wi-Fi/BLE.",
+        "AP2112 measurement and sustained-wireless regulator decision are open",
+        "The AP2112 is accepted for first-article USB/UART bench use only under the no-RF signoff: ESP32 Wi-Fi/BLE disabled, continuous +3V3 current no higher than 120 mA, and no added 3.3 V loads without rerunning the thermal budget. Sustained ESP32 wireless load still fails the current SOT25 LDO budget.",
+        "Measure AP2112 package temperature and +3V3 current during bring-up; keep RF disabled for this bench board, or replace/prove the rail before sustained Wi-Fi/BLE.",
         (
+            Evidence(
+                "circuits/review/signoff/2026-07-05-ap2112-first-article-signoff.md",
+                (
+                    "Keep ESP32 Wi-Fi/BLE disabled on this board.",
+                    "Keep continuous +3V3 current no higher than 120 mA.",
+                    "Measure AP2112 package temperature and +3V3 rail current during first bring-up.",
+                    "does not close production regulator decision",
+                ),
+            ),
             Evidence(
                 "circuits/POWER_THERMAL_BUDGET.md",
                 (
