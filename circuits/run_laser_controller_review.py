@@ -182,6 +182,7 @@ def main() -> int:
         "circuits/check_laser_monitor_pd_budget.py",
         "circuits/check_passive_derating.py",
         "circuits/check_passive_avl_lock.py",
+        "circuits/check_procurement_release_template.py",
         "circuits/generate_laser_controller_audit_tables.py",
         "circuits/circuit_designators.py",
         "circuits/check_laser_controller_sources.py",
@@ -222,6 +223,7 @@ def main() -> int:
         ("Source-document evidence", ["python3", "circuits/check_source_documents.py"], {}),
         ("Passive derating assertions", ["python3", "circuits/check_passive_derating.py"], {}),
         ("Passive first-article AVL lock", ["python3", "circuits/check_passive_avl_lock.py", "--netlist", str(NETLIST_PATH)], {}),
+        ("Procurement/derating release template", ["python3", "circuits/check_procurement_release_template.py"], {}),
         ("USB/VBUS topology", ["python3", "circuits/check_usb_vbus_interface.py", "--netlist", str(NETLIST_PATH)], {}),
         (
             "ESP32 reset/boot controls",

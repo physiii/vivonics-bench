@@ -62,6 +62,7 @@ python3 gen_laser_controller.py
 | `check_ad7606_package_pcb.py` | AD7606 package/PCB guardrail: verifies U14 schematic pin nets, C51-C60 AVCC/VDRIVE/REGCAP/reference capacitor identities and pad nets, current PCB pad nets, FRSTDATA no-connect, and installed KiCad LQFP-64 pad geometry. |
 | `check_ap6320x_package_pcb.py` | AP63205/AP63200 package/PCB guardrail: verifies U15/U16 schematic pin nets, current PCB pad nets, KiCad TSOT-23-6 pad geometry, and local L1/L2 inductor footprint geometry. |
 | `check_passive_derating.py` | Passive voltage/power guardrail for every assembled capacitor, resistor, and SMD trimmer MPN in the exported netlist. |
+| `check_procurement_release_template.py` | Quote-time procurement and production-derating template guardrail for BOM/POS quote acceptance, substitutions, pulse/surge derating, board-temperature evidence, and order archive linkage. |
 | `run_laser_controller_review.py` | One-command review wrapper for available gates, open release blockers, and KiCad ERC/DRC availability reporting. |
 | `laser_controller.kicad_sch` | Root sheet — sheet symbols + global-label interconnect (A2). |
 | `tia_ir.kicad_sch`, `tia_red.kicad_sch`, `tia_green.kicad_sch`, `tia_blue.kicad_sch` | Four on-board PD + OPA380 TIA sheets with globally unique designators. |

@@ -1,0 +1,8 @@
+category,target,artifact_or_scope,required_evidence,release_blocker
+jlcpcb_quote,assembled_bom,laser_controller_bom_jlcpcb.csv,current quote timestamp; every C-code accepted by JLCPCB; no automatic substitution; extended/basic setup reviewed,PASSIVE_PRODUCTION_AVL_AND_DERATING
+jlcpcb_quote,placement,fab/laser_controller_pos.csv,BOM/POS accepted together; top-side SMT placement accepted; manual parts excluded from SMT quote,PASSIVE_PRODUCTION_AVL_AND_DERATING
+passive_avl,locked_passives,docs/part-notes/passive-first-article-avl-lock.md,24 passive MPN/LCSC pairs checked against quote lifecycle/stock and assembly tier,PASSIVE_PRODUCTION_AVL_AND_DERATING
+substitution_review,all_c_codes,BOM quote substitutions,reject substitutions or create checkpoint commit and rerun passive checks before ordering,PASSIVE_PRODUCTION_AVL_AND_DERATING
+production_derating,24V_and_laser_paths,pulse/surge/current derating,pulse/surge/current derating for 24 V input and laser-current paths before field release,PASSIVE_PRODUCTION_AVL_AND_DERATING
+thermal_evidence,board_temperature,accepted duty cycle,measured board temperature at accepted duty cycle with hot components identified,PASSIVE_PRODUCTION_AVL_AND_DERATING
+order_archive,jlcpcb_package,laser_controller_jlcpcb_package.zip,Gerber zip plus BOM plus POS archived with order number and commit hash,PASSIVE_PRODUCTION_AVL_AND_DERATING

@@ -407,6 +407,18 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 ),
             ),
             Evidence(
+                "circuits/review/calibration/quote_time_procurement_release_template.csv",
+                (
+                    "current quote timestamp; every C-code accepted by JLCPCB",
+                    "BOM/POS accepted together; top-side SMT placement accepted",
+                    "24 passive MPN/LCSC pairs checked against quote lifecycle/stock",
+                    "reject substitutions or create checkpoint commit",
+                    "pulse/surge/current derating for 24 V input and laser-current paths",
+                    "measured board temperature at accepted duty cycle",
+                    "Gerber zip plus BOM plus POS archived with order number and commit hash",
+                ),
+            ),
+            Evidence(
                 "docs/source-register.md",
                 (
                     "check_passive_avl_lock.py",
