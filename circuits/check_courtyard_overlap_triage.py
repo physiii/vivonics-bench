@@ -9,6 +9,7 @@ same footprint pairs on F.Fab, and writes a triage artifact for layout review.
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from dataclasses import dataclass
@@ -27,6 +28,9 @@ DEFAULT_TRIAGE_REPORT = (
     / "review"
     / "generated"
     / "laser_controller_courtyard_overlap_triage.md"
+)
+DEFAULT_WAIVER_FILE = (
+    Path(__file__).resolve().parent / "review" / "assembly_clearance_waivers.json"
 )
 
 
@@ -58,6 +62,13 @@ class Overlap:
     courtyard_overlap: BBox
 
 
+@dataclass(frozen=True)
+class Waiver:
+    refs: tuple[str, str]
+    reason: str
+    verification: str
+
+
 def ensure_pcbnew():
     try:
         import pcbnew  # type: ignore
@@ -75,6 +86,51 @@ def overlap(a: BBox, b: BBox) -> BBox:
 
 def fmt_box(box: BBox) -> str:
     return f"{box.width:.3f} mm x {box.height:.3f} mm, area {box.area:.3f} mm^2"
+
+
+def pair_key(ref_a: str, ref_b: str) -> tuple[str, str]:
+    return tuple(sorted((ref_a, ref_b)))
+
+
+def load_waivers(path: Path) -> tuple[dict[tuple[str, str], Waiver], list[str]]:
+    if not path.exists():
+        return {}, []
+    try:
+        data = json.loads(path.read_text())
+    except json.JSONDecodeError as exc:
+        return {}, [f"invalid waiver JSON in {path}: {exc}"]
+
+    waivers: dict[tuple[str, str], Waiver] = {}
+    failures: list[str] = []
+    items = data.get("courtyard_only_pairs")
+    if not isinstance(items, list):
+        return {}, [f"waiver file {path} must contain a courtyard_only_pairs list"]
+    for index, item in enumerate(items, start=1):
+        if not isinstance(item, dict):
+            failures.append(f"waiver item {index} is not an object")
+            continue
+        refs = item.get("refs")
+        reason = item.get("reason")
+        verification = item.get("verification")
+        if (
+            not isinstance(refs, list)
+            or len(refs) != 2
+            or not all(isinstance(ref, str) and ref for ref in refs)
+        ):
+            failures.append(f"waiver item {index} must have exactly two string refs")
+            continue
+        if not isinstance(reason, str) or not reason.strip():
+            failures.append(f"waiver item {index} must have a non-empty reason")
+            continue
+        if not isinstance(verification, str) or not verification.strip():
+            failures.append(f"waiver item {index} must have non-empty verification")
+            continue
+        key = pair_key(refs[0], refs[1])
+        if key in waivers:
+            failures.append(f"duplicate waiver for {key[0]}/{key[1]}")
+            continue
+        waivers[key] = Waiver(key, reason.strip(), verification.strip())
+    return waivers, failures
 
 
 def parse_courtyard_pairs(report_text: str) -> list[tuple[str, str]]:
@@ -141,6 +197,8 @@ def write_report(
     pairs: list[tuple[str, str]],
     body_overlaps: list[Overlap],
     courtyard_only: list[Overlap],
+    waived_courtyard_only: list[tuple[Overlap, Waiver]],
+    unwaived_courtyard_only: list[Overlap],
     failures: list[str],
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -153,6 +211,8 @@ def write_report(
         f"Native courtyard-overlap pairs: {len(pairs)}",
         f"F.Fab/body-box overlaps: {len(body_overlaps)}",
         f"Courtyard-only overlaps: {len(courtyard_only)}",
+        f"Waived courtyard-only overlaps: {len(waived_courtyard_only)}",
+        f"Unwaived courtyard-only overlaps: {len(unwaived_courtyard_only)}",
         "",
     ]
     if body_overlaps:
@@ -167,7 +227,22 @@ def write_report(
         for item in body_overlaps:
             lines.append(f"- `{item.ref_a}` / `{item.ref_b}`: F.Fab overlap {fmt_box(item.fab_overlap)}; courtyard overlap {fmt_box(item.courtyard_overlap)}.")
         lines.append("")
-    if courtyard_only:
+    if waived_courtyard_only:
+        lines.extend(
+            [
+                "## Waived Courtyard-Only Overlaps",
+                "",
+                "These pairs do not have overlapping F.Fab bounding boxes and have explicit assembly-clearance waivers.",
+                "",
+            ]
+        )
+        for item, waiver in waived_courtyard_only:
+            lines.append(
+                f"- `{item.ref_a}` / `{item.ref_b}`: courtyard overlap {fmt_box(item.courtyard_overlap)}. "
+                f"Waiver: {waiver.reason} Verification: {waiver.verification}"
+            )
+        lines.append("")
+    if unwaived_courtyard_only:
         lines.extend(
             [
                 "## Courtyard-Only Overlaps",
@@ -176,21 +251,31 @@ def write_report(
                 "",
             ]
         )
-        for item in courtyard_only:
+        for item in unwaived_courtyard_only:
             lines.append(f"- `{item.ref_a}` / `{item.ref_b}`: courtyard overlap {fmt_box(item.courtyard_overlap)}.")
         lines.append("")
     if failures:
         lines.extend(["## Parse/Geometry Failures", ""])
         lines.extend(f"- {failure}" for failure in failures)
         lines.append("")
-    lines.extend(
-        [
-            "## Required Action",
-            "",
-            "Resolve with a KiCad layout edit and reroute, or document an explicit assembly waiver after physical package review. Do not treat these native warnings as cleared JLCPCB fabrication evidence.",
-            "",
-        ]
-    )
+    if body_overlaps or unwaived_courtyard_only:
+        lines.extend(
+            [
+                "## Required Action",
+                "",
+                "Resolve with a KiCad layout edit and reroute, or document an explicit assembly waiver after physical package review. Do not treat these native warnings as cleared JLCPCB fabrication evidence.",
+                "",
+            ]
+        )
+    elif waived_courtyard_only:
+        lines.extend(
+            [
+                "## Release Note",
+                "",
+                "All native courtyard warnings are covered by explicit assembly-clearance waivers and still have zero F.Fab/body-box overlap. Recheck this triage after any placement, footprint, or selected assembly-part change.",
+                "",
+            ]
+        )
     path.write_text("\n".join(lines))
 
 
@@ -199,6 +284,7 @@ def main() -> int:
     parser.add_argument("--board", type=Path, default=DEFAULT_BOARD)
     parser.add_argument("--drc-report", type=Path, default=DEFAULT_DRC_REPORT)
     parser.add_argument("--triage-report", type=Path, default=DEFAULT_TRIAGE_REPORT)
+    parser.add_argument("--waiver-file", type=Path, default=DEFAULT_WAIVER_FILE)
     args = parser.parse_args()
 
     if not args.board.exists():
@@ -215,7 +301,25 @@ def main() -> int:
     pairs = parse_courtyard_pairs(args.drc_report.read_text(errors="replace"))
     board = pcbnew.LoadBoard(str(args.board))
     body_overlaps, courtyard_only, failures = classify(board, pcbnew, pairs)
-    write_report(args.triage_report, pairs, body_overlaps, courtyard_only, failures)
+    waivers, waiver_failures = load_waivers(args.waiver_file)
+    failures.extend(waiver_failures)
+    waived_courtyard_only: list[tuple[Overlap, Waiver]] = []
+    unwaived_courtyard_only: list[Overlap] = []
+    for item in courtyard_only:
+        waiver = waivers.get(pair_key(item.ref_a, item.ref_b))
+        if waiver is None:
+            unwaived_courtyard_only.append(item)
+        else:
+            waived_courtyard_only.append((item, waiver))
+    write_report(
+        args.triage_report,
+        pairs,
+        body_overlaps,
+        courtyard_only,
+        waived_courtyard_only,
+        unwaived_courtyard_only,
+        failures,
+    )
 
     if failures:
         print("FAIL courtyard-overlap triage")
@@ -226,12 +330,20 @@ def main() -> int:
     if not pairs:
         print(f"PASS courtyard-overlap triage: no native courtyard-overlap warnings; report={args.triage_report}")
         return 0
+    if not body_overlaps and not unwaived_courtyard_only:
+        print(
+            "PASS courtyard-overlap triage: "
+            f"{len(pairs)} native courtyard warnings covered by explicit courtyard-only waivers; "
+            f"report={args.triage_report}"
+        )
+        return 0
 
     print(
         "BLOCKED courtyard-overlap triage: "
         f"{len(pairs)} native courtyard warnings; "
         f"{len(body_overlaps)} F.Fab/body-box overlaps; "
-        f"{len(courtyard_only)} courtyard-only overlaps; report={args.triage_report}"
+        f"{len(courtyard_only)} courtyard-only overlaps; "
+        f"{len(unwaived_courtyard_only)} unwaived; report={args.triage_report}"
     )
     if body_overlaps:
         print("  F.Fab/body-box overlap candidates:")

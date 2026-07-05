@@ -1,0 +1,24 @@
+{
+  "courtyard_only_pairs": [
+    {
+      "refs": ["C61", "L1"],
+      "reason": "Courtyard-only warning in the 5 V buck input/output cluster. Current F.Fab geometry has no body-box overlap; keeping C61 close to U15 preserves the local VIN/GND loop and moving L1 created higher-risk PWM2 clearance issues during layout review.",
+      "verification": "Native DRC plus check_courtyard_overlap_triage.py must continue to report zero F.Fab/body-box overlap for this pair before fabrication release."
+    },
+    {
+      "refs": ["C62", "C70"],
+      "reason": "Courtyard-only warning between the laser-buck local VIN ceramic and upstream bulk capacitor. Current F.Fab geometry has no body-box overlap; both parts are intentionally clustered on VIN_24V/GND for low input-loop impedance.",
+      "verification": "Native DRC plus check_courtyard_overlap_triage.py must continue to report zero F.Fab/body-box overlap for this pair before fabrication release."
+    },
+    {
+      "refs": ["C62", "U16"],
+      "reason": "Courtyard-only warning between the AP63200 laser-buck regulator and its local VIN ceramic. Current F.Fab geometry has no body-box overlap; separating the parts would degrade the regulator input-loop placement.",
+      "verification": "Native DRC plus check_courtyard_overlap_triage.py must continue to report zero F.Fab/body-box overlap for this pair before fabrication release."
+    },
+    {
+      "refs": ["D4", "U4"],
+      "reason": "Courtyard-only warning in the blue photodiode TIA channel. Current F.Fab geometry has no body-box overlap; attempted physical clearance required moving the feedback network into MPD/PWM/green-channel copper and introduced real DRC errors, so the tighter assembly courtyard is accepted to preserve the sensitive D4-A summing-node layout.",
+      "verification": "Native DRC plus check_courtyard_overlap_triage.py must continue to report zero F.Fab/body-box overlap for this pair and check_layout_review_geometry.py must keep the D4-to-U4 sensitive-node distance within its release target."
+    }
+  ]
+}
