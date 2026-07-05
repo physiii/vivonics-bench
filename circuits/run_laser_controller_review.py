@@ -167,6 +167,7 @@ def main() -> int:
         "circuits/check_laser_driver_package_pcb.py",
         "circuits/check_laser_diode_footprints.py",
         "circuits/check_monitor_pd_package_pcb.py",
+        "circuits/check_laser_first_article_signoff.py",
         "circuits/check_laser_current_budget.py",
         "circuits/check_laser_monitor_pd_budget.py",
         "circuits/check_passive_derating.py",
@@ -545,6 +546,7 @@ def main() -> int:
             ],
             {},
         ),
+        ("Laser first-article bring-up signoff", ["python3", "circuits/check_laser_first_article_signoff.py"], {}),
         (
             "Low-Vf diode on green rail expected fail",
             ["python3", "circuits/check_laser_current_budget.py", "--policy", "low-vf-diode-on-10v5"],

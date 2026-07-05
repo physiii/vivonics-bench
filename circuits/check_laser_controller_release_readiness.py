@@ -149,9 +149,19 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "PER_DIODE_LASER_THERMAL_BUDGET",
         "Per-diode laser bring-up temperature and optical-output signoff are still open",
-        "The selected-diode policies now pass on the 9.3 V common rail at typical current, max current, and the per-channel analog command limits. The old 247.5 mA common clamp has been replaced by per-channel limiter resistors: about 38.0 mA IR, 23.0 mA red, 76.2 mA green, and 105.5 mA blue. Physical driver/sense-resistor temperature, optical output, duty cycle, and firmware safety behavior still need bring-up evidence.",
+        "The selected-diode policies now pass on the 9.3 V common rail at typical current, max current, and the per-channel analog command limits. The first-article bring-up signoff requires one laser channel at a time, laser safety controls, external optical-power measurement, and driver/sense-resistor temperature measurement. Physical driver/sense-resistor temperature, optical output, duty cycle, and firmware safety behavior still need measured bring-up evidence.",
         "Measure driver/sense-resistor temperature and optical output during bring-up, verify firmware current/duty-cycle clamps stay at or below the per-channel analog limits, and keep any future laser/rail/current change behind the same current, gate-drive, input-power, and optical safety review.",
         (
+            Evidence(
+                "circuits/review/signoff/2026-07-05-laser-first-article-bringup-signoff.md",
+                (
+                    "Bring up one laser channel at a time.",
+                    "IR 38.0 mA, red 23.0 mA, green 76.2 mA, blue 105.5 mA",
+                    "Measure driver/sense-resistor temperature during bring-up for every channel.",
+                    "Measure optical output with an external optical power meter for every channel.",
+                    "does not close optical safety",
+                ),
+            ),
             Evidence(
                 "circuits/LASER_CURRENT_THERMAL_BUDGET.md",
                 (

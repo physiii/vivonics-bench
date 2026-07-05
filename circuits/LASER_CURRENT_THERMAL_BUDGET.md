@@ -131,6 +131,8 @@ Current bench board:
   measurement.
 - Solder direct laser cans only after inspecting each received part against the
   2026-07-04 signed-off MPN/footprint pin table and can/common-node polarity.
+- Follow `circuits/review/signoff/2026-07-05-laser-first-article-bringup-signoff.md`
+  for one-channel-at-a-time first-article optical and temperature measurements.
 
 Production design:
 
