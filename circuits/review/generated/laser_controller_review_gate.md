@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T05:08:34+00:00
+Generated: 2026-07-05T05:51:07+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -28,13 +28,13 @@ Overall release status: BLOCKED
 | PASS | TIA bright-ambient expected fail | 1 | `python3 circuits/check_tia_readout_budget.py --netlist /tmp/lc.net --policy sfh2201-1000lx-example` |
 | PASS | AP6320x package/PCB pinout | 0 | `python3 circuits/check_ap6320x_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
 | PASS | Buck/input selected-diode max-current reference | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy bench-selected-max-9v3` |
-| PASS | Buck/input hardware clamp expected fail | 1 | `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy hardware-clamp-9v3` |
+| PASS | Buck/input all-channel analog-limit budget | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy hardware-clamp-9v3` |
 | PASS | Buck datasheet capacitor recommendation expected fail | 1 | `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy datasheet-recommended-components` |
 | PASS | VIN24 bench input topology | 0 | `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net` |
 | PASS | VIN24 production input-protection expected fail | 1 | `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net --policy production-protection` |
 | PASS | Laser-driver selected-current control-loop budget | 0 | `python3 circuits/check_laser_driver_control_loop.py --netlist /tmp/lc.net` |
 | PASS | Laser-driver package/PCB pinout | 0 | `python3 circuits/check_laser_driver_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
-| PASS | Laser-driver hardware-clamp gate-margin expected fail | 1 | `python3 circuits/check_laser_driver_control_loop.py --netlist /tmp/lc.net --policy hardware-clamp-gate-margin` |
+| PASS | Laser-driver per-channel limiter gate-margin | 0 | `python3 circuits/check_laser_driver_control_loop.py --netlist /tmp/lc.net --policy hardware-clamp-gate-margin` |
 | PASS | Direct laser-can footprint pinout | 0 | `python3 circuits/check_laser_diode_footprints.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
 | PASS | Monitor-PD package/PCB pinout | 0 | `python3 circuits/check_monitor_pd_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
 | PASS | Generate staging PCB to temp file | 0 | `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb` |
@@ -51,7 +51,7 @@ Overall release status: BLOCKED
 | PASS | Selected-laser monitor-PD high-end | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy selected-monitor-worst-9v3` |
 | PASS | Green high-Vf 12V laser-current expected fail | 1 | `python3 circuits/check_laser_current_budget.py --policy green-high-vf-12v` |
 | PASS | Selected-diode 9.3V typical (production gate, must PASS) | 0 | `python3 circuits/check_laser_current_budget.py --policy selected-diodes-typ-9v3` |
-| PASS | Selected-diode hardware clamp expected fail | 1 | `python3 circuits/check_laser_current_budget.py --policy selected-diodes-hardware-clamp-9v3` |
+| PASS | Selected-diode per-channel analog-limit gate | 0 | `python3 circuits/check_laser_current_budget.py --policy selected-diodes-hardware-clamp-9v3` |
 | PASS | Low-Vf diode on green rail expected fail | 1 | `python3 circuits/check_laser_current_budget.py --policy low-vf-diode-on-10v5` |
 | BLOCKED | Open fabrication/release blockers | 2 | `python3 circuits/check_laser_controller_release_readiness.py` |
 | PASS | Regenerate audit inventory | 0 | `python3 circuits/generate_laser_controller_audit_tables.py /tmp/lc.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md` |
@@ -74,9 +74,9 @@ wrote tia_ir.kicad_sch (36315 bytes, 569 lines)
   wrote tia_red.kicad_sch (36316 bytes, 569 lines)
   wrote tia_green.kicad_sch (36330 bytes, 569 lines)
   wrote tia_blue.kicad_sch (36331 bytes, 569 lines)
-  wrote laser_ir.kicad_sch (35160 bytes, 538 lines)
-  wrote laser_red.kicad_sch (35161 bytes, 538 lines)
-  wrote laser_green.kicad_sch (35156 bytes, 538 lines)
+  wrote laser_ir.kicad_sch (35159 bytes, 538 lines)
+  wrote laser_red.kicad_sch (35160 bytes, 538 lines)
+  wrote laser_green.kicad_sch (35150 bytes, 538 lines)
   wrote laser_blue.kicad_sch (34847 bytes, 536 lines)
   wrote power_io.kicad_sch (199066 bytes, 3121 lines)
   wrote laser_controller.kicad_sch (30750 bytes, 247 lines)
@@ -116,7 +116,7 @@ PASS schematic presentation guardrails: no generated wire segments enter symbol 
 Command: `python3 circuits/check_laser_controller_sources.py /tmp/lc.net`
 
 ```text
-PASS source-register coverage for 92 MPN/LCSC tokens across 179 components, intent coverage for 156 exported nets, 589 component-pin intent roles, and 3 documentation designator guard files
+PASS source-register coverage for 98 MPN/LCSC tokens across 179 components, intent coverage for 156 exported nets, 589 component-pin intent roles, and 3 documentation designator guard files
 ```
 
 ## PASS: Part-note completeness assertions
@@ -133,7 +133,7 @@ Command: `python3 circuits/check_source_documents.py`
 
 ```text
 WARN Alpha & Omega AO3400A datasheet: reachable; Primary source reachable from this shell; manual release-time latest-revision verification remains required. [HEAD HTTP 200, type=application/pdf, length=317848]
-WARN JLCPCB via-design article: reachable; Advisory article only; JLCPCB quote capability page wins. [GET HTTP 206, type=text/html; charset=utf-8, first_bytes=4096]
+WARN JLCPCB via-design article: reachable; Advisory article only; JLCPCB quote capability page wins. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN Vishay SS12-SS16 family datasheet: reachable; Family reference only; current C2480 order identity is captured in the 2026-07-04 signoff. [HEAD HTTP 200, type=application/pdf, length=1174123]
 WARN LCSC C2480 SS14 order page: reachable; Distributor/order source matching the 2026-07-04 C2480 MDD SS14 signoff. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C408410 MWSA0503S-4R7MT inductor page: reachable; Distributor/order source for the AP63205 4.7uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
@@ -261,21 +261,20 @@ Command: `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.ne
 PASS 24V/buck policy for the checked assumptions.
 ```
 
-## PASS: Buck/input hardware clamp expected fail
+## PASS: Buck/input all-channel analog-limit budget
 
 Command: `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy hardware-clamp-9v3`
 
 ```text
 24V/buck current policy: hardware-clamp-9v3
-  Unsafe all-channel laser hardware-clamp case at the production AP63200 feedback setting. This is expected to fail the 500mA bench input limit.
+  All-channel laser analog-limit high-current tolerance case at the production AP63200 feedback setting after the per-channel limiter update.
   VIN nominal=24.0V, AP632 input range=3.8V to 32V, J5 bench connector limit=500mA
   AP63200 feedback: 0.8V * (1 + 237k/22.1k) = 9.38V
-  loads: +5V=350.0mA, LASER_V+=991.7mA at 9.30V
-  estimated VIN current: BUCK_5V=85.8mA, LASER_V+=452.1mA, RJ45 LED/contact=2.2mA, total=540.1mA
+  loads: +5V=350.0mA, LASER_V+=248.1mA at 9.30V
+  estimated VIN current: BUCK_5V=85.8mA, LASER_V+=113.1mA, RJ45 LED/contact=2.2mA, total=201.1mA
   AP63205 BUCK_5V: load=0.350A, ripple=0.766A, peak=0.733A/3.68A Isat, rms=0.414A/4.00A Irms, inductor loss~0.010W
-  AP63200 LASER_V+: load=0.992A, ripple=1.139A, peak=1.561A/2.80A Isat, rms=1.045A/2.00A Irms, inductor loss~0.236W
-FAIL 24V/buck policy
-  VIN_24V input current 540.1mA exceeds J5 barrel 500mA bench connector rating
+  AP63200 LASER_V+: load=0.248A, ripple=1.139A, peak=0.818A/2.80A Isat, rms=0.412A/2.00A Irms, inductor loss~0.037W
+PASS 24V/buck policy for the checked assumptions.
 ```
 
 ## PASS: Buck datasheet capacitor recommendation expected fail
@@ -329,11 +328,16 @@ Command: `python3 circuits/check_laser_driver_control_loop.py --netlist /tmp/lc.
 ```text
 PASS laser-driver control-loop budget (selected-max-current)
   topology: PWM divider -> TLV9001 +IN, sense resistor high side -> -IN, OUT -> AO3400A gate, drain -> LASER_Nx
-  PWM divider clamp: 3.30 V * 30k/(10k+30k) = 2.475 V -> 247.5 mA
-  selected-max-current: checked current=120.0 mA, sense feedback=1.200 V
+  IR: divider 3.30 V * 1300/(10000+1300) = 0.380 V -> 38.0 mA nominal, 38.6 mA worst case (1.3k LIMIT, C22767)
+  IR selected-max-current: checked current=50.0 mA, sense feedback=0.500 V, AO3400A Vgs ~= 4.480 V, margin vs 2.5 V=1.980 V
+  RED: divider 3.30 V * 750/(10000+750) = 0.230 V -> 23.0 mA nominal, 23.5 mA worst case (750R LIMIT, C23241)
+  RED selected-max-current: checked current=25.0 mA, sense feedback=0.250 V, AO3400A Vgs ~= 4.730 V, margin vs 2.5 V=2.230 V
+  GREEN: divider 3.30 V * 3000/(10000+3000) = 0.762 V -> 76.2 mA nominal, 77.3 mA worst case (3k LIMIT, C4211)
+  GREEN selected-max-current: checked current=78.0 mA, sense feedback=0.780 V, AO3400A Vgs ~= 4.200 V, margin vs 2.5 V=1.700 V
+  BLUE: divider 3.30 V * 4700/(10000+4700) = 1.055 V -> 105.5 mA nominal, 107.0 mA worst case (4.7k LIMIT, C23162)
+  BLUE selected-max-current: checked current=120.0 mA, sense feedback=1.200 V, AO3400A Vgs ~= 3.780 V, margin vs 2.5 V=1.280 V
   TLV9001 input range policy: -0.1..5.1 V on a 5 V rail
-  available AO3400A Vgs at checked current ~= 3.780 V; margin vs 2.5 V characterized point=1.280 V
-  production caveat: this does not waive diode current limits, MOSFET SOA/heat, optical safety, or firmware clamps
+  production caveat: this does not waive optical safety, duty-cycle, loop stability, or temperature measurement
 ```
 
 ## PASS: Laser-driver package/PCB pinout
@@ -344,17 +348,23 @@ Command: `python3 circuits/check_laser_driver_package_pcb.py --netlist /tmp/lc.n
 PASS laser-driver package/PCB guard: TLV9001/AO3400A schematic pin nets, local driver sense/command/gate/compensation component identities, current PCB pad nets, and KiCad SOT-23-5/SOT-23/2512/0603/0402/0603-cap geometry agree.
 ```
 
-## PASS: Laser-driver hardware-clamp gate-margin expected fail
+## PASS: Laser-driver per-channel limiter gate-margin
 
 Command: `python3 circuits/check_laser_driver_control_loop.py --netlist /tmp/lc.net --policy hardware-clamp-gate-margin`
 
 ```text
-FAIL laser-driver control-loop budget (hardware-clamp-gate-margin): 1 issue(s)
-  - hardware clamp leaves only 0.005 V above the AO3400A 2.5 V RDS(on) characterization point; required margin is 0.250 V
-  note: PWM divider clamp: 3.30 V * 30k/(10k+30k) = 2.475 V -> 247.5 mA
-  note: hardware-clamp-gate-margin: checked current=247.5 mA, sense feedback=2.475 V
-  note: TLV9001 input range policy: -0.1..5.1 V on a 5 V rail
-  note: available AO3400A Vgs at checked current ~= 2.505 V; margin vs 2.5 V characterized point=0.005 V
+PASS laser-driver control-loop budget (hardware-clamp-gate-margin)
+  topology: PWM divider -> TLV9001 +IN, sense resistor high side -> -IN, OUT -> AO3400A gate, drain -> LASER_Nx
+  IR: divider 3.30 V * 1300/(10000+1300) = 0.380 V -> 38.0 mA nominal, 38.6 mA worst case (1.3k LIMIT, C22767)
+  IR hardware-clamp-gate-margin: checked current=38.6 mA, sense feedback=0.386 V, AO3400A Vgs ~= 4.594 V, margin vs 2.5 V=2.094 V
+  RED: divider 3.30 V * 750/(10000+750) = 0.230 V -> 23.0 mA nominal, 23.5 mA worst case (750R LIMIT, C23241)
+  RED hardware-clamp-gate-margin: checked current=23.5 mA, sense feedback=0.235 V, AO3400A Vgs ~= 4.745 V, margin vs 2.5 V=2.245 V
+  GREEN: divider 3.30 V * 3000/(10000+3000) = 0.762 V -> 76.2 mA nominal, 77.3 mA worst case (3k LIMIT, C4211)
+  GREEN hardware-clamp-gate-margin: checked current=77.3 mA, sense feedback=0.773 V, AO3400A Vgs ~= 4.207 V, margin vs 2.5 V=1.707 V
+  BLUE: divider 3.30 V * 4700/(10000+4700) = 1.055 V -> 105.5 mA nominal, 107.0 mA worst case (4.7k LIMIT, C23162)
+  BLUE hardware-clamp-gate-margin: checked current=107.0 mA, sense feedback=1.070 V, AO3400A Vgs ~= 3.910 V, margin vs 2.5 V=1.410 V
+  TLV9001 input range policy: -0.1..5.1 V on a 5 V rail
+  production caveat: this does not waive optical safety, duty-cycle, loop stability, or temperature measurement
 ```
 
 ## PASS: Direct laser-can footprint pinout
@@ -438,12 +448,12 @@ Command: `python3 circuits/check_laser_current_budget.py --policy green-high-vf-
 
 ```text
 Laser current-loop policy: green-high-vf-10v5
-  High-forward-voltage green reference using 7.0 V diode headroom and a 10.5 V laser rail. This is a thermal policy reference, not an approval to drive the selected Digikey-cart lasers at the 247.5 mA hardware command clamp.
-  command clamp: 3.30V * 30k/(10k+30k) / 10.0ohm = 247.5mA
-  sense resistor: drop=2.475V, power=0.613W, rating=2.0W
-  laser rail=10.50V, diode Vf(max)=7.00V, AO3400A Vds=1.02V, power=0.254W
+  High-forward-voltage green reference using 7.0 V diode headroom and a 10.5 V laser rail. This is a thermal policy reference, not an optical-safety or board-temperature release.
+  green command limit: 3.30V * 3000/(10000+3000) / 10.0ohm = 76.2mA
+  sense resistor: drop=0.762V, power=0.058W, rating=2.0W
+  laser rail=10.50V, diode Vf(max)=7.00V, AO3400A Vds=2.74V, power=0.209W
   at ambient=85.0degC and target Tj=125.0degC, AO3400A continuous power budget=0.320W
-  estimated safe laser rail window at this diode Vf/current: 9.97V to 10.77V
+  estimated safe laser rail window at this diode Vf/current: 8.26V to 11.96V
 PASS laser current-loop policy for this diode/supply assumption. Direct laser MPN/footprint mapping is covered by the 2026-07-04 signoff; current/thermal and optical-safety limits still require release review.
 ```
 
@@ -454,7 +464,7 @@ Command: `python3 circuits/check_laser_current_budget.py --policy selected-diode
 ```text
 Selected laser current-loop policy: selected-diodes-max-9v3
   Actual LD1-LD4 MPNs at datasheet maximum operating current/voltage on the production 9.3V common LASER_V+ reference. All selected diodes must pass this gate before production release.
-  hardware command clamp remains 247.5mA (3.30V * 30k/(10k+30k) / 10.0ohm)
+  all-channel analog command limit sum=242.7mA nominal, 246.4mA at 1% high-current tolerance corner
   AO3400A continuous budget=0.320W at ambient=85.0degC, target Tj=125.0degC
   LD1 IR D7805I: datasheet maximum operating-current point; Popt=5mW, I=50.0mA (datasheet max 50.0mA), Vf=2.50V, LASER_V+=9.30V
     sense drop=0.500V, sense power=0.025W, AO3400A Vds=6.30V, AO3400A power=0.315W
@@ -550,13 +560,13 @@ Command: `python3 circuits/check_laser_current_budget.py --policy green-high-vf-
 ```text
 Laser current-loop policy: green-high-vf-12v
   High-forward-voltage green reference at a 12 V laser rail; this is expected to fail the conservative continuous AO3400A thermal budget.
-  command clamp: 3.30V * 30k/(10k+30k) / 10.0ohm = 247.5mA
-  sense resistor: drop=2.475V, power=0.613W, rating=2.0W
-  laser rail=12.00V, diode Vf(max)=7.00V, AO3400A Vds=2.52V, power=0.625W
+  green command limit: 3.30V * 3000/(10000+3000) / 10.0ohm = 76.2mA
+  sense resistor: drop=0.762V, power=0.058W, rating=2.0W
+  laser rail=12.00V, diode Vf(max)=7.00V, AO3400A Vds=4.24V, power=0.323W
   at ambient=85.0degC and target Tj=125.0degC, AO3400A continuous power budget=0.320W
-  estimated safe laser rail window at this diode Vf/current: 9.97V to 10.77V
+  estimated safe laser rail window at this diode Vf/current: 8.26V to 11.96V
 FAIL laser current-loop policy
-  AO3400A dissipates 0.625W, above 0.320W continuous budget at 85.0degC
+  AO3400A dissipates 0.323W, above 0.320W continuous budget at 85.0degC
 ```
 
 ## PASS: Selected-diode 9.3V typical (production gate, must PASS)
@@ -566,7 +576,7 @@ Command: `python3 circuits/check_laser_current_budget.py --policy selected-diode
 ```text
 Selected laser current-loop policy: selected-diodes-typ-9v3
   Actual LD1-LD4 MPNs at datasheet typical operating current/voltage on the production AP63200 LASER_V+ setting (~9.3V). This is the primary production thermal gate for the common-rail architecture.
-  hardware command clamp remains 247.5mA (3.30V * 30k/(10k+30k) / 10.0ohm)
+  all-channel analog command limit sum=242.7mA nominal, 246.4mA at 1% high-current tolerance corner
   AO3400A continuous budget=0.320W at ambient=85.0degC, target Tj=125.0degC
   LD1 IR D7805I: datasheet typical operating point; Popt=5mW, I=35.0mA (datasheet max 50.0mA), Vf=2.10V, LASER_V+=9.30V
     sense drop=0.350V, sense power=0.012W, AO3400A Vds=6.85V, AO3400A power=0.240W
@@ -583,35 +593,32 @@ Selected laser current-loop policy: selected-diodes-typ-9v3
 PASS selected laser current-loop policy for the checked current/rail assumptions. This does not waive optical safety, duty-cycle, firmware clamp, or temperature measurement.
 ```
 
-## PASS: Selected-diode hardware clamp expected fail
+## PASS: Selected-diode per-channel analog-limit gate
 
 Command: `python3 circuits/check_laser_current_budget.py --policy selected-diodes-hardware-clamp-9v3`
 
 ```text
 Selected laser current-loop policy: selected-diodes-hardware-clamp-9v3
-  Actual LD1-LD4 MPNs driven to the 247.5mA analog command clamp on the production 9.3V LASER_V+ setting. This is expected to fail: the clamp is an electrical upper bound, not a safe optical current limit.
-  hardware command clamp remains 247.5mA (3.30V * 30k/(10k+30k) / 10.0ohm)
+  Actual LD1-LD4 MPNs driven to the per-channel analog command limits on the production 9.3V LASER_V+ setting. This proves the schematic divider values no longer expose every source to the old 247.5mA common limiter.
+  all-channel analog command limit sum=242.7mA nominal, 246.4mA at 1% high-current tolerance corner
   AO3400A continuous budget=0.320W at ambient=85.0degC, target Tj=125.0degC
-  LD1 IR D7805I: hardware command clamp with datasheet max Vf for least-worst MOSFET heat; Popt=5mW, I=247.5mA (datasheet max 50.0mA), Vf=2.50V, LASER_V+=9.30V
-    sense drop=2.475V, sense power=0.613W, AO3400A Vds=4.33V, AO3400A power=1.070W
-    safe rail window at this current/Vf: 5.47V to 6.27V; source: US-Lasers D7805I 780nm 5mW datasheet
-  LD2 RED D6505I: hardware command clamp with datasheet max Vf for least-worst MOSFET heat; Popt=5mW, I=247.5mA (datasheet max 25.0mA), Vf=2.60V, LASER_V+=9.30V
-    sense drop=2.475V, sense power=0.613W, AO3400A Vds=4.23V, AO3400A power=1.046W
-    safe rail window at this current/Vf: 5.58V to 6.37V; source: Digikey D650-5I 650nm 5mW datasheet; lower-current source used conservatively because the US-Lasers mirror gives a conflicting 40mA typ / 60mA max operating-current table
-  LD3 GREEN PLT5 520EB_P: hardware command clamp with datasheet max Vf for least-worst MOSFET heat; Popt=20mW, I=247.5mA (datasheet max 78.0mA), Vf=6.10V, LASER_V+=9.30V
-    sense drop=2.475V, sense power=0.613W, AO3400A Vds=0.73V, AO3400A power=0.179W
-    safe rail window at this current/Vf: 9.07V to 9.87V; source: ams OSRAM PLT5 520EB_P datasheet
-  LD4 BLUE PLT5 450GB: hardware command clamp with datasheet max Vf for least-worst MOSFET heat; Popt=100mW, I=247.5mA (datasheet max 120.0mA), Vf=6.50V, LASER_V+=9.30V
-    sense drop=2.475V, sense power=0.613W, AO3400A Vds=0.33V, AO3400A power=0.080W
-    safe rail window at this current/Vf: 9.47V to 10.27V; source: ams OSRAM PLT5 450GB datasheet
-FAIL selected laser current-loop policy
-  LD1 D7805I: commanded 247.5mA exceeds datasheet operating-current max 50.0mA
-  LD1 D7805I: AO3400A dissipates 1.070W, above 0.320W continuous budget at 85.0degC
-  LD2 D6505I: commanded 247.5mA exceeds datasheet operating-current max 25.0mA
-  LD2 D6505I: AO3400A dissipates 1.046W, above 0.320W continuous budget at 85.0degC
-  LD3 PLT5 520EB_P: commanded 247.5mA exceeds datasheet operating-current max 78.0mA
-  LD4 PLT5 450GB: commanded 247.5mA exceeds datasheet operating-current max 120.0mA
-  LD4 PLT5 450GB: AO3400A Vds headroom is 0.33V, below 0.50V target
+  LD1 IR D7805I: per-channel analog command limit worst-case with datasheet max Vf; Popt=5mW, I=38.6mA (datasheet max 50.0mA), Vf=2.50V, LASER_V+=9.30V
+    limiter 1.3k LIMIT (0603WAF1301T5E, C22767) sets Vcmd=0.380V / Icmd=38.0mA nominal, 38.6mA worst case
+    sense drop=0.386V, sense power=0.015W, AO3400A Vds=6.41V, AO3400A power=0.248W
+    safe rail window at this current/Vf: 3.39V to 11.17V; source: US-Lasers D7805I 780nm 5mW datasheet
+  LD2 RED D6505I: per-channel analog command limit worst-case with datasheet max Vf; Popt=5mW, I=23.5mA (datasheet max 25.0mA), Vf=2.60V, LASER_V+=9.30V
+    limiter 750R LIMIT (0603WAF7500T5E, C23241) sets Vcmd=0.230V / Icmd=23.0mA nominal, 23.5mA worst case
+    sense drop=0.235V, sense power=0.006W, AO3400A Vds=6.47V, AO3400A power=0.152W
+    safe rail window at this current/Vf: 3.33V to 16.48V; source: Digikey D650-5I 650nm 5mW datasheet; lower-current source used conservatively because the US-Lasers mirror gives a conflicting 40mA typ / 60mA max operating-current table
+  LD3 GREEN PLT5 520EB_P: per-channel analog command limit worst-case with datasheet max Vf; Popt=20mW, I=77.3mA (datasheet max 78.0mA), Vf=6.10V, LASER_V+=9.30V
+    limiter 3k LIMIT (0603WAF3001T5E, C4211) sets Vcmd=0.762V / Icmd=76.2mA nominal, 77.3mA worst case
+    sense drop=0.773V, sense power=0.060W, AO3400A Vds=2.43V, AO3400A power=0.188W
+    safe rail window at this current/Vf: 7.37V to 11.01V; source: ams OSRAM PLT5 520EB_P datasheet
+  LD4 BLUE PLT5 450GB: per-channel analog command limit worst-case with datasheet max Vf; Popt=100mW, I=107.0mA (datasheet max 120.0mA), Vf=6.50V, LASER_V+=9.30V
+    limiter 4.7k LIMIT (0603WAF4701T5E, C23162) sets Vcmd=1.055V / Icmd=105.5mA nominal, 107.0mA worst case
+    sense drop=1.070V, sense power=0.114W, AO3400A Vds=1.73V, AO3400A power=0.185W
+    safe rail window at this current/Vf: 8.07V to 10.56V; source: ams OSRAM PLT5 450GB datasheet
+PASS selected laser current-loop policy for the checked current/rail assumptions. This does not waive optical safety, duty-cycle, firmware clamp, or temperature measurement.
 ```
 
 ## PASS: Low-Vf diode on green rail expected fail
@@ -621,13 +628,13 @@ Command: `python3 circuits/check_laser_current_budget.py --policy low-vf-diode-o
 ```text
 Laser current-loop policy: low-vf-diode-on-10v5
   Low-forward-voltage red/IR-style diode on the green-sized 10.5 V common laser rail; this is expected to fail unless current is reduced.
-  command clamp: 3.30V * 30k/(10k+30k) / 10.0ohm = 247.5mA
-  sense resistor: drop=2.475V, power=0.613W, rating=2.0W
-  laser rail=10.50V, diode Vf(max)=2.50V, AO3400A Vds=5.53V, power=1.367W
+  green command limit: 3.30V * 3000/(10000+3000) / 10.0ohm = 76.2mA
+  sense resistor: drop=0.762V, power=0.058W, rating=2.0W
+  laser rail=10.50V, diode Vf(max)=2.50V, AO3400A Vds=7.24V, power=0.551W
   at ambient=85.0degC and target Tj=125.0degC, AO3400A continuous power budget=0.320W
-  estimated safe laser rail window at this diode Vf/current: 5.47V to 6.27V
+  estimated safe laser rail window at this diode Vf/current: 3.76V to 7.46V
 FAIL laser current-loop policy
-  AO3400A dissipates 1.367W, above 0.320W continuous budget at 85.0degC
+  AO3400A dissipates 0.551W, above 0.320W continuous budget at 85.0degC
 ```
 
 ## BLOCKED: Open fabrication/release blockers
@@ -647,14 +654,14 @@ BLOCKED release readiness: 8 open fabrication/release blockers
   [TIA_READOUT_RANGE_CALIBRATION] Signal-PD TIA readout range and optical calibration are not released
     Detail: The exported netlist now proves the four SFH2201/OPA380 signal-PD channels feed VOUT1..4 into the AD7606 as intended, and the first-order TIA checker shows the present 2 MOhm feedback trim is a high-sensitivity, low-current bench range. At VBIAS = 1.5 V it has about +1.40 uA / -0.70 uA one-sided OPA380 headroom before the guarded output window clips; the SFH2201 1000 lx datasheet short-circuit-current example would need about 152 V of TIA swing at 2 MOhm and is intentionally an expected-fail case.
     Required action: Define the real Vivonics optical photocurrent range at the SFH2201 under the bench optics, choose RF/VBIAS/firmware scaling for that range, shield or limit ambient light, and calibrate AD7606 counts against known optical/electrical inputs before using the signal-PD path for production measurements.
-  [PER_DIODE_LASER_THERMAL_BUDGET] Per-diode laser current and heat budget is still open
-    Detail: The selected-diode policies keep the old 10.72 V common rail as an expected-fail comparison for PLT5 450GB at typical current, while the 247.5 mA hardware clamp exceeds every selected laser MPN operating-current maximum.
-    Required action: Lower/rework LASER_V+ or use per-channel drivers, enforce real per-diode current limits before firmware can command the clamp, then measure driver/sense-resistor temperature and optical output during bring-up.
+  [PER_DIODE_LASER_THERMAL_BUDGET] Per-diode laser bring-up temperature and optical-output signoff are still open
+    Detail: The selected-diode policies now pass on the 9.3 V common rail at typical current, max current, and the per-channel analog command limits. The old 247.5 mA common clamp has been replaced by per-channel limiter resistors: about 38.0 mA IR, 23.0 mA red, 76.2 mA green, and 105.5 mA blue. Physical driver/sense-resistor temperature, optical output, duty cycle, and firmware safety behavior still need bring-up evidence.
+    Required action: Measure driver/sense-resistor temperature and optical output during bring-up, verify firmware current/duty-cycle clamps stay at or below the per-channel analog limits, and keep any future laser/rail/current change behind the same current, gate-drive, input-power, and optical safety review.
   [AP2112_BENCH_MEASUREMENT_OR_REGULATOR_CHANGE] AP2112 bench thermal measurement and production regulator decision are open
     Detail: The AP2112 is acceptable only for the bench no-RF policy. Sustained ESP32 wireless load fails the current SOT25 LDO budget.
     Required action: Measure AP2112 package temperature and +3V3 current during bring-up, keep RF disabled for this bench board, or replace the rail before sustained Wi-Fi/BLE.
   [VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT] 24 V barrel/RJ45 input protection and buck layout are not released
-    Detail: J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, but the 9.3 V all-channel hardware-clamp case exceeds the 500 mA J5 input budget and the current C64+C65/C67+C68 output capacitor set is below generic AP632 datasheet guidance.
+    Detail: J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference and the all-channel per-channel analog-limit case, but the current C64+C65/C67+C68 output capacitor set remains below generic AP632 datasheet guidance.
     Required action: Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; rework or justify the AP632 output capacitors; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.
   [PASSIVE_PRODUCTION_AVL_AND_DERATING] Production passive AVL, pulse/surge derating, and temperature evidence are open
     Detail: The current derating gate covers bench steady-state voltage and power, not lifecycle, surge, pulse, or production procurement lock.

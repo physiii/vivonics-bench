@@ -92,12 +92,13 @@ PD + TIA CHANNEL (×4 = IR / RED / GREEN / BLUE)  — on-board, no off-board opt
   TIA readout range and optical calibration remain release blockers.
 
 LASER DRIVER (×4, one per wavelength)
-  PWM_IN → 10k/1µF filter with 30k pulldown limiter → TLV9001(+) ; TLV9001 OUT →
+  PWM_IN → 10k/1µF filter with per-channel limiter pulldown → TLV9001(+) ; TLV9001 OUT →
   1k → AO3400A gate ; source → 10Ω 2512 2W sense → GND
-  I_laser = V_ctrl / 10Ω ; full-scale command ≈2.48V, so nominal clamp ≈248mA.
-  The selected 120mA design point passes the TLV9001/AO3400A range check; the
-  247.5mA analog clamp is an expected-fail gate-drive/diode-limit case, not a
-  production operating point.
+  I_laser = V_ctrl / 10Ω ; full-scale command is per color:
+  IR≈38.0mA, red≈23.0mA, green≈76.2mA, blue≈105.5mA.
+  The selected max-current and per-channel analog-limit cases pass the
+  TLV9001/AO3400A range checks; optical output, duty cycle, loop dynamics, and
+  board temperature remain bring-up measurements.
   Sense top → FB (op-amp −) and 1k → ISENSE (isolates the ADC tap from the loop) ;
   10pF loop-comp ; AO3400A drain → LASER_N (direct LDx footprint) ; laser-can model:
   LD_K → LASER_N, common LD_A/PD_K/case → LASER_V+, PD_A → MPD_RAW
@@ -170,7 +171,7 @@ procurement/assembly items listed below.
 | R (2.49k) | 2.49k 0603 1% | **C2099849** | — | LM4040/`MPD_BIAS` sink resistor. |
 | R61/R62/C69 | 237k / 22.1k / 100pF feedback set | **C2998117 / C2929993 / C1546** | — | AP63200 feedback divider and feed-forward capacitor for about 9.38 V `LASER_V+`. |
 | R (1k) | 1k 0603 1% | **C2907002** | — | gate / ISENSE-isolation / PD-bias / monitor-ADC isolation resistor. |
-| R (30k) | 30k 0603 1% | **C22984** | Basic | PWM command limiter pulldown. |
+| R21/R26/R31/R36 | 1.3k / 750Ω / 3k / 4.7k 0603 1% | **C22767 / C23241 / C4211 / C23162** | Basic | Per-channel PWM command limiter pulldowns for IR / red / green / blue. |
 | R (10Ω) | 10Ω 2512 2W 1% | **C5123624** | Basic | laser source-sense resistor. |
 | C (10pF) | 10pF C0G 0603 | **C106245** | Extended | Cf / loop-comp. |
 | C (1µF) | 1µF 0402 25V X5R | **C7472946** | — | PWM filter / PD-bias bypass / LDO input. |
@@ -277,17 +278,18 @@ bootstrap caps, output caps, and U16 feedback parts. It also checks the installe
 KiCad TSOT-23-6 footprint geometry and local Open_Automation L1/L2 footprints.
 `check_buck_input_power_budget.py` separately enforces the AP63205/AP63200 pinout,
 feedback, input-current, and inductor-stress policy. The selected-diode 9.3 V
-max-current reference passes the 500 mA J5 bench input rating, but the all-channel
-247.5 mA hardware-clamp case is an expected fail. The same checker also keeps the
+max-current reference and all-channel per-channel analog-limit case pass the
+500 mA J5 bench input rating. The same checker also keeps the
 AP632 production component blocker visible: C64+C65/C67+C68 provide 20 uF per
 buck output, below the AP632 datasheet's generic 2x22 uF output reference
 guidance. C61+C62 are now 20 uF nominal VIN ceramic input capacitance.
 `check_laser_current_budget.py` separately checks the laser command clamp, selected
 LD1-LD4 current limits, sense resistor power, AO3400A heat, and safe `LASER_V+`
 window for the selected diode forward voltage. The selected-diode policies show
-that the old 10.72 V rail fails the conservative continuous PLT5 450GB case,
-that the present 9.3 V common-rail reference passes the selected max-current cases,
-and that the 247.5 mA hardware clamp is not a safe diode current limit.
+that the present 9.3 V common-rail reference passes the selected typical-current,
+max-current, and per-channel analog-limit cases. The generic high-rail
+expected-fail policies remain to show why `LASER_V+` and commanded current need
+per-diode review.
 `check_passive_derating.py` verifies all assembled passive MPNs against explicit bench
 voltage/power ratings; current worst cases are `R57` at 40.0% resistor power,
 the `100nF MPD bias` capacitor at 31.6% of rating, and `R61` at 13.3% resistor voltage.

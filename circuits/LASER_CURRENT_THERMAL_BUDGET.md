@@ -1,16 +1,17 @@
 # Bench Laser Current Thermal Budget
 
-Generated design state: 2026-06-25.
+Generated design state: 2026-07-05.
 
 This note covers the four low-side laser current sinks:
 
 ```text
-PWM -> 10k / 30k command limiter -> TLV9001 -> AO3400A -> 10 ohm sense resistor
+PWM -> 10k / per-channel limiter / 1 uF command filter -> TLV9001 -> AO3400A -> 10 ohm sense resistor
 ```
 
 The schematic pins and generated PCB routing now check out, but the actual
-thermal margin depends on each laser diode's forward voltage, the shared
-`LASER_V+` supply, the current limit, and duty cycle.
+thermal margin still depends on each laser diode's forward voltage, the shared
+`LASER_V+` supply, the current limit, duty cycle, board temperature, and optical
+safety behavior.
 
 ## Sources
 
@@ -21,50 +22,56 @@ thermal margin depends on each laser diode's forward voltage, the shared
   250 V chip resistor.
 - Selected laser datasheets: US-Lasers D6505I and D7805I 5.6 mm Style-A cans,
   ams OSRAM PLT5 520EB_P 5.6 mm monitor-PD can, and ams OSRAM PLT5 450GB
-  5.6 mm laser-only can. The high-forward-voltage green current policy is a
-  thermal reference, not an approval to run every selected diode at the hardware
-  command clamp.
+  5.6 mm laser-only can.
 
-## Current Clamp
+## Per-Channel Command Limits
 
-The command limiter is:
+The old common `30k LIMIT` pulldown produced a 2.475 V command, or 247.5 mA
+through the 10 ohm sense resistor. That value exceeded every selected laser
+diode's datasheet operating-current maximum and left essentially no AO3400A
+gate-drive margin at the raw clamp. It has been replaced by per-channel SMT
+limiter resistors:
 
-```text
-Vcmd(max) = 3.3 V * 30k / (10k + 30k) = 2.475 V
-Ilimit    = Vcmd(max) / 10 ohm = 247.5 mA
-Psense    = Ilimit^2 * 10 ohm = 0.613 W
-```
+| Channel | Limiter | LCSC | Vcmd(max) | Ilimit |
+|---|---:|---|---:|---:|
+| LD1 IR D7805I | 1.3k LIMIT | C22767 | 0.380 V | 38.0 mA |
+| LD2 red D6505I | 750R LIMIT | C23241 | 0.230 V | 23.0 mA |
+| LD3 green PLT5 520EB_P | 3k LIMIT | C4211 | 0.762 V | 76.2 mA |
+| LD4 blue PLT5 450GB | 4.7k LIMIT | C23162 | 1.055 V | 105.5 mA |
 
-The 10 ohm 2512 2 W sense resistor is correctly upsized for this nominal clamp,
-but it still needs board-temperature measurement because there are four channels
-and the heat is close to the laser-driver cluster.
+The all-channel analog command-limit sum is now about 242.7 mA nominal, or
+246.4 mA at the 1 percent high-current resistor tolerance corner. That is an
+electrical current-limit proof only; it does not waive optical output,
+duty-cycle, loop-stability, or board-temperature signoff.
 
 ## Control-Loop Range / Gate Drive
 
 `check_laser_driver_control_loop.py` separates the TLV9001/AO3400A control-loop
 topology from the laser thermal policy. It asserts that each PWM net feeds the
-10k/30k/1 uF command node into TLV9001 IN+, each MOSFET source/sense-resistor
-high side feeds TLV9001 IN-, TLV9001 OUT drives the AO3400A gate through 1 kOhm,
-and each AO3400A drain lands on the correct `LASER_Nx` direct-laser cathode net.
+10k/per-channel-limiter/1 uF command node into TLV9001 IN+, each MOSFET
+source/sense-resistor high side feeds TLV9001 IN-, TLV9001 OUT drives the
+AO3400A gate through 1 kOhm, and each AO3400A drain lands on the correct
+`LASER_Nx` direct-laser cathode net.
 
-The selected 120 mA design point passes the first-order TLV9001 input range and
-AO3400A gate-drive check:
+The selected max-current design points pass the first-order TLV9001 input range
+and AO3400A gate-drive checks:
+
+| Channel | Checked current | Available AO3400A Vgs margin vs 2.5 V characterization |
+|---|---:|---:|
+| IR | 50.0 mA | 1.980 V |
+| Red | 25.0 mA | 2.230 V |
+| Green | 78.0 mA | 1.700 V |
+| Blue | 120.0 mA | 1.280 V |
+
+The per-channel analog limiter gate also passes:
 
 ```text
-selected-max-current: sense feedback = 1.200 V, available AO3400A Vgs ~= 3.780 V
+python3 circuits/check_laser_driver_control_loop.py --policy hardware-clamp-gate-margin
 ```
 
-The raw analog command clamp remains an expected-fail condition for production
-use:
-
-```text
-hardware-clamp-gate-margin: sense feedback = 2.475 V, available AO3400A Vgs ~= 2.505 V
-```
-
-That leaves only about 5 mV above the AO3400A 2.5 V RDS(on) characterization
-point under the light-load TLV9001 output-high assumption, before considering
-temperature, part spread, loop dynamics, diode current limits, optical safety, or
-SOT-23 heat.
+That compatibility policy name is retained for review-script continuity, but it
+now checks the per-channel analog command limits, not the removed 247.5 mA
+common clamp.
 
 ## Common `LASER_V+` Constraint
 
@@ -81,21 +88,17 @@ class can overheat another channel if the lower-headroom/current combination is
 driven continuously through the same SOT-23 linear sink.
 
 Using a conservative continuous AO3400A budget of `(125 degC - ambient) / 125
-degC/W`, the checker estimates:
+degC/W`, the checker keeps the generic rail-headroom guardrails visible:
 
 | Scenario | `LASER_V+` | Diode `Vf(max)` | Result |
 |---|---:|---:|---|
 | High-Vf green reference | 10.5 V | 7.0 V | Pass, narrow supply window |
 | High-Vf green reference | 12.0 V | 7.0 V | Fail, AO3400A heat |
-| Low-Vf red/IR-style diode on green rail | 10.5 V | 2.5 V | Fail, AO3400A heat |
-
-For a high-forward-voltage green diode at the 247.5 mA command clamp, the estimated
-high-ambient rail window is roughly 10.0 V to 10.8 V. Below that, the current
-loop runs out of headroom. Above that, the SOT-23 MOSFET becomes the heat sink.
+| Low-Vf red/IR-style diode on green rail | 10.5 V | 2.5 V | Fail unless current is reduced |
 
 ## Selected-Diode Current Limits
 
-The checker now includes the actual LD1-LD4 diode set from the Digikey cart and
+The checker includes the actual LD1-LD4 diode set from the Digikey cart and
 source notes. Datasheet values used by the executable policy are:
 
 | Channel | MPN | Optical power | Datasheet operating current | Datasheet operating voltage | Source note |
@@ -105,57 +108,38 @@ source notes. Datasheet values used by the executable policy are:
 | LD3 green | PLT5 520EB_P | 20 mW | 65 mA typ, 78 mA max | 5.4 V typ, 6.1 V max | ams OSRAM datasheet |
 | LD4 blue | PLT5 450GB | 100 mW | 87 mA typ, 120 mA max | 5.2 V typ, 6.5 V max | ams OSRAM datasheet |
 
-At the old AP63200 feedback setting (`LASER_V+ ~= 10.72 V`), the selected
-diodes at typical current mostly pass, but the blue PLT5 450GB channel fails the
-conservative continuous AO3400A budget. This remains as an expected-fail
-high-rail comparison:
+The present 9.3 V-class common-rail reference passes for the selected diodes at
+datasheet typical operating points, datasheet maximum operating points, and the
+per-channel analog command limits:
 
 ```text
-python3 circuits/check_laser_current_budget.py --policy selected-diodes-typ-10v72
-```
-
-The present 9.3 V-class common-rail reference below passes for the selected
-diodes at datasheet maximum operating current/voltage and still assumes
-firmware/hardware current limiting:
-
-```text
+python3 circuits/check_laser_current_budget.py --policy selected-diodes-typ-9v3
 python3 circuits/check_laser_current_budget.py --policy selected-diodes-max-9v3
-```
-
-The hardware command clamp is explicitly unsafe for all selected laser MPNs:
-
-```text
-python3 circuits/check_laser_current_budget.py --policy selected-diodes-hardware-clamp-10v72
+python3 circuits/check_laser_current_budget.py --policy selected-diodes-hardware-clamp-9v3
 ```
 
 ## Design Decision
 
 Current bench board:
 
-- Use a current-limited external `LASER_V+` supply.
+- Use the per-channel analog command limiters generated into LD1-LD4.
+- Keep firmware current clamps at or below the selected diode operating limits.
 - Set `LASER_V+` from the actual diode forward-voltage table, not from habit.
-- Treat the 247.5 mA clamp as an upper bound, not the default operating point.
-- The old `LASER_V+ ~= 10.72 V` setting is not accepted for continuous
-  PLT5 450GB typical-current operation under the conservative 85 degC / 125 degC
-  AO3400A policy.
-- A reduced common rail near 9.3 V is the current checked bench reference for
-  the selected diodes at datasheet maximum operating currents, but production
-  should not rely on a common rail plus firmware alone for laser safety.
-- Do not run all four colors at the clamp from one high rail without thermal
+- Treat the 9.3 V-class common rail as a checked bench reference, not a
+  production driver architecture for every future laser source.
+- Do not run all four colors continuously at maximum command without thermal
   measurement.
 - Solder direct laser cans only after inspecting each received part against the
   2026-07-04 signed-off MPN/footprint pin table and can/common-node polarity.
-- Do not treat the 247.5 mA hardware clamp as safe for the selected Digikey-cart
-  D6505I, D7805I, PLT5 520EB_P, or PLT5 450GB without per-channel current
-  limits and optical safety signoff.
 
 Production design:
 
 - Use per-channel laser driver/APC topology or per-channel supply/headroom
-  control. A single common high rail plus SOT-23 linear sinks is not a good
-  production architecture for mixed red/green/blue/IR forward voltages.
+  control if this evolves beyond a bench board.
 - Keep the monitor-PD feedback concept, but close production APC around a driver
   selected for each diode package polarity.
+- Close driver/sense-resistor temperature and optical-output measurements during
+  bring-up before using the board as a released laser source.
 
 ## Verification
 
@@ -166,27 +150,15 @@ Expected pass for the high-forward-voltage green reference at a controlled
 python3 circuits/check_laser_current_budget.py --policy green-high-vf-10v5
 ```
 
-Expected pass for the actual selected diodes at datasheet max current/voltage on
-a reduced 9.3 V common-rail reference:
+Expected pass for the actual selected diodes on the 9.3 V common-rail reference:
 
 ```text
+python3 circuits/check_laser_current_budget.py --policy selected-diodes-typ-9v3
 python3 circuits/check_laser_current_budget.py --policy selected-diodes-max-9v3
+python3 circuits/check_laser_current_budget.py --policy selected-diodes-hardware-clamp-9v3
 ```
 
-Expected fail for the old 10.72 V common rail at typical selected-diode
-currents because the blue PLT5 450GB AO3400A dissipation is too high:
-
-```text
-python3 circuits/check_laser_current_budget.py --policy selected-diodes-typ-10v72
-```
-
-Expected fail for the unsafe hardware current clamp:
-
-```text
-python3 circuits/check_laser_current_budget.py --policy selected-diodes-hardware-clamp-10v72
-```
-
-Expected fail for insufficient gate-drive margin at the raw hardware clamp:
+Expected pass for per-channel analog-limit gate-drive margin:
 
 ```text
 python3 circuits/check_laser_driver_control_loop.py --policy hardware-clamp-gate-margin

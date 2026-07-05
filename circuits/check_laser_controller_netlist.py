@@ -12,6 +12,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from circuit_designators import WL, ref_for
+from laser_command_limits import limiter_for_color
 
 ACCESS_CONTROLLER_MCU = Path("/home/andy/projects/access-controller/circuits/controller/microcontroller.kicad_sch")
 PROJECT_DIR = Path(__file__).resolve().parent
@@ -197,7 +198,6 @@ def main() -> int:
         "R11": ("10R 2W", "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder", "HoCR2512-2W-10R-1%", "C5123624"),
         "R12": ("1k", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "FRC0603F1001TS", "C2907002"),
         "R21": ("10k", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "CRCW060310K0FKEA", "C844918"),
-        "R22": ("30k LIMIT", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "0603WAF3002T5E", "C22984"),
         "R31": ("1k", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "FRC0603F1001TS", "C2907002"),
         "U11": ("TLV9001", "Package_TO_SOT_SMD:SOT-23-5", "TLV9001IDBVR", "C398363"),
     }
@@ -290,6 +290,15 @@ def main() -> int:
         for ref, fields in laser_components.items():
             expect_component(f"/LASER_{color}/", ref_for(f"LASER_{color}", ref), *fields)
         sheet = f"LASER_{color}"
+        limiter = limiter_for_color(color)
+        expect_component(
+            f"/{sheet}/",
+            ref_for(sheet, "R22"),
+            limiter.value,
+            "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder",
+            limiter.mpn,
+            limiter.lcsc,
+        )
         expect_component(f"/{sheet}/", ref_for(sheet, "LD"), *laser_ld_components[sheet])
     for ref, fields in mcu_components.items():
         expect_component("/MCU_ESP32-S3/", ref_for("MCU_ESP32-S3", ref), *fields)
@@ -1072,7 +1081,10 @@ def main() -> int:
         "C201677": 4,
         "C20917": 4,
         "C2907002": 16,
-        "C22984": 4,
+        "C22767": 1,
+        "C23241": 1,
+        "C4211": 1,
+        "C23162": 1,
         "C2099849": 1,
         "C2480": 2,
         "C191123": 8,

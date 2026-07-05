@@ -509,7 +509,7 @@ def pin_intent_for_node(
 
     if value.startswith("10R 2W"):
         return "Laser current-sense resistor high side." if net.endswith("/FB") else "Laser current-sense resistor low-side GND return."
-    if value.startswith("30k LIMIT"):
+    if value.endswith(" LIMIT"):
         return "PWM command limiter node." if re.match(r"Net-\(U[5-8]-\+\)$", net) else "PWM command limiter ground leg."
     if value.startswith("240R MPD sense"):
         return "Monitor-PD sense resistor raw direct-laser side." if "MPD_RAW" in net else "Monitor-PD sense resistor MPD_BIAS side."

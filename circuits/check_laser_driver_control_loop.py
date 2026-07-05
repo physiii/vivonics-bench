@@ -14,13 +14,10 @@ from pathlib import Path
 
 from check_laser_controller_netlist import parse_components, parse_netlist
 from circuit_designators import ref_for
+from laser_command_limits import PWM_FULL_SCALE_V, PWM_TOP_OHMS, SENSE_OHMS, limiter_for_color
 
 
 ESP32_REF = "U9"
-PWM_FULL_SCALE_V = 3.3
-PWM_TOP_OHMS = 10_000.0
-PWM_PULLDOWN_OHMS = 30_000.0
-SENSE_OHMS = 10.0
 TLV_SUPPLY_V = 5.0
 TLV_INPUT_LOW_V = -0.1
 TLV_INPUT_HIGH_V = TLV_SUPPLY_V + 0.1
@@ -28,7 +25,12 @@ TLV_OUTPUT_HIGH_LIGHT_LOAD_V = TLV_SUPPLY_V - 0.020
 AO3400A_VGS_ABS_MAX_V = 12.0
 AO3400A_RDS_ON_CHARACTERIZED_VGS_V = 2.5
 DEFAULT_GATE_DRIVE_MARGIN_V = 0.25
-SELECTED_MAX_CURRENT_A = 0.120
+SELECTED_MAX_CURRENT_A_BY_COLOR = {
+    "IR": 0.050,
+    "RED": 0.025,
+    "GREEN": 0.078,
+    "BLUE": 0.120,
+}
 
 
 @dataclass(frozen=True)
@@ -101,14 +103,6 @@ def expect_component(
         errors.append(f"{ref}: expected {expected}, got {actual}")
 
 
-def command_voltage_v() -> float:
-    return PWM_FULL_SCALE_V * PWM_PULLDOWN_OHMS / (PWM_TOP_OHMS + PWM_PULLDOWN_OHMS)
-
-
-def command_current_a() -> float:
-    return command_voltage_v() / SENSE_OHMS
-
-
 def check_topology(
     nets: dict[str, list[tuple[str, str, str, str]]],
     comps: dict[str, dict[str, str]],
@@ -125,6 +119,7 @@ def check_topology(
         decouple_c = ref_for(sheet, "C22")
         pwm_r = ref_for(sheet, "R21")
         pulldown_r = ref_for(sheet, "R22")
+        limiter = limiter_for_color(channel.color)
         pwm_c = ref_for(sheet, "C21")
         comp_c = ref_for(sheet, "CC")
 
@@ -159,10 +154,10 @@ def check_topology(
             errors,
             comps,
             pulldown_r,
-            "30k LIMIT",
+            limiter.value,
             "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder",
-            "0603WAF3002T5E",
-            "C22984",
+            limiter.mpn,
+            limiter.lcsc,
         )
 
         require_exact(errors, nets, channel.pwm_net, {(ESP32_REF, channel.pwm_pin), (pwm_r, "1")})
@@ -186,39 +181,52 @@ def check_topology(
 def check_budget(policy: str, gate_drive_margin_v: float) -> tuple[list[str], list[str]]:
     errors: list[str] = []
     notes: list[str] = []
-    command_v = command_voltage_v()
-    clamp_current_a = command_current_a()
-    checked_current_a = SELECTED_MAX_CURRENT_A if policy == "selected-max-current" else clamp_current_a
-    source_v = checked_current_a * SENSE_OHMS
-    vgs_available_v = TLV_OUTPUT_HIGH_LIGHT_LOAD_V - source_v
-    vgs_characterized_margin_v = vgs_available_v - AO3400A_RDS_ON_CHARACTERIZED_VGS_V
 
     if policy not in {"selected-max-current", "hardware-clamp-gate-margin"}:
         errors.append(f"unknown policy {policy!r}")
-    if not (TLV_INPUT_LOW_V <= command_v <= TLV_INPUT_HIGH_V):
-        errors.append(f"PWM command clamp {command_v:.3f} V is outside TLV9001 input range")
-    if not (TLV_INPUT_LOW_V <= source_v <= TLV_INPUT_HIGH_V):
-        errors.append(f"sense feedback voltage {source_v:.3f} V is outside TLV9001 input range")
     if TLV_OUTPUT_HIGH_LIGHT_LOAD_V > AO3400A_VGS_ABS_MAX_V:
         errors.append("TLV9001 output could exceed AO3400A absolute gate-source maximum")
-    if policy == "hardware-clamp-gate-margin" and vgs_characterized_margin_v < gate_drive_margin_v:
-        errors.append(
-            f"hardware clamp leaves only {vgs_characterized_margin_v:.3f} V above the AO3400A 2.5 V "
-            f"RDS(on) characterization point; required margin is {gate_drive_margin_v:.3f} V"
-        )
 
-    notes.append(
-        f"PWM divider clamp: 3.30 V * 30k/(10k+30k) = {command_v:.3f} V -> {clamp_current_a * 1000.0:.1f} mA"
-    )
-    notes.append(
-        f"{policy}: checked current={checked_current_a * 1000.0:.1f} mA, sense feedback={source_v:.3f} V"
-    )
+    for channel in CHANNELS:
+        limiter = limiter_for_color(channel.color)
+        command_v = limiter.command_voltage_v
+        clamp_current_a = limiter.command_current_a
+        worst_case_clamp_current_a = limiter.worst_case_current_a
+        selected_current_a = SELECTED_MAX_CURRENT_A_BY_COLOR[channel.color]
+        checked_current_a = selected_current_a if policy == "selected-max-current" else worst_case_clamp_current_a
+        source_v = checked_current_a * SENSE_OHMS
+        vgs_available_v = TLV_OUTPUT_HIGH_LIGHT_LOAD_V - source_v
+        vgs_characterized_margin_v = vgs_available_v - AO3400A_RDS_ON_CHARACTERIZED_VGS_V
+
+        if not (TLV_INPUT_LOW_V <= command_v <= TLV_INPUT_HIGH_V):
+            errors.append(f"{channel.color}: PWM command limit {command_v:.3f} V is outside TLV9001 input range")
+        if not (TLV_INPUT_LOW_V <= source_v <= TLV_INPUT_HIGH_V):
+            errors.append(f"{channel.color}: sense feedback voltage {source_v:.3f} V is outside TLV9001 input range")
+        if policy == "hardware-clamp-gate-margin" and vgs_characterized_margin_v < gate_drive_margin_v:
+            errors.append(
+                f"{channel.color}: per-channel command limit leaves only {vgs_characterized_margin_v:.3f} V "
+                f"above the AO3400A 2.5 V RDS(on) characterization point; required margin is "
+                f"{gate_drive_margin_v:.3f} V"
+            )
+        if worst_case_clamp_current_a > selected_current_a + 0.001:
+            errors.append(
+                f"{channel.color}: worst-case analog limit {worst_case_clamp_current_a * 1000.0:.1f} mA exceeds "
+                f"selected diode max {selected_current_a * 1000.0:.1f} mA"
+            )
+
+        notes.append(
+            f"{channel.color}: divider 3.30 V * {limiter.resistance_ohms:g}/"
+            f"({PWM_TOP_OHMS:g}+{limiter.resistance_ohms:g}) = {command_v:.3f} V -> "
+            f"{clamp_current_a * 1000.0:.1f} mA nominal, "
+            f"{worst_case_clamp_current_a * 1000.0:.1f} mA worst case ({limiter.value}, {limiter.lcsc})"
+        )
+        notes.append(
+            f"{channel.color} {policy}: checked current={checked_current_a * 1000.0:.1f} mA, "
+            f"sense feedback={source_v:.3f} V, AO3400A Vgs ~= {vgs_available_v:.3f} V, "
+            f"margin vs 2.5 V={vgs_characterized_margin_v:.3f} V"
+        )
     notes.append(
         f"TLV9001 input range policy: {TLV_INPUT_LOW_V:.1f}..{TLV_INPUT_HIGH_V:.1f} V on a 5 V rail"
-    )
-    notes.append(
-        f"available AO3400A Vgs at checked current ~= {vgs_available_v:.3f} V; "
-        f"margin vs 2.5 V characterized point={vgs_characterized_margin_v:.3f} V"
     )
     return errors, notes
 
@@ -252,7 +260,7 @@ def main() -> int:
     print("  topology: PWM divider -> TLV9001 +IN, sense resistor high side -> -IN, OUT -> AO3400A gate, drain -> LASER_Nx")
     for note in notes:
         print(f"  {note}")
-    print("  production caveat: this does not waive diode current limits, MOSFET SOA/heat, optical safety, or firmware clamps")
+    print("  production caveat: this does not waive optical safety, duty-cycle, loop stability, or temperature measurement")
     return 0
 
 

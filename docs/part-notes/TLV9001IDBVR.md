@@ -17,10 +17,9 @@ Current design:
 - It runs from the local +5 V rail. The captured datasheet guard is 1.8 V to
   5.5 V supply, common-mode input from `(V-) - 0.1 V` to `(V+) + 0.1 V`, and
   output swing close to the rails under light load.
-- The present PWM divider command clamp is
-  `3.3 V * 30k/(10k+30k) = 2.475 V`, or 247.5 mA through the 10 ohm sense
-  resistor. That is an electrical clamp, not the selected laser operating
-  current.
+- The present PWM divider uses per-channel SMT limiter pulldowns, not the old
+  common 30k clamp. LD1/LD2/LD3/LD4 command limits are about 38.0 mA,
+  23.0 mA, 76.2 mA, and 105.5 mA through the 10 ohm sense resistors.
 
 Layout notes:
 - Keep source-sense feedback short and quiet.
@@ -38,7 +37,7 @@ Checker evidence:
 - `check_laser_driver_package_pcb.py` asserts the U5-U8 TLV9001 schematic pin
   nets, current PCB pad-net assignments, local command/filter/compensation
   components, and installed KiCad `SOT-23-5` pad geometry.
-- `hardware-clamp-gate-margin` is an expected-fail policy because the 247.5 mA
-  clamp leaves only about 5 mV of AO3400A gate-drive margin above the 2.5 V
-  RDS(on) characterization point.
+- `hardware-clamp-gate-margin` is retained as a compatibility policy name, but
+  now passes by checking the per-channel analog command limits against TLV9001
+  input range and AO3400A gate-drive margin.
 - PCB checker enforces gate/sense/control/compensation proximity.

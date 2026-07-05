@@ -140,32 +140,33 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ),
     ReleaseBlocker(
         "PER_DIODE_LASER_THERMAL_BUDGET",
-        "Per-diode laser current and heat budget is still open",
-        "The selected-diode policies keep the old 10.72 V common rail as an expected-fail comparison for PLT5 450GB at typical current, while the 247.5 mA hardware clamp exceeds every selected laser MPN operating-current maximum.",
-        "Lower/rework LASER_V+ or use per-channel drivers, enforce real per-diode current limits before firmware can command the clamp, then measure driver/sense-resistor temperature and optical output during bring-up.",
+        "Per-diode laser bring-up temperature and optical-output signoff are still open",
+        "The selected-diode policies now pass on the 9.3 V common rail at typical current, max current, and the per-channel analog command limits. The old 247.5 mA common clamp has been replaced by per-channel limiter resistors: about 38.0 mA IR, 23.0 mA red, 76.2 mA green, and 105.5 mA blue. Physical driver/sense-resistor temperature, optical output, duty cycle, and firmware safety behavior still need bring-up evidence.",
+        "Measure driver/sense-resistor temperature and optical output during bring-up, verify firmware current/duty-cycle clamps stay at or below the per-channel analog limits, and keep any future laser/rail/current change behind the same current, gate-drive, input-power, and optical safety review.",
         (
             Evidence(
                 "circuits/LASER_CURRENT_THERMAL_BUDGET.md",
                 (
-                    "selected-diodes-typ-10v72",
+                    "per-channel analog command limits",
+                    "selected-diodes-typ-9v3",
                     "selected-diodes-max-9v3",
-                    "selected-diodes-hardware-clamp-10v72",
-                    "Use per-channel laser driver/APC topology or per-channel supply/headroom",
+                    "selected-diodes-hardware-clamp-9v3",
+                    "board-temperature signoff",
                 ),
             ),
             Evidence(
                 "docs/part-notes/PLT5-520B-harness-reference.md",
                 (
-                    "fails the conservative continuous AO3400A thermal budget for PLT5 450GB",
-                    "Do not let the analog command path or firmware reach the 247.5 mA hardware",
+                    "green PLT5 520EB_P is limited to about 76.2 mA",
+                    "Firmware limits and optical safety behavior still need bring-up validation.",
                 ),
             ),
             Evidence(
                 "docs/part-notes/laser-harness-pin-code-compatibility.md",
                 (
-                    "selected-diodes-typ-10v72",
+                    "selected-diodes-typ-9v3",
                     "selected-diodes-max-9v3",
-                    "selected-diodes-hardware-clamp-10v72",
+                    "selected-diodes-hardware-clamp-9v3",
                 ),
             ),
             Evidence(
@@ -201,7 +202,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT",
         "24 V barrel/RJ45 input protection and buck layout are not released",
-        "J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, but the 9.3 V all-channel hardware-clamp case exceeds the 500 mA J5 input budget and the current C64+C65/C67+C68 output capacitor set is below generic AP632 datasheet guidance.",
+        "J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference and the all-channel per-channel analog-limit case, but the current C64+C65/C67+C68 output capacitor set remains below generic AP632 datasheet guidance.",
         "Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; rework or justify the AP632 output capacitors; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.",
         (
             Evidence(

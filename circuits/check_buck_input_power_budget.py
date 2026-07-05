@@ -15,8 +15,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from check_laser_controller_netlist import parse_components, parse_netlist
-from check_laser_current_budget import SELECTED_LASER_SPECS, command_limit_current_a
+from check_laser_current_budget import SELECTED_LASER_SPECS
 from circuit_designators import ref_for
+from laser_command_limits import all_channel_worst_case_command_limit_current_a
 
 
 DEFAULT_NETLIST = Path("/tmp/lc.net")
@@ -102,10 +103,10 @@ def scenarios() -> dict[str, Scenario]:
             name="hardware-clamp-9v3",
             five_v_load_ma=350.0,
             laser_vplus_v=9.30,
-            laser_load_ma=(4.0 * command_limit_current_a() * 1000.0) + lm4040_bias_ma(9.30),
+            laser_load_ma=(all_channel_worst_case_command_limit_current_a() * 1000.0) + lm4040_bias_ma(9.30),
             description=(
-                "Unsafe all-channel laser hardware-clamp case at the production AP63200 "
-                "feedback setting. This is expected to fail the 500mA bench input limit."
+                "All-channel laser analog-limit high-current tolerance case at the production "
+                "AP63200 feedback setting after the per-channel limiter update."
             ),
         ),
     }

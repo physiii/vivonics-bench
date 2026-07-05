@@ -17,6 +17,7 @@ from pathlib import Path
 from check_laser_controller_netlist import parse_components, parse_netlist
 from check_pcb_staging import blocks_named, board_pad_nets, footprint_ref
 from circuit_designators import ref_for
+from laser_command_limits import limiter_for_color
 
 
 DEFAULT_BOARD = Path(__file__).resolve().parent / "laser_controller.kicad_pcb"
@@ -99,6 +100,7 @@ for channel in CHANNELS:
     decouple_c = ref_for(sheet_name, "C22")
     pwm_r = ref_for(sheet_name, "R21")
     pulldown_r = ref_for(sheet_name, "R22")
+    limiter = limiter_for_color(channel.color)
     pwm_c = ref_for(sheet_name, "C21")
     comp_c = ref_for(sheet_name, "CC")
     ld = ref_for(sheet_name, "LD")
@@ -173,10 +175,10 @@ for channel in CHANNELS:
     add_component(
         pulldown_r,
         sheet=sheet_path,
-        value="30k LIMIT",
+        value=limiter.value,
         footprint="Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder",
-        mpn="0603WAF3002T5E",
-        lcsc="C22984",
+        mpn=limiter.mpn,
+        lcsc=limiter.lcsc,
         board_footprint="R_0603_1608Metric_Pad0.98x0.95mm_HandSolder",
     )
     add_component(

@@ -12,11 +12,15 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass, replace
 
+from laser_command_limits import (
+    PWM_FULL_SCALE_V,
+    PWM_TOP_OHMS,
+    SENSE_OHMS,
+    all_channel_command_limit_current_a,
+    all_channel_worst_case_command_limit_current_a,
+    limiter_for_color,
+)
 
-PWM_FULL_SCALE_V = 3.3
-PWM_TOP_OHMS = 10_000.0
-PWM_PULLDOWN_OHMS = 30_000.0
-SENSE_OHMS = 10.0
 SENSE_RESISTOR_RATING_W = 2.0
 AO3400A_THETA_JA_C_PER_W = 125.0
 DEFAULT_TARGET_JUNCTION_C = 125.0
@@ -135,8 +139,7 @@ POLICIES = {
         description=(
             "High-forward-voltage green reference using 7.0 V diode headroom "
             "and a 10.5 V laser rail. This is a thermal policy reference, not "
-            "an approval to drive the selected Digikey-cart lasers at the "
-            "247.5 mA hardware command clamp."
+            "an optical-safety or board-temperature release."
         ),
     ),
     "green-high-vf-12v": Policy(
@@ -163,15 +166,17 @@ POLICIES = {
 
 
 def command_limit_current_a() -> float:
-    command_v = PWM_FULL_SCALE_V * PWM_PULLDOWN_OHMS / (PWM_TOP_OHMS + PWM_PULLDOWN_OHMS)
-    return command_v / SENSE_OHMS
+    return max(limiter_for_color(spec.channel).command_current_a for spec in SELECTED_LASER_SPECS)
+
+
+def channel_command_limit_current_a(channel: str) -> float:
+    return limiter_for_color(channel).command_current_a
 
 
 def make_selected_policy(name: str, description: str, laser_vplus_v: float, point: str) -> SelectedLaserPolicy:
     if point not in {"typ", "max", "clamp"}:
         raise ValueError(f"unsupported selected-laser policy point: {point}")
     cases: list[SelectedLaserCase] = []
-    clamp_ma = command_limit_current_a() * 1000.0
     for spec in SELECTED_LASER_SPECS:
         if point == "typ":
             current_ma = spec.typ_current_ma
@@ -182,9 +187,9 @@ def make_selected_policy(name: str, description: str, laser_vplus_v: float, poin
             diode_vf_v = spec.max_vf_v
             case_note = "datasheet maximum operating-current point"
         else:
-            current_ma = clamp_ma
+            current_ma = limiter_for_color(spec.channel).worst_case_current_a * 1000.0
             diode_vf_v = spec.max_vf_v
-            case_note = "hardware command clamp with datasheet max Vf for least-worst MOSFET heat"
+            case_note = "per-channel analog command limit worst-case with datasheet max Vf"
         cases.append(
             SelectedLaserCase(
                 spec=spec,
@@ -223,9 +228,10 @@ SELECTED_LASER_POLICIES = {
         laser_vplus_v=9.30,
         point="clamp",
         description=(
-            "Actual LD1-LD4 MPNs driven to the 247.5mA analog command clamp on "
-            "the production 9.3V LASER_V+ setting. This is expected to fail: the "
-            "clamp is an electrical upper bound, not a safe optical current limit."
+            "Actual LD1-LD4 MPNs driven to the per-channel analog command limits "
+            "on the production 9.3V LASER_V+ setting. This proves the schematic "
+            "divider values no longer expose every source to the old 247.5mA "
+            "common limiter."
         ),
     ),
 }
@@ -330,8 +336,8 @@ def run_selected_policy(args: argparse.Namespace) -> int:
     print(f"Selected laser current-loop policy: {policy.name}")
     print(f"  {policy.description}")
     print(
-        f"  hardware command clamp remains {command_limit_current_a() * 1000.0:.1f}mA "
-        f"(3.30V * 30k/(10k+30k) / {SENSE_OHMS:.1f}ohm)"
+        f"  all-channel analog command limit sum={all_channel_command_limit_current_a() * 1000.0:.1f}mA nominal, "
+        f"{all_channel_worst_case_command_limit_current_a() * 1000.0:.1f}mA at 1% high-current tolerance corner"
     )
     print(
         f"  AO3400A continuous budget={max_mosfet_power_w(ambient_c, args.target_junction_c):.3f}W "
@@ -354,6 +360,13 @@ def run_selected_policy(args: argparse.Namespace) -> int:
             f"(datasheet max {spec.max_current_ma:.1f}mA), Vf={case.diode_vf_v:.2f}V, "
             f"LASER_V+={case.laser_vplus_v:.2f}V"
         )
+        if policy.name.endswith("hardware-clamp-9v3"):
+            limiter = limiter_for_color(spec.channel)
+            print(
+                f"    limiter {limiter.value} ({limiter.mpn}, {limiter.lcsc}) sets "
+                f"Vcmd={limiter.command_voltage_v:.3f}V / Icmd={limiter.command_current_a * 1000.0:.1f}mA nominal, "
+                f"{limiter.worst_case_current_a * 1000.0:.1f}mA worst case"
+            )
         print(
             f"    sense drop={budget.sense_drop_v:.3f}V, sense power={budget.sense_power_w:.3f}W, "
             f"AO3400A Vds={budget.mosfet_vds_v:.2f}V, AO3400A power={budget.mosfet_power_w:.3f}W"
@@ -405,7 +418,8 @@ def main() -> int:
         return run_selected_policy(args)
 
     policy = policy_from_args(args)
-    current_a = command_limit_current_a()
+    green_limiter = limiter_for_color("GREEN")
+    current_a = green_limiter.command_current_a
     budget = evaluate_budget(
         laser_vplus_v=policy.laser_vplus_v,
         diode_vf_v=policy.diode_vf_max_v,
@@ -433,7 +447,8 @@ def main() -> int:
     print(f"Laser current-loop policy: {policy.name}")
     print(f"  {policy.description}")
     print(
-        f"  command clamp: {PWM_FULL_SCALE_V:.2f}V * 30k/(10k+30k) / "
+        f"  green command limit: {PWM_FULL_SCALE_V:.2f}V * {green_limiter.resistance_ohms:g}/"
+        f"({PWM_TOP_OHMS:g}+{green_limiter.resistance_ohms:g}) / "
         f"{SENSE_OHMS:.1f}ohm = {current_a * 1000.0:.1f}mA"
     )
     print(

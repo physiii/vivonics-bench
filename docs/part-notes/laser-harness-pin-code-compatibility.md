@@ -71,12 +71,13 @@ Current/voltage implication:
   remains required.
 - `PLT5 520EB_P` is checked at 65 mA typ / 78 mA max and 5.4 V typ / 6.1 V max.
 - `PLT5 450GB` is checked at 87 mA typ / 120 mA max and 5.2 V typ / 6.5 V max.
-- `selected-diodes-typ-10v72` preserves the old 10.72 V expected-fail comparison
-  for the blue PLT5 450GB.
+- `selected-diodes-typ-9v3` is the current passing typical-current common-rail
+  reference for the selected diode set.
 - `selected-diodes-max-9v3` is the current passing common-rail reference for the
-  selected diode max-current cases, assuming real current limiting.
-- `selected-diodes-hardware-clamp-10v72` fails because the 247.5 mA analog clamp
-  exceeds every selected diode's datasheet operating-current maximum.
+  selected diode max-current cases.
+- `selected-diodes-hardware-clamp-9v3` checks the per-channel analog command
+  limits: about 38.0 mA IR, 23.0 mA red, 76.2 mA green, and 105.5 mA blue. It
+  passes for the current schematic on the 9.3 V common-rail reference.
 
 Monitor-current implication:
 - The direct-footprint pin topology is compatible for LD1 `D7805I`, LD2
@@ -112,5 +113,6 @@ Direct-footprint signoff and required action before laser bring-up:
   current limit, not only the green reference case.
 - Run `check_laser_monitor_pd_budget.py --netlist /tmp/lc.net` for the selected
   monitor-current policies before treating `MPD1..4` as calibrated feedback.
-- Do not allow firmware or the analog command path to reach the 247.5 mA clamp
-  on any selected LD1-LD4 diode.
+- Do not raise firmware limits above the per-channel analog command limits
+  without re-running the current/thermal, gate-drive, input-power, and optical
+  safety review.

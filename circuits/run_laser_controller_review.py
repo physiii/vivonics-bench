@@ -279,7 +279,7 @@ def main() -> int:
             {},
         ),
         (
-            "Buck/input hardware clamp expected fail",
+            "Buck/input all-channel analog-limit budget",
             [
                 "python3",
                 "circuits/check_buck_input_power_budget.py",
@@ -288,7 +288,7 @@ def main() -> int:
                 "--policy",
                 "hardware-clamp-9v3",
             ],
-            {"expected_codes": {1}},
+            {},
         ),
         (
             "Buck datasheet capacitor recommendation expected fail",
@@ -347,7 +347,7 @@ def main() -> int:
             {},
         ),
         (
-            "Laser-driver hardware-clamp gate-margin expected fail",
+            "Laser-driver per-channel limiter gate-margin",
             [
                 "python3",
                 "circuits/check_laser_driver_control_loop.py",
@@ -356,7 +356,7 @@ def main() -> int:
                 "--policy",
                 "hardware-clamp-gate-margin",
             ],
-            {"expected_codes": {1}},
+            {},
         ),
         (
             "Direct laser-can footprint pinout",
@@ -507,14 +507,14 @@ def main() -> int:
             {},
         ),
         (
-            "Selected-diode hardware clamp expected fail",
+            "Selected-diode per-channel analog-limit gate",
             [
                 "python3",
                 "circuits/check_laser_current_budget.py",
                 "--policy",
                 "selected-diodes-hardware-clamp-9v3",
             ],
-            {"expected_codes": {1}},
+            {},
         ),
         (
             "Low-Vf diode on green rail expected fail",

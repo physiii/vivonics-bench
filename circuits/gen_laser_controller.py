@@ -32,6 +32,7 @@ import os
 import re
 from pathlib import Path
 from circuit_designators import WL, actualize_parts
+from laser_command_limits import limiter_for_sheet
 
 PROJECT = "laser_controller"
 ROOT_UUID = "c1d2e3f4-6000-4000-a000-000000000001"
@@ -439,7 +440,6 @@ LCSC_10R="C5123624"  # 10Ω 2512 2W 1% Milliohm HoCR2512-2W-10R-1% — laser sou
 LCSC_1K="C2907002"; LCSC_10PF="C106245"; LCSC_10UF="C318691"; LCSC_1UF="C7472946"; LCSC_100NF="C83056"
 LCSC_1UF_100V="C13832" # Samsung CL31B105KCHNNNE 1uF 100V X7R 1206, copied from access-controller PoE input filtering
 LCSC_22UF_100V="C90264" # ROQANG RVT2A220M0810 22uF 100V SMD electrolytic, copied from access-controller PoE bulk input cap
-LCSC_30K="C22984"    # 30k 0603 1% UNI-ROYAL 0603WAF3002T5E — PWM command divider
 LCSC_240R="C114613"  # 240Ω 0603 1% Yageo RC0603FR-07240RL — monitor-PD sense shunt
 LCSC_249K="C2099849" # 2.49k 0603 1% Vishay CRCW06032K49FKEAHP — LM4040 shunt-reference sink
 LCSC_221K="C2929993" # 22.1k 0402 1% FOJAN FRC0402F2212TS — AP63200 laser feedback bottom resistor
@@ -774,11 +774,12 @@ def build_tia_channel(sheet_name: str):
 def build_laser_driver(sheet_name: str):
     oy=152; ux=210                                  # op-amp center
     laser = LASER_MPN[sheet_name]
+    limiter = limiter_for_sheet(sheet_name)
     parts={
         "U11":("TLV9001_SOT23_5","TLV9001",FP_SOT235,"TLV9001IDBVR",LCSC_TLV,ux,oy),
         "LD":(laser["symbol"],laser["value"],laser["footprint"],laser["mpn"],"",315,150),
         "R21":("R_H","10k",FP_R,"CRCW060310K0FKEA",LCSC_10K,172,oy+2.54),
-        "R22":("R_V","30k LIMIT",FP_R,"0603WAF3002T5E",LCSC_30K,198,oy+6.35),
+        "R22":("R_V",limiter.value,FP_R,limiter.mpn,limiter.lcsc,198,oy+6.35),
         "C21":("C_V","1uF",FP_402,"HGC0402R5105K250NTEJ",LCSC_1UF,188,oy+13),
         "C22":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,235,oy+16),         # V+ decoupling (open lower-middle)
         "R31":("R_H","1k",FP_R,"FRC0603F1001TS",LCSC_1K,232,oy),
@@ -827,7 +828,7 @@ def build_laser_driver(sheet_name: str):
     junctions.append((lout_x,OUT[1]))
     texts=[
         ("Laser Driver  —  TLV9001 + AO3400A constant-current sink  ·  I = V_ctrl / 10Ω  ·  reused 4× (IR / RED / GREEN / BLUE)",150,114,2.0),
-        ("PWM_IN → R21/C21 with R22 30k limiter → +IN (full-scale ≈2.48V, ≈248mA) ;  −IN = FB (sense top).",150,120,1.3),
+        (f"PWM_IN → R21/C21 with R22 {limiter.value} → +IN (full-scale ≈{limiter.command_voltage_v:.2f}V, ≈{limiter.command_current_a * 1000.0:.0f}mA) ;  −IN = FB (sense top).",150,120,1.3),
         ("TLV9001 out → R31 → Q1 gate ; source → 10Ω 2W sense → GND.  CC = loop comp (FB↔LOUT, tune in bring-up).",150,125,1.3),
         ("Direct TO-can footprint is the board-mounted laser source connection; no separate laser/MPD harness header is populated.",150,130,1.3),
         ("Digikey-cart MPNs: IR/red are US-Lasers Style-A TO18 monitor cans; green is PLT5 520EB_P TO56 monitor can; blue PLT5 450GB has no monitor PD.",150,135,1.3),
