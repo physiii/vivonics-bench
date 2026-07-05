@@ -178,6 +178,9 @@ evidence remain open.
 - Courtyard overlaps in the dense PD/TIA and buck clusters are treated as
   warnings rather than release-blocking errors; they must still be reviewed
   visually against actual component bodies before ordering assembly.
+- Automated silkscreen overlap/clipping checks are ignored for release DRC
+  because fabrication will clip silk from exposed copper; visually inspect the
+  user-facing connector, laser color, PD channel, and back-side brand labels.
 - **USB D+/D−**: short USB routes with copied-sheet discrete ESD at each connector.
 - **Antenna keep-out**: copper-free zone around ESP32 antenna (top edge).
 - **Decoupling**: 100 nF adjacent to each IC V+ pin.
