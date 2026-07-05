@@ -9,6 +9,7 @@ contains the required tokens.
 from __future__ import annotations
 
 import csv
+from dataclasses import dataclass
 from pathlib import Path
 
 
@@ -54,6 +55,13 @@ ALLOWED_STATUSES = {"OPEN", "CLOSED"}
 PLACEHOLDERS = {"", "TBD", "TODO", "NONE", "N/A"}
 
 
+@dataclass(frozen=True)
+class LedgerCheck:
+    failures: tuple[str, ...]
+    open_rows: tuple[tuple[str, str], ...]
+    closed_rows: tuple[tuple[str, str], ...]
+
+
 def row_key(row: dict[str, str]) -> tuple[str, str]:
     return row["blocker_id"].strip(), row["evidence_id"].strip()
 
@@ -78,13 +86,12 @@ def validate_closed_row(row: dict[str, str]) -> list[str]:
     return failures
 
 
-def main() -> int:
+def validate_ledger(path: Path = LEDGER) -> LedgerCheck:
     failures: list[str] = []
-    if not LEDGER.exists():
-        print(f"FAIL first-article release evidence: missing {LEDGER}")
-        return 1
+    if not path.exists():
+        return LedgerCheck((f"missing {path}",), (), ())
 
-    with LEDGER.open(newline="") as handle:
+    with path.open(newline="") as handle:
         reader = csv.DictReader(handle)
         if tuple(reader.fieldnames or ()) != REQUIRED_COLUMNS:
             failures.append(f"expected columns {REQUIRED_COLUMNS}, got {tuple(reader.fieldnames or ())}")
@@ -106,6 +113,7 @@ def main() -> int:
         failures.append(f"unexpected evidence rows: {extra}")
 
     open_rows: list[tuple[str, str]] = []
+    closed_rows: list[tuple[str, str]] = []
     for index, row in enumerate(rows, start=2):
         for column in REQUIRED_COLUMNS:
             if not row[column].strip():
@@ -122,7 +130,20 @@ def main() -> int:
         if status == "OPEN":
             open_rows.append(key)
         elif status == "CLOSED":
+            closed_rows.append(key)
             failures.extend(validate_closed_row(row))
+
+    return LedgerCheck(tuple(failures), tuple(open_rows), tuple(closed_rows))
+
+
+def main() -> int:
+    check = validate_ledger()
+    if check.failures and any(failure.startswith("missing ") for failure in check.failures):
+        print(f"FAIL first-article release evidence: {check.failures[0]}")
+        return 1
+
+    failures = list(check.failures)
+    open_rows = list(check.open_rows)
 
     if failures:
         print("FAIL first-article release evidence ledger")

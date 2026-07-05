@@ -16,6 +16,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 
+from check_first_article_release_evidence import (
+    REQUIRED_ROWS as REQUIRED_EVIDENCE_ROWS,
+    validate_ledger,
+)
+
 
 REPO_DIR = Path(__file__).resolve().parent.parent
 
@@ -440,21 +445,53 @@ def validate_evidence() -> list[str]:
     return failures
 
 
+def blockers_by_id() -> dict[str, ReleaseBlocker]:
+    return {blocker.blocker_id: blocker for blocker in BLOCKERS}
+
+
+def evidence_blocker_ids(rows: set[tuple[str, str]]) -> set[str]:
+    return {blocker_id for blocker_id, _evidence_id in rows}
+
+
 def main() -> int:
     failures = validate_evidence()
+    blockers = blockers_by_id()
+    blocker_ids = set(blockers)
+    ledger_blocker_ids = evidence_blocker_ids(REQUIRED_EVIDENCE_ROWS)
+    if blocker_ids != ledger_blocker_ids:
+        failures.append(
+            "release blocker registry and first-article evidence ledger disagree: "
+            f"registry_only={sorted(blocker_ids - ledger_blocker_ids)}, "
+            f"ledger_only={sorted(ledger_blocker_ids - blocker_ids)}"
+        )
+
+    ledger = validate_ledger()
+    for failure in ledger.failures:
+        failures.append(f"first-article evidence ledger: {failure}")
+
     if failures:
         print(f"FAIL release-readiness blocker registry: {len(failures)} evidence checks failed")
         for failure in failures:
             print(f"  {failure}")
         return 1
 
-    if not BLOCKERS:
+    open_evidence_by_blocker: dict[str, list[str]] = {}
+    for blocker_id, evidence_id in ledger.open_rows:
+        open_evidence_by_blocker.setdefault(blocker_id, []).append(evidence_id)
+
+    open_blockers = [blocker for blocker in BLOCKERS if blocker.blocker_id in open_evidence_by_blocker]
+    if not open_blockers:
         print("PASS release readiness: no open blockers registered")
         return 0
 
-    print(f"BLOCKED production release readiness: {len(BLOCKERS)} open first-article/production blockers")
-    for blocker in BLOCKERS:
+    print(
+        "BLOCKED production release readiness: "
+        f"{len(open_blockers)} open first-article/production blockers "
+        f"across {len(ledger.open_rows)} open evidence row(s)"
+    )
+    for blocker in open_blockers:
         print(f"  [{blocker.blocker_id}] {blocker.title}")
+        print(f"    Open evidence: {', '.join(sorted(open_evidence_by_blocker[blocker.blocker_id]))}")
         print(f"    Detail: {blocker.detail}")
         print(f"    Required action: {blocker.required_action}")
     return 2

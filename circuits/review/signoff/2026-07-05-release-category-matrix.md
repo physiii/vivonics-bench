@@ -67,7 +67,7 @@ blocker in `check_laser_controller_release_readiness.py`.
 | 4 | Signal-PD/TIA calibration. | Fill D1-D4 `signal_pd` rows and U14 V1-V4 `adc_readback` rows in `circuits/review/calibration/first_article_optical_calibration_template.csv`; record RF, VBIAS, dark counts, known input, noise, slope, and saturation. |
 | 5 | One laser channel at a time. | Fill LD1-LD4 rows in `circuits/review/calibration/first_article_laser_bringup_template.csv`; record received-can pinout, command, measured current, optical power, driver/sense temperature, and shutoff behavior. |
 | 6 | Monitor-PD calibration and safety behavior. | Fill LD1-LD4 `monitor_pd` rows in `circuits/review/calibration/first_article_optical_calibration_template.csv`; LD4 must remain spare/open with no blue APC telemetry. |
-| 7 | Production release decision. | Add measured board-temperature, pulse/surge/current derating, production VIN24 protection, and any approved substitutions; then update `check_laser_controller_release_readiness.py` only for blockers that have actual evidence. |
+| 7 | Production release decision. | Add measured board-temperature, pulse/surge/current derating, production VIN24 protection, and any approved substitutions; save evidence files containing the required closure tokens, then mark only the proven rows `CLOSED` in `circuits/review/calibration/first_article_release_evidence.csv`. |
 
 ## Practical Meaning
 

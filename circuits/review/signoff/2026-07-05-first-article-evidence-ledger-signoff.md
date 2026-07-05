@@ -8,7 +8,10 @@ production-release blockers.
 ## Result
 
 Added `circuits/review/calibration/first_article_release_evidence.csv` and
-`circuits/check_first_article_release_evidence.py`.
+`circuits/check_first_article_release_evidence.py`. Updated
+`circuits/check_laser_controller_release_readiness.py` so the open blocker list
+is derived from this ledger, while the static blocker prose is kept as the
+per-category explanation and required-action registry.
 
 The ledger currently has 16 evidence rows across the seven deferred blocker
 categories:
@@ -26,6 +29,12 @@ an evidence file exists and contains the row's required tokens. This prevents
 clearing the blocker registry with prose-only signoff or incomplete bring-up
 notes.
 
+The release-readiness checker now verifies that the seven blocker IDs in its
+registry match the blocker IDs required by the ledger. If a ledger row is
+closed with valid evidence, that specific evidence item stops contributing to
+the open blocker count; if all rows for a blocker are closed, the category is
+removed from the reported production-release blockers.
+
 ## Verification
 
 - `python3 circuits/check_first_article_release_evidence.py`
@@ -35,3 +44,6 @@ notes.
   - reports `DEFERRED: First-article release evidence ledger`
   - keeps `JLCPCB order package status: READY`
   - keeps `First-article/production release status: BLOCKED`
+- `python3 circuits/check_laser_controller_release_readiness.py`
+  - returns `2`
+  - reports 7 open blocker categories across 16 open evidence rows
