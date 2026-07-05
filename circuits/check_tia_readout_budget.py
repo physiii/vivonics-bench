@@ -44,8 +44,40 @@ CHANNELS = (
 )
 
 
+def canon_net(net: str | None) -> str | None:
+    aliases = {
+        "Net-(D1-A)": "/TIA_IR/PD_ANODE",
+        "Net-(D1-K)": "/TIA_IR/PD_CATHODE",
+        "Net-(U1-+)": "/TIA_IR/VBIAS",
+        "Net-(R4-Pad2)": "/TIA_IR/VBIAS_TOP",
+        "Net-(RV1-W)": "/TIA_IR/VBIAS_WIPER",
+        "Net-(D2-A)": "/TIA_RED/PD_ANODE",
+        "Net-(D2-K)": "/TIA_RED/PD_CATHODE",
+        "Net-(U2-+)": "/TIA_RED/VBIAS",
+        "Net-(R8-Pad2)": "/TIA_RED/VBIAS_TOP",
+        "Net-(RV2-W)": "/TIA_RED/VBIAS_WIPER",
+        "Net-(D3-A)": "/TIA_GREEN/PD_ANODE",
+        "Net-(D3-K)": "/TIA_GREEN/PD_CATHODE",
+        "Net-(U3-+)": "/TIA_GREEN/VBIAS",
+        "Net-(R12-Pad2)": "/TIA_GREEN/VBIAS_TOP",
+        "Net-(RV3-W)": "/TIA_GREEN/VBIAS_WIPER",
+        "Net-(D4-A)": "/TIA_BLUE/PD_ANODE",
+        "Net-(D4-K)": "/TIA_BLUE/PD_CATHODE",
+        "Net-(U4-+)": "/TIA_BLUE/VBIAS",
+        "Net-(R16-Pad2)": "/TIA_BLUE/VBIAS_TOP",
+        "Net-(RV4-W)": "/TIA_BLUE/VBIAS_WIPER",
+    }
+    return aliases.get(net, net)
+
+
 def node_set(nets: dict[str, list[tuple[str, str, str, str]]], net: str) -> set[tuple[str, str]]:
-    return {(ref, pin) for ref, pin, _, _ in nets.get(net, [])}
+    wanted = canon_net(net)
+    return {
+        (ref, pin)
+        for raw_net, nodes in nets.items()
+        if canon_net(raw_net) == wanted
+        for ref, pin, _, _ in nodes
+    }
 
 
 def require_exact(
@@ -82,7 +114,8 @@ def require_unconnected_pin(
         for net, nodes in sorted(nets.items())
         if any(node_ref == ref and node_pin == pin for node_ref, node_pin, _, _ in nodes)
     ]
-    if connected:
+    expected_nc_net = f"unconnected-({ref}-NC-Pad{pin})"
+    if any(net != expected_nc_net for net in connected):
         errors.append(f"{ref}.{pin}: expected intentional no-connect, got net(s) {connected}")
 
 

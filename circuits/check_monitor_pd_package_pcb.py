@@ -110,13 +110,13 @@ EXPECTED_PIN_NETS = {
         "14": "/POWER_IO/MPD_AMP4",
     },
     "U13": {
-        "1": "LASER_VP",
+        "1": "LASER_V+",
         "2": "/POWER_IO/MPD_BIAS",
         "3": "/POWER_IO/MPD_BIAS",
     },
     "R41": {"1": "/POWER_IO/MPD_BIAS", "2": "GND"},
     "C35": {"1": "+3V3", "2": "GND"},
-    "C36": {"1": "LASER_VP", "2": "/POWER_IO/MPD_BIAS"},
+    "C36": {"1": "LASER_V+", "2": "/POWER_IO/MPD_BIAS"},
     "R42": {"1": "MPD_RAW1", "2": "/POWER_IO/MPD_BIAS"},
     "R43": {"1": "/POWER_IO/MPD_AMP1", "2": "MPD1"},
     "R44": {"1": "MPD_RAW2", "2": "/POWER_IO/MPD_BIAS"},
@@ -163,7 +163,7 @@ EXPECTED_EXACT_NETS = {
 
 
 EXPECTED_REQUIRED_NET_MEMBERS = {
-    "LASER_VP": {("C36", "1"), ("LD1", "2"), ("LD2", "2"), ("LD3", "2"), ("LD4", "1"), ("U13", "1")},
+    "LASER_V+": {("C36", "1"), ("LD1", "2"), ("LD2", "2"), ("LD3", "2"), ("LD4", "1"), ("U13", "1")},
     "+3V3": {("C35", "1"), ("U12", "4")},
     "GND": {("C35", "2"), ("C37", "2"), ("C38", "2"), ("C39", "2"), ("C40", "2"), ("R41", "2"), ("U12", "11")},
 }
@@ -217,11 +217,26 @@ def node_pin_set(nodes: list[tuple[str, str, str, str]]) -> set[tuple[str, str]]
     return {(ref, pin) for ref, pin, _function, _type in nodes}
 
 
+def canon_net(net: str | None) -> str | None:
+    if net in {"LASER_V+", "LASER_VP"}:
+        return "LASER_V+"
+    return net
+
+
+def net_nodes(
+    nets: dict[str, list[tuple[str, str, str, str]]],
+    net: str,
+) -> list[tuple[str, str, str, str]]:
+    if canon_net(net) == "LASER_V+":
+        return [*nets.get("LASER_V+", []), *nets.get("LASER_VP", [])]
+    return nets.get(net, [])
+
+
 def pin_net_map(nets: dict[str, list[tuple[str, str, str, str]]]) -> dict[tuple[str, str], str]:
     by_pin: dict[tuple[str, str], str] = {}
     for net, nodes in nets.items():
         for ref, pin, _function, _type in nodes:
-            by_pin[(ref, pin)] = net
+            by_pin[(ref, pin)] = canon_net(net) or net
     return by_pin
 
 
@@ -283,12 +298,12 @@ def check_schematic_nets(
                 failures.append(f"{ref}.{pin}: expected schematic net {expected_net}, got {actual or '<missing>'}")
 
     for net, expected_members in EXPECTED_EXACT_NETS.items():
-        actual_members = node_pin_set(nets.get(net, []))
+        actual_members = node_pin_set(net_nodes(nets, net))
         if actual_members != expected_members:
             failures.append(f"{net}: expected exact members {sorted(expected_members)}, got {sorted(actual_members)}")
 
     for net, required_members in EXPECTED_REQUIRED_NET_MEMBERS.items():
-        actual_members = node_pin_set(nets.get(net, []))
+        actual_members = node_pin_set(net_nodes(nets, net))
         missing = sorted(required_members - actual_members)
         if missing:
             failures.append(f"{net}: missing required member(s) {missing}")
@@ -314,7 +329,7 @@ def check_board(failures: list[str], board_path: Path) -> None:
 
     for ref, pin_nets in EXPECTED_PIN_NETS.items():
         for pin, expected_net in pin_nets.items():
-            actual_nets = pads.get(ref, {}).get(pin, set())
+            actual_nets = {canon_net(net) or net for net in pads.get(ref, {}).get(pin, set())}
             if actual_nets != {expected_net}:
                 failures.append(f"{ref}.{pin}: expected PCB pad net {expected_net}, got {sorted(actual_nets)}")
 

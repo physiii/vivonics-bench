@@ -51,6 +51,47 @@ def read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
+def footprint_layers() -> dict[str, str]:
+    text = BOARD_PATH.read_text()
+    layers: dict[str, str] = {}
+    index = 0
+    while True:
+        start = text.find("(footprint ", index)
+        if start < 0:
+            break
+        depth = 0
+        end = start
+        in_string = False
+        escaped = False
+        while end < len(text):
+            char = text[end]
+            if in_string:
+                if escaped:
+                    escaped = False
+                elif char == "\\":
+                    escaped = True
+                elif char == '"':
+                    in_string = False
+            elif char == '"':
+                in_string = True
+            elif char == "(":
+                depth += 1
+            elif char == ")":
+                depth -= 1
+                if depth == 0:
+                    end += 1
+                    break
+            end += 1
+
+        block = text[start:end]
+        index = end
+        ref = re.search(r'\(property "Reference" "([^"]+)"', block)
+        layer = re.search(r'\(layer "([FB])\.Cu"\)', block)
+        if ref and layer:
+            layers[ref.group(1)] = "top" if layer.group(1) == "F" else "bottom"
+    return layers
+
+
 def gerber_files() -> tuple[str, ...]:
     job_path = FAB_DIR / GERBER_JOB_FILE
     if not job_path.exists():
@@ -126,12 +167,24 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
     pos_rows = read_csv(POS_PATH)
     bom_refs = bom_designators(bom_rows)
     pos_refs = {row["Ref"] for row in pos_rows}
+    pcb_sides = footprint_layers()
     missing = sorted(bom_refs - pos_refs)
     extra = sorted(pos_refs - bom_refs)
     if missing:
         failures.append(f"BOM designators missing from POS: {', '.join(missing)}")
     if extra:
         failures.append(f"POS designators missing from BOM: {', '.join(extra)}")
+
+    for row in pos_rows:
+        ref = row["Ref"]
+        side = row["Side"]
+        expected_side = pcb_sides.get(ref)
+        if expected_side is None:
+            failures.append(f"POS designator {ref} is missing from PCB footprints")
+        elif side != expected_side:
+            failures.append(
+                f"POS side for {ref} is {side}, expected {expected_side} from PCB layer"
+            )
 
     bad_lcsc = sorted(
         {
@@ -179,7 +232,12 @@ def verify_board_text() -> list[str]:
         pattern = rf'\(gr_text "{re.escape(label)}".*?\(layer "{re.escape(layer)}"\)'
         if not re.search(pattern, text, flags=re.DOTALL):
             failures.append(f"missing board text {label!r} on {layer}")
-    if '(font (size 12 12) (thickness 1.4)) (justify mirror)' not in text:
+    if not re.search(
+        r'\(gr_text "vivonics".*?\(layer "B\.SilkS"\).*?'
+        r'\(size 12 12\).*?\(thickness 1\.4\).*?\(justify mirror\)',
+        text,
+        flags=re.DOTALL,
+    ):
         failures.append("backside vivonics mark is missing expected large mirrored 12 mm text")
     return failures
 

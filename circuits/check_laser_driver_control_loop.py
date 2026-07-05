@@ -58,7 +58,28 @@ def component_by_ref(path: Path) -> dict[str, dict[str, str]]:
 
 
 def node_set(nets: dict[str, list[tuple[str, str, str, str]]], net: str) -> set[tuple[str, str]]:
-    return {(ref, pin) for ref, pin, _, _ in nets.get(net, [])}
+    wanted = canon_net(net)
+    return {
+        (ref, pin)
+        for raw_net, nodes in nets.items()
+        if canon_net(raw_net) == wanted
+        for ref, pin, _, _ in nodes
+    }
+
+
+def canon_net(net: str | None) -> str | None:
+    aliases = {
+        "LASER_VP": "LASER_V+",
+        "Net-(U5-+)": "/LASER_IR/CMD_FILTER",
+        "Net-(Q1-G)": "/LASER_IR/GATE",
+        "Net-(U6-+)": "/LASER_RED/CMD_FILTER",
+        "Net-(Q2-G)": "/LASER_RED/GATE",
+        "Net-(U7-+)": "/LASER_GREEN/CMD_FILTER",
+        "Net-(Q3-G)": "/LASER_GREEN/GATE",
+        "Net-(U8-+)": "/LASER_BLUE/CMD_FILTER",
+        "Net-(Q4-G)": "/LASER_BLUE/GATE",
+    }
+    return aliases.get(net, net)
 
 
 def require_exact(
@@ -172,7 +193,7 @@ def check_topology(
         )
         require_exact(errors, nets, channel.isense_net, {(ESP32_REF, channel.isense_pin), (isense_r, "2")})
         require_exact(errors, nets, channel.laser_n_net, {(ld, channel.laser_n_pin), (mosfet, "3")})
-        require_contains(errors, nets, "LASER_VP", {(ld, channel.laser_vplus_pin)})
+        require_contains(errors, nets, "LASER_V+", {(ld, channel.laser_vplus_pin)})
         require_contains(errors, nets, "+5V", {(tlv, "5"), (decouple_c, "1")})
         require_contains(errors, nets, "GND", {(tlv, "2"), (decouple_c, "2"), (sense_r, "2"), (pulldown_r, "2"), (pwm_c, "2")})
     return errors

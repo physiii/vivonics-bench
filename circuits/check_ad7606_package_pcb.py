@@ -211,11 +211,34 @@ def node_pin_set(nodes: list[tuple[str, str, str, str]]) -> set[tuple[str, str]]
     return {(ref, pin) for ref, pin, _function, _type in nodes}
 
 
+def canon_net(net: str | None) -> str | None:
+    aliases = {
+        "Net-(C57-Pad1)": "/POWER_IO/ADC_CREG1",
+        "Net-(C58-Pad1)": "/POWER_IO/ADC_CREG2",
+        "Net-(U14-REFIN{slash}REFOUT)": "/POWER_IO/ADC_CREFIN",
+        "Net-(U14-REFCAPA)": "/POWER_IO/ADC_REFCAP",
+    }
+    return aliases.get(net, net)
+
+
+def net_nodes(
+    nets: dict[str, list[tuple[str, str, str, str]]],
+    net: str,
+) -> list[tuple[str, str, str, str]]:
+    wanted = canon_net(net)
+    return [
+        node
+        for raw_net, nodes in nets.items()
+        if canon_net(raw_net) == wanted
+        for node in nodes
+    ]
+
+
 def pin_net_map(nets: dict[str, list[tuple[str, str, str, str]]]) -> dict[tuple[str, str], str]:
     by_pin: dict[tuple[str, str], str] = {}
     for net, nodes in nets.items():
         for ref, pin, _function, _type in nodes:
-            by_pin[(ref, pin)] = net
+            by_pin[(ref, pin)] = canon_net(net) or net
     return by_pin
 
 
@@ -303,17 +326,17 @@ def check_schematic_nets(
             if actual is None or actual.startswith("unconnected-"):
                 continue
             failures.append(f"{ADC_REF}.{pin}: expected schematic no-connect, got {actual}")
-        elif actual != expected_net:
+        elif actual != canon_net(expected_net):
             failures.append(f"{ADC_REF}.{pin}: expected schematic net {expected_net}, got {actual or '<missing>'}")
 
     for net, expected_members in EXPECTED_EXACT_NETS.items():
-        actual_members = node_pin_set(nets.get(net, []))
+        actual_members = node_pin_set(net_nodes(nets, net))
         if actual_members != expected_members:
             failures.append(f"{net}: expected members {sorted(expected_members)}, got {sorted(actual_members)}")
 
     for node, expected_net in EXPECTED_SUPPORT_PIN_NETS.items():
         actual = by_pin.get(node)
-        if actual != expected_net:
+        if actual != canon_net(expected_net):
             ref, pin = node
             failures.append(f"{ref}.{pin}: expected schematic support net {expected_net}, got {actual or '<missing>'}")
 
@@ -335,13 +358,13 @@ def check_board(failures: list[str], board_path: Path) -> None:
         if expected_net is None:
             if actual_nets:
                 failures.append(f"{ADC_REF}.{pin}: expected PCB pad to be unnetted, got {sorted(actual_nets)}")
-        elif actual_nets != {expected_net}:
+        elif {canon_net(net) or net for net in actual_nets} != {canon_net(expected_net) or expected_net}:
             failures.append(f"{ADC_REF}.{pin}: expected PCB pad net {expected_net}, got {sorted(actual_nets)}")
 
     all_pads = board_pad_nets(board_text)
     for (ref, pin), expected_net in EXPECTED_SUPPORT_PIN_NETS.items():
         actual_nets = all_pads.get(ref, {}).get(pin, set())
-        if actual_nets != {expected_net}:
+        if {canon_net(net) or net for net in actual_nets} != {canon_net(expected_net) or expected_net}:
             failures.append(f"{ref}.{pin}: expected PCB pad net {expected_net}, got {sorted(actual_nets)}")
 
 

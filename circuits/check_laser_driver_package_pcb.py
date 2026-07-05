@@ -65,7 +65,7 @@ EXPECTED_EXACT_NETS: dict[str, set[tuple[str, str]]] = {}
 EXPECTED_REQUIRED_NET_MEMBERS: dict[str, set[tuple[str, str]]] = {
     "+5V": set(),
     "GND": set(),
-    "LASER_VP": set(),
+    "LASER_V+": set(),
 }
 
 
@@ -226,7 +226,7 @@ for channel in CHANNELS:
     EXPECTED_EXACT_NETS[channel.laser_n_net] = {(ld, channel.laser_n_pin), (mosfet, "3")}
     EXPECTED_REQUIRED_NET_MEMBERS["+5V"].update({(tlv, "5"), (decouple_c, "1")})
     EXPECTED_REQUIRED_NET_MEMBERS["GND"].update({(tlv, "2"), (decouple_c, "2"), (sense_r, "2"), (pulldown_r, "2"), (pwm_c, "2")})
-    EXPECTED_REQUIRED_NET_MEMBERS["LASER_VP"].add((ld, channel.laser_vplus_pin))
+    EXPECTED_REQUIRED_NET_MEMBERS["LASER_V+"].add((ld, channel.laser_vplus_pin))
 
 
 EXPECTED_SOT23_5_PADS = {
@@ -263,11 +263,39 @@ def node_pin_set(nodes: list[tuple[str, str, str, str]]) -> set[tuple[str, str]]
     return {(ref, pin) for ref, pin, _function, _type in nodes}
 
 
+def canon_net(net: str | None) -> str | None:
+    aliases = {
+        "LASER_VP": "LASER_V+",
+        "Net-(U5-+)": "/LASER_IR/CMD_FILTER",
+        "Net-(Q1-G)": "/LASER_IR/GATE",
+        "Net-(U6-+)": "/LASER_RED/CMD_FILTER",
+        "Net-(Q2-G)": "/LASER_RED/GATE",
+        "Net-(U7-+)": "/LASER_GREEN/CMD_FILTER",
+        "Net-(Q3-G)": "/LASER_GREEN/GATE",
+        "Net-(U8-+)": "/LASER_BLUE/CMD_FILTER",
+        "Net-(Q4-G)": "/LASER_BLUE/GATE",
+    }
+    return aliases.get(net, net)
+
+
+def net_nodes(
+    nets: dict[str, list[tuple[str, str, str, str]]],
+    net: str,
+) -> list[tuple[str, str, str, str]]:
+    wanted = canon_net(net)
+    return [
+        node
+        for raw_net, nodes in nets.items()
+        if canon_net(raw_net) == wanted
+        for node in nodes
+    ]
+
+
 def pin_net_map(nets: dict[str, list[tuple[str, str, str, str]]]) -> dict[tuple[str, str], str]:
     by_pin: dict[tuple[str, str], str] = {}
     for net, nodes in nets.items():
         for ref, pin, _function, _type in nodes:
-            by_pin[(ref, pin)] = net
+            by_pin[(ref, pin)] = canon_net(net) or net
     return by_pin
 
 
@@ -325,16 +353,16 @@ def check_schematic_nets(
     for ref, pin_nets in EXPECTED_PIN_NETS.items():
         for pin, expected_net in pin_nets.items():
             actual = by_pin.get((ref, pin))
-            if actual != expected_net:
+            if actual != canon_net(expected_net):
                 failures.append(f"{ref}.{pin}: expected schematic net {expected_net}, got {actual or '<missing>'}")
 
     for net, expected_members in EXPECTED_EXACT_NETS.items():
-        actual_members = node_pin_set(nets.get(net, []))
+        actual_members = node_pin_set(net_nodes(nets, net))
         if actual_members != expected_members:
             failures.append(f"{net}: expected exact members {sorted(expected_members)}, got {sorted(actual_members)}")
 
     for net, required_members in EXPECTED_REQUIRED_NET_MEMBERS.items():
-        actual_members = node_pin_set(nets.get(net, []))
+        actual_members = node_pin_set(net_nodes(nets, net))
         missing = sorted(required_members - actual_members)
         if missing:
             failures.append(f"{net}: missing required member(s) {missing}")
@@ -356,8 +384,8 @@ def check_board(failures: list[str], board_path: Path) -> None:
 
     for ref, pin_nets in EXPECTED_PIN_NETS.items():
         for pin, expected_net in pin_nets.items():
-            actual_nets = pads.get(ref, {}).get(pin, set())
-            if actual_nets != {expected_net}:
+            actual_nets = {canon_net(net) or net for net in pads.get(ref, {}).get(pin, set())}
+            if actual_nets != {canon_net(expected_net) or expected_net}:
                 failures.append(f"{ref}.{pin}: expected PCB pad net {expected_net}, got {sorted(actual_nets)}")
 
 

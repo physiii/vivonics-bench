@@ -75,7 +75,7 @@ def angle_close(actual: float, expected: float) -> bool:
 
 
 def check_pad_geometry(failures: list[str], ref: str, pad, spec: PadSpec, label: str) -> None:
-    pos = pad.GetPos0()
+    pos = pad.GetFPRelativePosition()
     size = pad.GetSize()
     actual_pos = (pos.x / 1_000_000, pos.y / 1_000_000)
     actual_size = (size.x / 1_000_000, size.y / 1_000_000)
@@ -107,7 +107,10 @@ def sorted_paste_pads(fp) -> list:
     paste_pads = [pad for pad in fp.Pads() if not pad.GetNumber()]
     return sorted(
         paste_pads,
-        key=lambda pad: (round(pad.GetPos0().x / 1_000_000, 3), round(pad.GetPos0().y / 1_000_000, 3)),
+        key=lambda pad: (
+            round(pad.GetFPRelativePosition().x / 1_000_000, 3),
+            round(pad.GetFPRelativePosition().y / 1_000_000, 3),
+        ),
     )
 
 

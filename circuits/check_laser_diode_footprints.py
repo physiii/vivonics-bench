@@ -42,7 +42,7 @@ LASER_CANS = (
         value="D7805I 780nm TO18 STYLE-A LASER+MPD",
         schematic_footprint="OptoDevice:LaserDiode_TO18-D5.6-3",
         board_footprint="LaserDiode_TO18-D5.6-3",
-        expected_pin_nets={"1": "LASER_N1", "2": "LASER_VP", "3": "MPD_RAW1"},
+        expected_pin_nets={"1": "LASER_N1", "2": "LASER_V+", "3": "MPD_RAW1"},
         required_exact_net_members={
             "LASER_N1": {("LD1", "1"), ("Q1", "3")},
             "MPD_RAW1": {("LD1", "3"), ("R42", "1"), ("U12", "3")},
@@ -55,7 +55,7 @@ LASER_CANS = (
         value="D6505I 650nm TO18 STYLE-A LASER+MPD",
         schematic_footprint="OptoDevice:LaserDiode_TO18-D5.6-3",
         board_footprint="LaserDiode_TO18-D5.6-3",
-        expected_pin_nets={"1": "LASER_N2", "2": "LASER_VP", "3": "MPD_RAW2"},
+        expected_pin_nets={"1": "LASER_N2", "2": "LASER_V+", "3": "MPD_RAW2"},
         required_exact_net_members={
             "LASER_N2": {("LD2", "1"), ("Q2", "3")},
             "MPD_RAW2": {("LD2", "3"), ("R44", "1"), ("U12", "5")},
@@ -68,7 +68,7 @@ LASER_CANS = (
         value="PLT5 520EB_P TO56 LASER+MPD",
         schematic_footprint="OptoDevice:LaserDiode_TO56-3",
         board_footprint="LaserDiode_TO56-3",
-        expected_pin_nets={"1": "LASER_N3", "2": "LASER_VP", "3": "MPD_RAW3"},
+        expected_pin_nets={"1": "LASER_N3", "2": "LASER_V+", "3": "MPD_RAW3"},
         required_exact_net_members={
             "LASER_N3": {("LD3", "1"), ("Q3", "3")},
             "MPD_RAW3": {("LD3", "3"), ("R46", "1"), ("U12", "10")},
@@ -81,7 +81,7 @@ LASER_CANS = (
         value="PLT5 450GB TO56 LASER CASE",
         schematic_footprint="OptoDevice:LaserDiode_TO56-3",
         board_footprint="LaserDiode_TO56-3",
-        expected_pin_nets={"1": "LASER_VP", "2": None, "3": "LASER_N4"},
+        expected_pin_nets={"1": "LASER_V+", "2": None, "3": "LASER_N4"},
         required_exact_net_members={
             "LASER_N4": {("LD4", "3"), ("Q4", "3")},
             "MPD_RAW4": {("R48", "1"), ("U12", "12")},
@@ -114,11 +114,26 @@ def node_pin_set(nodes: list[tuple[str, str, str, str]]) -> set[tuple[str, str]]
     return {(ref, pin) for ref, pin, _function, _type in nodes}
 
 
+def canon_net(net: str | None) -> str | None:
+    if net in {"LASER_V+", "LASER_VP"}:
+        return "LASER_V+"
+    return net
+
+
+def net_nodes(
+    nets: dict[str, list[tuple[str, str, str, str]]],
+    net: str,
+) -> list[tuple[str, str, str, str]]:
+    if canon_net(net) == "LASER_V+":
+        return [*nets.get("LASER_V+", []), *nets.get("LASER_VP", [])]
+    return nets.get(net, [])
+
+
 def pin_net_map(nets: dict[str, list[tuple[str, str, str, str]]]) -> dict[tuple[str, str], str]:
     by_pin: dict[tuple[str, str], str] = {}
     for net, nodes in nets.items():
         for ref, pin, _function, _type in nodes:
-            by_pin[(ref, pin)] = net
+            by_pin[(ref, pin)] = canon_net(net) or net
     return by_pin
 
 
@@ -199,14 +214,14 @@ def check_schematic_nets(
                 failures.append(f"{can.ref}.{pin}: expected schematic net {expected_net}, got {actual or '<missing>'}")
 
         for net, expected_members in can.required_exact_net_members.items():
-            actual_members = node_pin_set(nets.get(net, []))
+            actual_members = node_pin_set(net_nodes(nets, net))
             if actual_members != expected_members:
                 failures.append(f"{net}: expected members {sorted(expected_members)}, got {sorted(actual_members)}")
 
-    laser_vplus_members = node_pin_set(nets.get("LASER_VP", []))
+    laser_vplus_members = node_pin_set(net_nodes(nets, "LASER_V+"))
     for ref, pin in [("LD1", "2"), ("LD2", "2"), ("LD3", "2"), ("LD4", "1")]:
         if (ref, pin) not in laser_vplus_members:
-            failures.append(f"LASER_VP: missing {ref}.{pin}")
+            failures.append(f"LASER_V+: missing {ref}.{pin}")
     if ("LD4", "2") in node_pin_set(nets.get("MPD_RAW4", [])):
         failures.append("MPD_RAW4: LD4 case pin is incorrectly tied to the monitor input")
 
@@ -227,7 +242,7 @@ def check_board_pad_nets(
         if actual_footprint != can.board_footprint:
             failures.append(f"{can.ref}: expected PCB footprint {can.board_footprint}, got {actual_footprint}")
         for pin, expected_net in can.expected_pin_nets.items():
-            actual_nets = pad_nets.get(can.ref, {}).get(pin, set())
+            actual_nets = {canon_net(net) or net for net in pad_nets.get(can.ref, {}).get(pin, set())}
             if expected_net is None:
                 if actual_nets:
                     failures.append(f"{can.ref}.{pin}: expected PCB pad to be unnetted, got {sorted(actual_nets)}")

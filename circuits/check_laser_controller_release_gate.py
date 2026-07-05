@@ -32,7 +32,7 @@ from check_laser_controller_pcb import (
 LASER_CATHODE_MIN_WIDTH_MM = 0.60
 LASER_CATHODE_MAX_LENGTH_MM = 70.0
 LASER_SUPPLY_MIN_WIDTH_MM = 0.80
-# LASER_VP is a board-spanning common bench rail from the AP63200 output to
+# LASER_VP is the PCB-side board-spanning common bench rail from the AP63200 output to
 # four direct laser cans plus the monitor-bias front end. This total-length
 # guard catches accidental route bloat; width/via checks carry current capacity.
 LASER_SUPPLY_NET = "LASER_VP"

@@ -96,47 +96,47 @@ EXPECTED_PIN_NETS = {
         "2": "VIN_24V",
         "3": "VIN_24V",
         "4": "GND",
-        "5": "/POWER_IO/BUCK5_SW",
-        "6": "/POWER_IO/BUCK5_BST",
+        "5": "Net-(U15-SW)",
+        "6": "Net-(U15-BST)",
     },
     "U16": {
-        "1": "/POWER_IO/LASER_BUCK_FB",
+        "1": "Net-(U16-FB)",
         "2": "VIN_24V",
         "3": "VIN_24V",
         "4": "GND",
-        "5": "/POWER_IO/LASER_BUCK_SW",
-        "6": "/POWER_IO/LASER_BUCK_BST",
+        "5": "Net-(U16-SW)",
+        "6": "Net-(U16-BST)",
     },
     "L1": {
-        "1": "/POWER_IO/BUCK5_SW",
+        "1": "Net-(U15-SW)",
         "2": "/POWER_IO/BUCK_5V",
     },
     "L2": {
-        "1": "/POWER_IO/LASER_BUCK_SW",
-        "2": "LASER_VP",
+        "1": "Net-(U16-SW)",
+        "2": "LASER_V+",
     },
     "C61": {"1": "VIN_24V", "2": "GND"},
     "C62": {"1": "VIN_24V", "2": "GND"},
-    "C63": {"1": "/POWER_IO/BUCK5_SW", "2": "/POWER_IO/BUCK5_BST"},
+    "C63": {"1": "Net-(U15-SW)", "2": "Net-(U15-BST)"},
     "C64": {"1": "/POWER_IO/BUCK_5V", "2": "GND"},
     "C65": {"1": "/POWER_IO/BUCK_5V", "2": "GND"},
-    "C66": {"1": "/POWER_IO/LASER_BUCK_SW", "2": "/POWER_IO/LASER_BUCK_BST"},
-    "C67": {"1": "LASER_VP", "2": "GND"},
-    "C68": {"1": "LASER_VP", "2": "GND"},
-    "C69": {"1": "LASER_VP", "2": "/POWER_IO/LASER_BUCK_FB"},
+    "C66": {"1": "Net-(U16-SW)", "2": "Net-(U16-BST)"},
+    "C67": {"1": "LASER_V+", "2": "GND"},
+    "C68": {"1": "LASER_V+", "2": "GND"},
+    "C69": {"1": "LASER_V+", "2": "Net-(U16-FB)"},
     "C70": {"1": "VIN_24V", "2": "GND"},
-    "R61": {"1": "LASER_VP", "2": "/POWER_IO/LASER_BUCK_FB"},
-    "R62": {"1": "/POWER_IO/LASER_BUCK_FB", "2": "GND"},
+    "R61": {"1": "LASER_V+", "2": "Net-(U16-FB)"},
+    "R62": {"1": "Net-(U16-FB)", "2": "GND"},
     "D6": {"1": "/POWER_IO/BUCK_5V", "2": "+5V"},
 }
 
 
 EXPECTED_EXACT_NETS = {
-    "/POWER_IO/BUCK5_SW": {("U15", "5"), ("C63", "1"), ("L1", "1")},
-    "/POWER_IO/BUCK5_BST": {("U15", "6"), ("C63", "2")},
-    "/POWER_IO/LASER_BUCK_SW": {("U16", "5"), ("C66", "1"), ("L2", "1")},
-    "/POWER_IO/LASER_BUCK_BST": {("U16", "6"), ("C66", "2")},
-    "/POWER_IO/LASER_BUCK_FB": {("U16", "1"), ("R61", "2"), ("R62", "1"), ("C69", "2")},
+    "Net-(U15-SW)": {("U15", "5"), ("C63", "1"), ("L1", "1")},
+    "Net-(U15-BST)": {("U15", "6"), ("C63", "2")},
+    "Net-(U16-SW)": {("U16", "5"), ("C66", "1"), ("L2", "1")},
+    "Net-(U16-BST)": {("U16", "6"), ("C66", "2")},
+    "Net-(U16-FB)": {("U16", "1"), ("R61", "2"), ("R62", "1"), ("C69", "2")},
     "/POWER_IO/BUCK_5V": {("U15", "1"), ("L1", "2"), ("C64", "1"), ("C65", "1"), ("D6", "1")},
 }
 
@@ -154,7 +154,7 @@ EXPECTED_REQUIRED_NET_MEMBERS = {
         ("J6", "4"),
         ("J6", "5"),
     },
-    "LASER_VP": {
+    "LASER_V+": {
         ("L2", "2"),
         ("C67", "1"),
         ("C68", "1"),
@@ -211,11 +211,35 @@ def node_pin_set(nodes: list[tuple[str, str, str, str]]) -> set[tuple[str, str]]
     return {(ref, pin) for ref, pin, _function, _type in nodes}
 
 
+def canon_net(net: str | None) -> str | None:
+    if net in {"LASER_V+", "LASER_VP"}:
+        return "LASER_V+"
+    aliases = {
+        "/POWER_IO/BUCK5_SW": "Net-(U15-SW)",
+        "/POWER_IO/BUCK5_BST": "Net-(U15-BST)",
+        "/POWER_IO/LASER_BUCK_FB": "Net-(U16-FB)",
+        "/POWER_IO/LASER_BUCK_SW": "Net-(U16-SW)",
+        "/POWER_IO/LASER_BUCK_BST": "Net-(U16-BST)",
+    }
+    if net in aliases:
+        return aliases[net]
+    return net
+
+
+def net_nodes(
+    nets: dict[str, list[tuple[str, str, str, str]]],
+    net: str,
+) -> list[tuple[str, str, str, str]]:
+    if canon_net(net) == "LASER_V+":
+        return [*nets.get("LASER_V+", []), *nets.get("LASER_VP", [])]
+    return nets.get(net, [])
+
+
 def pin_net_map(nets: dict[str, list[tuple[str, str, str, str]]]) -> dict[tuple[str, str], str]:
     by_pin: dict[tuple[str, str], str] = {}
     for net, nodes in nets.items():
         for ref, pin, _function, _type in nodes:
-            by_pin[(ref, pin)] = net
+            by_pin[(ref, pin)] = canon_net(net) or net
     return by_pin
 
 
@@ -277,12 +301,12 @@ def check_schematic_nets(
                 failures.append(f"{ref}.{pin}: expected schematic net {expected_net}, got {actual or '<missing>'}")
 
     for net, expected_members in EXPECTED_EXACT_NETS.items():
-        actual_members = node_pin_set(nets.get(net, []))
+        actual_members = node_pin_set(net_nodes(nets, net))
         if actual_members != expected_members:
             failures.append(f"{net}: expected exact members {sorted(expected_members)}, got {sorted(actual_members)}")
 
     for net, required_members in EXPECTED_REQUIRED_NET_MEMBERS.items():
-        actual_members = node_pin_set(nets.get(net, []))
+        actual_members = node_pin_set(net_nodes(nets, net))
         missing = sorted(required_members - actual_members)
         if missing:
             failures.append(f"{net}: missing required member(s) {missing}")
@@ -304,7 +328,7 @@ def check_board(failures: list[str], board_path: Path) -> None:
 
     for ref, pin_nets in EXPECTED_PIN_NETS.items():
         for pin, expected_net in pin_nets.items():
-            actual_nets = pads.get(ref, {}).get(pin, set())
+            actual_nets = {canon_net(net) or net for net in pads.get(ref, {}).get(pin, set())}
             if actual_nets != {expected_net}:
                 failures.append(f"{ref}.{pin}: expected PCB pad net {expected_net}, got {sorted(actual_nets)}")
 

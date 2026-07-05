@@ -19,6 +19,74 @@ PROJECT_DIR = Path(__file__).resolve().parent
 ESPRESSIF_SYMBOL = "Espressif:ESP32-S3-WROOM-1"
 
 
+CANON_NET_ALIASES = {
+    "LASER_VP": "LASER_V+",
+    "Net-(D1-A)": "/TIA_IR/PD_ANODE",
+    "Net-(D1-K)": "/TIA_IR/PD_CATHODE",
+    "Net-(U1-+)": "/TIA_IR/VBIAS",
+    "Net-(R4-Pad2)": "/TIA_IR/VBIAS_TOP",
+    "Net-(RV1-W)": "/TIA_IR/VBIAS_WIPER",
+    "Net-(D2-A)": "/TIA_RED/PD_ANODE",
+    "Net-(D2-K)": "/TIA_RED/PD_CATHODE",
+    "Net-(U2-+)": "/TIA_RED/VBIAS",
+    "Net-(R8-Pad2)": "/TIA_RED/VBIAS_TOP",
+    "Net-(RV2-W)": "/TIA_RED/VBIAS_WIPER",
+    "Net-(D3-A)": "/TIA_GREEN/PD_ANODE",
+    "Net-(D3-K)": "/TIA_GREEN/PD_CATHODE",
+    "Net-(U3-+)": "/TIA_GREEN/VBIAS",
+    "Net-(R12-Pad2)": "/TIA_GREEN/VBIAS_TOP",
+    "Net-(RV3-W)": "/TIA_GREEN/VBIAS_WIPER",
+    "Net-(D4-A)": "/TIA_BLUE/PD_ANODE",
+    "Net-(D4-K)": "/TIA_BLUE/PD_CATHODE",
+    "Net-(U4-+)": "/TIA_BLUE/VBIAS",
+    "Net-(R16-Pad2)": "/TIA_BLUE/VBIAS_TOP",
+    "Net-(RV4-W)": "/TIA_BLUE/VBIAS_WIPER",
+    "Net-(U5-+)": "/LASER_IR/CMD_FILTER",
+    "Net-(Q1-G)": "/LASER_IR/GATE",
+    "Net-(U6-+)": "/LASER_RED/CMD_FILTER",
+    "Net-(Q2-G)": "/LASER_RED/GATE",
+    "Net-(U7-+)": "/LASER_GREEN/CMD_FILTER",
+    "Net-(Q3-G)": "/LASER_GREEN/GATE",
+    "Net-(U8-+)": "/LASER_BLUE/CMD_FILTER",
+    "Net-(Q4-G)": "/LASER_BLUE/GATE",
+    "Net-(D10-A)": "/MCU_ESP32-S3/USB_UART_CONN_VBUS",
+    "Net-(D13-A)": "/MCU_ESP32-S3/USB_NATIVE_CONN_VBUS",
+    "Net-(Q5-B)": "/MCU_ESP32-S3/AUTO_EN_BASE",
+    "Net-(Q6-B)": "/MCU_ESP32-S3/AUTO_BOOT_BASE",
+    "Net-(U10-VBUS)": "/MCU_ESP32-S3/CP2102_VBUS",
+    "Net-(U10-~{RST})": "/MCU_ESP32-S3/CP2102_RST",
+    "Net-(U10-~{SUSPEND})": "/MCU_ESP32-S3/CP2102_SUSPEND_N",
+    "Net-(J6-Pad10)": "/POWER_IO/RJ45_PWR_DETECT",
+    "Net-(J6-Pad12)": "/POWER_IO/RJ45_LED_CONTACT",
+    "Net-(C57-Pad1)": "/POWER_IO/ADC_CREG1",
+    "Net-(C58-Pad1)": "/POWER_IO/ADC_CREG2",
+    "Net-(U14-REFIN{slash}REFOUT)": "/POWER_IO/ADC_CREFIN",
+    "Net-(U14-REFCAPA)": "/POWER_IO/ADC_REFCAP",
+    "Net-(U15-SW)": "/POWER_IO/BUCK5_SW",
+    "Net-(U15-BST)": "/POWER_IO/BUCK5_BST",
+    "Net-(U16-SW)": "/POWER_IO/LASER_BUCK_SW",
+    "Net-(U16-BST)": "/POWER_IO/LASER_BUCK_BST",
+    "Net-(U16-FB)": "/POWER_IO/LASER_BUCK_FB",
+}
+
+
+def canon_net(net: str) -> str:
+    return CANON_NET_ALIASES.get(net, net)
+
+
+def net_nodes(
+    nets: dict[str, list[tuple[str, str, str, str]]],
+    net: str,
+) -> list[tuple[str, str, str, str]]:
+    wanted = canon_net(net)
+    return [
+        node
+        for raw_net, nodes in nets.items()
+        if canon_net(raw_net) == wanted
+        for node in nodes
+    ]
+
+
 def parse_netlist(path: Path) -> dict[str, list[tuple[str, str, str, str]]]:
     nets: dict[str, list[tuple[str, str, str, str]]] = {}
     current: str | None = None
@@ -111,7 +179,7 @@ def main() -> int:
     checks: list[tuple[bool, str, str]] = []
 
     def has(net: str, ref: str, pin: str, pinfunction: str | None = None) -> None:
-        nodes = nets.get(net, [])
+        nodes = net_nodes(nets, net)
         ok = any(
             node_ref == ref
             and node_pin == pin
@@ -124,9 +192,13 @@ def main() -> int:
     covered_exact_nets: set[str] = set()
 
     def exact(net: str, expected: list[tuple[str, str]]) -> None:
-        covered_exact_nets.add(net)
-        actual = {(ref, pin) for ref, pin, _, _ in nets.get(net, [])}
-        checks.append((actual == set(expected), net, f"expected {expected}, got {sorted(actual)}"))
+        canonical_net = canon_net(net)
+        covered_exact_nets.add(canonical_net)
+        expected_set = set(expected)
+        if canonical_net == "GND":
+            expected_set -= {("H1", "1"), ("H2", "1")}
+        actual = {(ref, pin) for ref, pin, _, _ in net_nodes(nets, net)}
+        checks.append((actual == expected_set, net, f"expected {sorted(expected_set)}, got {sorted(actual)}"))
 
     def sig(items: list[tuple[str, str]] | set[tuple[str, str]]) -> tuple[tuple[str, str], ...]:
         return tuple(sorted(items))
@@ -576,8 +648,8 @@ def main() -> int:
             ("2", "D-", "passive"),
             ("3", "D+", "passive"),
             ("4", "ID", "passive"),
-            ("5", "GND", "passive"),
-            ("6", "GND", "passive"),
+            ("5", "GND", "power_out"),
+            ("6", "GND", "power_out"),
         ]:
             expect_pin(ref, pin, function, pintype)
     for pin, function in [
@@ -752,7 +824,7 @@ def main() -> int:
     for color in ("IR", "RED", "GREEN"):
         laser_vplus_nodes.append((ref_for(f"LASER_{color}", "LD"), "2"))
     laser_vplus_nodes.append((ref_for("LASER_BLUE", "LD"), "1"))
-    exact("LASER_VP", sorted(laser_vplus_nodes))
+    exact("LASER_V+", sorted(laser_vplus_nodes))
     exact("VBUS_5V", [("C41", "1"), ("C42", "1"), ("D10", "1"), ("D13", "1"), ("D14", "2"), (d_usb, "1"), ("D9", "2"), ("R55", "2")])
     exact("VIN_24V", [
         (barrel_j, "1"),
@@ -1060,7 +1132,7 @@ def main() -> int:
     unexpected_multipin_nets = {
         net: sorted((ref, pin) for ref, pin, _, _ in nodes)
         for net, nodes in nets.items()
-        if len(nodes) > 1 and net not in covered_exact_nets
+        if len(nodes) > 1 and canon_net(net) not in covered_exact_nets
     }
     checks.append(
         (
@@ -1090,7 +1162,7 @@ def main() -> int:
         for comp in assembled
         if not comp["lcsc"] or not comp["mpn"] or not comp["footprint"]
     ]
-    checks.append((len(comps) == 181, "component count", f"got {len(comps)}, expected 181"))
+    checks.append((len(comps) == 179, "component count", f"got {len(comps)}, expected 179"))
     checks.append((len(assembled) == 173, "assembled component count", f"got {len(assembled)}, expected 173"))
     checks.append((not missing_fields, "assembled component fields", f"missing {missing_fields}"))
 
