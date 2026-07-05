@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-04T23:45:44+00:00
+Generated: 2026-07-05T00:09:37+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -40,7 +40,7 @@ Overall release status: BLOCKED
 | PASS | Generate staging PCB to temp file | 0 | `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb` |
 | PASS | PCB staging assertions | 0 | `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /tmp/lc.net` |
 | PASS | Generated-copper release gate | 0 | `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /tmp/lc.net` |
-| BLOCKED | Focused layout-geometry review | 2 | `python3 circuits/check_layout_review_geometry.py circuits/laser_controller.kicad_pcb` |
+| PASS | Focused layout-geometry review | 0 | `python3 circuits/check_layout_review_geometry.py circuits/laser_controller.kicad_pcb` |
 | PASS | AP2112 bench thermal policy | 0 | `python3 circuits/check_power_thermal_budget.py --policy bench-uart-usb` |
 | PASS | AP2112 sustained Wi-Fi expected fail | 1 | `python3 circuits/check_power_thermal_budget.py --policy wifi-tx-100-duty` |
 | PASS | Green high-Vf laser-current thermal reference | 0 | `python3 circuits/check_laser_current_budget.py --policy green-high-vf-10v5` |
@@ -398,21 +398,12 @@ Command: `python3 circuits/check_laser_controller_release_gate.py circuits/laser
 PASS fabrication release gate: 110/110 multi-pad nets explicitly routed, no pending rail/zone nets, laser cathode/anode routes meet generated width targets, and laser sense returns have distinct high-current GND vias. This does not replace GUI ERC/DRC with zone refill.
 ```
 
-## BLOCKED: Focused layout-geometry review
+## PASS: Focused layout-geometry review
 
 Command: `python3 circuits/check_layout_review_geometry.py circuits/laser_controller.kicad_pcb`
 
-The board still has high-risk physical layout distances in buck, USB ESD, TIA summing-node, monitor-PD, or laser-current local loops.
-
 ```text
-BLOCKED layout geometry review: 7 high-risk layout distances exceed targets
-  [tia-sensitive] IR signal photodiode anode to OPA380 summing node: distance 20.02 mm exceeds 6.00 mm; D1.2 (Net-(D1-A)) at (156.165,102.438) -> U1.2 (Net-(D1-A)) at (142.531,87.782). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
-  [tia-sensitive] Red signal photodiode anode to OPA380 summing node: distance 16.59 mm exceeds 6.00 mm; D2.2 (Net-(D2-A)) at (140.190,102.438) -> U2.2 (Net-(D2-A)) at (123.895,105.550). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
-  [tia-sensitive] Green signal photodiode anode to OPA380 summing node: distance 12.99 mm exceeds 6.00 mm; D3.2 (Net-(D3-A)) at (156.165,118.438) -> U3.2 (Net-(D3-A)) at (158.425,131.225). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
-  [tia-sensitive] Blue signal photodiode anode to OPA380 summing node: distance 16.22 mm exceeds 6.00 mm; D4.2 (Net-(D4-A)) at (140.165,118.438) -> U4.2 (Net-(D4-A)) at (134.450,133.620). Photodiode anode and OPA380 inverting input are the highest-impedance TIA node.
-  [monitor-pd] IR monitor-PD raw path from LD1 to sense resistor: distance 103.36 mm exceeds 25.00 mm; LD1.3 (MPD_RAW1) at (170.880,118.438) -> R42.1 (MPD_RAW1) at (67.600,114.475). Raw monitor-PD current should not cross the board before the current-sense resistor.
-  [monitor-pd] Red monitor-PD raw path from LD2 to sense resistor: distance 121.96 mm exceeds 25.00 mm; LD2.3 (MPD_RAW2) at (186.880,102.438) -> R44.1 (MPD_RAW2) at (65.525,114.543). Raw monitor-PD current should not cross the board before the current-sense resistor.
-  [monitor-pd] Green monitor-PD raw path from LD3 to sense resistor: distance 114.29 mm exceeds 25.00 mm; LD3.3 (MPD_RAW3) at (186.900,118.438) -> R46.1 (MPD_RAW3) at (72.738,113.100). Raw monitor-PD current should not cross the board before the current-sense resistor.
+PASS layout geometry review: 15 high-risk layout distances within targets
 ```
 
 ## PASS: AP2112 bench thermal policy

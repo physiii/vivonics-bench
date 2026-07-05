@@ -12,14 +12,14 @@ Schematic references are generated globally unique before KiCad netlist export. 
 | `referenced_footprints` | 181 |
 | `unique_references` | 181 |
 | `copper_layers` | 4 |
-| `segments` | 1612 |
+| `segments` | 1544 |
 | `vias` | 236 |
 | `zones` | 4 |
 | `pad_net_lines` | 0 |
 | `net_table_entries` | 696 |
 | `keepout_zones` | 1 |
 | `gnd_reference_zone_defs` | 1 |
-| `placement_proximity_checks` | 45/111 PASS |
+| `placement_proximity_checks` | 48/111 PASS |
 | `intentional_unnetted_pad_instances` | 70 |
 | `connected_critical_local_route_links` | 105/111 |
 | `multi_pad_nets` | 110 |
@@ -38,8 +38,8 @@ This table reports the generated routed copper that exists in the current PCB ar
 | `Switching_Power` | 0.40mm x10 | - |
 | `Switcher_Control` | 0.20mm x11 | - |
 | `USB` | 0.25mm x46 | - |
-| `TIA_Sensitive` | 0.20mm x186, 0.25mm x11 | 0.60/0.30mm x6 |
-| `Monitor_ADC` | 0.20mm x270 | 0.60/0.30mm x27 |
+| `TIA_Sensitive` | 0.20mm x130 | 0.60/0.30mm x6 |
+| `Monitor_ADC` | 0.20mm x269 | 0.60/0.30mm x27 |
 | `Laser_Control` | 0.20mm x148 | 0.60/0.30mm x19 |
 | `Digital_Control` | 0.20mm x270 | 0.60/0.30mm x36 |
 
@@ -113,44 +113,44 @@ These generated-board checks keep USB protection, ESP32-S3 support parts, AP2112
 | ESP32 EN capacitor | 44.54 mm | 4.00 mm | FAIL |
 | ESP32 EN pull-up | 44.61 mm | 5.00 mm | FAIL |
 | ESP32 BOOT pull-up | 33.03 mm | 4.00 mm | FAIL |
-| TIA_IR photodiode anode to OPA380 -IN | 20.02 mm | 5.50 mm | FAIL |
+| TIA_IR photodiode anode to OPA380 -IN | 1.52 mm | 5.50 mm | PASS |
 | TIA_IR feedback trimmer at OPA380 -IN | 9.40 mm | 3.50 mm | FAIL |
 | TIA_IR feedback capacitor at OPA380 -IN | 7.69 mm | 2.50 mm | FAIL |
 | TIA_IR feedback trimmer at OPA380 OUT | 7.35 mm | 4.50 mm | FAIL |
 | TIA_IR feedback capacitor at OPA380 OUT | 2.79 mm | 2.50 mm | FAIL |
 | TIA_IR OPA380 supply decoupling | 3.33 mm | 2.50 mm | FAIL |
-| TIA_IR PD bias resistor at cathode | 20.12 mm | 4.50 mm | FAIL |
-| TIA_IR PD cathode bypass at cathode | 20.70 mm | 3.00 mm | FAIL |
+| TIA_IR PD bias resistor at cathode | 7.65 mm | 4.50 mm | FAIL |
+| TIA_IR PD cathode bypass at cathode | 8.62 mm | 3.00 mm | FAIL |
 | TIA_IR VBIAS resistor at OPA380 +IN | 3.18 mm | 5.00 mm | PASS |
 | TIA_IR VBIAS capacitor at OPA380 +IN | 3.16 mm | 4.00 mm | PASS |
-| TIA_RED photodiode anode to OPA380 -IN | 16.59 mm | 5.50 mm | FAIL |
+| TIA_RED photodiode anode to OPA380 -IN | 0.73 mm | 5.50 mm | PASS |
 | TIA_RED feedback trimmer at OPA380 -IN | 10.19 mm | 3.50 mm | FAIL |
 | TIA_RED feedback capacitor at OPA380 -IN | 7.84 mm | 2.50 mm | FAIL |
 | TIA_RED feedback trimmer at OPA380 OUT | 8.14 mm | 4.50 mm | FAIL |
 | TIA_RED feedback capacitor at OPA380 OUT | 2.92 mm | 2.50 mm | FAIL |
 | TIA_RED OPA380 supply decoupling | 9.81 mm | 2.50 mm | FAIL |
-| TIA_RED PD bias resistor at cathode | 10.31 mm | 4.50 mm | FAIL |
-| TIA_RED PD cathode bypass at cathode | 8.72 mm | 3.00 mm | FAIL |
+| TIA_RED PD bias resistor at cathode | 4.82 mm | 4.50 mm | FAIL |
+| TIA_RED PD cathode bypass at cathode | 3.51 mm | 3.00 mm | FAIL |
 | TIA_RED VBIAS resistor at OPA380 +IN | 3.18 mm | 5.00 mm | PASS |
 | TIA_RED VBIAS capacitor at OPA380 +IN | 3.16 mm | 4.00 mm | PASS |
-| TIA_GREEN photodiode anode to OPA380 -IN | 12.99 mm | 5.50 mm | FAIL |
+| TIA_GREEN photodiode anode to OPA380 -IN | 0.76 mm | 5.50 mm | PASS |
 | TIA_GREEN feedback trimmer at OPA380 -IN | 7.53 mm | 3.50 mm | FAIL |
 | TIA_GREEN feedback capacitor at OPA380 -IN | 5.06 mm | 2.50 mm | FAIL |
 | TIA_GREEN feedback trimmer at OPA380 OUT | 11.56 mm | 4.50 mm | FAIL |
 | TIA_GREEN feedback capacitor at OPA380 OUT | 6.48 mm | 2.50 mm | FAIL |
 | TIA_GREEN OPA380 supply decoupling | 6.88 mm | 2.50 mm | FAIL |
-| TIA_GREEN PD bias resistor at cathode | 16.62 mm | 4.50 mm | FAIL |
-| TIA_GREEN PD cathode bypass at cathode | 16.02 mm | 3.00 mm | FAIL |
+| TIA_GREEN PD bias resistor at cathode | 6.00 mm | 4.50 mm | FAIL |
+| TIA_GREEN PD cathode bypass at cathode | 7.21 mm | 3.00 mm | FAIL |
 | TIA_GREEN VBIAS resistor at OPA380 +IN | 3.18 mm | 5.00 mm | PASS |
 | TIA_GREEN VBIAS capacitor at OPA380 +IN | 3.16 mm | 4.00 mm | PASS |
-| TIA_BLUE photodiode anode to OPA380 -IN | 16.22 mm | 5.50 mm | FAIL |
+| TIA_BLUE photodiode anode to OPA380 -IN | 1.52 mm | 5.50 mm | PASS |
 | TIA_BLUE feedback trimmer at OPA380 -IN | 7.67 mm | 3.50 mm | FAIL |
 | TIA_BLUE feedback capacitor at OPA380 -IN | 7.82 mm | 2.50 mm | FAIL |
 | TIA_BLUE feedback trimmer at OPA380 OUT | 7.13 mm | 4.50 mm | FAIL |
 | TIA_BLUE feedback capacitor at OPA380 OUT | 8.85 mm | 2.50 mm | FAIL |
 | TIA_BLUE OPA380 supply decoupling | 1.88 mm | 2.50 mm | PASS |
-| TIA_BLUE PD bias resistor at cathode | 13.12 mm | 4.50 mm | FAIL |
-| TIA_BLUE PD cathode bypass at cathode | 9.80 mm | 3.00 mm | FAIL |
+| TIA_BLUE PD bias resistor at cathode | 9.12 mm | 4.50 mm | FAIL |
+| TIA_BLUE PD cathode bypass at cathode | 12.20 mm | 3.00 mm | FAIL |
 | TIA_BLUE VBIAS resistor at OPA380 +IN | 3.34 mm | 5.00 mm | PASS |
 | TIA_BLUE VBIAS capacitor at OPA380 +IN | 3.97 mm | 4.00 mm | PASS |
 | LASER_IR TLV9001 OUT to gate resistor | 2.70 mm | 3.50 mm | PASS |
@@ -197,14 +197,14 @@ These generated-board checks keep USB protection, ESP32-S3 support parts, AP2112
 | LASER_BLUE command filter cap at TLV9001 +IN | 5.80 mm | 3.00 mm | FAIL |
 | LASER_BLUE compensation cap at TLV9001 -IN | 5.78 mm | 2.50 mm | FAIL |
 | LASER_BLUE compensation cap at TLV9001 OUT | 1.92 mm | 3.00 mm | PASS |
-| MPD_RAW1 direct LD monitor to sense resistor | 103.36 mm | 4.00 mm | FAIL |
-| MPD_RAW1 sense resistor to INA input | 6.18 mm | 4.00 mm | FAIL |
+| MPD_RAW1 direct LD monitor to sense resistor | 5.86 mm | 4.00 mm | FAIL |
+| MPD_RAW1 sense resistor to INA input | 101.63 mm | 4.00 mm | FAIL |
 | MPD1 ADC resistor to filter capacitor | 1.87 mm | 2.50 mm | PASS |
-| MPD_RAW2 direct LD monitor to sense resistor | 121.96 mm | 4.00 mm | FAIL |
-| MPD_RAW2 sense resistor to INA input | 4.04 mm | 4.00 mm | FAIL |
+| MPD_RAW2 direct LD monitor to sense resistor | 16.57 mm | 4.00 mm | FAIL |
+| MPD_RAW2 sense resistor to INA input | 114.43 mm | 4.00 mm | FAIL |
 | MPD2 ADC resistor to filter capacitor | 1.84 mm | 2.50 mm | PASS |
-| MPD_RAW3 direct LD monitor to sense resistor | 114.29 mm | 4.00 mm | FAIL |
-| MPD_RAW3 sense resistor to INA input | 3.88 mm | 4.00 mm | PASS |
+| MPD_RAW3 direct LD monitor to sense resistor | 12.52 mm | 4.00 mm | FAIL |
+| MPD_RAW3 sense resistor to INA input | 105.31 mm | 4.00 mm | FAIL |
 | MPD3 ADC resistor to filter capacitor | 2.63 mm | 2.50 mm | FAIL |
 | MPD_RAW4 spare sense resistor to INA input | 3.55 mm | 4.00 mm | PASS |
 | MPD_AMP4 INA output to ADC resistor | 2.06 mm | 4.00 mm | PASS |
