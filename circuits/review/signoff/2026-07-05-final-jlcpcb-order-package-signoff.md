@@ -48,8 +48,8 @@ PTH/NPTH drills, JLCPCB BOM, and JLCPCB POS.
 ## SHA256
 
 ```text
-fc5557d18aacdbc24a4feb5d53d8544e3db984711b1f8a7388e6e733a05fe93b  circuits/laser_controller_gerbers.zip
-27e04a6435e95b70e6ca63f86e3812d41ad4eabb9f941257e2e2921cc7e0e821  circuits/laser_controller_jlcpcb_package.zip
+2169acb64ddea0eacbeff9666ff8cc8142181505edae5668e9fb4ccd70c110b2  circuits/laser_controller_gerbers.zip
+986b02319e0f86a0ff22d5b61eca693fe42433a66608523223a7dbfc987aa78d  circuits/laser_controller_jlcpcb_package.zip
 c985588c42b516108a990abaa858db2317fe038ba447fa666fffdc0fb52e5c69  circuits/laser_controller_bom_jlcpcb.csv
 fb84f86e628118ea8bca13c9457d4361d9119a59699ed9931a0e0d7e555cf846  circuits/fab/laser_controller_pos.csv
 ```

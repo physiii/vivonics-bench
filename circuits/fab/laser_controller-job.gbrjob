@@ -5,7 +5,7 @@
       "Application": "Pcbnew",
       "Version": "9.0.7"
     },
-    "CreationDate": "2026-07-05T06:35:03-05:00"
+    "CreationDate": "2026-07-05T08:18:52-05:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
@@ -45,12 +45,12 @@
       "FilePolarity": "Positive"
     },
     {
-      "Path": "laser_controller-In1_Cu.g2",
+      "Path": "laser_controller-In1_Cu.g1",
       "FileFunction": "Copper,L2,Inr",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "laser_controller-In2_Cu.g3",
+      "Path": "laser_controller-In2_Cu.g2",
       "FileFunction": "Copper,L3,Inr",
       "FilePolarity": "Positive"
     },
