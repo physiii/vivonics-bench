@@ -123,6 +123,16 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 ),
             ),
             Evidence(
+                "circuits/review/signoff/2026-07-05-tia-category-review.md",
+                (
+                    "Rank 5, high",
+                    "2 Mohm feedback trim",
+                    "`signal_pd_calibration`",
+                    "`ambient_saturation_policy`",
+                    "not a cleared production optical measurement release",
+                ),
+            ),
+            Evidence(
                 "circuits/review/calibration/first_article_optical_calibration_template.csv",
                 (
                     "signal_pd,D1,PD CH1,SFH2201->OPA380->VOUT1",
