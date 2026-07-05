@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T04:38:57+00:00
+Generated: 2026-07-05T04:48:58+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -124,7 +124,7 @@ PASS source-register coverage for 92 MPN/LCSC tokens across 179 components, inte
 Command: `python3 circuits/check_part_notes_completeness.py`
 
 ```text
-PASS part-note completeness: 16 notes, 218 required phrases, 3 stale-phrase guards
+PASS part-note completeness: 16 notes, 220 required phrases, 3 stale-phrase guards
 ```
 
 ## PASS: Source-document evidence
@@ -134,8 +134,8 @@ Command: `python3 circuits/check_source_documents.py`
 ```text
 WARN Alpha & Omega AO3400A datasheet: reachable; Primary source reachable from this shell; manual release-time latest-revision verification remains required. [HEAD HTTP 200, type=application/pdf, length=317848]
 WARN JLCPCB via-design article: reachable; Advisory article only; JLCPCB quote capability page wins. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN Vishay SS12-SS16 family datasheet: reachable; Family reference only; exact LCSC C2480 manufacturer must be confirmed at order. [HEAD HTTP 200, type=application/pdf, length=1174123]
-WARN LCSC C2480 SS14 order page: reachable; Distributor/order source, not a replacement for final order-time manufacturer confirmation. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
+WARN Vishay SS12-SS16 family datasheet: reachable; Family reference only; current C2480 order identity is captured in the 2026-07-04 signoff. [HEAD HTTP 200, type=application/pdf, length=1174123]
+WARN LCSC C2480 SS14 order page: reachable; Distributor/order source matching the 2026-07-04 C2480 MDD SS14 signoff. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C408410 MWSA0503S-4R7MT inductor page: reachable; Distributor/order source for the AP63205 4.7uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C98364 WPN4020H100MT inductor page: reachable; Distributor/order source for the AP63200 10uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN Wuerth Mini/Micro USB family page: reachable; Family/product page; exact 65100516121 drawing is required separately above. [HEAD HTTP 200, type=text/html; charset=UTF-8, length=1]
@@ -149,7 +149,7 @@ WARN LRC L8050QLT1G transistor datasheet: reachable; Manufacturer datasheet for 
 WARN LCSC C39282 L8550HQLT1G transistor page: reachable; Distributor/order source for the Q6 PNP SOT-23 auto-reset transistor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C127509 K2-1102SP-C4SC-04 switch page: reachable; Distributor/order source for the SW1-SW3 tactile reset/program/factory buttons. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C5123624 10 ohm 2512 sense resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-PASS source-document evidence: 22 required online sources, 24 required local artifacts, and 17 secondary/open-risk sources reviewed
+PASS source-document evidence: 22 required online sources, 25 required local artifacts, and 17 secondary/open-risk sources reviewed
 ```
 
 ## PASS: Passive derating assertions
@@ -637,7 +637,7 @@ Command: `python3 circuits/check_laser_controller_release_readiness.py`
 The release-readiness registry has unresolved source, direct-laser, thermal, manufacturing, and human-inspection blockers.
 
 ```text
-BLOCKED release readiness: 12 open fabrication/release blockers
+BLOCKED release readiness: 10 open fabrication/release blockers
   [KICAD_ERC_DRC_ZONE_SIGNOFF] KiCad ERC and schematic-parity signoff are still open
     Detail: Available netlist/source/custom PCB checks pass, and a 2026-07-04 GUI DRC screenshot captures refilled-zone DRC with 0 violations and 0 unconnected items. Full fabrication signoff is still not proven because this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC, and the captured GUI DRC did not run schematic parity. Formal KiCad ERC and native schematic-parity evidence remain unproven.
     Required action: Run GUI ERC on the regenerated schematic, update PCB from schematic, refill zones, run PCB DRC with schematic parity, or use a KiCad CLI build that supports sch erc and pcb drc, then document any waivers/reports.
@@ -662,12 +662,6 @@ BLOCKED release readiness: 12 open fabrication/release blockers
   [VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT] 24 V barrel/RJ45 input protection and buck layout are not released
     Detail: J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, but the 9.3 V all-channel hardware-clamp case exceeds the 500 mA J5 input budget and the current C64+C65/C67+C68 output capacitor set is below generic AP632 datasheet guidance.
     Required action: Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; rework or justify the AP632 output capacitors; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.
-  [SS14_EXACT_ORDER_DATASHEET] Exact SS14 C2480 manufacturer datasheet and polarity are still order-time checks
-    Detail: The schematic and board assert diode polarity, but the source register still relies on distributor/order evidence plus a family reference.
-    Required action: Confirm the exact C2480 manufacturer datasheet, package polarity, and orderable part before board order.
-  [BOURNS_TRIMMER_WIPER_VISUAL] Bourns trimmer wiper orientation still needs visual PCB signoff
-    Detail: The schematic and netlist bound the VBIAS range, but the production board still needs a human pin-1/wiper orientation check.
-    Required action: Open the PCB in Pcbnew and verify RV1-RV4 pin-1/wiper orientation against the Bourns 3224 drawing before fabrication.
   [PASSIVE_PRODUCTION_AVL_AND_DERATING] Production passive AVL, pulse/surge derating, and temperature evidence are open
     Detail: The current derating gate covers bench steady-state voltage and power, not lifecycle, surge, pulse, or production procurement lock.
     Required action: Create a production procurement lock with final orderable passive datasheets, lifecycle/AVL state, pulse/surge/current derating, and board-temperature evidence.

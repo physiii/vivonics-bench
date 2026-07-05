@@ -157,14 +157,14 @@ procurement/assembly items listed below.
 | U9 | **ESP32-S3-WROOM-1** | **C2913199** | Extended | MCU — exact C-number used on the access-controller; native USB. |
 | D1–D4 | **Osram SFH2201** photodiode | **C2900216** | Extended | on-board clear Si PIN PD, 300–1100 nm (`OptoDevice:Osram_SFH2201`). One per wavelength. |
 | Q1–Q4 | AO3400A N-MOSFET (SOT-23) | **C20917** | Basic | laser low-side sink pass device. |
-| D5–D6 | SS14 (SMA) | **C2480** | Basic | 5V OR-ing Schottky, 40V/1A. D5 = USB `VBUS_5V`, D6 = onboard `BUCK_5V`. |
+| D5–D6 | MDD SS14 (SMA/DO-214AC) | **C2480** | Basic | 5V OR-ing Schottky, 40V/1A. D5 = USB `VBUS_5V`, D6 = onboard `BUCK_5V`; 2026-07-04 signoff confirms C2480 identity and polarity. |
 | D7-D14 | LESD5D5.0CT1G(UMW) / 1N5819HW VBUS support | **C5199850 / C82544** | — | copied MCU-sheet USB data/VBUS ESD and USB VBUS isolation. |
 | U15 | AP63205WU-7 (TSOT-23-6) | **C2071056** | — | 24 V input to onboard 5 V buck; output `BUCK_5V` feeds D6. |
 | U16 | AP63200WU-7 (TSOT-23-6) | **C2071868** | — | 24 V input to adjustable shared bench `LASER_V+` buck. |
 | L1 | 4.7uH shielded inductor | **C408410** | — | AP63205 5 V buck inductor, copied from access-controller libraries. |
 | L2 | 10uH shielded inductor | **C98364** | — | AP63200 laser buck inductor, copied from access-controller libraries. |
-| RV1–RV4 | 10k SMD trimmer | **C81348** | Extended | VBIAS, Bourns **3224W-1-103E** (SMD, JLCPCB-mountable). |
-| RV5–RV8 | 2M SMD trimmer | **C116323** | Extended | TIA feedback trim, Bourns **3224W-1-205E**, wiper tied to OPA380 output side. |
+| RV1–RV4 | 10k SMD trimmer | **C81348** | Extended | VBIAS, Bourns **3224W-1-103E** (SMD, JLCPCB-mountable); pin 2 wiper orientation signed off on 2026-07-04. |
+| RV5–RV8 | 2M SMD trimmer | **C116323** | Extended | TIA feedback trim, Bourns **3224W-1-205E**, pin 2 wiper tied to OPA380 output side; orientation signed off on 2026-07-04. |
 | R (10k) | 10k 0603 1% | **C844918** | — | VBIAS / EN / BOOT pull-up resistors. |
 | R (240Ω) | 240Ω 0603 1% | **C114613** | — | monitor-PD high-side sense resistors. |
 | R (2.49k) | 2.49k 0603 1% | **C2099849** | — | LM4040/`MPD_BIAS` sink resistor. |

@@ -290,46 +290,6 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
         ),
     ),
     ReleaseBlocker(
-        "SS14_EXACT_ORDER_DATASHEET",
-        "Exact SS14 C2480 manufacturer datasheet and polarity are still order-time checks",
-        "The schematic and board assert diode polarity, but the source register still relies on distributor/order evidence plus a family reference.",
-        "Confirm the exact C2480 manufacturer datasheet, package polarity, and orderable part before board order.",
-        (
-            Evidence(
-                "docs/part-notes/SS14.md",
-                (
-                    "Confirm exact C2480 manufacturer datasheet and polarity at order.",
-                ),
-            ),
-            Evidence(
-                "docs/source-register.md",
-                (
-                    "the exact C2480 manufacturer datasheet should be rechecked at order time.",
-                ),
-            ),
-        ),
-    ),
-    ReleaseBlocker(
-        "BOURNS_TRIMMER_WIPER_VISUAL",
-        "Bourns trimmer wiper orientation still needs visual PCB signoff",
-        "The schematic and netlist bound the VBIAS range, but the production board still needs a human pin-1/wiper orientation check.",
-        "Open the PCB in Pcbnew and verify RV1-RV4 pin-1/wiper orientation against the Bourns 3224 drawing before fabrication.",
-        (
-            Evidence(
-                "docs/part-notes/3224W-1-103E.md",
-                (
-                    "Confirm the wiper orientation visually in Pcbnew before fabrication.",
-                ),
-            ),
-            Evidence(
-                "docs/source-register.md",
-                (
-                    "verify pin/wiper orientation visually in PCB before order.",
-                ),
-            ),
-        ),
-    ),
-    ReleaseBlocker(
         "PASSIVE_PRODUCTION_AVL_AND_DERATING",
         "Production passive AVL, pulse/surge derating, and temperature evidence are open",
         "The current derating gate covers bench steady-state voltage and power, not lifecycle, surge, pulse, or production procurement lock.",

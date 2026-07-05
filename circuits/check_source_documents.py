@@ -201,13 +201,13 @@ WARNING_ONLINE = [
         "Vishay SS12-SS16 family datasheet",
         "https://www.vishay.com/doc/?88746=",
         False,
-        note="Family reference only; exact LCSC C2480 manufacturer must be confirmed at order.",
+        note="Family reference only; current C2480 order identity is captured in the 2026-07-04 signoff.",
     ),
     OnlineEvidence(
         "LCSC C2480 SS14 order page",
         "https://www.lcsc.com/product-detail/Schottky-Barrier-Diodes-SBD_MDD-Microdiode-Electronics-SS14_C2480.html",
         False,
-        note="Distributor/order source, not a replacement for final order-time manufacturer confirmation.",
+        note="Distributor/order source matching the 2026-07-04 C2480 MDD SS14 signoff.",
     ),
     OnlineEvidence(
         "JLCPCB C408410 MWSA0503S-4R7MT inductor page",
@@ -313,6 +313,7 @@ REQUIRED_LOCAL = [
     LocalEvidence("KiCad D_SMA footprint", "/usr/share/kicad/footprints/Diode_SMD.pretty/D_SMA.kicad_mod", 1_000),
     LocalEvidence("KiCad Wuerth Mini-B footprint", "/usr/share/kicad/footprints/Connector_USB.pretty/USB_Mini-B_Wuerth_65100516121_Horizontal.kicad_mod", 1_000),
     LocalEvidence("KiCad Bourns 3224W footprint", "/usr/share/kicad/footprints/Potentiometer_SMD.pretty/Potentiometer_Bourns_3224W_Vertical.kicad_mod", 1_000),
+    LocalEvidence("SS14 and Bourns order/orientation signoff", "circuits/review/signoff/2026-07-04-ss14-bourns-order-source-signoff.md", 2_000),
     LocalEvidence("KiCad 2512 hand-solder footprint", "/usr/share/kicad/footprints/Resistor_SMD.pretty/R_2512_6332Metric_Pad1.40x3.35mm_HandSolder.kicad_mod", 1_000),
     LocalEvidence("KiCad 0603 hand-solder footprint", "/usr/share/kicad/footprints/Resistor_SMD.pretty/R_0603_1608Metric_Pad0.98x0.95mm_HandSolder.kicad_mod", 1_000),
     LocalEvidence("KiCad 0402 hand-solder footprint", "/usr/share/kicad/footprints/Capacitor_SMD.pretty/C_0402_1005Metric_Pad0.74x0.62mm_HandSolder.kicad_mod", 1_000),
