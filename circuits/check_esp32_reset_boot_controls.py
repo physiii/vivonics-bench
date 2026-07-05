@@ -156,11 +156,11 @@ def check_topology(netlist: Path) -> list[str]:
 
     require_exact(errors, nets, "/MCU_ESP32-S3/DTR", {("U10", "28"), ("R50", "1"), ("Q6", "3")})
     require_exact(errors, nets, "/MCU_ESP32-S3/RTS", {("U10", "24"), ("R51", "1"), ("Q5", "2")})
-    require_exact(errors, nets, "Net-(Q5-B)", {("Q5", "1"), ("R50", "2")})
-    require_exact(errors, nets, "Net-(Q6-B)", {("Q6", "1"), ("R51", "2")})
+    require_exact(errors, nets, "/MCU_ESP32-S3/AUTO_EN_BASE", {("Q5", "1"), ("R50", "2")})
+    require_exact(errors, nets, "/MCU_ESP32-S3/AUTO_BOOT_BASE", {("Q6", "1"), ("R51", "2")})
 
-    require_exact(errors, nets, "Net-(U10-~{RST})", {("U10", "9"), ("R57", "2")})
-    require_exact(errors, nets, "Net-(U10-~{SUSPEND})", {("U10", "11"), ("R58", "1")})
+    require_exact(errors, nets, "/MCU_ESP32-S3/CP2102_RST", {("U10", "9"), ("R57", "2")})
+    require_exact(errors, nets, "/MCU_ESP32-S3/CP2102_SUSPEND_N", {("U10", "11"), ("R58", "1")})
     require_exact(errors, nets, "/MCU_ESP32-S3/IO13", {("U9", "21"), ("R60", "1")})
     require_exact(errors, nets, "/MCU_ESP32-S3/IO14", {("U9", "22"), ("R59", "2")})
 

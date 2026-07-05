@@ -152,8 +152,8 @@ def validate_current_topology(netlist_path: Path) -> list[str]:
         require_net(failures, pins, ref, pin, "GND")
 
     require_net(failures, pins, ref_for("POWER_IO", "RJR45LED"), "1", "+3V3")
-    require_net(failures, pins, ref_for("POWER_IO", "RJR45PWR"), "2", "Net-(J6-Pad10)")
-    require_net(failures, pins, ref_for("POWER_IO", "RJR45LED"), "2", "Net-(J6-Pad12)")
+    require_net(failures, pins, ref_for("POWER_IO", "RJR45PWR"), "2", "/POWER_IO/RJ45_PWR_DETECT")
+    require_net(failures, pins, ref_for("POWER_IO", "RJR45LED"), "2", "/POWER_IO/RJ45_LED_CONTACT")
     return failures
 
 

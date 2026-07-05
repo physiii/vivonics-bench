@@ -199,13 +199,13 @@ def validate_schematic(netlist_path: Path) -> list[str]:
     for ref in [u15, u16]:
         require_net(failures, pin_nets, ref, "2", "VIN_24V")
         require_net(failures, pin_nets, ref, "3", "VIN_24V")
-        require_net(failures, pin_nets, ref, "4", "GND")
+    require_net(failures, pin_nets, ref, "4", "GND")
     require_net(failures, pin_nets, u15, "1", "/POWER_IO/BUCK_5V")
-    require_net(failures, pin_nets, u15, "5", "Net-(U15-SW)")
-    require_net(failures, pin_nets, u15, "6", "Net-(U15-BST)")
-    require_net(failures, pin_nets, u16, "1", "Net-(U16-FB)")
-    require_net(failures, pin_nets, u16, "5", "Net-(U16-SW)")
-    require_net(failures, pin_nets, u16, "6", "Net-(U16-BST)")
+    require_net(failures, pin_nets, u15, "5", "/POWER_IO/BUCK5_SW")
+    require_net(failures, pin_nets, u15, "6", "/POWER_IO/BUCK5_BST")
+    require_net(failures, pin_nets, u16, "1", "/POWER_IO/LASER_BUCK_FB")
+    require_net(failures, pin_nets, u16, "5", "/POWER_IO/LASER_BUCK_SW")
+    require_net(failures, pin_nets, u16, "6", "/POWER_IO/LASER_BUCK_BST")
 
     if not (9.2 <= actual_laser_vout_from_feedback() <= 9.5):
         failures.append(f"AP63200 feedback computes {actual_laser_vout_from_feedback():.2f}V, expected about 9.3V")

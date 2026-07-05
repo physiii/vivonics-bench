@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T10:14:49+00:00
+Generated: 2026-07-05T12:05:34+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -11,45 +11,45 @@ Overall release status: BLOCKED
 |---|---|---:|---|
 | PASS | Python compile | 0 | `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_courtyard_overlap_triage.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_power_bringup_template.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_firmware_validation_template.py circuits/check_optical_calibration_template.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_bringup_template.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/check_procurement_release_template.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py circuits/check_jlcpcb_order_package.py` |
 | PASS | Generate schematic/BOM | 0 | `python3 circuits/gen_laser_controller.py` |
-| PASS | Export schematic netlist | 0 | `kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /tmp/lc.net` |
-| PASS | Netlist assertions | 0 | `python3 circuits/check_laser_controller_netlist.py /tmp/lc.net` |
+| PASS | Export schematic netlist | 0 | `/snap/bin/kicad.kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | Netlist assertions | 0 | `python3 circuits/check_laser_controller_netlist.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Schematic hierarchy/label assertions | 0 | `python3 circuits/check_schematic_hierarchy_labels.py circuits/laser_controller.kicad_sch` |
 | PASS | Schematic presentation assertions | 0 | `python3 circuits/check_schematic_presentation.py circuits/laser_controller.kicad_sch` |
-| PASS | Source-register assertions | 0 | `python3 circuits/check_laser_controller_sources.py /tmp/lc.net` |
+| PASS | Source-register assertions | 0 | `python3 circuits/check_laser_controller_sources.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Part-note completeness assertions | 0 | `python3 circuits/check_part_notes_completeness.py` |
 | PASS | Source-document evidence | 0 | `python3 circuits/check_source_documents.py` |
 | PASS | Passive derating assertions | 0 | `python3 circuits/check_passive_derating.py` |
-| PASS | Passive first-article AVL lock | 0 | `python3 circuits/check_passive_avl_lock.py --netlist /tmp/lc.net` |
+| PASS | Passive first-article AVL lock | 0 | `python3 circuits/check_passive_avl_lock.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Procurement/derating release template | 0 | `python3 circuits/check_procurement_release_template.py` |
-| PASS | USB/VBUS topology | 0 | `python3 circuits/check_usb_vbus_interface.py --netlist /tmp/lc.net` |
-| PASS | ESP32 reset/boot controls | 0 | `python3 circuits/check_esp32_reset_boot_controls.py --netlist /tmp/lc.net` |
-| PASS | USB connector footprint/source match | 0 | `python3 circuits/check_usb_vbus_interface.py --netlist /tmp/lc.net --policy connector-source-match` |
-| PASS | AD7606 package/PCB pinout | 0 | `python3 circuits/check_ad7606_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
-| PASS | AD7606 interface budget | 0 | `python3 circuits/check_ad7606_interface_budget.py /tmp/lc.net` |
+| PASS | USB/VBUS topology | 0 | `python3 circuits/check_usb_vbus_interface.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | ESP32 reset/boot controls | 0 | `python3 circuits/check_esp32_reset_boot_controls.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | USB connector footprint/source match | 0 | `python3 circuits/check_usb_vbus_interface.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy connector-source-match` |
+| PASS | AD7606 package/PCB pinout | 0 | `python3 circuits/check_ad7606_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
+| PASS | AD7606 interface budget | 0 | `python3 circuits/check_ad7606_interface_budget.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | AD7606 first-article firmware/readback signoff | 0 | `python3 circuits/check_ad7606_first_article_signoff.py` |
 | PASS | Firmware/readback validation template | 0 | `python3 circuits/check_firmware_validation_template.py` |
 | PASS | Optical/readout calibration template | 0 | `python3 circuits/check_optical_calibration_template.py` |
-| PASS | TIA readout budget | 0 | `python3 circuits/check_tia_readout_budget.py --netlist /tmp/lc.net` |
+| PASS | TIA readout budget | 0 | `python3 circuits/check_tia_readout_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | TIA first-article calibration signoff | 0 | `python3 circuits/check_tia_first_article_signoff.py` |
-| PASS | TIA bright-ambient expected fail | 1 | `python3 circuits/check_tia_readout_budget.py --netlist /tmp/lc.net --policy sfh2201-1000lx-example` |
-| PASS | AP6320x package/PCB pinout | 0 | `python3 circuits/check_ap6320x_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
-| PASS | Buck/input selected-diode max-current reference | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy bench-selected-max-9v3` |
-| PASS | Buck/input all-channel analog-limit budget | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy hardware-clamp-9v3` |
-| PASS | Buck datasheet capacitor recommendation | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy datasheet-recommended-components` |
+| PASS | TIA bright-ambient expected fail | 1 | `python3 circuits/check_tia_readout_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy sfh2201-1000lx-example` |
+| PASS | AP6320x package/PCB pinout | 0 | `python3 circuits/check_ap6320x_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
+| PASS | Buck/input selected-diode max-current reference | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy bench-selected-max-9v3` |
+| PASS | Buck/input all-channel analog-limit budget | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy hardware-clamp-9v3` |
+| PASS | Buck datasheet capacitor recommendation | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy datasheet-recommended-components` |
 | PASS | AP632 first-article buck validation signoff | 0 | `python3 circuits/check_ap632_first_article_signoff.py` |
 | PASS | Power/input bring-up measurement template | 0 | `python3 circuits/check_power_bringup_template.py` |
-| PASS | VIN24 bench input topology | 0 | `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net` |
-| PASS | VIN24 bench external-protection signoff | 0 | `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net --policy bench-external-protection` |
-| PASS | VIN24 production input-protection expected fail | 1 | `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net --policy production-protection` |
-| PASS | Laser-driver selected-current control-loop budget | 0 | `python3 circuits/check_laser_driver_control_loop.py --netlist /tmp/lc.net` |
-| PASS | Laser-driver package/PCB pinout | 0 | `python3 circuits/check_laser_driver_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
-| PASS | Laser-driver per-channel limiter gate-margin | 0 | `python3 circuits/check_laser_driver_control_loop.py --netlist /tmp/lc.net --policy hardware-clamp-gate-margin` |
-| PASS | Direct laser-can footprint pinout | 0 | `python3 circuits/check_laser_diode_footprints.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
-| PASS | Monitor-PD package/PCB pinout | 0 | `python3 circuits/check_monitor_pd_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
-| PASS | Generate staging PCB to temp file | 0 | `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb` |
-| PASS | PCB staging assertions | 0 | `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /tmp/lc.net` |
-| PASS | Schematic/PCB parity | 0 | `python3 circuits/check_schematic_pcb_parity.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
-| PASS | Generated-copper release gate | 0 | `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /tmp/lc.net` |
+| PASS | VIN24 bench input topology | 0 | `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | VIN24 bench external-protection signoff | 0 | `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy bench-external-protection` |
+| PASS | VIN24 production input-protection expected fail | 1 | `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy production-protection` |
+| PASS | Laser-driver selected-current control-loop budget | 0 | `python3 circuits/check_laser_driver_control_loop.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | Laser-driver package/PCB pinout | 0 | `python3 circuits/check_laser_driver_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
+| PASS | Laser-driver per-channel limiter gate-margin | 0 | `python3 circuits/check_laser_driver_control_loop.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy hardware-clamp-gate-margin` |
+| PASS | Direct laser-can footprint pinout | 0 | `python3 circuits/check_laser_diode_footprints.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
+| PASS | Monitor-PD package/PCB pinout | 0 | `python3 circuits/check_monitor_pd_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
+| PASS | Generate staging PCB to temp file | 0 | `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 LC_NETLIST=/home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb` |
+| PASS | PCB staging assertions | 0 | `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | Schematic/PCB parity | 0 | `python3 circuits/check_schematic_pcb_parity.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
+| PASS | Generated-copper release gate | 0 | `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Focused layout-geometry review | 0 | `python3 circuits/check_layout_review_geometry.py circuits/laser_controller.kicad_pcb` |
 | PASS | Headless Pcbnew DRC report | 0 | `/usr/bin/python3 circuits/check_kicad_pcbnew_drc_report.py` |
 | PASS | Native courtyard-overlap triage | 0 | `/usr/bin/python3 circuits/check_courtyard_overlap_triage.py` |
@@ -58,10 +58,10 @@ Overall release status: BLOCKED
 | PASS | AP2112 sustained Wi-Fi expected fail | 1 | `python3 circuits/check_power_thermal_budget.py --policy wifi-tx-100-duty` |
 | PASS | Green high-Vf laser-current thermal reference | 0 | `python3 circuits/check_laser_current_budget.py --policy green-high-vf-10v5` |
 | PASS | Selected-diode max-current 9.3V laser-current reference | 0 | `python3 circuits/check_laser_current_budget.py --policy selected-diodes-max-9v3` |
-| PASS | PLT5 520EB_P monitor-PD high-side bias policy | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy plt5-520ebp-green-10v5` |
-| PASS | MPD ADC-scale-only policy | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy adc-scale-only-10v5` |
-| PASS | Selected-laser monitor-PD typical | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy selected-monitor-typ-9v3` |
-| PASS | Selected-laser monitor-PD high-end | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy selected-monitor-worst-9v3` |
+| PASS | PLT5 520EB_P monitor-PD high-side bias policy | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy plt5-520ebp-green-10v5` |
+| PASS | MPD ADC-scale-only policy | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy adc-scale-only-10v5` |
+| PASS | Selected-laser monitor-PD typical | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy selected-monitor-typ-9v3` |
+| PASS | Selected-laser monitor-PD high-end | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy selected-monitor-worst-9v3` |
 | PASS | Monitor-PD first-article calibration signoff | 0 | `python3 circuits/check_monitor_pd_first_article_signoff.py` |
 | PASS | Green high-Vf 12V laser-current expected fail | 1 | `python3 circuits/check_laser_current_budget.py --policy green-high-vf-12v` |
 | PASS | Selected-diode 9.3V typical (production gate, must PASS) | 0 | `python3 circuits/check_laser_current_budget.py --policy selected-diodes-typ-9v3` |
@@ -70,12 +70,14 @@ Overall release status: BLOCKED
 | PASS | Laser first-article bring-up signoff | 0 | `python3 circuits/check_laser_first_article_signoff.py` |
 | PASS | Low-Vf diode on green rail expected fail | 1 | `python3 circuits/check_laser_current_budget.py --policy low-vf-diode-on-10v5` |
 | BLOCKED | Open fabrication/release blockers | 2 | `python3 circuits/check_laser_controller_release_readiness.py` |
-| PASS | Regenerate audit inventory | 0 | `python3 circuits/generate_laser_controller_audit_tables.py /tmp/lc.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md` |
-| PASS | Export placement | 0 | `kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv` |
+| PASS | Regenerate audit inventory | 0 | `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md` |
+| PASS | Export placement | 0 | `/snap/bin/kicad.kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv` |
 | PASS | JLCPCB order package | 0 | `python3 circuits/check_jlcpcb_order_package.py` |
-| BLOCKED | KiCad ERC availability | 1 | `kicad-cli sch erc circuits/laser_controller.kicad_sch -o /tmp/lc_erc.rpt` |
-| BLOCKED | KiCad DRC availability | 1 | `kicad-cli pcb drc circuits/laser_controller.kicad_pcb -o /tmp/lc_drc.rpt` |
-| FAIL | Git diff whitespace | 2 | `git diff --check` |
+| PASS | KiCad 9 ERC | 0 | `/snap/bin/kicad.kicad-cli sch erc --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_erc.rpt circuits/laser_controller.kicad_sch` |
+| PASS | KiCad 9 physical DRC report | 0 | `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb` |
+| PASS | KiCad 9 DRC with schematic parity | 0 | `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb` |
+| PASS | Git diff whitespace | 0 | `git diff --check` |
+| PASS | Trailing whitespace scan | 1 | `rg -n [ \t]+$ circuits docs -g *.md -g *.py -g *.kicad_sch -g *.kicad_pcb` |
 
 ## PASS: Python compile
 
@@ -86,30 +88,30 @@ Command: `python3 -m py_compile circuits/run_laser_controller_review.py circuits
 Command: `python3 circuits/gen_laser_controller.py`
 
 ```text
-wrote tia_ir.kicad_sch (36315 bytes, 569 lines)
-  wrote tia_red.kicad_sch (36316 bytes, 569 lines)
-  wrote tia_green.kicad_sch (36330 bytes, 569 lines)
-  wrote tia_blue.kicad_sch (36331 bytes, 569 lines)
-  wrote laser_ir.kicad_sch (35159 bytes, 538 lines)
-  wrote laser_red.kicad_sch (35160 bytes, 538 lines)
-  wrote laser_green.kicad_sch (35150 bytes, 538 lines)
-  wrote laser_blue.kicad_sch (34847 bytes, 536 lines)
-  wrote power_io.kicad_sch (199062 bytes, 3121 lines)
-  wrote laser_controller.kicad_sch (30750 bytes, 247 lines)
+wrote tia_ir.kicad_sch (37648 bytes, 579 lines)
+  wrote tia_red.kicad_sch (37649 bytes, 579 lines)
+  wrote tia_green.kicad_sch (37663 bytes, 579 lines)
+  wrote tia_blue.kicad_sch (37664 bytes, 579 lines)
+  wrote laser_ir.kicad_sch (36305 bytes, 547 lines)
+  wrote laser_red.kicad_sch (36306 bytes, 547 lines)
+  wrote laser_green.kicad_sch (36296 bytes, 547 lines)
+  wrote laser_blue.kicad_sch (35993 bytes, 545 lines)
+  wrote power_io.kicad_sch (201983 bytes, 3142 lines)
+  wrote laser_controller.kicad_sch (36434 bytes, 346 lines)
   wrote lib/viv.kicad_sym
   wrote laser_controller_bom_jlcpcb.csv
 ```
 
 ## PASS: Export schematic netlist
 
-Command: `kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /tmp/lc.net`
+Command: `/snap/bin/kicad.kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ## PASS: Netlist assertions
 
-Command: `python3 circuits/check_laser_controller_netlist.py /tmp/lc.net`
+Command: `python3 circuits/check_laser_controller_netlist.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
-PASS 603 netlist assertions across 156 nets
+PASS 603 netlist assertions across 110 nets
 ```
 
 ## PASS: Schematic hierarchy/label assertions
@@ -117,7 +119,7 @@ PASS 603 netlist assertions across 156 nets
 Command: `python3 circuits/check_schematic_hierarchy_labels.py circuits/laser_controller.kicad_sch`
 
 ```text
-PASS schematic hierarchy/label guardrails: 10 root sheets, 60 whitelisted root global labels, 62 child hierarchical labels, typed sheet pins, zero child-sheet global labels, and checked schematic annotation designators
+PASS schematic hierarchy/label guardrails: 10 root sheets, 60 whitelisted root global labels, 60 child hierarchical labels, typed sheet pins, zero child-sheet global labels, and checked schematic annotation designators
 ```
 
 ## PASS: Schematic presentation assertions
@@ -130,10 +132,10 @@ PASS schematic presentation guardrails: no generated wire segments enter symbol 
 
 ## PASS: Source-register assertions
 
-Command: `python3 circuits/check_laser_controller_sources.py /tmp/lc.net`
+Command: `python3 circuits/check_laser_controller_sources.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
-PASS source-register coverage for 100 MPN/LCSC tokens across 179 components, intent coverage for 156 exported nets, 589 component-pin intent roles, and 3 documentation designator guard files
+PASS source-register coverage for 100 MPN/LCSC tokens across 181 components, intent coverage for 110 exported nets, 545 component-pin intent roles, and 3 documentation designator guard files
 ```
 
 ## PASS: Part-note completeness assertions
@@ -183,7 +185,7 @@ PASS passive derating: checked 65 capacitors and 64 resistors/trimmers
 
 ## PASS: Passive first-article AVL lock
 
-Command: `python3 circuits/check_passive_avl_lock.py --netlist /tmp/lc.net`
+Command: `python3 circuits/check_passive_avl_lock.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS passive AVL lock: 24 passive MPN/LCSC pairs and 129 placements match /home/andy/projects/vivonics/vivonics/bench/docs/part-notes/passive-first-article-avl-lock.md; quote-time lifecycle/stock and board-temperature evidence remain required.
@@ -199,7 +201,7 @@ PASS procurement release template: quote-time BOM/POS, substitution, derating, t
 
 ## PASS: USB/VBUS topology
 
-Command: `python3 circuits/check_usb_vbus_interface.py --netlist /tmp/lc.net`
+Command: `python3 circuits/check_usb_vbus_interface.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS USB/VBUS topology: J1 USB-UART, J2 native USB, ESD clamps, 1N5819 VBUS isolation, D5 +5V OR-ing, CP2102N VBUS divider, UART, EN/BOOT, and ID/shield nets match the exported schematic
@@ -207,7 +209,7 @@ PASS USB/VBUS topology: J1 USB-UART, J2 native USB, ESD clamps, 1N5819 VBUS isol
 
 ## PASS: ESP32 reset/boot controls
 
-Command: `python3 circuits/check_esp32_reset_boot_controls.py --netlist /tmp/lc.net`
+Command: `python3 circuits/check_esp32_reset_boot_controls.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS ESP32 reset/boot controls: EN 10k/1uF/reset, GPIO0 BOOT 10k/1uF/PROG, GPIO1 FACT, CP2102N DTR/RTS auto-reset transistors, RST/SUSPEND pulls, and IO13/IO14 pulls match the exported schematic
@@ -215,7 +217,7 @@ PASS ESP32 reset/boot controls: EN 10k/1uF/reset, GPIO0 BOOT 10k/1uF/PROG, GPIO1
 
 ## PASS: USB connector footprint/source match
 
-Command: `python3 circuits/check_usb_vbus_interface.py --netlist /tmp/lc.net --policy connector-source-match`
+Command: `python3 circuits/check_usb_vbus_interface.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy connector-source-match`
 
 ```text
 PASS USB connector source/footprint match
@@ -223,7 +225,7 @@ PASS USB connector source/footprint match
 
 ## PASS: AD7606 package/PCB pinout
 
-Command: `python3 circuits/check_ad7606_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb`
+Command: `python3 circuits/check_ad7606_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
 
 ```text
 PASS AD7606 package/PCB pinout: U14 AD7606BSTZ-4RL schematic pin nets, C51-C60 decoupling/reference support, current PCB pad nets, FRSTDATA no-connect, and KiCad LQFP-64 pad geometry agree
@@ -231,7 +233,7 @@ PASS AD7606 package/PCB pinout: U14 AD7606BSTZ-4RL schematic pin nets, C51-C60 d
 
 ## PASS: AD7606 interface budget
 
-Command: `python3 circuits/check_ad7606_interface_budget.py /tmp/lc.net`
+Command: `python3 circuits/check_ad7606_interface_budget.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS AD7606 interface budget
@@ -270,7 +272,7 @@ PASS optical calibration template: 12 first-article monitor-PD, signal-PD, and A
 
 ## PASS: TIA readout budget
 
-Command: `python3 circuits/check_tia_readout_budget.py --netlist /tmp/lc.net`
+Command: `python3 circuits/check_tia_readout_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS TIA readout budget (bench-range)
@@ -292,7 +294,7 @@ PASS TIA first-article calibration signoff: VOUT1..4 require dark offset, known-
 
 ## PASS: TIA bright-ambient expected fail
 
-Command: `python3 circuits/check_tia_readout_budget.py --netlist /tmp/lc.net --policy sfh2201-1000lx-example`
+Command: `python3 circuits/check_tia_readout_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy sfh2201-1000lx-example`
 
 ```text
 FAIL TIA readout budget (sfh2201-1000lx-example): 1 issue(s)
@@ -305,7 +307,7 @@ FAIL TIA readout budget (sfh2201-1000lx-example): 1 issue(s)
 
 ## PASS: AP6320x package/PCB pinout
 
-Command: `python3 circuits/check_ap6320x_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb`
+Command: `python3 circuits/check_ap6320x_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
 
 ```text
 PASS AP6320x package/PCB guard: U15/U16 schematic pin nets, current PCB pad nets, TSOT-23-6 geometry, and L1/L2 local inductor footprints match the datasheet-derived contract.
@@ -313,7 +315,7 @@ PASS AP6320x package/PCB guard: U15/U16 schematic pin nets, current PCB pad nets
 
 ## PASS: Buck/input selected-diode max-current reference
 
-Command: `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy bench-selected-max-9v3`
+Command: `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy bench-selected-max-9v3`
 
 ```text
 24V/buck current policy: bench-selected-max-9v3
@@ -329,7 +331,7 @@ PASS 24V/buck policy for the checked assumptions.
 
 ## PASS: Buck/input all-channel analog-limit budget
 
-Command: `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy hardware-clamp-9v3`
+Command: `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy hardware-clamp-9v3`
 
 ```text
 24V/buck current policy: hardware-clamp-9v3
@@ -345,7 +347,7 @@ PASS 24V/buck policy for the checked assumptions.
 
 ## PASS: Buck datasheet capacitor recommendation
 
-Command: `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy datasheet-recommended-components`
+Command: `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy datasheet-recommended-components`
 
 ```text
 24V/buck production component recommendation policy: datasheet-recommended-components
@@ -373,7 +375,7 @@ PASS power bring-up template: VIN24, AP632, +5V, LASER_V+, and AP2112 first-arti
 
 ## PASS: VIN24 bench input topology
 
-Command: `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net`
+Command: `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 VIN_24V input policy: bench-topology
@@ -386,7 +388,7 @@ PASS VIN_24V input policy for the checked assumptions.
 
 ## PASS: VIN24 bench external-protection signoff
 
-Command: `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net --policy bench-external-protection`
+Command: `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy bench-external-protection`
 
 ```text
 VIN_24V input policy: bench-external-protection
@@ -399,7 +401,7 @@ PASS VIN_24V input policy for the checked assumptions.
 
 ## PASS: VIN24 production input-protection expected fail
 
-Command: `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net --policy production-protection`
+Command: `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy production-protection`
 
 ```text
 VIN_24V input policy: production-protection
@@ -416,7 +418,7 @@ FAIL VIN_24V input policy
 
 ## PASS: Laser-driver selected-current control-loop budget
 
-Command: `python3 circuits/check_laser_driver_control_loop.py --netlist /tmp/lc.net`
+Command: `python3 circuits/check_laser_driver_control_loop.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS laser-driver control-loop budget (selected-max-current)
@@ -435,7 +437,7 @@ PASS laser-driver control-loop budget (selected-max-current)
 
 ## PASS: Laser-driver package/PCB pinout
 
-Command: `python3 circuits/check_laser_driver_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb`
+Command: `python3 circuits/check_laser_driver_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
 
 ```text
 PASS laser-driver package/PCB guard: TLV9001/AO3400A schematic pin nets, local driver sense/command/gate/compensation component identities, current PCB pad nets, and KiCad SOT-23-5/SOT-23/2512/0603/0402/0603-cap geometry agree.
@@ -443,7 +445,7 @@ PASS laser-driver package/PCB guard: TLV9001/AO3400A schematic pin nets, local d
 
 ## PASS: Laser-driver per-channel limiter gate-margin
 
-Command: `python3 circuits/check_laser_driver_control_loop.py --netlist /tmp/lc.net --policy hardware-clamp-gate-margin`
+Command: `python3 circuits/check_laser_driver_control_loop.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy hardware-clamp-gate-margin`
 
 ```text
 PASS laser-driver control-loop budget (hardware-clamp-gate-margin)
@@ -462,7 +464,7 @@ PASS laser-driver control-loop budget (hardware-clamp-gate-margin)
 
 ## PASS: Direct laser-can footprint pinout
 
-Command: `python3 circuits/check_laser_diode_footprints.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb`
+Command: `python3 circuits/check_laser_diode_footprints.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
 
 ```text
 PASS laser diode footprint pinout: LD1/LD2 Style-A TO18, LD3 PLT5 520EB_P TO56, LD4 PLT5 450GB case NC; schematic nets, current PCB pad nets, and KiCad TO18/TO56 pad geometry agree
@@ -470,7 +472,7 @@ PASS laser diode footprint pinout: LD1/LD2 Style-A TO18, LD3 PLT5 520EB_P TO56, 
 
 ## PASS: Monitor-PD package/PCB pinout
 
-Command: `python3 circuits/check_monitor_pd_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb`
+Command: `python3 circuits/check_monitor_pd_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
 
 ```text
 PASS monitor-PD package/PCB guard: U12/U13 schematic pin nets, local MPD sense/filter/bias component identities, current PCB pad nets, LD4 case no-connect, and KiCad package geometry agree.
@@ -478,16 +480,16 @@ PASS monitor-PD package/PCB guard: U12/U13 schematic pin nets, local MPD sense/f
 
 ## PASS: Generate staging PCB to temp file
 
-Command: `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb`
+Command: `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 LC_NETLIST=/home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb`
 
 ```text
-wrote /tmp/lc_generated_staging.kicad_pcb  (192 blocks, 181 ref instances)
-  refs: 181 unique
+wrote /tmp/lc_generated_staging.kicad_pcb  (192 blocks, 178 ref instances)
+  refs: 178 unique
 ```
 
 ## PASS: PCB staging assertions
 
-Command: `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /tmp/lc.net`
+Command: `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS PCB staging: 181 physical footprints loaded, 2 board-only mechanical footprints, 0 empty-footprint symbols skipped, 0 board-level segments/vias/zones, 1 footprint-internal zone/keepout block(s), 179 non-overlapping electrical staged bboxes outside the 173.025 x 61.125 mm outline; sections TIA_IR:11, TIA_RED:11, TIA_GREEN:11, TIA_BLUE:11, LASER_IR:11, LASER_RED:11, LASER_GREEN:11, LASER_BLUE:11, MCU_ESP32-S3:36, POWER_IO:55
@@ -495,15 +497,15 @@ PASS PCB staging: 181 physical footprints loaded, 2 board-only mechanical footpr
 
 ## PASS: Schematic/PCB parity
 
-Command: `python3 circuits/check_schematic_pcb_parity.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb`
+Command: `python3 circuits/check_schematic_pcb_parity.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
 
 ```text
-PASS schematic/PCB parity: 179 schematic footprints match 181 PCB footprints including 2 board-only mechanical refs; 119 real PCB nets match exported schematic pad nets, with unconnected pins left unnetted.
+PASS schematic/PCB parity: 181 schematic footprints match 181 PCB footprints; 110 real PCB nets match exported schematic pad nets, with unconnected pins left unnetted.
 ```
 
 ## PASS: Generated-copper release gate
 
-Command: `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /tmp/lc.net`
+Command: `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS fabrication release gate: 110/110 multi-pad nets explicitly routed, no pending rail/zone nets, laser cathode/anode routes meet generated width targets, and laser sense returns have distinct high-current GND vias. This does not replace GUI ERC/DRC with zone refill.
@@ -609,13 +611,13 @@ PASS selected laser current-loop policy for the checked current/rail assumptions
 
 ## PASS: PLT5 520EB_P monitor-PD high-side bias policy
 
-Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy plt5-520ebp-green-10v5`
+Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy plt5-520ebp-green-10v5`
 
 ```text
 Monitor-PD policy: plt5-520ebp-green-10v5
   PLT5 520EB_P monitor-current reference case. The datasheet monitor current is specified at VRPD=5V and is not guaranteed as an accurate absolute power measurement. The bench circuit uses a high-side INA4180 sense path and LM4040-derived MPD_BIAS node. PLT5 450GB has no monitor photodiode, so MPD_RAW4 is only a spare/open front-end input.
   front end: MPD_RAWx -> 240 ohm sense -> MPD_BIAS; INA4180 gain=20; 1k/100nF ADC-side RC
-  schematic connectivity checked against /tmp/lc.net
+  schematic connectivity checked against /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net
   PLT5-style CH1: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
   PLT5-style CH2: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
   PLT5-style CH3: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
@@ -627,13 +629,13 @@ PASS monitor-PD policy for this scope. This does not replace per-laser datasheet
 
 ## PASS: MPD ADC-scale-only policy
 
-Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy adc-scale-only-10v5`
+Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy adc-scale-only-10v5`
 
 ```text
 Monitor-PD policy: adc-scale-only-10v5
   ADC headroom check only for the high-side monitor front end. This does not approve any real laser MPN without its own pinout and reverse-bias review.
   front end: MPD_RAWx -> 240 ohm sense -> MPD_BIAS; INA4180 gain=20; 1k/100nF ADC-side RC
-  schematic connectivity checked against /tmp/lc.net
+  schematic connectivity checked against /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net
   PLT5-style CH1: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
   PLT5-style CH2: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
   PLT5-style CH3: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
@@ -645,13 +647,13 @@ PASS monitor-PD policy for this scope. This does not replace per-laser datasheet
 
 ## PASS: Selected-laser monitor-PD typical
 
-Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy selected-monitor-typ-9v3`
+Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy selected-monitor-typ-9v3`
 
 ```text
 Monitor-PD policy: selected-monitor-typ-9v3
   Selected Digikey-cart monitor-current typical case. LD1 D7805I is 200uA typ, LD2 D6505I is 150uA typ, LD3 PLT5 520EB_P is 150uA typ, and LD4 PLT5 450GB has no monitor photodiode. This case should fit the local production ADC-headroom guard after the sense resistor was reduced to 240R.
   front end: MPD_RAWx -> 240 ohm sense -> MPD_BIAS; INA4180 gain=20; 1k/100nF ADC-side RC
-  schematic connectivity checked against /tmp/lc.net
+  schematic connectivity checked against /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net
   LD1 D7805I: typ monitor current=200uA -> sense=0.048V, ADC=0.96V, VRPD=4.95V
   LD2 D6505I: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
   LD3 PLT5 520EB_P: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
@@ -663,13 +665,13 @@ PASS monitor-PD policy for this scope. This does not replace per-laser datasheet
 
 ## PASS: Selected-laser monitor-PD high-end
 
-Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /tmp/lc.net --policy selected-monitor-worst-9v3`
+Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy selected-monitor-worst-9v3`
 
 ```text
 Monitor-PD policy: selected-monitor-worst-9v3
   Selected Digikey-cart monitor-current high-end case. D7805I max monitor current is 600uA and D6505I max monitor current is 300uA; PLT5 520EB_P has only a typical 150uA monitor-current value in the captured table and PLT5 450GB has no monitor PD. This high-end case should fit the local production ADC-headroom guard with the 240R/gain20 front end. It still needs optical calibration before MPD can be used as production feedback.
   front end: MPD_RAWx -> 240 ohm sense -> MPD_BIAS; INA4180 gain=20; 1k/100nF ADC-side RC
-  schematic connectivity checked against /tmp/lc.net
+  schematic connectivity checked against /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net
   LD1 D7805I: max monitor current=600uA -> sense=0.144V, ADC=2.88V, VRPD=4.86V
   LD2 D6505I: max monitor current=300uA -> sense=0.072V, ADC=1.44V, VRPD=4.93V
   LD3 PLT5 520EB_P: max monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
@@ -794,10 +796,7 @@ Command: `python3 circuits/check_laser_controller_release_readiness.py`
 The release-readiness registry has unresolved source, direct-laser, thermal, manufacturing, and human-inspection blockers.
 
 ```text
-BLOCKED release readiness: 8 open fabrication/release blockers
-  [KICAD_ERC_DRC_ZONE_SIGNOFF] Native KiCad ERC/parity signoff is still open
-    Detail: Available netlist/source/custom PCB checks pass, the local schematic/PCB parity checker passes, and native KiCad 9 physical DRC now reports only the 4 documented courtyard-overlap warnings with 0 unconnected items and 0 footprint errors. The system-Python Pcbnew report also refills zones in memory with 0 unconnected pads, 0 footprint errors, and the same 4 courtyard-overlap warnings. The current courtyard triage shows 0 F.Fab/body-box overlaps; all 4 remaining courtyard-only assembly-spacing warnings are explicitly waived in circuits/review/assembly_clearance_waivers.json. Full fabrication signoff is still not proven because native KiCad 9 schematic parity still reports 136 footprint/parity issues and native KiCad 9 ERC still reports schematic findings that must be fixed or explicitly waived.
-    Required action: Resolve the native KiCad ERC findings and schematic-parity footprint/net issues, decide whether board-only mounting holes need schematic symbols or explicit parity exclusions, rerun zone-refilled KiCad 9 PCB DRC with schematic parity, and document final zero-error or explicitly-waived native reports before calling the design fab-ready.
+BLOCKED release readiness: 7 open fabrication/release blockers
   [MONITOR_PD_FRONTEND_RANGE_CALIBRATION] Monitor-PD front-end range and calibration are not released
     Detail: The exported netlist now proves the INA4180/LM4040 monitor topology is connected as intended, and the 240R/gain20 monitor scale covers the captured D7805I/D6505I/PLT5 520EB_P monitor-current range inside the local ADC-headroom guard. The first-article signoff requires external optical-meter calibration before MPD telemetry is used for APC, normalization, or safety behavior. PLT5 450GB has no monitor photodiode, so MPD4 is not blue-source telemetry. Measured optical calibration and firmware behavior are still unreleased.
     Required action: Calibrate each monitor-capable source against an external optical meter, record dark/off counts, response slope, saturation threshold, setpoint, and optical-power reading, and verify firmware fail-shutoff behavior before using MPD telemetry for production APC, normalization, or safety decisions.
@@ -823,14 +822,26 @@ BLOCKED release readiness: 8 open fabrication/release blockers
 
 ## PASS: Regenerate audit inventory
 
-Command: `python3 circuits/generate_laser_controller_audit_tables.py /tmp/lc.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md`
+Command: `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md`
 
 ## PASS: Export placement
 
-Command: `kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv`
+Command: `/snap/bin/kicad.kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv`
 
 ```text
-Loading board
+07:05:31: Debug: Adding duplicate image handler for 'PNG file'
+07:05:31: Debug: Adding duplicate image handler for 'JPEG file'
+07:05:31: Debug: Adding duplicate image handler for 'TIFF file'
+07:05:31: Debug: Adding duplicate image handler for 'GIF file'
+07:05:31: Debug: Adding duplicate image handler for 'PNM file'
+07:05:31: Debug: Adding duplicate image handler for 'PCX file'
+07:05:31: Debug: Adding duplicate image handler for 'IFF file'
+07:05:31: Debug: Adding duplicate image handler for 'Windows icon file'
+07:05:31: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:05:31: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:05:31: Debug: Adding duplicate image handler for 'TGA file'
+07:05:31: Debug: Adding duplicate image handler for 'XPM file'
+Wrote position data to '/tmp/lc_pos.csv'.
 ```
 
 ## PASS: JLCPCB order package
@@ -841,204 +852,64 @@ Command: `python3 circuits/check_jlcpcb_order_package.py`
 PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 173/173 BOM/POS designators match, J7 is C192300 2x4 SMD, PD/laser labels and backside vivonics mark are present
 ```
 
-## BLOCKED: KiCad ERC availability
+## PASS: KiCad 9 ERC
 
-Command: `kicad-cli sch erc circuits/laser_controller.kicad_sch -o /tmp/lc_erc.rpt`
-
-Installed KiCad CLI exposes only export here; run KiCad GUI ERC/DRC or a fuller KiCad CLI before fabrication.
+Command: `/snap/bin/kicad.kicad-cli sch erc --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_erc.rpt circuits/laser_controller.kicad_sch`
 
 ```text
-Maximum number of positional arguments exceeded
-Usage: sch [-h] {export}
-
-Optional arguments:
-  -h, --help	shows help message and exits
-
-Subcommands:
-  export
+Found 0 violations
+Saved ERC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_erc.rpt
 ```
 
-## BLOCKED: KiCad DRC availability
+## PASS: KiCad 9 physical DRC report
 
-Command: `kicad-cli pcb drc circuits/laser_controller.kicad_pcb -o /tmp/lc_drc.rpt`
-
-Installed KiCad CLI exposes only export here; run KiCad GUI ERC/DRC or a fuller KiCad CLI before fabrication.
+Command: `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
-Maximum number of positional arguments exceeded
-Usage: pcb [-h] {export}
-
-Optional arguments:
-  -h, --help	shows help message and exits
-
-Subcommands:
-  export
+07:05:32: Debug: Adding duplicate image handler for 'PNG file'
+07:05:32: Debug: Adding duplicate image handler for 'JPEG file'
+07:05:32: Debug: Adding duplicate image handler for 'TIFF file'
+07:05:32: Debug: Adding duplicate image handler for 'GIF file'
+07:05:32: Debug: Adding duplicate image handler for 'PNM file'
+07:05:32: Debug: Adding duplicate image handler for 'PCX file'
+07:05:32: Debug: Adding duplicate image handler for 'IFF file'
+07:05:32: Debug: Adding duplicate image handler for 'Windows icon file'
+07:05:32: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:05:32: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:05:32: Debug: Adding duplicate image handler for 'TGA file'
+07:05:32: Debug: Adding duplicate image handler for 'XPM file'
+Found 4 violations
+Found 0 unconnected items
+Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt
 ```
 
-## FAIL: Git diff whitespace
+## PASS: KiCad 9 DRC with schematic parity
+
+Command: `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb`
+
+```text
+07:05:33: Debug: Adding duplicate image handler for 'PNG file'
+07:05:33: Debug: Adding duplicate image handler for 'JPEG file'
+07:05:33: Debug: Adding duplicate image handler for 'TIFF file'
+07:05:33: Debug: Adding duplicate image handler for 'GIF file'
+07:05:33: Debug: Adding duplicate image handler for 'PNM file'
+07:05:33: Debug: Adding duplicate image handler for 'PCX file'
+07:05:33: Debug: Adding duplicate image handler for 'IFF file'
+07:05:33: Debug: Adding duplicate image handler for 'Windows icon file'
+07:05:33: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:05:33: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:05:33: Debug: Adding duplicate image handler for 'TGA file'
+07:05:33: Debug: Adding duplicate image handler for 'XPM file'
+Found 4 violations
+Found 0 unconnected items
+Found 0 schematic parity issues
+Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt
+```
+
+## PASS: Git diff whitespace
 
 Command: `git diff --check`
 
-```text
-662500,-84.550000,180.000000,top
-circuits/fab/laser_controller_pos.csv:95: trailing whitespace.
-+R6,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,125.349500,-101.681500,-90.000000,top
-circuits/fab/laser_controller_pos.csv:96: trailing whitespace.
-+R7,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,121.211500,-101.785000,-90.000000,top
-circuits/fab/laser_controller_pos.csv:97: trailing whitespace.
-+R8,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,129.700000,-101.600000,90.000000,top
-circuits/fab/laser_controller_pos.csv:98: trailing whitespace.
-+R10,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,156.970500,-135.093500,90.000000,top
-circuits/fab/laser_controller_pos.csv:99: trailing whitespace.
-+R11,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,161.108500,-134.990000,90.000000,top
-circuits/fab/laser_controller_pos.csv:100: trailing whitespace.
-+R12,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,153.975000,-135.212500,-90.000000,top
-circuits/fab/laser_controller_pos.csv:101: trailing whitespace.
-+R14,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,130.091500,-130.718000,0.000000,top
-circuits/fab/laser_controller_pos.csv:102: trailing whitespace.
-+R15,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,130.600000,-134.856000,0.000000,top
-circuits/fab/laser_controller_pos.csv:103: trailing whitespace.
-+R16,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,128.091500,-128.940000,180.000000,top
-circuits/fab/laser_controller_pos.csv:104: trailing whitespace.
-+R17,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,172.263000,-135.507500,180.000000,top
-circuits/fab/laser_controller_pos.csv:105: trailing whitespace.
-+R18,10R 2W,R_2512_6332Metric_Pad1.40x3.35mm_HandSolder,175.311000,-128.141500,0.000000,top
-circuits/fab/laser_controller_pos.csv:106: trailing whitespace.
-+R19,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,169.975000,-127.887500,90.000000,top
-circuits/fab/laser_controller_pos.csv:107: trailing whitespace.
-+R20,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,176.962400,-132.389300,90.000000,top
-circuits/fab/laser_controller_pos.csv:108: trailing whitespace.
-+R21,1.3k LIMIT,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,179.187000,-132.713500,-90.000000,top
-circuits/fab/laser_controller_pos.csv:109: trailing whitespace.
-+R22,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,192.648000,-84.434000,0.000000,top
-circuits/fab/laser_controller_pos.csv:110: trailing whitespace.
-+R23,10R 2W,R_2512_6332Metric_Pad1.40x3.35mm_HandSolder,189.600000,-91.800000,180.000000,top
-circuits/fab/laser_controller_pos.csv:111: trailing whitespace.
-+R24,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,194.936000,-92.054000,90.000000,top
-circuits/fab/laser_controller_pos.csv:112: trailing whitespace.
-+R25,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,187.568000,-87.228000,-90.000000,top
-circuits/fab/laser_controller_pos.csv:113: trailing whitespace.
-+R26,750R LIMIT,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,185.724000,-87.228000,90.000000,top
-circuits/fab/laser_controller_pos.csv:114: trailing whitespace.
-+R27,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,190.890000,-135.235500,180.000000,top
-circuits/fab/laser_controller_pos.csv:115: trailing whitespace.
-+R28,10R 2W,R_2512_6332Metric_Pad1.40x3.35mm_HandSolder,193.938000,-128.169500,0.000000,top
-circuits/fab/laser_controller_pos.csv:116: trailing whitespace.
-+R29,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,188.602000,-127.915500,-90.000000,top
-circuits/fab/laser_controller_pos.csv:117: trailing whitespace.
-+R30,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,195.589400,-132.417300,90.000000,top
-circuits/fab/laser_controller_pos.csv:118: trailing whitespace.
-+R31,3k LIMIT,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,197.814000,-132.741500,-90.000000,top
-circuits/fab/laser_controller_pos.csv:119: trailing whitespace.
-+R32,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,173.248000,-84.009000,0.000000,top
-circuits/fab/laser_controller_pos.csv:120: trailing whitespace.
-+R33,10R 2W,R_2512_6332Metric_Pad1.40x3.35mm_HandSolder,170.200000,-91.375000,180.000000,top
-circuits/fab/laser_controller_pos.csv:121: trailing whitespace.
-+R34,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,175.536000,-91.629000,90.000000,top
-circuits/fab/laser_controller_pos.csv:122: trailing whitespace.
-+R35,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,168.168000,-86.803000,-90.000000,top
-circuits/fab/laser_controller_pos.csv:123: trailing whitespace.
-+R36,4.7k LIMIT,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,166.324000,-86.803000,90.000000,top
-circuits/fab/laser_controller_pos.csv:124: trailing whitespace.
-+R41,2.49k MPD bias,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,69.500000,-115.387500,90.000000,top
-circuits/fab/laser_controller_pos.csv:125: trailing whitespace.
-+R42,240R MPD sense,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,165.189200,-116.137500,90.000000,top
-circuits/fab/laser_controller_pos.csv:126: trailing whitespace.
-+R43,1k ADC,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,62.737500,-106.075000,180.000000,top
-circuits/fab/laser_controller_pos.csv:127: trailing whitespace.
-+R44,240R MPD sense,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,178.125000,-115.587500,90.000000,top
-circuits/fab/laser_controller_pos.csv:128: trailing whitespace.
-+R45,1k ADC,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,62.925000,-114.575000,180.000000,top
-circuits/fab/laser_controller_pos.csv:129: trailing whitespace.
-+R46,240R MPD sense,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,174.775000,-114.412500,90.000000,top
-circuits/fab/laser_controller_pos.csv:130: trailing whitespace.
-+R47,1k ADC,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,68.525000,-118.375000,180.000000,top
-circuits/fab/laser_controller_pos.csv:131: trailing whitespace.
-+R48,240R MPD sense,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,73.637500,-111.175000,0.000000,top
-circuits/fab/laser_controller_pos.csv:132: trailing whitespace.
-+R49,1k ADC,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,68.925000,-106.225000,180.000000,top
-circuits/fab/laser_controller_pos.csv:133: trailing whitespace.
-+R50,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,47.827500,-93.175000,0.000000,top
-circuits/fab/laser_controller_pos.csv:134: trailing whitespace.
-+R51,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,44.902500,-93.150000,180.000000,top
-circuits/fab/laser_controller_pos.csv:135: trailing whitespace.
-+R52,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,77.552500,-128.500000,180.000000,top
-circuits/fab/laser_controller_pos.csv:136: trailing whitespace.
-+R53,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,68.760000,-128.750000,180.000000,top
-circuits/fab/laser_controller_pos.csv:137: trailing whitespace.
-+R54,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,60.247500,-128.750000,0.000000,top
-circuits/fab/laser_controller_pos.csv:138: trailing whitespace.
-+R55,22.1K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,59.615000,-91.230000,-90.000000,top
-circuits/fab/laser_controller_pos.csv:139: trailing whitespace.
-+R56,47.5K,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,58.210000,-93.950000,180.000000,top
-circuits/fab/laser_controller_pos.csv:140: trailing whitespace.
-+R57,1K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,54.697500,-93.825000,0.000000,top
-circuits/fab/laser_controller_pos.csv:141: trailing whitespace.
-+R58,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,58.350000,-88.647500,90.000000,top
-circuits/fab/laser_controller_pos.csv:142: trailing whitespace.
-+R59,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,74.347500,-101.450000,180.000000,top
-circuits/fab/laser_controller_pos.csv:143: trailing whitespace.
-+R60,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,71.747500,-101.425000,180.000000,top
-circuits/fab/laser_controller_pos.csv:144: trailing whitespace.
-+R61,237k FB,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,104.700000,-130.100000,180.000000,top
-circuits/fab/laser_controller_pos.csv:145: trailing whitespace.
-+R62,22.1K FB,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,102.100000,-131.147500,90.000000,top
-circuits/fab/laser_controller_pos.csv:146: trailing whitespace.
-+R63,10K,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,49.925000,-109.987500,90.000000,top
-circuits/fab/laser_controller_pos.csv:147: trailing whitespace.
-+R64,10K,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,49.800000,-126.550000,-90.000000,top
-circuits/fab/laser_controller_pos.csv:148: trailing whitespace.
-+RV1,VBIAS 10k,Potentiometer_Bourns_3224W_Vertical,133.380500,-88.616000,0.000000,top
-circuits/fab/laser_controller_pos.csv:149: trailing whitespace.
-+RV2,VBIAS 10k,Potentiometer_Bourns_3224W_Vertical,125.525000,-96.325000,-90.000000,top
-circuits/fab/laser_controller_pos.csv:150: trailing whitespace.
-+RV3,VBIAS 10k,Potentiometer_Bourns_3224W_Vertical,149.346500,-134.653000,0.000000,top
-circuits/fab/laser_controller_pos.csv:151: trailing whitespace.
-+RV4,VBIAS 10k,Potentiometer_Bourns_3224W_Vertical,123.925000,-133.100000,0.000000,top
-circuits/fab/laser_controller_pos.csv:152: trailing whitespace.
-+RV5,RF 2M,Potentiometer_Bourns_3224W_Vertical,153.359300,-88.453800,90.000000,top
-circuits/fab/laser_controller_pos.csv:153: trailing whitespace.
-+RV6,RF 2M,Potentiometer_Bourns_3224W_Vertical,123.249500,-117.169000,0.000000,top
-circuits/fab/laser_controller_pos.csv:154: trailing whitespace.
-+RV7,RF 2M,Potentiometer_Bourns_3224W_Vertical,149.711500,-127.999000,-90.000000,top
-circuits/fab/laser_controller_pos.csv:155: trailing whitespace.
-+RV8,RF 2M,Potentiometer_Bourns_3224W_Vertical,138.938000,-127.831500,90.000000,top
-circuits/fab/laser_controller_pos.csv:156: trailing whitespace.
-+SW1,SW_PUSH,SW_SPST_PTS645,58.832500,-132.950000,0.000000,top
-circuits/fab/laser_controller_pos.csv:157: trailing whitespace.
-+SW2,SW_PUSH,SW_SPST_PTS645,70.332500,-132.950000,0.000000,top
-circuits/fab/laser_controller_pos.csv:158: trailing whitespace.
-+SW3,SW_PUSH,SW_SPST_PTS645,81.502500,-132.925000,0.000000,top
-circuits/fab/laser_controller_pos.csv:159: trailing whitespace.
-+U1,OPA380AID,SOIC-8_3.9x4.9mm_P1.27mm,145.006000,-88.417500,0.000000,top
-circuits/fab/laser_controller_pos.csv:160: trailing whitespace.
-+U2,OPA380AID,SOIC-8_3.9x4.9mm_P1.27mm,123.260000,-108.025000,-90.000000,top
-circuits/fab/laser_controller_pos.csv:161: trailing whitespace.
-+U3,OPA380AID,SOIC-8_3.9x4.9mm_P1.27mm,159.060000,-128.750000,90.000000,top
-circuits/fab/laser_controller_pos.csv:162: trailing whitespace.
-+U4,OPA380AID,SOIC-8_3.9x4.9mm_P1.27mm,136.925000,-134.255000,0.000000,top
-circuits/fab/laser_controller_pos.csv:163: trailing whitespace.
-+U5,TLV9001,SOT-23-5,173.965000,-132.667500,180.000000,top
-circuits/fab/laser_controller_pos.csv:164: trailing whitespace.
-+U6,TLV9001,SOT-23-5,190.946000,-87.274000,0.000000,top
-circuits/fab/laser_controller_pos.csv:165: trailing whitespace.
-+U7,TLV9001,SOT-23-5,192.592000,-132.695500,180.000000,top
-circuits/fab/laser_controller_pos.csv:166: trailing whitespace.
-+U8,TLV9001,SOT-23-5,171.546000,-86.849000,0.000000,top
-circuits/fab/laser_controller_pos.csv:167: trailing whitespace.
-+U9,ESP32-S3-WROOM-1,ESP32-S3-WROOM-1,71.875000,-89.915000,0.000000,top
-circuits/fab/laser_controller_pos.csv:168: trailing whitespace.
-+U10,CP2102N-Axx-xQFN28,QFN-28-1EP_5x5mm_P0.5mm_EP3.35x3.35mm,53.875000,-89.600000,90.000000,top
-circuits/fab/laser_controller_pos.csv:169: trailing whitespace.
-+U11,AP2112K-3.3,SOT-23-5,109.590000,-106.175000,180.000000,top
-circuits/fab/laser_controller_pos.csv:170: trailing whitespace.
-+U12,INA4180A1,TSSOP-14_4.4x5mm_P0.65mm,66.700000,-110.217500,0.000000,top
-circuits/fab/laser_controller_pos.csv:171: trailing whitespace.
-+U13,LM4040C50 5V,SOT-23,73.800000,-108.237500,-90.000000,top
-circuits/fab/laser_controller_pos.csv:172: trailing whitespace.
-+U14,AD7606BSTZ-4,LQFP-64_10x10mm_P0.5mm,103.982500,-94.725000,180.000000,top
-circuits/fab/laser_controller_pos.csv:173: trailing whitespace.
-+U15,AP63205WU-7 5V BUCK,TSOT-23-6,85.025000,-115.625000,180.000000,top
-circuits/fab/laser_controller_pos.csv:174: trailing whitespace.
-+U16,AP63200WU-7 9.3V BUCK,TSOT-23-6,103.437500,-135.025000,-90.000000,top
-```
+## PASS: Trailing whitespace scan
+
+Command: `rg -n [ \t]+$ circuits docs -g *.md -g *.py -g *.kicad_sch -g *.kicad_pcb`

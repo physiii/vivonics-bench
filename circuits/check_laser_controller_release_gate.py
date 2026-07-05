@@ -32,9 +32,10 @@ from check_laser_controller_pcb import (
 LASER_CATHODE_MIN_WIDTH_MM = 0.60
 LASER_CATHODE_MAX_LENGTH_MM = 70.0
 LASER_SUPPLY_MIN_WIDTH_MM = 0.80
-# LASER_V+ is a board-spanning common bench rail from the AP63200 output to
+# LASER_VP is a board-spanning common bench rail from the AP63200 output to
 # four direct laser cans plus the monitor-bias front end. This total-length
 # guard catches accidental route bloat; width/via checks carry current capacity.
+LASER_SUPPLY_NET = "LASER_VP"
 LASER_SUPPLY_MAX_TOTAL_LENGTH_MM = 225.0
 LASER_SUPPLY_MIN_VIAS = 2
 LASER_SENSE_RETURN_MAX_PATH_MM = 6.0
@@ -81,11 +82,11 @@ def laser_supply_geometry_failures(
     segments: list[dict[str, object]],
     vias: list[dict[str, object]],
 ) -> list[str]:
-    net_segments = [segment for segment in segments if str(segment["net"]) == "LASER_V+"]
-    net_vias = [via for via in vias if str(via["net"]) == "LASER_V+"]
+    net_segments = [segment for segment in segments if str(segment["net"]) == LASER_SUPPLY_NET]
+    net_vias = [via for via in vias if str(via["net"]) == LASER_SUPPLY_NET]
     failures: list[str] = []
     if not net_segments:
-        return ["LASER_V+: no routed laser-anode supply copper found"]
+        return [f"{LASER_SUPPLY_NET}: no routed laser-anode supply copper found"]
 
     widths = sorted({float(segment["width"]) for segment in net_segments})
     total_length = sum(_segment_length(segment) for segment in net_segments)
@@ -93,24 +94,24 @@ def laser_supply_geometry_failures(
     if narrow_widths:
         width_text = ", ".join(f"{width:.2f}mm" for width in narrow_widths)
         failures.append(
-            f"LASER_V+: {len(net_segments)} laser-anode supply segments include copper below "
+            f"{LASER_SUPPLY_NET}: {len(net_segments)} laser-anode supply segments include copper below "
             f"{LASER_SUPPLY_MIN_WIDTH_MM:.2f}mm ({width_text}), "
             f"{total_length:.2f}mm total supply route length"
         )
     if total_length > LASER_SUPPLY_MAX_TOTAL_LENGTH_MM:
         failures.append(
-            f"LASER_V+: {total_length:.2f}mm laser-anode supply route exceeds "
+            f"{LASER_SUPPLY_NET}: {total_length:.2f}mm laser-anode supply route exceeds "
             f"{LASER_SUPPLY_MAX_TOTAL_LENGTH_MM:.2f}mm board-spanning common-rail limit"
         )
     if len(net_vias) < LASER_SUPPLY_MIN_VIAS:
         failures.append(
-            f"LASER_V+: only {len(net_vias)} supply vias; expected at least "
+            f"{LASER_SUPPLY_NET}: only {len(net_vias)} supply vias; expected at least "
             f"{LASER_SUPPLY_MIN_VIAS} via transitions for the generated F.Cu/In2.Cu trunk"
         )
     for via in net_vias:
         if float(via["size"]) < 0.60 or float(via["drill"]) < 0.30:
             failures.append(
-                f"LASER_V+: undersized supply via at {via['at']} "
+                f"{LASER_SUPPLY_NET}: undersized supply via at {via['at']} "
                 f"{float(via['size']):.2f}/{float(via['drill']):.2f}mm"
             )
     return failures

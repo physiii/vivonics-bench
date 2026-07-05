@@ -43,10 +43,10 @@ Current 2026-07-05 generated evidence:
   `Found 0 unconnected pads` and `Found 0 Footprint errors`.
 - `circuits/review/generated/laser_controller_kicad9_drc.rpt` runs native KiCad
   9 DRC with schematic parity enabled. Physical DRC remains at the same 4
-  courtyard warnings, but native schematic parity still reports 136 footprint
-  errors that need cleanup or explicit review.
+  courtyard warnings, with `Found 0 schematic parity issues`, `Found 0
+  unconnected pads`, and `Found 0 Footprint errors`.
 - `circuits/review/generated/laser_controller_kicad9_erc.rpt` captures native
-  KiCad 9 ERC output and still contains schematic findings.
+  KiCad 9 ERC output and reports `Found 0 violations`.
 - `circuits/review/generated/laser_controller_pcbnew_drc_report.rpt` reports
   4 native Pcbnew DRC findings, all `[courtyards_overlap]` warnings, with
   `Found 0 unconnected pads` and `Found 0 Footprint errors`.
@@ -67,7 +67,9 @@ zone-refilled GUI DRC run reported zero board-rule violations and zero
 unconnected items at the time of capture. The current board now has durable
 KiCad 9 physical DRC, headless Pcbnew DRC, custom schematic/PCB parity,
 package-body triage, explicit courtyard-only waivers, and JLCPCB package
-evidence. It still does not prove final native CAD signoff because KiCad 9 ERC
-and schematic-parity DRC still report findings. Keep
-`KICAD_ERC_DRC_ZONE_SIGNOFF` open for full release until those native ERC/parity
-items are fixed or explicitly waived and the final reports are regenerated.
+evidence. Native KiCad ERC and schematic parity are now clean in the regenerated
+2026-07-05 reports. The remaining native DRC items are the four documented
+courtyard-only assembly-spacing warnings covered by explicit waivers; full
+product release remains blocked by the separate first-article calibration,
+firmware, thermal, VIN24 protection, and procurement blockers tracked by
+`check_laser_controller_release_readiness.py`.

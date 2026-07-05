@@ -72,7 +72,7 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
         return "ESP32-S3 3.3 V rail from AP2112K output, plus MCU reset/boot pulls and decoupling."
     if net == "GND":
         return "Common board return. The 2026-07-04 return-path signoff covers the current layout; reroutes must keep high-current laser returns away from TIA summing-node return paths."
-    if net == "LASER_V+":
+    if net in {"LASER_V+", "LASER_VP"}:
         return "AP63200-generated shared bench laser anode / monitor-PD cathode rail to the direct LDx footprints and LM4040 monitor-bias front end."
     if net == "VBUS_5V":
         return "Joined USB VBUS after the copied MCU-sheet 1N5819HW isolation diodes, local VBUS ESD/bulk parts, and D5 anode into +5V OR-ing."
@@ -80,6 +80,26 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
         return "24 V center-positive barrel/RJ45 input after J5/J6, feeding the AP63205 +5 V buck and AP63200 laser buck input pins and local input capacitors."
     if net == "/POWER_IO/BUCK_5V":
         return "AP63205 fixed 5 V buck output after L1 and output capacitors, before D6 OR-ing into the board +5 V rail."
+    if net == "/POWER_IO/BUCK5_SW":
+        return "AP63205 switch node: U15 SW pin, L1 switch-side pin, and the BST capacitor switch-side plate; keep this copper compact."
+    if net == "/POWER_IO/BUCK5_BST":
+        return "AP63205 bootstrap node between U15 BST and the 100 nF capacitor to the switch node."
+    if net == "/POWER_IO/LASER_BUCK_SW":
+        return "AP63200 laser-buck switch node: U16 SW pin, L2 switch-side pin, and the BST capacitor switch-side plate; keep away from MPD/TIA nodes."
+    if net == "/POWER_IO/LASER_BUCK_BST":
+        return "AP63200 bootstrap node between U16 BST and the 100 nF capacitor to the laser-buck switch node."
+    if net == "/POWER_IO/LASER_BUCK_FB":
+        return "AP63200 laser-buck feedback node set by the 237k/22.1k divider and 100 pF feed-forward capacitor for about 9.3 V LASER_VP."
+    if net == "/POWER_IO/RJ45_PWR_DETECT":
+        return "RJ45 LED/contact node copied from the access-controller RJ45 convention: J6 pin 10 current-limited to VIN_24V through R63."
+    if net == "/POWER_IO/RJ45_LED_CONTACT":
+        return "RJ45 LED/contact node copied from the access-controller RJ45 convention: J6 pin 12 current-limited to +3V3 through R64."
+    if net == "/POWER_IO/ADC_CREG1" or net == "/POWER_IO/ADC_CREG2":
+        return "AD7606-4 internal regulator decoupling capacitor node on a REGCAP pin."
+    if net == "/POWER_IO/ADC_CREFIN":
+        return "AD7606-4 internal/reference output decoupling node at REFIN/REFOUT."
+    if net == "/POWER_IO/ADC_REFCAP":
+        return "AD7606-4 reference-buffer decoupling node tying REFCAPA and REFCAPB to the local reference capacitor."
     if re.match(r"Net-\(U15-SW\)$", net):
         return "AP63205 switch node: U15 SW pin, L1 switch-side pin, and the BST capacitor switch-side plate; keep this copper compact."
     if re.match(r"Net-\(U15-BST\)$", net):
@@ -134,6 +154,18 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
         return "CP2102N RTS output feeding the copied auto-reset transistor network."
     if net == "/MCU_ESP32-S3/DTR":
         return "CP2102N DTR output feeding the copied auto-boot/reset transistor network."
+    if net == "/MCU_ESP32-S3/AUTO_EN_BASE":
+        return "Copied CP2102N RTS transistor base-drive node for ESP32 EN auto-reset sequencing."
+    if net == "/MCU_ESP32-S3/AUTO_BOOT_BASE":
+        return "Copied CP2102N DTR transistor base-drive node for ESP32 GPIO0/BOOT auto-reset sequencing."
+    if net == "/MCU_ESP32-S3/CP2102_VBUS":
+        return "CP2102N VBUS sense/bias node with divider and bypass capacitor on the copied MCU sheet."
+    if net == "/MCU_ESP32-S3/CP2102_RST":
+        return "CP2102N reset pin pull-up node on the copied MCU sheet."
+    if net == "/MCU_ESP32-S3/CP2102_SUSPEND_N":
+        return "CP2102N active-low suspend status pull network on the copied MCU sheet."
+    if net in {"/MCU_ESP32-S3/USB_UART_CONN_VBUS", "/MCU_ESP32-S3/USB_NATIVE_CONN_VBUS"}:
+        return "Copied MCU-sheet Mini-B connector VBUS before 1N5819HW isolation diode into the board VBUS_5V net."
     if re.match(r"/MCU_ESP32-S3/IO(13|14)$", net):
         return "Copied access-controller ESP32-S3 GPIO strap/support net with local 10 k pull-up."
     if re.match(r"/MCU_ESP32-S3/IO(17|18|21|3[5-9]|4[0-8])$", net):
@@ -190,17 +222,31 @@ def intent_for_net(net: str, nodes: list[tuple[str, str, str, str]]) -> str:
         return "ESP32 UART0 RX from Raspberry Pi / bring-up header."
     if re.match(r"Net-\(U[5-8]-\+\)$", net):
         return "Laser command filter/limiter node into TLV9001 non-inverting input."
+    if re.match(r"/LASER_(IR|RED|GREEN|BLUE)/CMD_FILTER$", net):
+        return "Laser command filter/limiter node into TLV9001 non-inverting input."
     if re.match(r"Net-\(Q[1-4]-G\)$", net):
+        return "AO3400A gate node after TLV9001 output resistor."
+    if re.match(r"/LASER_(IR|RED|GREEN|BLUE)/GATE$", net):
         return "AO3400A gate node after TLV9001 output resistor."
     if re.match(r"Net-\(D[1-4]-A\)$", net):
         return "TIA summing node: SFH2201 anode, OPA380 inverting input, feedback R/C low side."
+    if re.match(r"/TIA_(IR|RED|GREEN|BLUE)/PD_ANODE$", net):
+        return "TIA summing node: SFH2201 anode, OPA380 inverting input, feedback R/C low side."
     if re.match(r"Net-\(D[1-4]-K\)$", net):
         return "SFH2201 cathode reverse-bias node: +5V through RB and local bypass CB."
+    if re.match(r"/TIA_(IR|RED|GREEN|BLUE)/PD_CATHODE$", net):
+        return "SFH2201 cathode reverse-bias node: +5V through the bias resistor and local bypass capacitor."
     if re.match(r"Net-\(U[1-4]-\+\)$", net):
+        return "OPA380 non-inverting VBIAS node after trim/filter."
+    if re.match(r"/TIA_(IR|RED|GREEN|BLUE)/VBIAS$", net):
         return "OPA380 non-inverting VBIAS node after trim/filter."
     if re.match(r"Net-\(R\d+-Pad2\)$", net) and any(ref.startswith("RV") and pin == "1" for ref, pin, _, _ in nodes):
         return "TIA VBIAS trim upper node between +5V limiting resistor and trimmer."
+    if re.match(r"/TIA_(IR|RED|GREEN|BLUE)/VBIAS_TOP$", net):
+        return "TIA VBIAS trim upper node between +5V limiting resistor and trimmer."
     if re.match(r"Net-\(RV\d+-W\)$", net):
+        return "TIA VBIAS trimmer wiper through R1 into filtered OPA380 non-inverting input."
+    if re.match(r"/TIA_(IR|RED|GREEN|BLUE)/VBIAS_WIPER$", net):
         return "TIA VBIAS trimmer wiper through R1 into filtered OPA380 non-inverting input."
     if net.startswith("unconnected-"):
         return "Intentional no-connect from generated schematic."
@@ -372,6 +418,8 @@ def pin_intent_for_node(
             "4": "Bring-up header ESP32 GPIO0/BOOT access.",
             "5": "Bring-up header ground reference.",
         }.get(pin, "Review required: UART header unknown pin.")
+    if value == "M3":
+        return "Grounded M3 mounting-hole pad for mechanical mounting and board return reference."
     if value == "AD7606BSTZ-4":
         if net.startswith("VOUT"):
             return "AD7606-4 analog input pin for one OPA380 TIA output channel."

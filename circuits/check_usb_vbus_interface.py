@@ -40,6 +40,21 @@ def require_members(
         errors.append(f"{net}: missing required node(s) {missing}; got {sorted(actual)}")
 
 
+def require_unconnected_pin(
+    errors: list[str],
+    nets: dict[str, list[tuple[str, str, str, str]]],
+    ref: str,
+    pin: str,
+) -> None:
+    connected = [
+        net
+        for net, nodes in sorted(nets.items())
+        if any(node_ref == ref and node_pin == pin for node_ref, node_pin, _, _ in nodes)
+    ]
+    if connected:
+        errors.append(f"{ref}.{pin}: expected intentional no-connect, got net(s) {connected}")
+
+
 def require_comp(
     errors: list[str],
     comps: dict[str, dict[str, str]],
@@ -160,8 +175,8 @@ def check_topology(netlist: Path) -> list[str]:
     require_exact(errors, nets, "/MCU_ESP32-S3/IO19", {("J2", "2"), ("D12", "2"), ("U9", "13")})
     require_exact(errors, nets, "/MCU_ESP32-S3/IO20", {("J2", "3"), ("D11", "2"), ("U9", "14")})
 
-    require_exact(errors, nets, "Net-(D10-A)", {("J1", "1"), ("D10", "2")})
-    require_exact(errors, nets, "Net-(D13-A)", {("J2", "1"), ("D13", "2")})
+    require_exact(errors, nets, "/MCU_ESP32-S3/USB_UART_CONN_VBUS", {("J1", "1"), ("D10", "2")})
+    require_exact(errors, nets, "/MCU_ESP32-S3/USB_NATIVE_CONN_VBUS", {("J2", "1"), ("D13", "2")})
     require_members(
         errors,
         nets,
@@ -179,7 +194,7 @@ def check_topology(netlist: Path) -> list[str]:
     )
     require_members(errors, nets, "+5V", {("D5", "2")})
 
-    require_exact(errors, nets, "Net-(U10-VBUS)", {("R55", "1"), ("R56", "2"), ("C45", "1"), ("U10", "8")})
+    require_exact(errors, nets, "/MCU_ESP32-S3/CP2102_VBUS", {("R55", "1"), ("R56", "2"), ("C45", "1"), ("U10", "8")})
     require_members(errors, nets, "GND", {("R56", "1"), ("C45", "2")})
     require_members(errors, nets, "+3V3", {("U10", "6"), ("U10", "7"), ("U9", "2")})
 
@@ -206,7 +221,7 @@ def check_topology(netlist: Path) -> list[str]:
         },
     )
 
-    require_exact(errors, nets, "Net-(U10-~{RST})", {("R57", "2"), ("U10", "9")})
+    require_exact(errors, nets, "/MCU_ESP32-S3/CP2102_RST", {("R57", "2"), ("U10", "9")})
     require_members(errors, nets, "+3V3", {("R57", "1")})
     require_exact(errors, nets, "/MCU_ESP32-S3/IO43", {("U9", "37"), ("U10", "25")})
     require_exact(errors, nets, "/MCU_ESP32-S3/IO44", {("U9", "36"), ("U10", "26")})
@@ -215,8 +230,8 @@ def check_topology(netlist: Path) -> list[str]:
     require_members(errors, nets, "/MCU_ESP32-S3/EN", {("U9", "3"), ("R54", "2"), ("C44", "1"), ("SW1", "1"), ("Q5", "3")})
     require_members(errors, nets, "/MCU_ESP32-S3/PROG", {("U9", "27"), ("R53", "2"), ("C46", "1"), ("SW2", "1"), ("Q6", "2")})
 
-    require_exact(errors, nets, "unconnected-(J1-ID-Pad4)", {("J1", "4")})
-    require_exact(errors, nets, "unconnected-(J2-ID-Pad4)", {("J2", "4")})
+    require_unconnected_pin(errors, nets, "J1", "4")
+    require_unconnected_pin(errors, nets, "J2", "4")
     return errors
 
 

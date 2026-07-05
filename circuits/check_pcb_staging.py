@@ -102,6 +102,9 @@ def top_level_edge_lines(text: str) -> set[tuple[tuple[float, float], tuple[floa
 
 def footprint_ref(block: str) -> str:
     match = re.search(r'\(fp_text\s+reference\s+"?([^"\s\)]+)"?', block)
+    if match:
+        return match.group(1)
+    match = re.search(r'\(property\s+"Reference"\s+"([^"]+)"', block)
     return match.group(1) if match else ""
 
 

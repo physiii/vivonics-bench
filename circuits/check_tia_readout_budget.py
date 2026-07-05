@@ -71,6 +71,21 @@ def require_contains(
         errors.append(f"{net}: missing {missing}; actual {sorted(actual)}")
 
 
+def require_unconnected_pin(
+    errors: list[str],
+    nets: dict[str, list[tuple[str, str, str, str]]],
+    ref: str,
+    pin: str,
+) -> None:
+    connected = [
+        net
+        for net, nodes in sorted(nets.items())
+        if any(node_ref == ref and node_pin == pin for node_ref, node_pin, _, _ in nodes)
+    ]
+    if connected:
+        errors.append(f"{ref}.{pin}: expected intentional no-connect, got net(s) {connected}")
+
+
 def component_by_ref(path: Path) -> dict[str, dict[str, str]]:
     return {comp["ref"]: comp for comp in parse_components(path)}
 
@@ -167,13 +182,13 @@ def check_topology(
         require_exact(
             errors,
             nets,
-            f"Net-({pd}-A)",
+            f"/TIA_{channel.color}/PD_ANODE",
             {(cf, "1"), (pd, "2"), (rf, "1"), (opa, "2")},
         )
         require_exact(
             errors,
             nets,
-            f"Net-({pd}-K)",
+            f"/TIA_{channel.color}/PD_CATHODE",
             {(cb, "1"), (pd, "1"), (rb, "2")},
         )
         require_exact(
@@ -185,25 +200,25 @@ def check_topology(
         require_exact(
             errors,
             nets,
-            f"Net-({opa}-+)",
+            f"/TIA_{channel.color}/VBIAS",
             {(cbias, "1"), (rbias, "2"), (opa, "3")},
         )
         require_exact(
             errors,
             nets,
-            f"Net-({rtop}-Pad2)",
+            f"/TIA_{channel.color}/VBIAS_TOP",
             {(rtop, "2"), (rvbias, "1")},
         )
         require_exact(
             errors,
             nets,
-            f"Net-({rvbias}-W)",
+            f"/TIA_{channel.color}/VBIAS_WIPER",
             {(rvbias, "2"), (rbias, "1")},
         )
         require_contains(errors, nets, "+5V", {(opa, "7"), (rb, "1"), (rtop, "1")})
         require_contains(errors, nets, "GND", {(opa, "4"), (cb, "2"), (cbias, "2"), (rvbias, "3")})
         for pin in ("1", "5", "8"):
-            require_exact(errors, nets, f"unconnected-({opa}-NC-Pad{pin})", {(opa, pin)})
+            require_unconnected_pin(errors, nets, opa, pin)
     return errors
 
 

@@ -110,13 +110,13 @@ EXPECTED_PIN_NETS = {
         "14": "/POWER_IO/MPD_AMP4",
     },
     "U13": {
-        "1": "LASER_V+",
+        "1": "LASER_VP",
         "2": "/POWER_IO/MPD_BIAS",
         "3": "/POWER_IO/MPD_BIAS",
     },
     "R41": {"1": "/POWER_IO/MPD_BIAS", "2": "GND"},
     "C35": {"1": "+3V3", "2": "GND"},
-    "C36": {"1": "LASER_V+", "2": "/POWER_IO/MPD_BIAS"},
+    "C36": {"1": "LASER_VP", "2": "/POWER_IO/MPD_BIAS"},
     "R42": {"1": "MPD_RAW1", "2": "/POWER_IO/MPD_BIAS"},
     "R43": {"1": "/POWER_IO/MPD_AMP1", "2": "MPD1"},
     "R44": {"1": "MPD_RAW2", "2": "/POWER_IO/MPD_BIAS"},
@@ -163,7 +163,7 @@ EXPECTED_EXACT_NETS = {
 
 
 EXPECTED_REQUIRED_NET_MEMBERS = {
-    "LASER_V+": {("C36", "1"), ("LD1", "2"), ("LD2", "2"), ("LD3", "2"), ("LD4", "1"), ("U13", "1")},
+    "LASER_VP": {("C36", "1"), ("LD1", "2"), ("LD2", "2"), ("LD3", "2"), ("LD4", "1"), ("U13", "1")},
     "+3V3": {("C35", "1"), ("U12", "4")},
     "GND": {("C35", "2"), ("C37", "2"), ("C38", "2"), ("C39", "2"), ("C40", "2"), ("R41", "2"), ("U12", "11")},
 }

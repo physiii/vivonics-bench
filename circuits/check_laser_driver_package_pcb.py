@@ -65,7 +65,7 @@ EXPECTED_EXACT_NETS: dict[str, set[tuple[str, str]]] = {}
 EXPECTED_REQUIRED_NET_MEMBERS: dict[str, set[tuple[str, str]]] = {
     "+5V": set(),
     "GND": set(),
-    "LASER_V+": set(),
+    "LASER_VP": set(),
 }
 
 
@@ -104,10 +104,10 @@ for channel in CHANNELS:
     pwm_c = ref_for(sheet_name, "C21")
     comp_c = ref_for(sheet_name, "CC")
     ld = ref_for(sheet_name, "LD")
-    plus_net = f"Net-({tlv}-+)"
+    plus_net = f"/{sheet_name}/CMD_FILTER"
     lout_net = f"/{sheet_name}/LOUT"
     fb_net = f"/{sheet_name}/FB"
-    gate_net = f"Net-({mosfet}-G)"
+    gate_net = f"/{sheet_name}/GATE"
 
     add_component(
         tlv,
@@ -226,7 +226,7 @@ for channel in CHANNELS:
     EXPECTED_EXACT_NETS[channel.laser_n_net] = {(ld, channel.laser_n_pin), (mosfet, "3")}
     EXPECTED_REQUIRED_NET_MEMBERS["+5V"].update({(tlv, "5"), (decouple_c, "1")})
     EXPECTED_REQUIRED_NET_MEMBERS["GND"].update({(tlv, "2"), (decouple_c, "2"), (sense_r, "2"), (pulldown_r, "2"), (pwm_c, "2")})
-    EXPECTED_REQUIRED_NET_MEMBERS["LASER_V+"].add((ld, channel.laser_vplus_pin))
+    EXPECTED_REQUIRED_NET_MEMBERS["LASER_VP"].add((ld, channel.laser_vplus_pin))
 
 
 EXPECTED_SOT23_5_PADS = {

@@ -69,6 +69,21 @@ def require_contains(
         errors.append(f"{net}: missing expected node(s) {missing}; actual {sorted(actual)}")
 
 
+def require_unconnected_pin(
+    errors: list[str],
+    nets: dict[str, list[tuple[str, str, str, str]]],
+    ref: str,
+    pin: str,
+) -> None:
+    connected = [
+        net
+        for net, nodes in sorted(nets.items())
+        if any(node_ref == ref and node_pin == pin for node_ref, node_pin, _, _ in nodes)
+    ]
+    if connected:
+        errors.append(f"{ref}.{pin}: expected intentional no-connect, got net(s) {connected}")
+
+
 def main() -> int:
     netlist_path = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("/tmp/lc.net")
     nets = parse_netlist(netlist_path)
@@ -119,11 +134,11 @@ def main() -> int:
             (ADC_REF, "60"), (ADC_REF, "61"), (ADC_REF, "62"), (ADC_REF, "63"), (ADC_REF, "64"),
         },
     )
-    require_exact(errors, nets, "Net-(C57-Pad1)", {("C57", "1"), (ADC_REF, "36")})
-    require_exact(errors, nets, "Net-(C58-Pad1)", {("C58", "1"), (ADC_REF, "39")})
-    require_exact(errors, nets, "Net-(U14-REFIN{slash}REFOUT)", {("C59", "1"), (ADC_REF, "42")})
-    require_exact(errors, nets, "Net-(U14-REFCAPA)", {("C60", "1"), (ADC_REF, "44"), (ADC_REF, "45")})
-    require_exact(errors, nets, "unconnected-(U14-FRSTDATA-Pad15)", {(ADC_REF, "15")})
+    require_exact(errors, nets, "/POWER_IO/ADC_CREG1", {("C57", "1"), (ADC_REF, "36")})
+    require_exact(errors, nets, "/POWER_IO/ADC_CREG2", {("C58", "1"), (ADC_REF, "39")})
+    require_exact(errors, nets, "/POWER_IO/ADC_CREFIN", {("C59", "1"), (ADC_REF, "42")})
+    require_exact(errors, nets, "/POWER_IO/ADC_REFCAP", {("C60", "1"), (ADC_REF, "44"), (ADC_REF, "45")})
+    require_unconnected_pin(errors, nets, ADC_REF, "15")
 
     spi_mhz = env_float("LC_AD7606_SPI_MHZ", DEFAULT_SPI_MHZ)
     target_ksps = env_float("LC_AD7606_TARGET_KSPS", DEFAULT_TARGET_KSPS)

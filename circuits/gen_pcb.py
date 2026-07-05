@@ -58,6 +58,7 @@ BOARD_MOUNTING_HOLES = (
     ("H1", 161.9, 110.425, 0.0, 4.5, False),
     ("H2", 55.85, 110.425, -0.1, -0.075, True),
 )
+BOARD_MOUNTING_HOLE_REFS = {ref for ref, *_ in BOARD_MOUNTING_HOLES}
 _uu=[0]
 def uuid(): _uu[0]+=1; return f"b0b0b0b0-0000-4000-a000-{_uu[0]:012d}"
 
@@ -179,7 +180,7 @@ def place(libid, ref, val, x, y, rot=0, metadata=None):
     fp=re.sub(r'(\(footprint ("[^"]*"|[^\s"]+)[^\n]*\n\s*\(layer [^\s"]+\)\n)',
               lambda m: m.group(1)+f'  (tstamp {uuid()})\n  (at {x:.3f} {y:.3f} {rot})\n', fp, count=1)
     header = fp.split("(pad", 1)[0]
-    if not re.search(r'\n\s*\(at\s+[-\d.]', header):
+    if not re.search(r'(?m)^  \(at\s+[-\d.]', header):
         first_newline = fp.find("\n")
         fp = (
             fp[: first_newline + 1]
@@ -190,11 +191,16 @@ def place(libid, ref, val, x, y, rot=0, metadata=None):
     fp=re.sub(r'(\(fp_text reference )"REF\*\*"', lambda m:m.group(1)+f'"{ref}"', fp, count=1)
     fp=re.sub(r'(\(fp_text reference )REF\*\*', lambda m:m.group(1)+f'"{ref}"', fp, count=1)
     fp=re.sub(r'(\(fp_text value )"[^"]*"', lambda m:m.group(1)+f'"{val}"', fp, count=1)
+    fp=re.sub(r'(\(property\s+"Reference"\s+)"REF\*\*"', lambda m:m.group(1)+f'"{ref}"', fp, count=1)
+    fp=re.sub(r'(\(property\s+"Value"\s+)"[^"]*"', lambda m:m.group(1)+f'"{val}"', fp, count=1)
     fp=apply_footprint_metadata(fp, metadata)
     return fp
 
 def fp_ref(block):
     match = re.search(r'\(fp_text reference "?([^"\s\)]+)"?', block)
+    if match:
+        return match.group(1)
+    match = re.search(r'\(property\s+"Reference"\s+"([^"]+)"', block)
     return match.group(1) if match else ""
 
 def footprint_positions(board_text):
@@ -559,6 +565,8 @@ def build_pad_net_map(nets, board_ref_by_comp, sheets_by_ref):
         if net_name.startswith("unconnected-"):
             continue
         for ref, pin, _, _ in nodes:
+            if ref in BOARD_MOUNTING_HOLE_REFS and pin == "1" and net_name == "GND":
+                continue
             sheets = resolve_node_sheets(net_name, ref, sheets_by_ref)
             if not sheets:
                 unresolved.append((net_name, ref, pin))

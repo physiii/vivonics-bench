@@ -42,7 +42,7 @@ LASER_CANS = (
         value="D7805I 780nm TO18 STYLE-A LASER+MPD",
         schematic_footprint="OptoDevice:LaserDiode_TO18-D5.6-3",
         board_footprint="LaserDiode_TO18-D5.6-3",
-        expected_pin_nets={"1": "LASER_N1", "2": "LASER_V+", "3": "MPD_RAW1"},
+        expected_pin_nets={"1": "LASER_N1", "2": "LASER_VP", "3": "MPD_RAW1"},
         required_exact_net_members={
             "LASER_N1": {("LD1", "1"), ("Q1", "3")},
             "MPD_RAW1": {("LD1", "3"), ("R42", "1"), ("U12", "3")},
@@ -55,7 +55,7 @@ LASER_CANS = (
         value="D6505I 650nm TO18 STYLE-A LASER+MPD",
         schematic_footprint="OptoDevice:LaserDiode_TO18-D5.6-3",
         board_footprint="LaserDiode_TO18-D5.6-3",
-        expected_pin_nets={"1": "LASER_N2", "2": "LASER_V+", "3": "MPD_RAW2"},
+        expected_pin_nets={"1": "LASER_N2", "2": "LASER_VP", "3": "MPD_RAW2"},
         required_exact_net_members={
             "LASER_N2": {("LD2", "1"), ("Q2", "3")},
             "MPD_RAW2": {("LD2", "3"), ("R44", "1"), ("U12", "5")},
@@ -68,7 +68,7 @@ LASER_CANS = (
         value="PLT5 520EB_P TO56 LASER+MPD",
         schematic_footprint="OptoDevice:LaserDiode_TO56-3",
         board_footprint="LaserDiode_TO56-3",
-        expected_pin_nets={"1": "LASER_N3", "2": "LASER_V+", "3": "MPD_RAW3"},
+        expected_pin_nets={"1": "LASER_N3", "2": "LASER_VP", "3": "MPD_RAW3"},
         required_exact_net_members={
             "LASER_N3": {("LD3", "1"), ("Q3", "3")},
             "MPD_RAW3": {("LD3", "3"), ("R46", "1"), ("U12", "10")},
@@ -81,7 +81,7 @@ LASER_CANS = (
         value="PLT5 450GB TO56 LASER CASE",
         schematic_footprint="OptoDevice:LaserDiode_TO56-3",
         board_footprint="LaserDiode_TO56-3",
-        expected_pin_nets={"1": "LASER_V+", "2": None, "3": "LASER_N4"},
+        expected_pin_nets={"1": "LASER_VP", "2": None, "3": "LASER_N4"},
         required_exact_net_members={
             "LASER_N4": {("LD4", "3"), ("Q4", "3")},
             "MPD_RAW4": {("R48", "1"), ("U12", "12")},
@@ -203,10 +203,10 @@ def check_schematic_nets(
             if actual_members != expected_members:
                 failures.append(f"{net}: expected members {sorted(expected_members)}, got {sorted(actual_members)}")
 
-    laser_vplus_members = node_pin_set(nets.get("LASER_V+", []))
+    laser_vplus_members = node_pin_set(nets.get("LASER_VP", []))
     for ref, pin in [("LD1", "2"), ("LD2", "2"), ("LD3", "2"), ("LD4", "1")]:
         if (ref, pin) not in laser_vplus_members:
-            failures.append(f"LASER_V+: missing {ref}.{pin}")
+            failures.append(f"LASER_VP: missing {ref}.{pin}")
     if ("LD4", "2") in node_pin_set(nets.get("MPD_RAW4", [])):
         failures.append("MPD_RAW4: LD4 case pin is incorrectly tied to the monitor input")
 

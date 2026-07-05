@@ -161,9 +161,9 @@ def check_topology(
         )
 
         require_exact(errors, nets, channel.pwm_net, {(ESP32_REF, channel.pwm_pin), (pwm_r, "1")})
-        require_exact(errors, nets, f"Net-({tlv}-+)", {(pwm_c, "1"), (pwm_r, "2"), (pulldown_r, "1"), (tlv, "3")})
+        require_exact(errors, nets, f"/LASER_{channel.color}/CMD_FILTER", {(pwm_c, "1"), (pwm_r, "2"), (pulldown_r, "1"), (tlv, "3")})
         require_exact(errors, nets, f"/LASER_{channel.color}/LOUT", {(comp_c, "2"), (gate_r, "1"), (tlv, "1")})
-        require_exact(errors, nets, f"Net-({mosfet}-G)", {(gate_r, "2"), (mosfet, "1")})
+        require_exact(errors, nets, f"/LASER_{channel.color}/GATE", {(gate_r, "2"), (mosfet, "1")})
         require_exact(
             errors,
             nets,
@@ -172,7 +172,7 @@ def check_topology(
         )
         require_exact(errors, nets, channel.isense_net, {(ESP32_REF, channel.isense_pin), (isense_r, "2")})
         require_exact(errors, nets, channel.laser_n_net, {(ld, channel.laser_n_pin), (mosfet, "3")})
-        require_contains(errors, nets, "LASER_V+", {(ld, channel.laser_vplus_pin)})
+        require_contains(errors, nets, "LASER_VP", {(ld, channel.laser_vplus_pin)})
         require_contains(errors, nets, "+5V", {(tlv, "5"), (decouple_c, "1")})
         require_contains(errors, nets, "GND", {(tlv, "2"), (decouple_c, "2"), (sense_r, "2"), (pulldown_r, "2"), (pwm_c, "2")})
     return errors
