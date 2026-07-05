@@ -326,9 +326,24 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "AD7606_SYSTEM_INTERFACE",
         "On-board AD7606 firmware and bench-readout validation are still open",
-        "The bench board routes VOUT1..4 into the on-board AD7606 and the hardware straps now have a checked 10 MHz / 100 kSPS default interface budget, but firmware implementation, timing on the real ESP32, scaling, and bench ADC readback remain system-level checks.",
-        "Implement and scope the ESP32 AD7606 driver, verify RESET/CONVST/BUSY/CS/SCLK timing, confirm +/-5 V range scaling and oversampling assumptions in firmware, and compare readings against known optical/electrical inputs before relying on bench data.",
+        "The bench board routes VOUT1..4 into the on-board AD7606 and the hardware straps now have a checked 10 MHz / 100 kSPS default interface budget. The first-article signoff requires read-after-conversion firmware, RESET/CONVST/BUSY/CS/SCLK timing validation, two-DOUT readback, +/-5 V scaling, and known-input readback before bench ADC data is trusted. Firmware implementation, scoped timing, analog accuracy, and bench ADC readback data remain open.",
+        "Implement and scope the ESP32 AD7606 driver, verify RESET/CONVST/BUSY/CS/SCLK timing, confirm +/-5 V range scaling and no-oversampling assumptions in firmware, verify both DOUT lines and channel ordering, and compare readings against known optical/electrical inputs before relying on bench data.",
         (
+            Evidence(
+                "circuits/review/signoff/2026-07-05-ad7606-first-article-readback-signoff.md",
+                (
+                    "Keep nominal SCLK at or below 10 MHz",
+                    "Default target sample rate is 100 kSPS or lower",
+                    "Use read-after-conversion firmware until scoped otherwise.",
+                    "Wait for BUSY to fall before asserting CS",
+                    "Read 32 SCLK edges per DOUT line",
+                    "Read both ADC_MISO_A and ADC_MISO_B",
+                    "Confirm RANGE=0 +/-5 V scaling",
+                    "16-bit twos-complement with 152.59 uV/LSB",
+                    "Apply known voltages or known TIA calibration inputs to VOUT1..4",
+                    "does not close firmware implementation",
+                ),
+            ),
             Evidence(
                 "circuits/README.md",
                 (
@@ -341,7 +356,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 (
                     "`check_ad7606_interface_budget.py` asserts the hardware straps",
                     "default to 100 kSPS or lower",
-                    "152.58 uV/LSB",
+                    "152.59 uV/LSB",
                 ),
             ),
         ),

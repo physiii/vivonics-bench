@@ -230,7 +230,7 @@ NOTE_CHECKS: tuple[NoteCheck, ...] = (
             "`check_tia_readout_budget.py` asserts that the OPA380 guarded output window",
             "use two DOUT lines",
             "32 SCLK edges per DOUT line",
-            "152.58 uV/LSB",
+            "152.59 uV/LSB",
             "RESET high for at least 50 ns",
             "CONVST low and high",
             "`check_laser_controller_netlist.py` asserts the AD7606 package pinout",

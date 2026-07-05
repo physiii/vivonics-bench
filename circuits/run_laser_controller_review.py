@@ -157,6 +157,7 @@ def main() -> int:
         "circuits/check_ap2112_first_article_signoff.py",
         "circuits/check_ad7606_package_pcb.py",
         "circuits/check_ad7606_interface_budget.py",
+        "circuits/check_ad7606_first_article_signoff.py",
         "circuits/check_tia_readout_budget.py",
         "circuits/check_tia_first_article_signoff.py",
         "circuits/check_ap6320x_package_pcb.py",
@@ -244,6 +245,7 @@ def main() -> int:
             {},
         ),
         ("AD7606 interface budget", ["python3", "circuits/check_ad7606_interface_budget.py", str(NETLIST_PATH)], {}),
+        ("AD7606 first-article firmware/readback signoff", ["python3", "circuits/check_ad7606_first_article_signoff.py"], {}),
         (
             "TIA readout budget",
             ["python3", "circuits/check_tia_readout_budget.py", "--netlist", str(NETLIST_PATH)],

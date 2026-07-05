@@ -47,7 +47,7 @@ Layout/release notes:
   `check_ad7606_interface_budget.py`: use two DOUT lines, read 32 SCLK edges per
   DOUT line for each 4-channel sample, keep nominal SCLK at or below 10 MHz
   until rail/timing margin is measured, default to 100 kSPS or lower, and treat
-  data as 16-bit twos-complement with 152.58 uV/LSB for the +/-5 V range.
+  data as 16-bit twos-complement with 152.59 uV/LSB for the +/-5 V range.
 - `check_tia_readout_budget.py` asserts that the OPA380 guarded output window
   is inside the AD7606 +/-5 V range; the production limiter for the signal-PD
   path is the OPA380/TIA headroom and optical calibration, not the ADC full
@@ -67,3 +67,6 @@ Layout/release notes:
   installed KiCad `LQFP-64_10x10mm_P0.5mm` pad geometry.
 - `check_ad7606_interface_budget.py` asserts the hardware straps and the default
   firmware timing/readback budget.
+- `circuits/review/signoff/2026-07-05-ad7606-first-article-readback-signoff.md`
+  records the first-article firmware timing, two-DOUT readback, +/-5 V scaling,
+  and known-input validation requirements before bench ADC data is trusted.

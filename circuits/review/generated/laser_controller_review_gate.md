@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T06:44:23+00:00
+Generated: 2026-07-05T06:48:31+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -9,7 +9,7 @@ Overall release status: BLOCKED
 
 | Status | Step | Return | Command |
 |---|---|---:|---|
-| PASS | Python compile | 0 | `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py` |
+| PASS | Python compile | 0 | `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py` |
 | PASS | Generate schematic/BOM | 0 | `python3 circuits/gen_laser_controller.py` |
 | PASS | Export schematic netlist | 0 | `kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /tmp/lc.net` |
 | PASS | Netlist assertions | 0 | `python3 circuits/check_laser_controller_netlist.py /tmp/lc.net` |
@@ -25,6 +25,7 @@ Overall release status: BLOCKED
 | PASS | USB connector footprint/source match | 0 | `python3 circuits/check_usb_vbus_interface.py --netlist /tmp/lc.net --policy connector-source-match` |
 | PASS | AD7606 package/PCB pinout | 0 | `python3 circuits/check_ad7606_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
 | PASS | AD7606 interface budget | 0 | `python3 circuits/check_ad7606_interface_budget.py /tmp/lc.net` |
+| PASS | AD7606 first-article firmware/readback signoff | 0 | `python3 circuits/check_ad7606_first_article_signoff.py` |
 | PASS | TIA readout budget | 0 | `python3 circuits/check_tia_readout_budget.py --netlist /tmp/lc.net` |
 | PASS | TIA first-article calibration signoff | 0 | `python3 circuits/check_tia_first_article_signoff.py` |
 | PASS | TIA bright-ambient expected fail | 1 | `python3 circuits/check_tia_readout_budget.py --netlist /tmp/lc.net --policy sfh2201-1000lx-example` |
@@ -70,7 +71,7 @@ Overall release status: BLOCKED
 
 ## PASS: Python compile
 
-Command: `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py`
+Command: `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py`
 
 ## PASS: Generate schematic/BOM
 
@@ -223,6 +224,14 @@ PASS AD7606 interface budget
   timing budget: conversion=2.00us, read-after cycle=5.20us, target=100.0kSPS period=10.00us, margin=4.80us
   firmware requirements: RESET high >= 50ns, RESET-low to CONVST >= 25ns, CONVST low/high >= 25/25ns, CS after BUSY fall >= 0ns, avoid reading on BUSY falling edge and keep >= 25ns guard if reading during conversion
   scale: 16-bit twos-complement, +/-5V range, 152.59uV/LSB
+```
+
+## PASS: AD7606 first-article firmware/readback signoff
+
+Command: `python3 circuits/check_ad7606_first_article_signoff.py`
+
+```text
+PASS AD7606 first-article firmware/readback signoff: firmware timing, two-DOUT readback, +/-5 V scaling, and known-input validation are required before bench ADC data is trusted.
 ```
 
 ## PASS: TIA readout budget
@@ -733,8 +742,8 @@ BLOCKED release readiness: 8 open fabrication/release blockers
     Detail: The first-article passive MPN/LCSC set is now locked against the exported netlist, and the steady-state voltage/power derating gate passes. This still does not prove current JLCPCB/LCSC stock/lifecycle state, field pulse/surge/current derating, substitute approval, or board-temperature measurement.
     Required action: At order time, verify every locked passive C-code in the JLCPCB quote, reject or explicitly review substitutions, then capture production pulse/surge/current derating and board-temperature evidence before field or production release.
   [AD7606_SYSTEM_INTERFACE] On-board AD7606 firmware and bench-readout validation are still open
-    Detail: The bench board routes VOUT1..4 into the on-board AD7606 and the hardware straps now have a checked 10 MHz / 100 kSPS default interface budget, but firmware implementation, timing on the real ESP32, scaling, and bench ADC readback remain system-level checks.
-    Required action: Implement and scope the ESP32 AD7606 driver, verify RESET/CONVST/BUSY/CS/SCLK timing, confirm +/-5 V range scaling and oversampling assumptions in firmware, and compare readings against known optical/electrical inputs before relying on bench data.
+    Detail: The bench board routes VOUT1..4 into the on-board AD7606 and the hardware straps now have a checked 10 MHz / 100 kSPS default interface budget. The first-article signoff requires read-after-conversion firmware, RESET/CONVST/BUSY/CS/SCLK timing validation, two-DOUT readback, +/-5 V scaling, and known-input readback before bench ADC data is trusted. Firmware implementation, scoped timing, analog accuracy, and bench ADC readback data remain open.
+    Required action: Implement and scope the ESP32 AD7606 driver, verify RESET/CONVST/BUSY/CS/SCLK timing, confirm +/-5 V range scaling and no-oversampling assumptions in firmware, verify both DOUT lines and channel ordering, and compare readings against known optical/electrical inputs before relying on bench data.
 ```
 
 ## PASS: Regenerate audit inventory
