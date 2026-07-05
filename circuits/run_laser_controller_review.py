@@ -313,6 +313,18 @@ def main() -> int:
             {},
         ),
         (
+            "VIN24 bench external-protection signoff",
+            [
+                "python3",
+                "circuits/check_vin24_input_protection.py",
+                "--netlist",
+                str(NETLIST_PATH),
+                "--policy",
+                "bench-external-protection",
+            ],
+            {},
+        ),
+        (
             "VIN24 production input-protection expected fail",
             [
                 "python3",

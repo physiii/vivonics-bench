@@ -21,6 +21,8 @@ from circuit_designators import ref_for
 
 
 DEFAULT_NETLIST = Path("/tmp/lc.net")
+REPO_DIR = Path(__file__).resolve().parent.parent
+BENCH_SIGNOFF = REPO_DIR / "circuits" / "review" / "signoff" / "2026-07-05-vin24-bench-input-signoff.md"
 VIN_NOMINAL_V = 24.0
 AP632_VIN_MAX_V = 32.0
 BARREL_RATING_V = 30.0
@@ -222,6 +224,27 @@ def production_policy_failures(netlist_path: Path) -> list[str]:
     return failures
 
 
+def bench_external_protection_failures(netlist_path: Path) -> list[str]:
+    failures = validate_current_topology(netlist_path)
+    if not BENCH_SIGNOFF.exists():
+        failures.append(f"missing bench input signoff: {BENCH_SIGNOFF}")
+        return failures
+    text = BENCH_SIGNOFF.read_text()
+    required = (
+        "Use J5 barrel input only for first article power.",
+        "current limit set no higher than 300 mA",
+        "Keep RJ45 power injection disabled for first article bring-up.",
+        "Verify center-positive barrel polarity before every power application.",
+        "Do not hot-plug under load.",
+        "no onboard reverse protection element",
+        "does not close production input protection",
+    )
+    for phrase in required:
+        if phrase not in text:
+            failures.append(f"bench input signoff missing phrase: {phrase}")
+    return failures
+
+
 def print_context(policy: str, protection_refs: list[str]) -> None:
     print(f"VIN_24V input policy: {policy}")
     print(
@@ -241,7 +264,7 @@ def main() -> int:
     parser.add_argument("--netlist", type=Path, default=DEFAULT_NETLIST)
     parser.add_argument(
         "--policy",
-        choices=("bench-topology", "production-protection"),
+        choices=("bench-topology", "bench-external-protection", "production-protection"),
         default="bench-topology",
     )
     args = parser.parse_args()
@@ -253,6 +276,8 @@ def main() -> int:
     print_context(args.policy, protection_refs)
     if args.policy == "bench-topology":
         failures = validate_current_topology(args.netlist)
+    elif args.policy == "bench-external-protection":
+        failures = bench_external_protection_failures(args.netlist)
     else:
         failures = production_policy_failures(args.netlist)
 

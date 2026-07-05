@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T06:02:24+00:00
+Generated: 2026-07-05T06:09:22+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -31,6 +31,7 @@ Overall release status: BLOCKED
 | PASS | Buck/input all-channel analog-limit budget | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy hardware-clamp-9v3` |
 | PASS | Buck datasheet capacitor recommendation | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy datasheet-recommended-components` |
 | PASS | VIN24 bench input topology | 0 | `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net` |
+| PASS | VIN24 bench external-protection signoff | 0 | `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net --policy bench-external-protection` |
 | PASS | VIN24 production input-protection expected fail | 1 | `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net --policy production-protection` |
 | PASS | Laser-driver selected-current control-loop budget | 0 | `python3 circuits/check_laser_driver_control_loop.py --netlist /tmp/lc.net` |
 | PASS | Laser-driver package/PCB pinout | 0 | `python3 circuits/check_laser_driver_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
@@ -295,6 +296,19 @@ Command: `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net
 
 ```text
 VIN_24V input policy: bench-topology
+  J5 barrel source: 24 V nominal into a 30 V / 500 mA connector rating
+  J6 RJ45 source: access-controller pin convention, connector operating temp 0C..70C
+  AP632 VIN range guard used here: 3.8 V operating minimum to 32 V maximum
+  candidate protection refs found: none
+PASS VIN_24V input policy for the checked assumptions.
+```
+
+## PASS: VIN24 bench external-protection signoff
+
+Command: `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net --policy bench-external-protection`
+
+```text
+VIN_24V input policy: bench-external-protection
   J5 barrel source: 24 V nominal into a 30 V / 500 mA connector rating
   J6 RJ45 source: access-controller pin convention, connector operating temp 0C..70C
   AP632 VIN range guard used here: 3.8 V operating minimum to 32 V maximum
@@ -659,7 +673,7 @@ BLOCKED release readiness: 8 open fabrication/release blockers
     Detail: The AP2112 is acceptable only for the bench no-RF policy. Sustained ESP32 wireless load fails the current SOT25 LDO budget.
     Required action: Measure AP2112 package temperature and +3V3 current during bring-up, keep RF disabled for this bench board, or replace the rail before sustained Wi-Fi/BLE.
   [VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT] 24 V barrel/RJ45 input protection and buck layout are not released
-    Detail: J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, the all-channel per-channel analog-limit case, and the local 2x22 uF output-capacitance guard.
+    Detail: J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for first-article bench use only under the 2026-07-05 external current-limit signoff: J5 barrel, 24.0 V, current limit no higher than 300 mA, no RJ45 power injection, no hot-plug, and verified center-positive polarity. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no onboard fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, the all-channel per-channel analog-limit case, and the local 2x22 uF output-capacitance guard.
     Required action: Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.
   [PASSIVE_PRODUCTION_AVL_AND_DERATING] Production passive AVL, pulse/surge derating, and temperature evidence are open
     Detail: The current derating gate covers bench steady-state voltage and power, not lifecycle, surge, pulse, or production procurement lock.

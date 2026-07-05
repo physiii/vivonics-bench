@@ -202,19 +202,28 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT",
         "24 V barrel/RJ45 input protection and buck layout are not released",
-        "J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, the all-channel per-channel analog-limit case, and the local 2x22 uF output-capacitance guard.",
+        "J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for first-article bench use only under the 2026-07-05 external current-limit signoff: J5 barrel, 24.0 V, current limit no higher than 300 mA, no RJ45 power injection, no hot-plug, and verified center-positive polarity. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no onboard fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, the all-channel per-channel analog-limit case, and the local 2x22 uF output-capacitance guard.",
         "Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.",
         (
             Evidence(
                 "circuits/POWER_TREE.md",
                 (
                     "check_vin24_input_protection.py --policy bench-topology",
+                    "bench-external-protection",
                     "production-protection",
                     "no fuse/PTC/TVS/reverse-protection/eFuse stage",
                     "bench-selected-max-9v3",
                     "hardware-clamp-9v3",
                     "datasheet-recommended-components",
                     "C61+C62 provide 20 uF nominal",
+                ),
+            ),
+            Evidence(
+                "circuits/review/signoff/2026-07-05-vin24-bench-input-signoff.md",
+                (
+                    "current limit set no higher than 300 mA",
+                    "Keep RJ45 power injection disabled",
+                    "does not close production input protection",
                 ),
             ),
             Evidence(
