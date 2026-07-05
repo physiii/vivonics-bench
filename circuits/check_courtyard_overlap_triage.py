@@ -285,6 +285,14 @@ def main() -> int:
     parser.add_argument("--drc-report", type=Path, default=DEFAULT_DRC_REPORT)
     parser.add_argument("--triage-report", type=Path, default=DEFAULT_TRIAGE_REPORT)
     parser.add_argument("--waiver-file", type=Path, default=DEFAULT_WAIVER_FILE)
+    parser.add_argument(
+        "--allow-waived-courtyard-only",
+        action="store_true",
+        help=(
+            "Legacy escape hatch: allow explicit courtyard-only waivers to pass. "
+            "Default fabrication review fails on any native courtyard-overlap warning."
+        ),
+    )
     args = parser.parse_args()
 
     if not args.board.exists():
@@ -330,7 +338,7 @@ def main() -> int:
     if not pairs:
         print(f"PASS courtyard-overlap triage: no native courtyard-overlap warnings; report={args.triage_report}")
         return 0
-    if not body_overlaps and not unwaived_courtyard_only:
+    if args.allow_waived_courtyard_only and not body_overlaps and not unwaived_courtyard_only:
         print(
             "PASS courtyard-overlap triage: "
             f"{len(pairs)} native courtyard warnings covered by explicit courtyard-only waivers; "

@@ -12,14 +12,14 @@ Schematic references are generated globally unique before KiCad netlist export. 
 | `referenced_footprints` | 181 |
 | `unique_references` | 181 |
 | `copper_layers` | 4 |
-| `segments` | 1579 |
+| `segments` | 1584 |
 | `vias` | 245 |
 | `zones` | 4 |
 | `pad_net_lines` | 0 |
 | `net_table_entries` | 678 |
 | `keepout_zones` | 1 |
 | `gnd_reference_zone_defs` | 1 |
-| `placement_proximity_checks` | 47/111 PASS |
+| `placement_proximity_checks` | 46/111 PASS |
 | `intentional_unnetted_pad_instances` | 79 |
 | `connected_critical_local_route_links` | 111/111 |
 | `multi_pad_nets` | 110 |
@@ -36,11 +36,11 @@ This table reports the generated routed copper that exists in the current PCB ar
 | `Laser_Current` | 0.20mm x28, 0.60mm x45 | 1.20/0.60mm x1 |
 | `Power_Rails` | 0.25mm x195, 0.30mm x9, 0.50mm x166, 0.60mm x160 | 0.60/0.30mm x40, 1.00/0.50mm x100, 1.00/0.60mm x1 |
 | `USB` | 0.25mm x49 | 0.60/0.30mm x2 |
-| `TIA_Sensitive` | 0.20mm x72 | 0.60/0.30mm x8 |
-| `Monitor_ADC` | 0.20mm x258 | 0.60/0.30mm x32 |
+| `TIA_Sensitive` | 0.20mm x71 | 0.60/0.30mm x8 |
+| `Monitor_ADC` | 0.20mm x260 | 0.60/0.30mm x32 |
 | `Laser_Control` | 0.20mm x109 | 0.60/0.30mm x18 |
 | `Digital_Control` | 0.20mm x243 | 0.60/0.30mm x33 |
-| `Default` | 0.20mm x177, 0.40mm x11, 0.50mm x4, 0.80mm x53 | 0.60/0.30mm x7, 1.20/0.60mm x3 |
+| `Default` | 0.20mm x178, 0.40mm x14, 0.50mm x4, 0.80mm x53 | 0.60/0.30mm x7, 1.20/0.60mm x3 |
 
 ### USB Route Detail
 
@@ -143,16 +143,16 @@ Rows marked `REVIEW` exceed generated ideal-placement targets; release gating is
 | TIA_GREEN PD cathode bypass at cathode | 12.66 mm | 3.00 mm | REVIEW |
 | TIA_GREEN VBIAS resistor at OPA380 +IN | 3.18 mm | 5.00 mm | PASS |
 | TIA_GREEN VBIAS capacitor at OPA380 +IN | 2.82 mm | 4.00 mm | PASS |
-| TIA_BLUE photodiode anode to OPA380 -IN | 5.99 mm | 5.50 mm | REVIEW |
-| TIA_BLUE feedback trimmer at OPA380 -IN | 7.67 mm | 3.50 mm | REVIEW |
-| TIA_BLUE feedback capacitor at OPA380 -IN | 7.82 mm | 2.50 mm | REVIEW |
-| TIA_BLUE feedback trimmer at OPA380 OUT | 7.13 mm | 4.50 mm | REVIEW |
-| TIA_BLUE feedback capacitor at OPA380 OUT | 8.85 mm | 2.50 mm | REVIEW |
-| TIA_BLUE OPA380 supply decoupling | 1.88 mm | 2.50 mm | PASS |
-| TIA_BLUE PD bias resistor at cathode | 14.37 mm | 4.50 mm | REVIEW |
-| TIA_BLUE PD cathode bypass at cathode | 16.11 mm | 3.00 mm | REVIEW |
-| TIA_BLUE VBIAS resistor at OPA380 +IN | 2.94 mm | 5.00 mm | PASS |
-| TIA_BLUE VBIAS capacitor at OPA380 +IN | 3.47 mm | 4.00 mm | PASS |
+| TIA_BLUE photodiode anode to OPA380 -IN | 5.96 mm | 5.50 mm | REVIEW |
+| TIA_BLUE feedback trimmer at OPA380 -IN | 6.85 mm | 3.50 mm | REVIEW |
+| TIA_BLUE feedback capacitor at OPA380 -IN | 5.52 mm | 2.50 mm | REVIEW |
+| TIA_BLUE feedback trimmer at OPA380 OUT | 6.24 mm | 4.50 mm | REVIEW |
+| TIA_BLUE feedback capacitor at OPA380 OUT | 7.05 mm | 2.50 mm | REVIEW |
+| TIA_BLUE OPA380 supply decoupling | 3.00 mm | 2.50 mm | REVIEW |
+| TIA_BLUE PD bias resistor at cathode | 11.58 mm | 4.50 mm | REVIEW |
+| TIA_BLUE PD cathode bypass at cathode | 13.72 mm | 3.00 mm | REVIEW |
+| TIA_BLUE VBIAS resistor at OPA380 +IN | 3.71 mm | 5.00 mm | PASS |
+| TIA_BLUE VBIAS capacitor at OPA380 +IN | 2.82 mm | 4.00 mm | PASS |
 | LASER_IR TLV9001 OUT to gate resistor | 2.70 mm | 3.50 mm | PASS |
 | LASER_IR gate resistor to AO3400A gate | 3.33 mm | 2.50 mm | REVIEW |
 | LASER_IR AO3400A source to sense resistor | 5.49 mm | 2.20 mm | REVIEW |

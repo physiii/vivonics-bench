@@ -32,7 +32,8 @@ for bench measurements, optical safety behavior, production, or field use.
 - Schematic/PCB parity: PASS
 - Generated-copper release gate: PASS
 - Focused layout-geometry review: PASS
-- Native courtyard-overlap triage: PASS with explicit courtyard-only waivers
+- Native courtyard-overlap triage: PASS with zero native courtyard-overlap warnings
+- 3D model coverage: PASS
 
 ## Upload Artifacts
 
@@ -48,8 +49,8 @@ PTH/NPTH drills, JLCPCB BOM, and JLCPCB POS.
 ## SHA256
 
 ```text
-2169acb64ddea0eacbeff9666ff8cc8142181505edae5668e9fb4ccd70c110b2  circuits/laser_controller_gerbers.zip
-986b02319e0f86a0ff22d5b61eca693fe42433a66608523223a7dbfc987aa78d  circuits/laser_controller_jlcpcb_package.zip
+779bb2ffdc30c36c6164d9c59acc8935f254f53b39b32918c1fd444aa28ebf5a  circuits/laser_controller_gerbers.zip
+dc8b56bfd2428a1fb2520c764bcb6b9535549035c4af0c54a6c3de573880c422  circuits/laser_controller_jlcpcb_package.zip
 c985588c42b516108a990abaa858db2317fe038ba447fa666fffdc0fb52e5c69  circuits/laser_controller_bom_jlcpcb.csv
-fb84f86e628118ea8bca13c9457d4361d9119a59699ed9931a0e0d7e555cf846  circuits/fab/laser_controller_pos.csv
+01d409619b390781c282bc85f94f3ef17147f1ed58604099071c7d2da5d730ff  circuits/fab/laser_controller_pos.csv
 ```
