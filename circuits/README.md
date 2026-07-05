@@ -390,17 +390,18 @@ source-note change:
 python3 circuits/run_laser_controller_review.py
 ```
 
-For fabrication/release, use release mode:
+For first-article or production release, use release mode:
 
 ```bash
 python3 circuits/run_laser_controller_review.py --release
 ```
 
-In this environment, release mode is expected to fail because the installed
-KiCad CLI exposes `sch export` and `pcb export` but not `sch erc` or `pcb drc`,
-and because `check_laser_controller_release_readiness.py` still reports open
-fabrication/release blockers. That failure is intentional; clear the blocker
-registry, run KiCad GUI ERC/DRC with zone refill or use a fuller KiCad CLI, and
-document the required physical/source signoffs before ordering boards.
+In this environment, release mode is expected to fail while
+`check_laser_controller_release_readiness.py` still reports deferred
+first-article/production blockers. That failure is intentional: the current
+JLCPCB order package can be ready while bench-use or production release remains
+blocked by missing measured calibration, firmware, thermal, protection,
+procurement, or bring-up evidence. Do not clear the blocker registry until the
+corresponding physical/source signoffs are recorded.
 
 See `PCB_LAYOUT.md` for the full placement + routing/Gerber workflow.
