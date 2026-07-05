@@ -117,6 +117,10 @@ been removed now that U14 is on-board.
   `circuits/fab/laser_controller_pos.csv` as CPL/POS. The convenience archive
   `circuits/laser_controller_jlcpcb_package.zip` contains the same Gerber/drill
   files plus the BOM and POS at top level for review/transfer.
+- Before upload, run `python3 circuits/check_jlcpcb_order_package.py` from the
+  repo root. It checks that the zip entries match the source Gerber/drill files,
+  BOM/POS designators match, J7 remains the C192300 2x4 SMD header, and the
+  required PD/laser/backside board labels are present.
 - Hand-add exclusions: J5, J6, LD1-LD4, mounting holes, and any other
   through-hole/mechanical-only items are not in the JLCPCB SMT BOM/POS flow.
 - Quote review still wins: move to Standard PCBA or change order options if

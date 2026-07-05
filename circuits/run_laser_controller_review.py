@@ -183,6 +183,7 @@ def main() -> int:
         "circuits/check_laser_controller_sources.py",
         "circuits/check_part_notes_completeness.py",
         "circuits/check_source_documents.py",
+        "circuits/check_jlcpcb_order_package.py",
     ]
 
     steps: list[tuple[str, list[str], dict[str, object]]] = [
@@ -609,6 +610,7 @@ def main() -> int:
             ["kicad-cli", "pcb", "export", "pos", "circuits/laser_controller.kicad_pcb", "-o", str(POS_PATH)],
             {},
         ),
+        ("JLCPCB order package", ["python3", "circuits/check_jlcpcb_order_package.py"], {}),
         (
             "KiCad ERC availability",
             ["kicad-cli", "sch", "erc", "circuits/laser_controller.kicad_sch", "-o", "/tmp/lc_erc.rpt"],
