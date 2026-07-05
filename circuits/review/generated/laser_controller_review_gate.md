@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T12:51:12+00:00
+Generated: 2026-07-05T12:57:56+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -879,18 +879,18 @@ Command: `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/
 Command: `/snap/bin/kicad.kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv`
 
 ```text
-07:51:08: Debug: Adding duplicate image handler for 'PNG file'
-07:51:08: Debug: Adding duplicate image handler for 'JPEG file'
-07:51:08: Debug: Adding duplicate image handler for 'TIFF file'
-07:51:08: Debug: Adding duplicate image handler for 'GIF file'
-07:51:08: Debug: Adding duplicate image handler for 'PNM file'
-07:51:08: Debug: Adding duplicate image handler for 'PCX file'
-07:51:08: Debug: Adding duplicate image handler for 'IFF file'
-07:51:08: Debug: Adding duplicate image handler for 'Windows icon file'
-07:51:08: Debug: Adding duplicate image handler for 'Windows cursor file'
-07:51:08: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-07:51:08: Debug: Adding duplicate image handler for 'TGA file'
-07:51:08: Debug: Adding duplicate image handler for 'XPM file'
+07:57:52: Debug: Adding duplicate image handler for 'PNG file'
+07:57:52: Debug: Adding duplicate image handler for 'JPEG file'
+07:57:52: Debug: Adding duplicate image handler for 'TIFF file'
+07:57:52: Debug: Adding duplicate image handler for 'GIF file'
+07:57:52: Debug: Adding duplicate image handler for 'PNM file'
+07:57:52: Debug: Adding duplicate image handler for 'PCX file'
+07:57:52: Debug: Adding duplicate image handler for 'IFF file'
+07:57:52: Debug: Adding duplicate image handler for 'Windows icon file'
+07:57:52: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:57:52: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:57:52: Debug: Adding duplicate image handler for 'TGA file'
+07:57:52: Debug: Adding duplicate image handler for 'XPM file'
 Wrote position data to '/tmp/lc_pos.csv'.
 ```
 
@@ -916,18 +916,18 @@ Saved ERC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/
 Command: `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
-07:51:10: Debug: Adding duplicate image handler for 'PNG file'
-07:51:10: Debug: Adding duplicate image handler for 'JPEG file'
-07:51:10: Debug: Adding duplicate image handler for 'TIFF file'
-07:51:10: Debug: Adding duplicate image handler for 'GIF file'
-07:51:10: Debug: Adding duplicate image handler for 'PNM file'
-07:51:10: Debug: Adding duplicate image handler for 'PCX file'
-07:51:10: Debug: Adding duplicate image handler for 'IFF file'
-07:51:10: Debug: Adding duplicate image handler for 'Windows icon file'
-07:51:10: Debug: Adding duplicate image handler for 'Windows cursor file'
-07:51:10: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-07:51:10: Debug: Adding duplicate image handler for 'TGA file'
-07:51:10: Debug: Adding duplicate image handler for 'XPM file'
+07:57:54: Debug: Adding duplicate image handler for 'PNG file'
+07:57:54: Debug: Adding duplicate image handler for 'JPEG file'
+07:57:54: Debug: Adding duplicate image handler for 'TIFF file'
+07:57:54: Debug: Adding duplicate image handler for 'GIF file'
+07:57:54: Debug: Adding duplicate image handler for 'PNM file'
+07:57:54: Debug: Adding duplicate image handler for 'PCX file'
+07:57:54: Debug: Adding duplicate image handler for 'IFF file'
+07:57:54: Debug: Adding duplicate image handler for 'Windows icon file'
+07:57:54: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:57:54: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:57:54: Debug: Adding duplicate image handler for 'TGA file'
+07:57:54: Debug: Adding duplicate image handler for 'XPM file'
 Found 4 violations
 Found 0 unconnected items
 Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt
@@ -938,18 +938,18 @@ Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/
 Command: `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
-07:51:11: Debug: Adding duplicate image handler for 'PNG file'
-07:51:11: Debug: Adding duplicate image handler for 'JPEG file'
-07:51:11: Debug: Adding duplicate image handler for 'TIFF file'
-07:51:11: Debug: Adding duplicate image handler for 'GIF file'
-07:51:11: Debug: Adding duplicate image handler for 'PNM file'
-07:51:11: Debug: Adding duplicate image handler for 'PCX file'
-07:51:11: Debug: Adding duplicate image handler for 'IFF file'
-07:51:11: Debug: Adding duplicate image handler for 'Windows icon file'
-07:51:11: Debug: Adding duplicate image handler for 'Windows cursor file'
-07:51:11: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-07:51:11: Debug: Adding duplicate image handler for 'TGA file'
-07:51:11: Debug: Adding duplicate image handler for 'XPM file'
+07:57:55: Debug: Adding duplicate image handler for 'PNG file'
+07:57:55: Debug: Adding duplicate image handler for 'JPEG file'
+07:57:55: Debug: Adding duplicate image handler for 'TIFF file'
+07:57:55: Debug: Adding duplicate image handler for 'GIF file'
+07:57:55: Debug: Adding duplicate image handler for 'PNM file'
+07:57:55: Debug: Adding duplicate image handler for 'PCX file'
+07:57:55: Debug: Adding duplicate image handler for 'IFF file'
+07:57:55: Debug: Adding duplicate image handler for 'Windows icon file'
+07:57:55: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:57:55: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:57:55: Debug: Adding duplicate image handler for 'TGA file'
+07:57:55: Debug: Adding duplicate image handler for 'XPM file'
 Found 4 violations
 Found 0 unconnected items
 Found 0 schematic parity issues

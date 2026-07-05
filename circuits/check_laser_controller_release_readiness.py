@@ -60,6 +60,16 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 ),
             ),
             Evidence(
+                "circuits/review/signoff/2026-07-05-monitor-pd-category-review.md",
+                (
+                    "Rank 6, high",
+                    "MPD_RAW4` / `MPD4` is",
+                    "`monitor_pd_calibration`",
+                    "`mpd4_blue_spare_open`",
+                    "not a cleared production APC",
+                ),
+            ),
+            Evidence(
                 "circuits/review/calibration/first_article_optical_calibration_template.csv",
                 (
                     "monitor_pd,LD1,INFRARED,MPD_RAW1->MPD1",

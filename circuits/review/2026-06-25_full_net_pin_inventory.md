@@ -12,7 +12,7 @@ Schematic references are generated globally unique before KiCad netlist export. 
 | `referenced_footprints` | 181 |
 | `unique_references` | 181 |
 | `copper_layers` | 4 |
-| `segments` | 1584 |
+| `segments` | 1579 |
 | `vias` | 245 |
 | `zones` | 4 |
 | `pad_net_lines` | 0 |
@@ -37,7 +37,7 @@ This table reports the generated routed copper that exists in the current PCB ar
 | `Power_Rails` | 0.25mm x195, 0.30mm x9, 0.50mm x166, 0.60mm x160 | 0.60/0.30mm x40, 1.00/0.50mm x100, 1.00/0.60mm x1 |
 | `USB` | 0.25mm x49 | 0.60/0.30mm x2 |
 | `TIA_Sensitive` | 0.20mm x72 | 0.60/0.30mm x8 |
-| `Monitor_ADC` | 0.20mm x263 | 0.60/0.30mm x32 |
+| `Monitor_ADC` | 0.20mm x258 | 0.60/0.30mm x32 |
 | `Laser_Control` | 0.20mm x109 | 0.60/0.30mm x18 |
 | `Digital_Control` | 0.20mm x243 | 0.60/0.30mm x33 |
 | `Default` | 0.20mm x177, 0.40mm x11, 0.50mm x4, 0.80mm x53 | 0.60/0.30mm x7, 1.20/0.60mm x3 |
