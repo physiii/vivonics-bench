@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """24V input and AP63205/AP63200 buck policy checks.
 
-This is a first-order electrical guardrail.  It verifies the schematic buck
-pinout/component set and checks connector input current plus inductor stress for
-defined bench scenarios.  A separate policy intentionally fails the current
-production recommendation because the board uses less ceramic input and output
-capacitance than the AP63200/AP63205 datasheet recommends for a generic release.
+This is a first-order electrical guardrail. It verifies the schematic buck
+pinout/component set, checks connector input current plus inductor stress for
+defined bench scenarios, and keeps the local AP632 capacitor recommendation
+encoded as a machine-checkable production-component guard. Passing this checker
+does not replace first-article ripple, transient, stability, or temperature
+measurement.
 """
 from __future__ import annotations
 

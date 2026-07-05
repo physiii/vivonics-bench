@@ -310,6 +310,17 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 ),
             ),
             Evidence(
+                "circuits/review/signoff/2026-07-05-vin24-category-review.md",
+                (
+                    "Rank 1, critical",
+                    "controlled first-article",
+                    "production input protection is not designed",
+                    "`first_power_limits`",
+                    "`buck_rail_measurement`",
+                    "`production_protection`",
+                ),
+            ),
+            Evidence(
                 "docs/part-notes/AP63200-AP63205.md",
                 (
                     "check_vin24_input_protection.py --policy production-protection",
@@ -428,6 +439,17 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
 )
 
 
+BLOCKER_PRIORITY = {
+    "VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT": 1,
+    "PER_DIODE_LASER_THERMAL_BUDGET": 2,
+    "AP2112_BENCH_MEASUREMENT_OR_REGULATOR_CHANGE": 3,
+    "AD7606_SYSTEM_INTERFACE": 4,
+    "TIA_READOUT_RANGE_CALIBRATION": 5,
+    "MONITOR_PD_FRONTEND_RANGE_CALIBRATION": 6,
+    "PASSIVE_PRODUCTION_AVL_AND_DERATING": 7,
+}
+
+
 def validate_evidence() -> list[str]:
     failures: list[str] = []
     for blocker in BLOCKERS:
@@ -479,7 +501,10 @@ def main() -> int:
     for blocker_id, evidence_id in ledger.open_rows:
         open_evidence_by_blocker.setdefault(blocker_id, []).append(evidence_id)
 
-    open_blockers = [blocker for blocker in BLOCKERS if blocker.blocker_id in open_evidence_by_blocker]
+    open_blockers = sorted(
+        (blocker for blocker in BLOCKERS if blocker.blocker_id in open_evidence_by_blocker),
+        key=lambda blocker: BLOCKER_PRIORITY[blocker.blocker_id],
+    )
     if not open_blockers:
         print("PASS release readiness: no open blockers registered")
         return 0
@@ -490,7 +515,7 @@ def main() -> int:
         f"across {len(ledger.open_rows)} open evidence row(s)"
     )
     for blocker in open_blockers:
-        print(f"  [{blocker.blocker_id}] {blocker.title}")
+        print(f"  [{BLOCKER_PRIORITY[blocker.blocker_id]}] [{blocker.blocker_id}] {blocker.title}")
         print(f"    Open evidence: {', '.join(sorted(open_evidence_by_blocker[blocker.blocker_id]))}")
         print(f"    Detail: {blocker.detail}")
         print(f"    Required action: {blocker.required_action}")

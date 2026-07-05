@@ -115,15 +115,16 @@ Block fabrication until:
 5. Received laser-can orientation is inspected against the signed-off MPN/footprint
    mapping before soldering.
 6. Each selected diode and `LASER_V+` setting passes the laser current thermal budget.
-7. `check_vin24_input_protection.py --policy bench-topology` passes, the
-   expected-fail `production-protection` blocker is designed out or explicitly
-   accepted with a production input-protection rationale, and
-   `check_buck_input_power_budget.py --policy bench-selected-max-9v3` passes,
-   the expected-fail `hardware-clamp-9v3` and
-   `datasheet-recommended-components` blockers are either designed out or
-   explicitly accepted with measurements, and AP63205/AP63200 buck placement,
-   switch-loop routing, thermal behavior, and input adapter/protection
-   assumptions are reviewed before ordering boards.
+7. `check_vin24_input_protection.py --policy bench-topology` and
+   `bench-external-protection` pass for controlled first-article power-up, while
+   the expected-fail `production-protection` policy remains open until a
+   production current-limit/fuse, reverse-polarity strategy, TVS/transient
+   strategy, and RJ45 harness limit are selected.
+8. `check_buck_input_power_budget.py --policy bench-selected-max-9v3`,
+   `hardware-clamp-9v3`, and `datasheet-recommended-components` pass for the
+   current component set. AP63205/AP63200 ripple, load-step behavior,
+   switch-loop temperature, and input adapter/protection assumptions still need
+   first-article measurement before trusting the rails for production.
 
 `python3 check_laser_controller_release_gate.py laser_controller.kicad_pcb /tmp/lc.net`
 must pass before fabrication. It passes on the current routed artifact for

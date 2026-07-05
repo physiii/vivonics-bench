@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T12:32:30+00:00
+Generated: 2026-07-05T12:38:13+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -826,34 +826,34 @@ The release-readiness registry has unresolved calibration, firmware, thermal, pr
 
 ```text
 BLOCKED production release readiness: 7 open first-article/production blockers across 16 open evidence row(s)
-  [MONITOR_PD_FRONTEND_RANGE_CALIBRATION] Monitor-PD front-end range and calibration are not released
-    Open evidence: monitor_pd_calibration, mpd4_blue_spare_open
-    Detail: The exported netlist now proves the INA4180/LM4040 monitor topology is connected as intended, and the 240R/gain20 monitor scale covers the captured D7805I/D6505I/PLT5 520EB_P monitor-current range inside the local ADC-headroom guard. The first-article signoff requires external optical-meter calibration before MPD telemetry is used for APC, normalization, or safety behavior. PLT5 450GB has no monitor photodiode, so MPD4 is not blue-source telemetry. Measured optical calibration and firmware behavior are still unreleased.
-    Required action: Calibrate each monitor-capable source against an external optical meter, record dark/off counts, response slope, saturation threshold, setpoint, and optical-power reading, and verify firmware fail-shutoff behavior before using MPD telemetry for production APC, normalization, or safety decisions.
-  [TIA_READOUT_RANGE_CALIBRATION] Signal-PD TIA readout range and optical calibration are not released
-    Open evidence: ambient_saturation_policy, signal_pd_calibration
-    Detail: The exported netlist now proves the four SFH2201/OPA380 signal-PD channels feed VOUT1..4 into the AD7606 as intended, and the first-order TIA checker shows the present 2 MOhm feedback trim is a high-sensitivity, low-current bench range. At VBIAS = 1.5 V it has about +1.40 uA / -0.70 uA one-sided OPA380 headroom before the guarded output window clips; the SFH2201 1000 lx datasheet short-circuit-current example would need about 152 V of TIA swing at 2 MOhm and is intentionally an expected-fail case. The first-article signoff now requires dark-offset capture, ambient shielding, known-input calibration, RF/VBIAS recording, and AD7606 scaling checks.
-    Required action: Define the real Vivonics optical photocurrent range at the SFH2201 under the bench optics, choose RF/VBIAS/firmware scaling for that range, shield or limit ambient light, calibrate AD7606 counts against known optical/electrical inputs, and verify firmware saturation/out-of-range behavior before using the signal-PD path for production measurements.
-  [PER_DIODE_LASER_THERMAL_BUDGET] Per-diode laser bring-up temperature and optical-output signoff are still open
-    Open evidence: laser_bringup, laser_safety_fixture
-    Detail: The selected-diode policies now pass on the 9.3 V common rail at typical current, max current, and the per-channel analog command limits. The first-article bring-up signoff requires one laser channel at a time, laser safety controls, external optical-power measurement, and driver/sense-resistor temperature measurement. Physical driver/sense-resistor temperature, optical output, duty cycle, and firmware safety behavior still need measured bring-up evidence.
-    Required action: Measure driver/sense-resistor temperature and optical output during bring-up, verify firmware current/duty-cycle clamps stay at or below the per-channel analog limits, and keep any future laser/rail/current change behind the same current, gate-drive, input-power, and optical safety review.
-  [AP2112_BENCH_MEASUREMENT_OR_REGULATOR_CHANGE] AP2112 measurement and sustained-wireless regulator decision are open
-    Open evidence: no_rf_current_temp, regulator_decision
-    Detail: The AP2112 is accepted for first-article USB/UART bench use only under the no-RF signoff: ESP32 Wi-Fi/BLE disabled, continuous +3V3 current no higher than 120 mA, and no added 3.3 V loads without rerunning the thermal budget. Sustained ESP32 wireless load still fails the current SOT25 LDO budget.
-    Required action: Measure AP2112 package temperature and +3V3 current during bring-up; keep RF disabled for this bench board, or replace/prove the rail before sustained Wi-Fi/BLE.
-  [VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT] 24 V barrel/RJ45 input protection and buck layout are not released
+  [1] [VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT] 24 V barrel/RJ45 input protection and buck layout are not released
     Open evidence: buck_rail_measurement, first_power_limits, production_protection
     Detail: J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for first-article bench use only under the 2026-07-05 external current-limit signoff: J5 barrel, 24.0 V, current limit no higher than 300 mA, no RJ45 power injection, no hot-plug, and verified center-positive polarity. The AP632 first-article signoff now requires rail verification, startup/ripple/load-step measurement, and buck component temperature measurement before trusting VIN24 buck rails. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no onboard fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, the all-channel per-channel analog-limit case, and the local 2x22 uF output-capacitance guard.
     Required action: Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; then measure AP63205/AP63200 startup, ripple, load-step transient/stability, copper/current path behavior, and temperature before production.
-  [PASSIVE_PRODUCTION_AVL_AND_DERATING] Passive quote-time lifecycle, pulse/surge derating, and temperature evidence are open
-    Open evidence: passive_derating, quote_acceptance
-    Detail: The first-article passive MPN/LCSC set is now locked against the exported netlist, and the steady-state voltage/power derating gate passes. This still does not prove current JLCPCB/LCSC stock/lifecycle state, field pulse/surge/current derating, substitute approval, or board-temperature measurement.
-    Required action: At order time, verify every locked passive C-code in the JLCPCB quote, reject or explicitly review substitutions, then capture production pulse/surge/current derating and board-temperature evidence before field or production release.
-  [AD7606_SYSTEM_INTERFACE] On-board AD7606 firmware and bench-readout validation are still open
+  [2] [PER_DIODE_LASER_THERMAL_BUDGET] Per-diode laser bring-up temperature and optical-output signoff are still open
+    Open evidence: laser_bringup, laser_safety_fixture
+    Detail: The selected-diode policies now pass on the 9.3 V common rail at typical current, max current, and the per-channel analog command limits. The first-article bring-up signoff requires one laser channel at a time, laser safety controls, external optical-power measurement, and driver/sense-resistor temperature measurement. Physical driver/sense-resistor temperature, optical output, duty cycle, and firmware safety behavior still need measured bring-up evidence.
+    Required action: Measure driver/sense-resistor temperature and optical output during bring-up, verify firmware current/duty-cycle clamps stay at or below the per-channel analog limits, and keep any future laser/rail/current change behind the same current, gate-drive, input-power, and optical safety review.
+  [3] [AP2112_BENCH_MEASUREMENT_OR_REGULATOR_CHANGE] AP2112 measurement and sustained-wireless regulator decision are open
+    Open evidence: no_rf_current_temp, regulator_decision
+    Detail: The AP2112 is accepted for first-article USB/UART bench use only under the no-RF signoff: ESP32 Wi-Fi/BLE disabled, continuous +3V3 current no higher than 120 mA, and no added 3.3 V loads without rerunning the thermal budget. Sustained ESP32 wireless load still fails the current SOT25 LDO budget.
+    Required action: Measure AP2112 package temperature and +3V3 current during bring-up; keep RF disabled for this bench board, or replace/prove the rail before sustained Wi-Fi/BLE.
+  [4] [AD7606_SYSTEM_INTERFACE] On-board AD7606 firmware and bench-readout validation are still open
     Open evidence: digital_timing, dout_readback, scaling_channel_order_known_input
     Detail: The bench board routes VOUT1..4 into the on-board AD7606 and the hardware straps now have a checked 10 MHz / 100 kSPS default interface budget. The first-article signoff requires read-after-conversion firmware, RESET/CONVST/BUSY/CS/SCLK timing validation, two-DOUT readback, +/-5 V scaling, and known-input readback before bench ADC data is trusted. Firmware implementation, scoped timing, analog accuracy, and bench ADC readback data remain open.
     Required action: Implement and scope the ESP32 AD7606 driver, verify RESET/CONVST/BUSY/CS/SCLK timing, confirm +/-5 V range scaling and no-oversampling assumptions in firmware, verify both DOUT lines and channel ordering, and compare readings against known optical/electrical inputs before relying on bench data.
+  [5] [TIA_READOUT_RANGE_CALIBRATION] Signal-PD TIA readout range and optical calibration are not released
+    Open evidence: ambient_saturation_policy, signal_pd_calibration
+    Detail: The exported netlist now proves the four SFH2201/OPA380 signal-PD channels feed VOUT1..4 into the AD7606 as intended, and the first-order TIA checker shows the present 2 MOhm feedback trim is a high-sensitivity, low-current bench range. At VBIAS = 1.5 V it has about +1.40 uA / -0.70 uA one-sided OPA380 headroom before the guarded output window clips; the SFH2201 1000 lx datasheet short-circuit-current example would need about 152 V of TIA swing at 2 MOhm and is intentionally an expected-fail case. The first-article signoff now requires dark-offset capture, ambient shielding, known-input calibration, RF/VBIAS recording, and AD7606 scaling checks.
+    Required action: Define the real Vivonics optical photocurrent range at the SFH2201 under the bench optics, choose RF/VBIAS/firmware scaling for that range, shield or limit ambient light, calibrate AD7606 counts against known optical/electrical inputs, and verify firmware saturation/out-of-range behavior before using the signal-PD path for production measurements.
+  [6] [MONITOR_PD_FRONTEND_RANGE_CALIBRATION] Monitor-PD front-end range and calibration are not released
+    Open evidence: monitor_pd_calibration, mpd4_blue_spare_open
+    Detail: The exported netlist now proves the INA4180/LM4040 monitor topology is connected as intended, and the 240R/gain20 monitor scale covers the captured D7805I/D6505I/PLT5 520EB_P monitor-current range inside the local ADC-headroom guard. The first-article signoff requires external optical-meter calibration before MPD telemetry is used for APC, normalization, or safety behavior. PLT5 450GB has no monitor photodiode, so MPD4 is not blue-source telemetry. Measured optical calibration and firmware behavior are still unreleased.
+    Required action: Calibrate each monitor-capable source against an external optical meter, record dark/off counts, response slope, saturation threshold, setpoint, and optical-power reading, and verify firmware fail-shutoff behavior before using MPD telemetry for production APC, normalization, or safety decisions.
+  [7] [PASSIVE_PRODUCTION_AVL_AND_DERATING] Passive quote-time lifecycle, pulse/surge derating, and temperature evidence are open
+    Open evidence: passive_derating, quote_acceptance
+    Detail: The first-article passive MPN/LCSC set is now locked against the exported netlist, and the steady-state voltage/power derating gate passes. This still does not prove current JLCPCB/LCSC stock/lifecycle state, field pulse/surge/current derating, substitute approval, or board-temperature measurement.
+    Required action: At order time, verify every locked passive C-code in the JLCPCB quote, reject or explicitly review substitutions, then capture production pulse/surge/current derating and board-temperature evidence before field or production release.
 ```
 
 ## PASS: Regenerate audit inventory
@@ -865,18 +865,18 @@ Command: `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/
 Command: `/snap/bin/kicad.kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv`
 
 ```text
-07:32:27: Debug: Adding duplicate image handler for 'PNG file'
-07:32:27: Debug: Adding duplicate image handler for 'JPEG file'
-07:32:27: Debug: Adding duplicate image handler for 'TIFF file'
-07:32:27: Debug: Adding duplicate image handler for 'GIF file'
-07:32:27: Debug: Adding duplicate image handler for 'PNM file'
-07:32:27: Debug: Adding duplicate image handler for 'PCX file'
-07:32:27: Debug: Adding duplicate image handler for 'IFF file'
-07:32:27: Debug: Adding duplicate image handler for 'Windows icon file'
-07:32:27: Debug: Adding duplicate image handler for 'Windows cursor file'
-07:32:27: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-07:32:27: Debug: Adding duplicate image handler for 'TGA file'
-07:32:27: Debug: Adding duplicate image handler for 'XPM file'
+07:38:10: Debug: Adding duplicate image handler for 'PNG file'
+07:38:10: Debug: Adding duplicate image handler for 'JPEG file'
+07:38:10: Debug: Adding duplicate image handler for 'TIFF file'
+07:38:10: Debug: Adding duplicate image handler for 'GIF file'
+07:38:10: Debug: Adding duplicate image handler for 'PNM file'
+07:38:10: Debug: Adding duplicate image handler for 'PCX file'
+07:38:10: Debug: Adding duplicate image handler for 'IFF file'
+07:38:10: Debug: Adding duplicate image handler for 'Windows icon file'
+07:38:10: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:38:10: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:38:10: Debug: Adding duplicate image handler for 'TGA file'
+07:38:10: Debug: Adding duplicate image handler for 'XPM file'
 Wrote position data to '/tmp/lc_pos.csv'.
 ```
 
@@ -902,18 +902,18 @@ Saved ERC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/
 Command: `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
-07:32:28: Debug: Adding duplicate image handler for 'PNG file'
-07:32:28: Debug: Adding duplicate image handler for 'JPEG file'
-07:32:28: Debug: Adding duplicate image handler for 'TIFF file'
-07:32:28: Debug: Adding duplicate image handler for 'GIF file'
-07:32:28: Debug: Adding duplicate image handler for 'PNM file'
-07:32:28: Debug: Adding duplicate image handler for 'PCX file'
-07:32:28: Debug: Adding duplicate image handler for 'IFF file'
-07:32:28: Debug: Adding duplicate image handler for 'Windows icon file'
-07:32:28: Debug: Adding duplicate image handler for 'Windows cursor file'
-07:32:28: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-07:32:28: Debug: Adding duplicate image handler for 'TGA file'
-07:32:28: Debug: Adding duplicate image handler for 'XPM file'
+07:38:12: Debug: Adding duplicate image handler for 'PNG file'
+07:38:12: Debug: Adding duplicate image handler for 'JPEG file'
+07:38:12: Debug: Adding duplicate image handler for 'TIFF file'
+07:38:12: Debug: Adding duplicate image handler for 'GIF file'
+07:38:12: Debug: Adding duplicate image handler for 'PNM file'
+07:38:12: Debug: Adding duplicate image handler for 'PCX file'
+07:38:12: Debug: Adding duplicate image handler for 'IFF file'
+07:38:12: Debug: Adding duplicate image handler for 'Windows icon file'
+07:38:12: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:38:12: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:38:12: Debug: Adding duplicate image handler for 'TGA file'
+07:38:12: Debug: Adding duplicate image handler for 'XPM file'
 Found 4 violations
 Found 0 unconnected items
 Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt
@@ -924,18 +924,18 @@ Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/
 Command: `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
-07:32:29: Debug: Adding duplicate image handler for 'PNG file'
-07:32:29: Debug: Adding duplicate image handler for 'JPEG file'
-07:32:29: Debug: Adding duplicate image handler for 'TIFF file'
-07:32:29: Debug: Adding duplicate image handler for 'GIF file'
-07:32:29: Debug: Adding duplicate image handler for 'PNM file'
-07:32:29: Debug: Adding duplicate image handler for 'PCX file'
-07:32:29: Debug: Adding duplicate image handler for 'IFF file'
-07:32:29: Debug: Adding duplicate image handler for 'Windows icon file'
-07:32:29: Debug: Adding duplicate image handler for 'Windows cursor file'
-07:32:29: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-07:32:29: Debug: Adding duplicate image handler for 'TGA file'
-07:32:29: Debug: Adding duplicate image handler for 'XPM file'
+07:38:13: Debug: Adding duplicate image handler for 'PNG file'
+07:38:13: Debug: Adding duplicate image handler for 'JPEG file'
+07:38:13: Debug: Adding duplicate image handler for 'TIFF file'
+07:38:13: Debug: Adding duplicate image handler for 'GIF file'
+07:38:13: Debug: Adding duplicate image handler for 'PNM file'
+07:38:13: Debug: Adding duplicate image handler for 'PCX file'
+07:38:13: Debug: Adding duplicate image handler for 'IFF file'
+07:38:13: Debug: Adding duplicate image handler for 'Windows icon file'
+07:38:13: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:38:13: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:38:13: Debug: Adding duplicate image handler for 'TGA file'
+07:38:13: Debug: Adding duplicate image handler for 'XPM file'
 Found 4 violations
 Found 0 unconnected items
 Found 0 schematic parity issues
