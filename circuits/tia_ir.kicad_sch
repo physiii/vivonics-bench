@@ -1,7 +1,7 @@
 (kicad_sch
   (version 20230121)
   (generator eeschema)
-  (uuid c1d2e3f4-6000-4000-a000-000000000001)
+  (uuid c1d2e3f4-5000-4000-a000-000000000001)
   (paper "A3")
   (title_block
     (title "TIA IR Channel")
@@ -559,10 +559,15 @@
   (no_connect (at 204.47 144.78) (uuid c1d2e3f4-6000-4000-a000-000000000097))
   (no_connect (at 224.79 154.94) (uuid c1d2e3f4-6000-4000-a000-000000000098))
   (no_connect (at 224.79 144.78) (uuid c1d2e3f4-6000-4000-a000-000000000099))
-  (hierarchical_label "V_OUT" (shape output) (at 232.41 149.86 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid c1d2e3f4-6000-4000-a000-000000000100))
-  (text "TIA Channel  —  on-board SFH2201 signal PD → OPA380AID transimpedance amp  ·  reused 4× (IR / RED / GREEN / BLUE)" (at 150 104 0) (effects (font (size 2.0 2.0)) (justify left)) (uuid c1d2e3f4-6000-4000-a000-000000000101))
-  (text "PD reverse-biased: cathode → +5V via RB (1k) + CB bypass ; anode → OPA380 −IN summing node.  Rf = RVFB (2M trim) ∥ Cf = C1 (10pF)." (at 150 110 0) (effects (font (size 1.3 1.3)) (justify left)) (uuid c1d2e3f4-6000-4000-a000-000000000102))
-  (text "VBIAS: +5V → RT(10k) → RV11 trim → RC(R1,C11) → +IN (held ≤2.5V).  V_OUT = VBIAS ± I_pd·Rf → on-board AD7606-4." (at 150 116 0) (effects (font (size 1.3 1.3)) (justify left)) (uuid c1d2e3f4-6000-4000-a000-000000000103))
+  (label "PD_ANODE" (at 190.5 130.81 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid c1d2e3f4-6000-4000-a000-000000000100))
+  (label "PD_CATHODE" (at 185.42 130.81 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid c1d2e3f4-6000-4000-a000-000000000101))
+  (label "VBIAS_TOP" (at 165.1 143.51 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid c1d2e3f4-6000-4000-a000-000000000102))
+  (label "VBIAS_WIPER" (at 168.91 152.4 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid c1d2e3f4-6000-4000-a000-000000000103))
+  (label "VBIAS" (at 190.5 152.4 0) (effects (font (size 1.27 1.27)) (justify left bottom)) (uuid c1d2e3f4-6000-4000-a000-000000000104))
+  (hierarchical_label "V_OUT" (shape output) (at 232.41 149.86 0) (effects (font (size 1.27 1.27)) (justify left)) (uuid c1d2e3f4-6000-4000-a000-000000000105))
+  (text "TIA Channel  —  on-board SFH2201 signal PD → OPA380AID transimpedance amp  ·  reused 4× (IR / RED / GREEN / BLUE)" (at 150 104 0) (effects (font (size 2.0 2.0)) (justify left)) (uuid c1d2e3f4-6000-4000-a000-000000000106))
+  (text "PD reverse-biased: cathode → +5V via RB (1k) + CB bypass ; anode → OPA380 −IN summing node.  Rf = RVFB (2M trim) ∥ Cf = C1 (10pF)." (at 150 110 0) (effects (font (size 1.3 1.3)) (justify left)) (uuid c1d2e3f4-6000-4000-a000-000000000107))
+  (text "VBIAS: +5V → RT(10k) → RV11 trim → RC(R1,C11) → +IN (held ≤2.5V).  V_OUT = VBIAS ± I_pd·Rf → on-board AD7606-4." (at 150 116 0) (effects (font (size 1.3 1.3)) (justify left)) (uuid c1d2e3f4-6000-4000-a000-000000000108))
   (sheet_instances
     (path "/" (page "1"))
   )

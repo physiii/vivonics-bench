@@ -45,7 +45,7 @@ from pcb_critical_routes import (
 )
 
 FPROOT = Path("/usr/share/kicad/footprints")
-NET="/tmp/lc.net"
+NET=os.environ.get("LC_NETLIST", "/tmp/lc.net")
 OUT_DIR=Path(__file__).resolve().parent
 DEFAULT_OUT_PATH = OUT_DIR / "laser_controller.kicad_pcb"
 BOARD_X0_MM = 30.975
@@ -121,10 +121,51 @@ def normalize_legacy_module_footprint(fp):
     )
     return replacement + fp[match.end():]
 
-def place(libid, ref, val, x, y, rot=0):
+def apply_footprint_metadata(fp, metadata):
+    if not metadata:
+        return fp
+    fp = re.sub(r'\n\s+\(property "(?:LCSC|Part Number|Sheetfile|Sheetname)" "[^"]*"\)', "", fp)
+    fp = re.sub(r'\n\s+\(path "[^"]*"\)', "", fp)
+    lines = []
+    for key, field in [
+        ("LCSC", "lcsc"),
+        ("Part Number", "mpn"),
+        ("Sheetfile", "sheetfile"),
+        ("Sheetname", "sheetname"),
+    ]:
+        if field in metadata:
+            lines.append(f'    (property {sexpr_quote(key)} {sexpr_quote(metadata.get(field, ""))})')
+    if metadata.get("path"):
+        lines.append(f'    (path {sexpr_quote(metadata["path"])})')
+    if lines:
+        insert = "\n".join(lines)
+        fp, count = re.subn(r'(\n\s+\(attr\b)', "\n" + insert + r"\1", fp, count=1)
+        if count == 0:
+            fp = re.sub(r'(\n\s+\(fp_text reference\b)', "\n" + insert + r"\1", fp, count=1)
+
+    def attr_repl(match):
+        body = match.group(1)
+        tokens = body.split()
+        if metadata.get("exclude_from_bom"):
+            if "exclude_from_bom" not in tokens:
+                tokens.append("exclude_from_bom")
+        else:
+            tokens = [token for token in tokens if token != "exclude_from_bom"]
+        return "(attr " + " ".join(tokens) + ")"
+
+    fp = re.sub(r'\(attr\s+([^\)]*)\)', attr_repl, fp, count=1)
+    return fp
+
+def place(libid, ref, val, x, y, rot=0, metadata=None):
     fp=get_fp(libid)
     if fp is None: return None
     fp=normalize_legacy_module_footprint(fp)
+    fp=re.sub(
+        r'^(\(footprint\s+)(?:"[^"]+"|[^\s\)]+)',
+        lambda m: m.group(1) + sexpr_quote(libid),
+        fp,
+        count=1,
+    )
     fp=transform_zone_polygons_to_board_coords(fp, x, y, rot)
     fp=re.sub(r'\(tstamp [0-9a-fA-F-]+\)', lambda m:f'(tstamp {uuid()})', fp)
     # The KiCad ESP32-S3-WROOM footprint antenna keepout names only F/In1/B
@@ -149,6 +190,7 @@ def place(libid, ref, val, x, y, rot=0):
     fp=re.sub(r'(\(fp_text reference )"REF\*\*"', lambda m:m.group(1)+f'"{ref}"', fp, count=1)
     fp=re.sub(r'(\(fp_text reference )REF\*\*', lambda m:m.group(1)+f'"{ref}"', fp, count=1)
     fp=re.sub(r'(\(fp_text value )"[^"]*"', lambda m:m.group(1)+f'"{val}"', fp, count=1)
+    fp=apply_footprint_metadata(fp, metadata)
     return fp
 
 def fp_ref(block):
@@ -284,8 +326,8 @@ NET_CLASS_SPECS = OrderedDict([
         "via_drill": 0.30,
     }),
     ("Default", {
-        "description": "Fallback class; all named nets should be explicitly classified by the generator.",
-        "clearance": 0.20,
+        "description": "Fallback dense-fanout/no-net manufacturing floor; named functional nets should be explicitly classified by the generator.",
+        "clearance": 0.10,
         "trace_width": 0.25,
         "via_dia": 0.80,
         "via_drill": 0.40,
@@ -573,7 +615,7 @@ def build_board(emit_routes=False):
         board_ref_by_comp[(sheet, ref)] = ref
         if not comp["footprint"]:
             return
-        fp_str = place(comp["footprint"], ref, comp["value"], x, y, rot)
+        fp_str = place(comp["footprint"], ref, comp["value"], x, y, rot, comp)
         if fp_str is None:
             raise RuntimeError(f"missing footprint for {ref}: {comp['footprint']}")
         body.append(fp_str)

@@ -1,21 +1,21 @@
-** Drc report for /home/andy/projects/vivonics/vivonics/bench/circuits/laser_controller.kicad_pcb **
-** Created on 2026-07-05 05:13:52 **
+** Drc report for laser_controller.kicad_pcb **
+** Created on 2026-07-05T06:02:25-0500 **
 
 ** Found 4 DRC violations **
 [courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: warning
+    Rule: board setup constraints courtyard; warning
     @(101.0000 mm, 135.4500 mm): Footprint C62
     @(103.4375 mm, 135.0250 mm): Footprint U16
 [courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: warning
+    Rule: board setup constraints courtyard; warning
     @(101.0000 mm, 135.4500 mm): Footprint C62
     @(95.6250 mm, 130.9750 mm): Footprint C70
 [courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: warning
+    Rule: board setup constraints courtyard; warning
     @(136.9250 mm, 134.2550 mm): Footprint U4
     @(141.6500 mm, 137.0200 mm): Footprint D4
 [courtyards_overlap]: Courtyards overlap
-    Rule: board setup constraints courtyard; Severity: warning
+    Rule: board setup constraints courtyard; warning
     @(83.1000 mm, 112.0000 mm): Footprint C61
     @(88.0250 mm, 109.9250 mm): Footprint L1
 

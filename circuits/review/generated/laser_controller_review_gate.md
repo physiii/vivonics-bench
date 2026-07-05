@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T09:45:35+00:00
+Generated: 2026-07-05T10:14:49+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -75,8 +75,7 @@ Overall release status: BLOCKED
 | PASS | JLCPCB order package | 0 | `python3 circuits/check_jlcpcb_order_package.py` |
 | BLOCKED | KiCad ERC availability | 1 | `kicad-cli sch erc circuits/laser_controller.kicad_sch -o /tmp/lc_erc.rpt` |
 | BLOCKED | KiCad DRC availability | 1 | `kicad-cli pcb drc circuits/laser_controller.kicad_pcb -o /tmp/lc_drc.rpt` |
-| PASS | Git diff whitespace | 0 | `git diff --check` |
-| PASS | Trailing whitespace scan | 1 | `rg -n [ \t]+$ circuits docs -g *.md -g *.py -g *.kicad_sch -g *.kicad_pcb` |
+| FAIL | Git diff whitespace | 2 | `git diff --check` |
 
 ## PASS: Python compile
 
@@ -97,6 +96,7 @@ wrote tia_ir.kicad_sch (36315 bytes, 569 lines)
   wrote laser_blue.kicad_sch (34847 bytes, 536 lines)
   wrote power_io.kicad_sch (199062 bytes, 3121 lines)
   wrote laser_controller.kicad_sch (30750 bytes, 247 lines)
+  wrote lib/viv.kicad_sym
   wrote laser_controller_bom_jlcpcb.csv
 ```
 
@@ -154,7 +154,7 @@ WARN JLCPCB via-design article: reachable; Advisory article only; JLCPCB quote c
 WARN Vishay SS12-SS16 family datasheet: reachable; Family reference only; current C2480 order identity is captured in the 2026-07-04 signoff. [HEAD HTTP 200, type=application/pdf, length=1174123]
 WARN LCSC C2480 SS14 order page: reachable; Distributor/order source matching the 2026-07-04 C2480 MDD SS14 signoff. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C408410 MWSA0503S-4R7MT inductor page: reachable; Distributor/order source for the AP63205 4.7uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN JLCPCB C98364 WPN4020H100MT inductor page: reachable; Distributor/order source for the AP63200 10uH inductor; final AVL should retain a manufacturer datasheet copy. [GET HTTP 206, type=text/html; charset=utf-8, first_bytes=4096]
+WARN JLCPCB C98364 WPN4020H100MT inductor page: reachable; Distributor/order source for the AP63200 10uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN Wuerth Mini/Micro USB family page: reachable; Family/product page; exact 65100516121 drawing is required separately above. [HEAD HTTP 200, type=text/html; charset=UTF-8, length=1]
 WARN LCSC C5120592 Wuerth 65100516121 Mini-B order page: reachable; Distributor/order source for the Wuerth Mini-B part used by the active J1/J2 BOM metadata. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN Farnell mirror of Wuerth 65100516121 drawing: reachable; Distributor mirror only; the official Wuerth drawing URL is the required source. [HEAD HTTP 200, type=application/pdf, length=276116]
@@ -795,9 +795,9 @@ The release-readiness registry has unresolved source, direct-laser, thermal, man
 
 ```text
 BLOCKED release readiness: 8 open fabrication/release blockers
-  [KICAD_ERC_DRC_ZONE_SIGNOFF] Native KiCad ERC/DRC signoff is still open
-    Detail: Available netlist/source/custom PCB checks pass, the local schematic/PCB parity checker passes, a 2026-07-04 GUI DRC screenshot captures refilled-zone DRC with 0 violations and 0 unconnected items, and the system-Python Pcbnew report refills zones in memory with 0 unconnected pads, 0 footprint errors, and 4 documented courtyard-overlap warnings. The current courtyard triage shows 0 F.Fab/body-box overlaps; all 4 remaining courtyard-only assembly-spacing warnings are explicitly waived in circuits/review/assembly_clearance_waivers.json. Full fabrication signoff is still not proven because this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC, and neither the screenshot nor the headless Pcbnew report runs native schematic ERC/parity. Formal schematic ERC and native schematic-parity evidence remain unproven.
-    Required action: Run GUI ERC on the regenerated schematic, update PCB from schematic, refill zones, run PCB DRC with schematic parity, review the explicit courtyard-only waivers against the selected JLCPCB assembly parts, or use a KiCad CLI build that supports sch erc and pcb drc, then document the final reports.
+  [KICAD_ERC_DRC_ZONE_SIGNOFF] Native KiCad ERC/parity signoff is still open
+    Detail: Available netlist/source/custom PCB checks pass, the local schematic/PCB parity checker passes, and native KiCad 9 physical DRC now reports only the 4 documented courtyard-overlap warnings with 0 unconnected items and 0 footprint errors. The system-Python Pcbnew report also refills zones in memory with 0 unconnected pads, 0 footprint errors, and the same 4 courtyard-overlap warnings. The current courtyard triage shows 0 F.Fab/body-box overlaps; all 4 remaining courtyard-only assembly-spacing warnings are explicitly waived in circuits/review/assembly_clearance_waivers.json. Full fabrication signoff is still not proven because native KiCad 9 schematic parity still reports 136 footprint/parity issues and native KiCad 9 ERC still reports schematic findings that must be fixed or explicitly waived.
+    Required action: Resolve the native KiCad ERC findings and schematic-parity footprint/net issues, decide whether board-only mounting holes need schematic symbols or explicit parity exclusions, rerun zone-refilled KiCad 9 PCB DRC with schematic parity, and document final zero-error or explicitly-waived native reports before calling the design fab-ready.
   [MONITOR_PD_FRONTEND_RANGE_CALIBRATION] Monitor-PD front-end range and calibration are not released
     Detail: The exported netlist now proves the INA4180/LM4040 monitor topology is connected as intended, and the 240R/gain20 monitor scale covers the captured D7805I/D6505I/PLT5 520EB_P monitor-current range inside the local ADC-headroom guard. The first-article signoff requires external optical-meter calibration before MPD telemetry is used for APC, normalization, or safety behavior. PLT5 450GB has no monitor photodiode, so MPD4 is not blue-source telemetry. Measured optical calibration and firmware behavior are still unreleased.
     Required action: Calibrate each monitor-capable source against an external optical meter, record dark/off counts, response slope, saturation threshold, setpoint, and optical-power reading, and verify firmware fail-shutoff behavior before using MPD telemetry for production APC, normalization, or safety decisions.
@@ -875,10 +875,170 @@ Subcommands:
   export
 ```
 
-## PASS: Git diff whitespace
+## FAIL: Git diff whitespace
 
 Command: `git diff --check`
 
-## PASS: Trailing whitespace scan
-
-Command: `rg -n [ \t]+$ circuits docs -g *.md -g *.py -g *.kicad_sch -g *.kicad_pcb`
+```text
+662500,-84.550000,180.000000,top
+circuits/fab/laser_controller_pos.csv:95: trailing whitespace.
++R6,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,125.349500,-101.681500,-90.000000,top
+circuits/fab/laser_controller_pos.csv:96: trailing whitespace.
++R7,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,121.211500,-101.785000,-90.000000,top
+circuits/fab/laser_controller_pos.csv:97: trailing whitespace.
++R8,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,129.700000,-101.600000,90.000000,top
+circuits/fab/laser_controller_pos.csv:98: trailing whitespace.
++R10,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,156.970500,-135.093500,90.000000,top
+circuits/fab/laser_controller_pos.csv:99: trailing whitespace.
++R11,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,161.108500,-134.990000,90.000000,top
+circuits/fab/laser_controller_pos.csv:100: trailing whitespace.
++R12,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,153.975000,-135.212500,-90.000000,top
+circuits/fab/laser_controller_pos.csv:101: trailing whitespace.
++R14,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,130.091500,-130.718000,0.000000,top
+circuits/fab/laser_controller_pos.csv:102: trailing whitespace.
++R15,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,130.600000,-134.856000,0.000000,top
+circuits/fab/laser_controller_pos.csv:103: trailing whitespace.
++R16,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,128.091500,-128.940000,180.000000,top
+circuits/fab/laser_controller_pos.csv:104: trailing whitespace.
++R17,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,172.263000,-135.507500,180.000000,top
+circuits/fab/laser_controller_pos.csv:105: trailing whitespace.
++R18,10R 2W,R_2512_6332Metric_Pad1.40x3.35mm_HandSolder,175.311000,-128.141500,0.000000,top
+circuits/fab/laser_controller_pos.csv:106: trailing whitespace.
++R19,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,169.975000,-127.887500,90.000000,top
+circuits/fab/laser_controller_pos.csv:107: trailing whitespace.
++R20,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,176.962400,-132.389300,90.000000,top
+circuits/fab/laser_controller_pos.csv:108: trailing whitespace.
++R21,1.3k LIMIT,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,179.187000,-132.713500,-90.000000,top
+circuits/fab/laser_controller_pos.csv:109: trailing whitespace.
++R22,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,192.648000,-84.434000,0.000000,top
+circuits/fab/laser_controller_pos.csv:110: trailing whitespace.
++R23,10R 2W,R_2512_6332Metric_Pad1.40x3.35mm_HandSolder,189.600000,-91.800000,180.000000,top
+circuits/fab/laser_controller_pos.csv:111: trailing whitespace.
++R24,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,194.936000,-92.054000,90.000000,top
+circuits/fab/laser_controller_pos.csv:112: trailing whitespace.
++R25,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,187.568000,-87.228000,-90.000000,top
+circuits/fab/laser_controller_pos.csv:113: trailing whitespace.
++R26,750R LIMIT,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,185.724000,-87.228000,90.000000,top
+circuits/fab/laser_controller_pos.csv:114: trailing whitespace.
++R27,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,190.890000,-135.235500,180.000000,top
+circuits/fab/laser_controller_pos.csv:115: trailing whitespace.
++R28,10R 2W,R_2512_6332Metric_Pad1.40x3.35mm_HandSolder,193.938000,-128.169500,0.000000,top
+circuits/fab/laser_controller_pos.csv:116: trailing whitespace.
++R29,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,188.602000,-127.915500,-90.000000,top
+circuits/fab/laser_controller_pos.csv:117: trailing whitespace.
++R30,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,195.589400,-132.417300,90.000000,top
+circuits/fab/laser_controller_pos.csv:118: trailing whitespace.
++R31,3k LIMIT,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,197.814000,-132.741500,-90.000000,top
+circuits/fab/laser_controller_pos.csv:119: trailing whitespace.
++R32,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,173.248000,-84.009000,0.000000,top
+circuits/fab/laser_controller_pos.csv:120: trailing whitespace.
++R33,10R 2W,R_2512_6332Metric_Pad1.40x3.35mm_HandSolder,170.200000,-91.375000,180.000000,top
+circuits/fab/laser_controller_pos.csv:121: trailing whitespace.
++R34,1k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,175.536000,-91.629000,90.000000,top
+circuits/fab/laser_controller_pos.csv:122: trailing whitespace.
++R35,10k,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,168.168000,-86.803000,-90.000000,top
+circuits/fab/laser_controller_pos.csv:123: trailing whitespace.
++R36,4.7k LIMIT,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,166.324000,-86.803000,90.000000,top
+circuits/fab/laser_controller_pos.csv:124: trailing whitespace.
++R41,2.49k MPD bias,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,69.500000,-115.387500,90.000000,top
+circuits/fab/laser_controller_pos.csv:125: trailing whitespace.
++R42,240R MPD sense,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,165.189200,-116.137500,90.000000,top
+circuits/fab/laser_controller_pos.csv:126: trailing whitespace.
++R43,1k ADC,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,62.737500,-106.075000,180.000000,top
+circuits/fab/laser_controller_pos.csv:127: trailing whitespace.
++R44,240R MPD sense,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,178.125000,-115.587500,90.000000,top
+circuits/fab/laser_controller_pos.csv:128: trailing whitespace.
++R45,1k ADC,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,62.925000,-114.575000,180.000000,top
+circuits/fab/laser_controller_pos.csv:129: trailing whitespace.
++R46,240R MPD sense,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,174.775000,-114.412500,90.000000,top
+circuits/fab/laser_controller_pos.csv:130: trailing whitespace.
++R47,1k ADC,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,68.525000,-118.375000,180.000000,top
+circuits/fab/laser_controller_pos.csv:131: trailing whitespace.
++R48,240R MPD sense,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,73.637500,-111.175000,0.000000,top
+circuits/fab/laser_controller_pos.csv:132: trailing whitespace.
++R49,1k ADC,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,68.925000,-106.225000,180.000000,top
+circuits/fab/laser_controller_pos.csv:133: trailing whitespace.
++R50,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,47.827500,-93.175000,0.000000,top
+circuits/fab/laser_controller_pos.csv:134: trailing whitespace.
++R51,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,44.902500,-93.150000,180.000000,top
+circuits/fab/laser_controller_pos.csv:135: trailing whitespace.
++R52,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,77.552500,-128.500000,180.000000,top
+circuits/fab/laser_controller_pos.csv:136: trailing whitespace.
++R53,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,68.760000,-128.750000,180.000000,top
+circuits/fab/laser_controller_pos.csv:137: trailing whitespace.
++R54,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,60.247500,-128.750000,0.000000,top
+circuits/fab/laser_controller_pos.csv:138: trailing whitespace.
++R55,22.1K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,59.615000,-91.230000,-90.000000,top
+circuits/fab/laser_controller_pos.csv:139: trailing whitespace.
++R56,47.5K,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,58.210000,-93.950000,180.000000,top
+circuits/fab/laser_controller_pos.csv:140: trailing whitespace.
++R57,1K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,54.697500,-93.825000,0.000000,top
+circuits/fab/laser_controller_pos.csv:141: trailing whitespace.
++R58,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,58.350000,-88.647500,90.000000,top
+circuits/fab/laser_controller_pos.csv:142: trailing whitespace.
++R59,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,74.347500,-101.450000,180.000000,top
+circuits/fab/laser_controller_pos.csv:143: trailing whitespace.
++R60,10K,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,71.747500,-101.425000,180.000000,top
+circuits/fab/laser_controller_pos.csv:144: trailing whitespace.
++R61,237k FB,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,104.700000,-130.100000,180.000000,top
+circuits/fab/laser_controller_pos.csv:145: trailing whitespace.
++R62,22.1K FB,R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,102.100000,-131.147500,90.000000,top
+circuits/fab/laser_controller_pos.csv:146: trailing whitespace.
++R63,10K,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,49.925000,-109.987500,90.000000,top
+circuits/fab/laser_controller_pos.csv:147: trailing whitespace.
++R64,10K,R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,49.800000,-126.550000,-90.000000,top
+circuits/fab/laser_controller_pos.csv:148: trailing whitespace.
++RV1,VBIAS 10k,Potentiometer_Bourns_3224W_Vertical,133.380500,-88.616000,0.000000,top
+circuits/fab/laser_controller_pos.csv:149: trailing whitespace.
++RV2,VBIAS 10k,Potentiometer_Bourns_3224W_Vertical,125.525000,-96.325000,-90.000000,top
+circuits/fab/laser_controller_pos.csv:150: trailing whitespace.
++RV3,VBIAS 10k,Potentiometer_Bourns_3224W_Vertical,149.346500,-134.653000,0.000000,top
+circuits/fab/laser_controller_pos.csv:151: trailing whitespace.
++RV4,VBIAS 10k,Potentiometer_Bourns_3224W_Vertical,123.925000,-133.100000,0.000000,top
+circuits/fab/laser_controller_pos.csv:152: trailing whitespace.
++RV5,RF 2M,Potentiometer_Bourns_3224W_Vertical,153.359300,-88.453800,90.000000,top
+circuits/fab/laser_controller_pos.csv:153: trailing whitespace.
++RV6,RF 2M,Potentiometer_Bourns_3224W_Vertical,123.249500,-117.169000,0.000000,top
+circuits/fab/laser_controller_pos.csv:154: trailing whitespace.
++RV7,RF 2M,Potentiometer_Bourns_3224W_Vertical,149.711500,-127.999000,-90.000000,top
+circuits/fab/laser_controller_pos.csv:155: trailing whitespace.
++RV8,RF 2M,Potentiometer_Bourns_3224W_Vertical,138.938000,-127.831500,90.000000,top
+circuits/fab/laser_controller_pos.csv:156: trailing whitespace.
++SW1,SW_PUSH,SW_SPST_PTS645,58.832500,-132.950000,0.000000,top
+circuits/fab/laser_controller_pos.csv:157: trailing whitespace.
++SW2,SW_PUSH,SW_SPST_PTS645,70.332500,-132.950000,0.000000,top
+circuits/fab/laser_controller_pos.csv:158: trailing whitespace.
++SW3,SW_PUSH,SW_SPST_PTS645,81.502500,-132.925000,0.000000,top
+circuits/fab/laser_controller_pos.csv:159: trailing whitespace.
++U1,OPA380AID,SOIC-8_3.9x4.9mm_P1.27mm,145.006000,-88.417500,0.000000,top
+circuits/fab/laser_controller_pos.csv:160: trailing whitespace.
++U2,OPA380AID,SOIC-8_3.9x4.9mm_P1.27mm,123.260000,-108.025000,-90.000000,top
+circuits/fab/laser_controller_pos.csv:161: trailing whitespace.
++U3,OPA380AID,SOIC-8_3.9x4.9mm_P1.27mm,159.060000,-128.750000,90.000000,top
+circuits/fab/laser_controller_pos.csv:162: trailing whitespace.
++U4,OPA380AID,SOIC-8_3.9x4.9mm_P1.27mm,136.925000,-134.255000,0.000000,top
+circuits/fab/laser_controller_pos.csv:163: trailing whitespace.
++U5,TLV9001,SOT-23-5,173.965000,-132.667500,180.000000,top
+circuits/fab/laser_controller_pos.csv:164: trailing whitespace.
++U6,TLV9001,SOT-23-5,190.946000,-87.274000,0.000000,top
+circuits/fab/laser_controller_pos.csv:165: trailing whitespace.
++U7,TLV9001,SOT-23-5,192.592000,-132.695500,180.000000,top
+circuits/fab/laser_controller_pos.csv:166: trailing whitespace.
++U8,TLV9001,SOT-23-5,171.546000,-86.849000,0.000000,top
+circuits/fab/laser_controller_pos.csv:167: trailing whitespace.
++U9,ESP32-S3-WROOM-1,ESP32-S3-WROOM-1,71.875000,-89.915000,0.000000,top
+circuits/fab/laser_controller_pos.csv:168: trailing whitespace.
++U10,CP2102N-Axx-xQFN28,QFN-28-1EP_5x5mm_P0.5mm_EP3.35x3.35mm,53.875000,-89.600000,90.000000,top
+circuits/fab/laser_controller_pos.csv:169: trailing whitespace.
++U11,AP2112K-3.3,SOT-23-5,109.590000,-106.175000,180.000000,top
+circuits/fab/laser_controller_pos.csv:170: trailing whitespace.
++U12,INA4180A1,TSSOP-14_4.4x5mm_P0.65mm,66.700000,-110.217500,0.000000,top
+circuits/fab/laser_controller_pos.csv:171: trailing whitespace.
++U13,LM4040C50 5V,SOT-23,73.800000,-108.237500,-90.000000,top
+circuits/fab/laser_controller_pos.csv:172: trailing whitespace.
++U14,AD7606BSTZ-4,LQFP-64_10x10mm_P0.5mm,103.982500,-94.725000,180.000000,top
+circuits/fab/laser_controller_pos.csv:173: trailing whitespace.
++U15,AP63205WU-7 5V BUCK,TSOT-23-6,85.025000,-115.625000,180.000000,top
+circuits/fab/laser_controller_pos.csv:174: trailing whitespace.
++U16,AP63200WU-7 9.3V BUCK,TSOT-23-6,103.437500,-135.025000,-90.000000,top
+```

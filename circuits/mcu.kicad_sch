@@ -1629,9 +1629,13 @@
   (no_connect (at 265.1506 199.1614) (uuid db78b4a6-eb8c-4753-aafc-3b6f0cda4d90))
   (no_connect (at 265.1506 176.3014) (uuid e3609f65-f4b1-4a46-9276-ba9b7d7931d3))
 
-  (wire (pts (xy 142.0876 153.4414) (xy 153.5176 153.4414))
+  (wire (pts (xy 142.0876 163.6014) (xy 153.5176 163.6014))
     (stroke (width 0) (type default))
     (uuid 01422249-b723-46aa-8c21-57d9fa8aa2f9)
+  )
+  (wire (pts (xy 153.5176 163.6014) (xy 153.5176 153.4414))
+    (stroke (width 0) (type default))
+    (uuid c1d2e3f4-5100-4000-a000-000000000011)
   )
   (wire (pts (xy 320.5226 108.9914) (xy 319.5066 108.9914))
     (stroke (width 0) (type default))
@@ -1965,9 +1969,13 @@
     (stroke (width 0) (type default))
     (uuid 763f5fbc-44d2-4461-819b-6605b033c209)
   )
-  (wire (pts (xy 140.0556 194.0814) (xy 151.4856 194.0814))
+  (wire (pts (xy 140.0556 204.2414) (xy 151.4856 204.2414))
     (stroke (width 0) (type default))
     (uuid 79b5c978-fe0f-49a6-908b-2ff1fac29ba0)
+  )
+  (wire (pts (xy 151.4856 204.2414) (xy 151.4856 194.0814))
+    (stroke (width 0) (type default))
+    (uuid c1d2e3f4-5100-4000-a000-000000000012)
   )
   (wire (pts (xy 176.8856 170.2054) (xy 165.4556 170.2054))
     (stroke (width 0) (type default))
@@ -2562,6 +2570,46 @@
     (effects (font (size 1.27 1.27)) (justify right bottom))
     (uuid ffff51a1-fece-4a9f-9871-d1fb0c758552)
   )
+  (label "USB_UART_CONN_VBUS" (at 149.7076 163.6014 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid c1d2e3f4-5100-4000-a000-000000000001)
+  )
+  (label "USB_UART_CONN_VBUS" (at 142.0876 153.4414 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid c1d2e3f4-5100-4000-a000-000000000016)
+  )
+  (label "USB_NATIVE_CONN_VBUS" (at 147.6756 204.2414 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid c1d2e3f4-5100-4000-a000-000000000002)
+  )
+  (label "USB_NATIVE_CONN_VBUS" (at 140.0556 194.0814 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid c1d2e3f4-5100-4000-a000-000000000017)
+  )
+  (label "CP2102_VBUS" (at 210.7946 178.8414 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid c1d2e3f4-5100-4000-a000-000000000003)
+  )
+  (label "CP2102_VBUS" (at 239.7506 209.3214 180)
+    (effects (font (size 1.27 1.27)) (justify right bottom))
+    (uuid c1d2e3f4-5100-4000-a000-000000000004)
+  )
+  (label "CP2102_RST" (at 238.3536 166.1414 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid c1d2e3f4-5100-4000-a000-000000000005)
+  )
+  (label "CP2102_SUSPEND_N" (at 266.2936 191.5414 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid c1d2e3f4-5100-4000-a000-000000000007)
+  )
+  (label "AUTO_EN_BASE" (at 310.7436 175.7934 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid c1d2e3f4-5100-4000-a000-000000000009)
+  )
+  (label "AUTO_BOOT_BASE" (at 310.8706 196.7484 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid c1d2e3f4-5100-4000-a000-000000000010)
+  )
 
   (hierarchical_label "IO9" (shape input) (at 69.215 73.7616 180) (fields_autoplaced)
     (effects (font (size 1.524 1.524)) (justify right))
@@ -2696,7 +2744,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "R59") (unit 1)
         )
       )
@@ -2743,7 +2791,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "R56") (unit 1)
         )
       )
@@ -2790,7 +2838,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "D13") (unit 1)
         )
       )
@@ -2837,7 +2885,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "C41") (unit 1)
         )
       )
@@ -2877,7 +2925,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR051") (unit 1)
         )
       )
@@ -2922,7 +2970,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR039") (unit 1)
         )
       )
@@ -2969,7 +3017,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "R57") (unit 1)
         )
       )
@@ -3014,7 +3062,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR037") (unit 1)
         )
       )
@@ -3061,7 +3109,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "R52") (unit 1)
         )
       )
@@ -3108,7 +3156,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "D7") (unit 1)
         )
       )
@@ -3155,7 +3203,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "D14") (unit 1)
         )
       )
@@ -3195,7 +3243,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR040") (unit 1)
         )
       )
@@ -3269,7 +3317,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "U10") (unit 1)
         )
       )
@@ -3316,7 +3364,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "R55") (unit 1)
         )
       )
@@ -3363,7 +3411,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "R58") (unit 1)
         )
       )
@@ -3403,7 +3451,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR049") (unit 1)
         )
       )
@@ -3448,7 +3496,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR043") (unit 1)
         )
       )
@@ -3534,7 +3582,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "U9") (unit 1)
         )
       )
@@ -3574,7 +3622,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR048") (unit 1)
         )
       )
@@ -3619,7 +3667,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR038") (unit 1)
         )
       )
@@ -3666,7 +3714,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "R60") (unit 1)
         )
       )
@@ -3713,7 +3761,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "D9") (unit 1)
         )
       )
@@ -3760,7 +3808,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "R53") (unit 1)
         )
       )
@@ -3809,7 +3857,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "J2") (unit 1)
         )
       )
@@ -3849,7 +3897,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR050") (unit 1)
         )
       )
@@ -3896,7 +3944,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "SW1") (unit 1)
         )
       )
@@ -3943,7 +3991,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "R50") (unit 1)
         )
       )
@@ -3990,7 +4038,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "D10") (unit 1)
         )
       )
@@ -4039,7 +4087,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "J1") (unit 1)
         )
       )
@@ -4086,7 +4134,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "C43") (unit 1)
         )
       )
@@ -4131,7 +4179,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR041") (unit 1)
         )
       )
@@ -4178,7 +4226,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "D11") (unit 1)
         )
       )
@@ -4225,7 +4273,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "D12") (unit 1)
         )
       )
@@ -4272,7 +4320,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "R51") (unit 1)
         )
       )
@@ -4312,7 +4360,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR035") (unit 1)
         )
       )
@@ -4352,7 +4400,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR047") (unit 1)
         )
       )
@@ -4399,7 +4447,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "D8") (unit 1)
         )
       )
@@ -4444,7 +4492,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR042") (unit 1)
         )
       )
@@ -4491,7 +4539,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "C46") (unit 1)
         )
       )
@@ -4538,7 +4586,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "C44") (unit 1)
         )
       )
@@ -4585,7 +4633,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "R54") (unit 1)
         )
       )
@@ -4632,7 +4680,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "C47") (unit 1)
         )
       )
@@ -4679,7 +4727,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "C45") (unit 1)
         )
       )
@@ -4727,7 +4775,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "Q5") (unit 1)
         )
       )
@@ -4774,7 +4822,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "SW2") (unit 1)
         )
       )
@@ -4821,7 +4869,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "C42") (unit 1)
         )
       )
@@ -4868,7 +4916,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "SW3") (unit 1)
         )
       )
@@ -4913,7 +4961,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR036") (unit 1)
         )
       )
@@ -4961,7 +5009,7 @@
         )
       )
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "Q6") (unit 1)
         )
       )
@@ -4986,7 +5034,7 @@
     (pin "1" (uuid 11236e33-fca1-4067-9f47-854b9237b701))
     (instances
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR701") (unit 1)
         )
       )
@@ -5010,7 +5058,7 @@
     (pin "1" (uuid 2c34c3d6-dfc6-48e2-b715-8e3452771d93))
     (instances
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR702") (unit 1)
         )
       )
@@ -5034,7 +5082,7 @@
     (pin "1" (uuid 6813dd6b-690f-450c-bfe9-b84f73ea1e32))
     (instances
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR703") (unit 1)
         )
       )
@@ -5058,7 +5106,7 @@
     (pin "1" (uuid b594212d-7b94-4363-8121-52ff33b3ef8f))
     (instances
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR704") (unit 1)
         )
       )
@@ -5082,7 +5130,7 @@
     (pin "1" (uuid 8d125948-9c44-4dce-bf1d-85b4c4be1150))
     (instances
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR705") (unit 1)
         )
       )
@@ -5106,7 +5154,7 @@
     (pin "1" (uuid ebaaa02c-88a1-479d-8769-cad4940a17fe))
     (instances
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR706") (unit 1)
         )
       )
@@ -5130,7 +5178,7 @@
     (pin "1" (uuid 57748f8f-3af6-44af-9d89-c6ffbdb3e758))
     (instances
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR707") (unit 1)
         )
       )
@@ -5154,7 +5202,7 @@
     (pin "1" (uuid b17bc40c-e556-4658-8a99-8fc69b29d60d))
     (instances
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "#PWR708") (unit 1)
         )
       )
@@ -5199,7 +5247,7 @@
     (pin "8" (uuid 0bf074b2-2fd2-4e23-bb7a-61de195231c9))
     (instances
       (project "laser_controller"
-        (path "/c1d2e3f4-6000-4000-a000-000000000001/c1d2e3f4-6000-4000-a000-000000001543"
+        (path "/c1d2e3f4-6000-4000-a000-000000000001"
           (reference "J7") (unit 1)
         )
       )

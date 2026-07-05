@@ -118,10 +118,10 @@ def check_parity(netlist_path: Path, board_path: Path) -> list[str]:
         block = footprints.get(ref)
         if block is None:
             continue
-        expected_name = footprint_basename(component["footprint"])
+        expected_names = {component["footprint"], footprint_basename(component["footprint"])}
         actual_name = footprint_name(block)
-        if actual_name != expected_name:
-            failures.append(f"{ref} footprint mismatch: schematic={expected_name} pcb={actual_name}")
+        if actual_name not in expected_names:
+            failures.append(f"{ref} footprint mismatch: schematic={component['footprint']} pcb={actual_name}")
 
     expected_net_names = set(parse_netlist(netlist_path))
     actual_net_names = set(board_net_table(board_text))
@@ -183,12 +183,22 @@ def main() -> int:
     components = parse_components(args.netlist)
     board_text = args.board.read_text()
     physical_count = sum(1 for component in components if component["footprint"])
+    expected_physical_refs = {
+        component["ref"]
+        for component in components
+        if component["footprint"]
+    }
     board_ref_count = len(board_footprints(board_text))
+    board_only_refs = sorted((set(board_footprints(board_text)) - expected_physical_refs) & BOARD_ONLY_FOOTPRINT_REFS)
     net_count = len(board_net_table(board_text))
+    board_only_clause = (
+        f" plus {len(board_only_refs)} board-only mechanical refs"
+        if board_only_refs
+        else ""
+    )
     print(
         "PASS schematic/PCB parity: "
-        f"{physical_count} schematic footprints match {board_ref_count} PCB footprints "
-        f"including {len(BOARD_ONLY_FOOTPRINT_REFS)} board-only mechanical refs; "
+        f"{physical_count} schematic footprints match {board_ref_count} PCB footprints{board_only_clause}; "
         f"{net_count} real PCB nets match exported schematic pad nets, with unconnected pins left unnetted."
     )
     return 0

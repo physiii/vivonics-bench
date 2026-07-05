@@ -37,10 +37,38 @@ class ReleaseBlocker:
 BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "KICAD_ERC_DRC_ZONE_SIGNOFF",
-        "Native KiCad ERC/DRC signoff is still open",
-        "Available netlist/source/custom PCB checks pass, the local schematic/PCB parity checker passes, a 2026-07-04 GUI DRC screenshot captures refilled-zone DRC with 0 violations and 0 unconnected items, and the system-Python Pcbnew report refills zones in memory with 0 unconnected pads, 0 footprint errors, and 4 documented courtyard-overlap warnings. The current courtyard triage shows 0 F.Fab/body-box overlaps; all 4 remaining courtyard-only assembly-spacing warnings are explicitly waived in circuits/review/assembly_clearance_waivers.json. Full fabrication signoff is still not proven because this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC, and neither the screenshot nor the headless Pcbnew report runs native schematic ERC/parity. Formal schematic ERC and native schematic-parity evidence remain unproven.",
-        "Run GUI ERC on the regenerated schematic, update PCB from schematic, refill zones, run PCB DRC with schematic parity, review the explicit courtyard-only waivers against the selected JLCPCB assembly parts, or use a KiCad CLI build that supports sch erc and pcb drc, then document the final reports.",
+        "Native KiCad ERC/parity signoff is still open",
+        "Available netlist/source/custom PCB checks pass, the local schematic/PCB parity checker passes, and native KiCad 9 physical DRC now reports only the 4 documented courtyard-overlap warnings with 0 unconnected items and 0 footprint errors. The system-Python Pcbnew report also refills zones in memory with 0 unconnected pads, 0 footprint errors, and the same 4 courtyard-overlap warnings. The current courtyard triage shows 0 F.Fab/body-box overlaps; all 4 remaining courtyard-only assembly-spacing warnings are explicitly waived in circuits/review/assembly_clearance_waivers.json. Full fabrication signoff is still not proven because native KiCad 9 schematic parity still reports 136 footprint/parity issues and native KiCad 9 ERC still reports schematic findings that must be fixed or explicitly waived.",
+        "Resolve the native KiCad ERC findings and schematic-parity footprint/net issues, decide whether board-only mounting holes need schematic symbols or explicit parity exclusions, rerun zone-refilled KiCad 9 PCB DRC with schematic parity, and document final zero-error or explicitly-waived native reports before calling the design fab-ready.",
         (
+            Evidence(
+                "circuits/review/generated/laser_controller_kicad9_physical_drc.rpt",
+                (
+                    "Found 4 DRC violations",
+                    "[courtyards_overlap]",
+                    "Found 0 unconnected pads",
+                    "Found 0 Footprint errors",
+                ),
+            ),
+            Evidence(
+                "circuits/review/generated/laser_controller_kicad9_drc.rpt",
+                (
+                    "Found 4 DRC violations",
+                    "Found 0 unconnected pads",
+                    "Found 136 Footprint errors",
+                    "[net_conflict]",
+                    "[extra_footprint]",
+                ),
+            ),
+            Evidence(
+                "circuits/review/generated/laser_controller_kicad9_erc.rpt",
+                (
+                    "ERC report",
+                    "[wire_dangling]",
+                    "[endpoint_off_grid]",
+                    "[lib_symbol_issues]",
+                ),
+            ),
             Evidence(
                 "circuits/review/generated/laser_controller_pcbnew_drc_report.rpt",
                 (

@@ -36,6 +36,17 @@ from laser_command_limits import limiter_for_sheet
 
 PROJECT = "laser_controller"
 ROOT_UUID = "c1d2e3f4-6000-4000-a000-000000000001"
+SCHEMATIC_UUIDS = {
+    "TIA IR Channel": "c1d2e3f4-5000-4000-a000-000000000001",
+    "TIA RED Channel": "c1d2e3f4-5000-4000-a000-000000000002",
+    "TIA GREEN Channel": "c1d2e3f4-5000-4000-a000-000000000003",
+    "TIA BLUE Channel": "c1d2e3f4-5000-4000-a000-000000000004",
+    "Laser IR Driver": "c1d2e3f4-5000-4000-a000-000000000005",
+    "Laser RED Driver": "c1d2e3f4-5000-4000-a000-000000000006",
+    "Laser GREEN Driver": "c1d2e3f4-5000-4000-a000-000000000007",
+    "Laser BLUE Driver": "c1d2e3f4-5000-4000-a000-000000000008",
+    "Power & IO": "c1d2e3f4-5000-4000-a000-000000000009",
+}
 ACCESS_CONTROLLER_MCU = Path("/home/andy/projects/access-controller/circuits/controller/microcontroller.kicad_sch")
 ACCESS_CONTROLLER_ETHERNET = Path("/home/andy/projects/access-controller/circuits/controller/ethernet.kicad_sch")
 OUT_DIR = Path(__file__).resolve().parent
@@ -387,12 +398,16 @@ S("LASER_VP",{"1":(0,0,90,"LASER_V+","power_in",0)},[[(0,0),(0,2.54)],[(-1.27,1.
 S("VIN_24V",{"1":(0,0,90,"VIN_24V","power_in",0)},[[(0,0),(0,2.54)],[(-1.27,1.524),(0,2.54),(1.27,1.524)]],power=True)
 S("GND",{"1":(0,0,270,"GND","power_in",0)},[[(0,0),(0,-2.032)],[(-2.032,-2.032),(2.032,-2.032)],
   [(-1.27,-2.794),(1.27,-2.794)],[(-0.508,-3.556),(0.508,-3.556)]],power=True)
+S("MOUNTING_HOLE_PAD", {"1":(0,0,90,"1","passive",0)},
+  [[(-1.27,0),(1.27,0)],[(0,-1.27),(0,1.27)],[(-1.27,1.27),(1.27,1.27),(1.27,-1.27),(-1.27,-1.27),(-1.27,1.27)]],
+  hide_nums=False, roff=(-3.2,-5.2), voff=(-3.2,4.4))
 
 REFLET={"R_H":"R","R_H_RJ45":"R","R_V":"R","POT_H":"RV","POT_V":"RV","C_H":"C","C_V":"C","C_POL_V":"C","PHOTODIODE":"D","OPA_N":"U",
         "TLV9001_SOT23_5":"U",
         "INA4180_TSSOP14":"U","LM4040_DBZ":"U","AD7606_4":"U",
         "LASER_CAN_MON_PD":"LD",
         "LASER_CAN_DIODE_CASE":"LD",
+        "MOUNTING_HOLE_PAD":"H",
         "CONN2":"J","CONN3":"J","CONN4":"J","CONN5":"J","CONN6":"J","CONN8":"J","CONN10":"J",
         "BARREL_JACK_SWITCH":"J","L_H":"L","AP6320X_TSOT6":"U","NMOS":"Q",
         "Espressif:ESP32-S3-WROOM-1":"U",
@@ -619,6 +634,18 @@ def sym_def(name):
                  f'(number "{num}" (effects (font (size 1.0 1.0)){num_hide})))')
     o+=["    )","  )"]; return "\n".join(o)
 
+def build_viv_symbol_library():
+    blocks = []
+    for name in sorted(SYM):
+        block = sym_def(name)
+        if not block:
+            continue
+        blocks.append(block.replace(f'  (symbol "viv:{name}"', f'  (symbol "{name}"', 1))
+    text = "(kicad_symbol_lib (version 20220914) (generator gen_laser_controller)\n"
+    text += "\n".join(blocks)
+    text += "\n)\n"
+    return text
+
 def emit_part(ref,sym,val,fp,mpn,lcsc,x,y):
     x, y = snap(x), snap(y)
     rx,ry=SYM[sym]["roff"]; vx,vy=SYM[sym]["voff"]
@@ -663,7 +690,7 @@ def build_sch_content(title,date,rev,parts,power,wires,junctions,labels,texts,mu
         for label in labels
     ]
     BOM_REG[title]=(mult,parts)
-    P=["(kicad_sch","  (version 20230121)","  (generator eeschema)",f"  (uuid {ROOT_UUID})",
+    P=["(kicad_sch","  (version 20230121)","  (generator eeschema)",f"  (uuid {SCHEMATIC_UUIDS[title]})",
        f'  (paper "{paper}")',"  (title_block",f'    (title "{title}")',f'    (date "{date}")',f'    (rev "{rev}")',
        '    (company "Vivonics")',"  )","  (lib_symbols"]
     used=sorted({t[0] for t in parts.values()} | {k for k,_,_ in power})
@@ -729,6 +756,8 @@ def build_tia_channel(sheet_name: str):
     wires += [[anode,(anode[0],nIN[1]),nIN], [pin(parts,"RB","2"),cathode], [cathode,pin(parts,"CB","1")]]
     add_rail(power,wires,"+5V",pin(parts,"RB","1"))
     add_rail(power,wires,"GND",pin(parts,"CB","2"))
+    add_label(labels, anode, "PD_ANODE", justify="left")
+    add_label(labels, cathode, "PD_CATHODE", justify="left")
     # feedback: −IN → left rail up ; out → right rail up ; RVFB (Rf trim) ∥ C1 (Cf) bridge across the top
     rvfb_w = pin(parts,"RVFB","2")
     wires += [
@@ -749,6 +778,9 @@ def build_tia_channel(sheet_name: str):
               [pin(parts,"RV11","2"),pin(parts,"R1","1")],
               [pin(parts,"R1","2"),node], [node,pin(parts,"C11","1")], [node,pIN]]
     junctions.append(node)
+    add_label(labels, pin(parts,"RT","2"), "VBIAS_TOP", justify="left")
+    add_label(labels, pin(parts,"RV11","2"), "VBIAS_WIPER", justify="left")
+    add_label(labels, node, "VBIAS", justify="left")
     labels.append(("H:V_OUT",OUT[0]+10.16,oy,"left","output"))
     texts=[
         ("TIA Channel  —  on-board SFH2201 signal PD → OPA380AID transimpedance amp  ·  reused 4× (IR / RED / GREEN / BLUE)",150,104,2.0),
@@ -805,6 +837,9 @@ def build_laser_driver(sheet_name: str):
     sense=pin(parts,"R11","1")
     wires += [[sense,pin(parts,"R12","1")]]
     junctions=[pnode,sense,OUT]
+    add_label(labels, pnode, "CMD_FILTER", justify="left")
+    add_label(labels, pin(parts,"R31","1"), "LOUT", justify="left")
+    add_label(labels, pin(parts,"Q1","1"), "GATE", justify="left")
     add_stub(wires,labels,pin(parts,"R21","1"),"left","H:PWM_IN",shape="input")
     add_stub(wires,labels,pin(parts,"R12","2"),"right","H:ISENSE",shape="output")
     cN=pin(parts,"Q1","3"); top=snap_point((cN[0],cN[1]-6.35))            # drain -> LASER_N and direct LD cathode
@@ -1113,6 +1148,8 @@ def build_power_io():
     ])
     wires.append([pin(parts,"RJR45PWR","2"), pin(parts,"JRJ45","10")])
     wires.append([pin(parts,"RJR45LED","2"), pin(parts,"JRJ45","12")])
+    add_label(labels, pin(parts,"RJR45PWR","2"), "RJ45_PWR_DETECT", justify="right")
+    add_label(labels, pin(parts,"RJR45LED","2"), "RJ45_LED_CONTACT", justify="right")
     rj45_pwr_tap = ppt(20.32, 69.85)
     rj45_led_tap = ppt(20.32, 86.36)
     wires.append([pin(parts,"RJR45PWR","1"), rj45_pwr_tap])
@@ -1131,6 +1168,8 @@ def build_power_io():
     wires.append([pin(parts,"U5V","5"), pin(parts,"L5V","1")])
     wires.append([pin(parts,"U5V","5"), pin(parts,"CBST5V","1")])
     wires.append([pin(parts,"U5V","6"), pin(parts,"CBST5V","2")])
+    add_label(labels, pin(parts,"U5V","5"), "BUCK5_SW", justify="left")
+    add_label(labels, pin(parts,"U5V","6"), "BUCK5_BST", justify="left")
     l5v_out = pin(parts,"L5V","2")
     add_bent_label(wires,labels,l5v_out,[(l5v_out[0],py(47)),ppt(145,47)],"BUCK_5V",justify="right")
     add_stub(wires,labels,pin(parts,"U5V","1"),"right","BUCK_5V",dist=12)
@@ -1170,6 +1209,8 @@ def build_power_io():
     wires.append([pin(parts,"ULASER","5"), pin(parts,"LLASER","1")])
     wires.append([pin(parts,"ULASER","5"), pin(parts,"CBSTLASER","1")])
     wires.append([pin(parts,"ULASER","6"), pin(parts,"CBSTLASER","2")])
+    add_label(labels, pin(parts,"ULASER","5"), "LASER_BUCK_SW", justify="left")
+    add_label(labels, pin(parts,"ULASER","6"), "LASER_BUCK_BST", justify="left")
     add_rail(power,wires,"LASER_VP",pin(parts,"LLASER","2"))
     for cap in ["CLASEROUT1","CLASEROUT2"]:
         add_rail(power,wires,"LASER_VP",pin(parts,cap,"1"))
@@ -1178,6 +1219,7 @@ def build_power_io():
     wires.append([pin(parts,"ULASER","1"), fb_node])
     wires.append([pin(parts,"RFBTOP","2"), fb_node])
     wires.append([pin(parts,"CFFLASER","2"), fb_node])
+    add_label(labels, fb_node, "LASER_BUCK_FB", justify="left")
     add_rail(power,wires,"LASER_VP",pin(parts,"RFBTOP","1"))
     add_rail(power,wires,"LASER_VP",pin(parts,"CFFLASER","1"))
     add_rail(power,wires,"GND",pin(parts,"RFBBOT","2"))
@@ -1246,6 +1288,7 @@ def build_power_io():
         adc_ref_pin = pin(parts,"UADC",adc_pin)
         jog = (adc_ref_pin[0] - 8.89, adc_ref_pin[1])
         wires.append([adc_ref_pin, jog, (jog[0], cap_top[1]), cap_top])
+        add_label(labels, cap_top, f"ADC_{cap}", justify="left")
         add_rail(power,wires,"GND",pin(parts,cap,"2"))
     refcap_top = pin(parts,"CREFCAP","1")
     refcap_a = pin(parts,"UADC","44")
@@ -1253,6 +1296,7 @@ def build_power_io():
     refcap_jog = (refcap_a[0] - 8.89, refcap_a[1])
     wires.append([refcap_a, refcap_jog, (refcap_jog[0], refcap_b[1]), refcap_b])
     wires.append([refcap_jog, (refcap_jog[0], refcap_top[1]), refcap_top])
+    add_label(labels, refcap_top, "ADC_REFCAP", justify="left")
     add_rail(power,wires,"GND",pin(parts,"CREFCAP","2"))
     # monitor PD telemetry: hold PD cathode-to-anode bias near 5V, sense monitor current high-side,
     # then feed a low-impedance filtered voltage into the ESP32 ADC.
@@ -1339,6 +1383,10 @@ def build_root():
        '  (paper "A2")',"  (title_block",
        '    (title "Laser Controller")',
        '    (date "2026-06-24")','    (rev "v9")','    (company "Vivonics")',"  )"]
+    P.append("  (lib_symbols")
+    for name in ("GND", "MOUNTING_HOLE_PAD"):
+        P.append(sym_def(name))
+    P.append("  )")
     extra=[]
     def sheet(name,file,sx,sy,w,h,pins,fontsz=1.4,pps=7):
         sx, sy, w, h = snap(sx), snap(sy), snap(w), snap(h)
@@ -1415,6 +1463,14 @@ def build_root():
         ("ADC_RESET","input","right","ADC_RESET"),
     ]
     sheet("POWER_IO","power_io.kicad_sch",430,220,95,140,pio_pins,pps=6.5)
+
+    mounting_holes = [("H1", 552, 382), ("H2", 572, 382)]
+    for ref, x, y in mounting_holes:
+        P.append(emit_part(ref, "MOUNTING_HOLE_PAD", "M3", "MountingHole:MountingHole_3.2mm_M3", "", "", x, y))
+        pin = snap_point((x, y))
+        gnd = snap_point((x, y + 6))
+        P.append(f"  (wire (pts (xy {fmt(pin[0])} {fmt(pin[1])}) (xy {fmt(gnd[0])} {fmt(gnd[1])})) (stroke (width 0) (type default)) (uuid {uid()}))")
+        P.append(emit_power("GND", gnd[0], gnd[1], 0))
 
     P+=extra
     P.append(f'  (text "LASER CONTROLLER  ·  Vivonics  ·  rev v9   —   1 channel x 4 wavelengths (IR / RED / GREEN / BLUE)  ·  TIA x4  ·  laser_driver x4  ·  AD7606-4 signal ADC  ·  monitor PD ADC x3+spare  ·  mcu  ·  power_io" (at 40 30 0) (effects (font (size 2.4 2.4)) (justify left)) (uuid {uid()}))')
@@ -1504,6 +1560,8 @@ def main():
     for fname, content in sheets.items():
         atomic_write(fname, content)
         print(f"  wrote {fname} ({len(content)} bytes, {content.count(chr(10))} lines)")
+    atomic_write("lib/viv.kicad_sym", build_viv_symbol_library())
+    print("  wrote lib/viv.kicad_sym")
     atomic_write("laser_controller_bom_jlcpcb.csv", build_bom())
     print("  wrote laser_controller_bom_jlcpcb.csv")
     if not (OUT_DIR / "laser_controller.kicad_pro").exists():

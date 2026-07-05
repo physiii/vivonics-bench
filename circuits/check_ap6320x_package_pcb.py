@@ -223,7 +223,8 @@ def footprint_name(block: str) -> str:
     match = re.match(r'\s*\(footprint\s+(?:"([^"]+)"|([^\s\)]+))', block)
     if not match:
         return ""
-    return match.group(1) if match.group(1) is not None else match.group(2)
+    name = match.group(1) if match.group(1) is not None else match.group(2)
+    return name.split(":", 1)[-1]
 
 
 def board_footprints(board_text: str) -> dict[str, str]:

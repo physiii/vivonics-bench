@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as _dt
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -22,10 +23,23 @@ REPO_DIR = Path(__file__).resolve().parent.parent
 CIRCUITS_DIR = REPO_DIR / "circuits"
 REPORT_DIR = CIRCUITS_DIR / "review" / "generated"
 REPORT_PATH = REPORT_DIR / "laser_controller_review_gate.md"
-NETLIST_PATH = Path("/tmp/lc.net")
+NETLIST_PATH = REPORT_DIR / "laser_controller_kicad9.net"
 POS_PATH = Path("/tmp/lc_pos.csv")
 GENERATED_PCB_PATH = Path("/tmp/lc_generated_staging.kicad_pcb")
 REPORT_OUTPUT_TAIL_CHARS = 12000
+KICAD9_ERC_REPORT = REPORT_DIR / "laser_controller_kicad9_erc.rpt"
+KICAD9_PHYSICAL_DRC_REPORT = REPORT_DIR / "laser_controller_kicad9_physical_drc.rpt"
+KICAD9_FULL_DRC_REPORT = REPORT_DIR / "laser_controller_kicad9_drc.rpt"
+
+
+def find_kicad_cli() -> str:
+    for candidate in (Path("/snap/bin/kicad.kicad-cli"),):
+        if candidate.exists():
+            return str(candidate)
+    return shutil.which("kicad-cli") or "kicad-cli"
+
+
+KICAD_CLI = find_kicad_cli()
 
 
 @dataclass
@@ -197,7 +211,7 @@ def main() -> int:
         (
             "Export schematic netlist",
             [
-                "kicad-cli",
+                KICAD_CLI,
                 "sch",
                 "export",
                 "netlist",
@@ -424,6 +438,7 @@ def main() -> int:
                 "env",
                 "LC_STRICT_ROUTE_CLEARANCE=1",
                 "LC_MAX_ROUTE_SEARCH_CELLS=2500",
+                f"LC_NETLIST={NETLIST_PATH}",
                 "python3",
                 "circuits/gen_pcb.py",
                 "--output",
@@ -617,19 +632,67 @@ def main() -> int:
         ),
         (
             "Export placement",
-            ["kicad-cli", "pcb", "export", "pos", "circuits/laser_controller.kicad_pcb", "-o", str(POS_PATH)],
+            [KICAD_CLI, "pcb", "export", "pos", "circuits/laser_controller.kicad_pcb", "-o", str(POS_PATH)],
             {},
         ),
         ("JLCPCB order package", ["python3", "circuits/check_jlcpcb_order_package.py"], {}),
         (
-            "KiCad ERC availability",
-            ["kicad-cli", "sch", "erc", "circuits/laser_controller.kicad_sch", "-o", "/tmp/lc_erc.rpt"],
+            "KiCad 9 ERC",
+            [
+                KICAD_CLI,
+                "sch",
+                "erc",
+                "--severity-all",
+                "--exit-code-violations",
+                "--format",
+                "report",
+                "--output",
+                str(KICAD9_ERC_REPORT),
+                "circuits/laser_controller.kicad_sch",
+            ],
+            {
+                "blocked_codes": {5},
+                "blocked_note": "Native KiCad ERC still reports schematic findings that must be fixed or explicitly waived before fabrication.",
+                "unavailable_if_export_only": True,
+            },
+        ),
+        (
+            "KiCad 9 physical DRC report",
+            [
+                KICAD_CLI,
+                "pcb",
+                "drc",
+                "--all-track-errors",
+                "--severity-all",
+                "--format",
+                "report",
+                "--output",
+                str(KICAD9_PHYSICAL_DRC_REPORT),
+                "circuits/laser_controller.kicad_pcb",
+            ],
             {"unavailable_if_export_only": True},
         ),
         (
-            "KiCad DRC availability",
-            ["kicad-cli", "pcb", "drc", "circuits/laser_controller.kicad_pcb", "-o", "/tmp/lc_drc.rpt"],
-            {"unavailable_if_export_only": True},
+            "KiCad 9 DRC with schematic parity",
+            [
+                KICAD_CLI,
+                "pcb",
+                "drc",
+                "--all-track-errors",
+                "--schematic-parity",
+                "--severity-all",
+                "--exit-code-violations",
+                "--format",
+                "report",
+                "--output",
+                str(KICAD9_FULL_DRC_REPORT),
+                "circuits/laser_controller.kicad_pcb",
+            ],
+            {
+                "blocked_codes": {5},
+                "blocked_note": "Native KiCad DRC/parity still reports PCB/schematic footprint or net issues that must be fixed or explicitly waived before fabrication.",
+                "unavailable_if_export_only": True,
+            },
         ),
         ("Git diff whitespace", ["git", "diff", "--check"], {}),
         (
