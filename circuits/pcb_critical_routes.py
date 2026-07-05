@@ -336,6 +336,9 @@ EXTRA_LAYER_ROUTE_OVERRIDES = {}
 
 
 def fp_ref(block: str) -> str:
+    match = re.search(r'\(property\s+"Reference"\s+"([^"]+)"', block)
+    if match:
+        return match.group(1)
     match = re.search(r'\(fp_text reference "?([^"\s\)]+)"?', block)
     return match.group(1) if match else ""
 

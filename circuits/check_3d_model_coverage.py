@@ -37,6 +37,7 @@ def model_env(board_path: Path) -> dict[str, str]:
             "KICAD7_3DMODEL_DIR",
             "KICAD8_3DMODEL_DIR",
             "KICAD9_3DMODEL_DIR",
+            "KICAD10_3DMODEL_DIR",
             "KISYS3DMOD",
         ):
             env.setdefault(key, default_models)
