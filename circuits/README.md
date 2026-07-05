@@ -45,7 +45,7 @@ python3 gen_laser_controller.py
 | `check_source_documents.py` | Source-document guardrail: verifies required datasheet/manufacturer URLs and required local source/footprint artifacts are present; reports secondary/distributor source risks and vendor-CDN probe failures as warnings. |
 | `check_laser_controller_release_gate.py` | Generated-copper fabrication gate: fails on split nets, pending rail/zone nets, unacceptable laser cathode/anode current routes, or missing laser sense-return GND vias. |
 | `check_layout_review_geometry.py` | Focused layout-geometry gate for buck local loops, USB ESD placement, OPA380 summing-node loops, monitor-PD raw paths, and laser-current sense loops. |
-| `check_laser_controller_release_readiness.py` | Open fabrication/release blocker gate: keeps manual, source, laser-MPN, thermal, manufacturing, and external-interface blockers visible in the review wrapper. |
+| `check_laser_controller_release_readiness.py` | Open first-article/production blocker gate: keeps calibration, firmware, thermal, protection, procurement, and measured bring-up blockers visible in the review wrapper. |
 | `check_jlcpcb_order_package.py` | JLCPCB prototype order-package gate: verifies Gerber/drill zip contents, BOM/POS designator match, J7 C192300 2x4 SMD header metadata, required board labels, and the flat transfer archive. |
 | `check_power_thermal_budget.py` | AP2112 `+3V3` thermal guardrail for bench/no-RF versus sustained RF policies. |
 | `check_power_bringup_template.py` | First-article power/input bring-up measurement-template guardrail for J5/VIN24, AP632 rails, post-OR +5V, LASER_V+, and AP2112 +3V3 rows. |
@@ -63,7 +63,8 @@ python3 gen_laser_controller.py
 | `check_ap6320x_package_pcb.py` | AP63205/AP63200 package/PCB guardrail: verifies U15/U16 schematic pin nets, current PCB pad nets, KiCad TSOT-23-6 pad geometry, and local L1/L2 inductor footprint geometry. |
 | `check_passive_derating.py` | Passive voltage/power guardrail for every assembled capacitor, resistor, and SMD trimmer MPN in the exported netlist. |
 | `check_procurement_release_template.py` | Quote-time procurement and production-derating template guardrail for BOM/POS quote acceptance, substitutions, pulse/surge derating, board-temperature evidence, and order archive linkage. |
-| `run_laser_controller_review.py` | One-command review wrapper for available gates, open release blockers, and KiCad ERC/DRC availability reporting. |
+| `check_first_article_release_evidence.py` | First-article release evidence ledger guardrail: requires explicit closure rows for all deferred blocker categories and keeps them open until linked measurement/procurement/firmware evidence exists. |
+| `run_laser_controller_review.py` | One-command review wrapper for available gates, JLCPCB order status, deferred first-article/production blockers, and KiCad ERC/DRC/parity reporting. |
 | `laser_controller.kicad_sch` | Root sheet — sheet symbols + global-label interconnect (A2). |
 | `tia_ir.kicad_sch`, `tia_red.kicad_sch`, `tia_green.kicad_sch`, `tia_blue.kicad_sch` | Four on-board PD + OPA380 TIA sheets with globally unique designators. |
 | `laser_ir.kicad_sch`, `laser_red.kicad_sch`, `laser_green.kicad_sch`, `laser_blue.kicad_sch` | Four constant-current laser sink sheets with globally unique designators; each sheet has a direct through-hole TO-can footprint so `LD_K`, common `LD_A/PD_K/case`, and `PD_A -> MPD_RAW` are visible. |

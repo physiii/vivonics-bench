@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T12:16:12+00:00
+Generated: 2026-07-05T12:26:03+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -11,7 +11,7 @@ First-article/production release status: BLOCKED
 
 | Status | Step | Return | Command |
 |---|---|---:|---|
-| PASS | Python compile | 0 | `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_courtyard_overlap_triage.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_power_bringup_template.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_firmware_validation_template.py circuits/check_optical_calibration_template.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_bringup_template.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/check_procurement_release_template.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py circuits/check_jlcpcb_order_package.py` |
+| PASS | Python compile | 0 | `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_courtyard_overlap_triage.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_power_bringup_template.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_firmware_validation_template.py circuits/check_optical_calibration_template.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_bringup_template.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/check_procurement_release_template.py circuits/check_first_article_release_evidence.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py circuits/check_jlcpcb_order_package.py` |
 | PASS | Generate schematic/BOM | 0 | `python3 circuits/gen_laser_controller.py` |
 | PASS | Export schematic netlist | 0 | `/snap/bin/kicad.kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Netlist assertions | 0 | `python3 circuits/check_laser_controller_netlist.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
@@ -23,6 +23,7 @@ First-article/production release status: BLOCKED
 | PASS | Passive derating assertions | 0 | `python3 circuits/check_passive_derating.py` |
 | PASS | Passive first-article AVL lock | 0 | `python3 circuits/check_passive_avl_lock.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Procurement/derating release template | 0 | `python3 circuits/check_procurement_release_template.py` |
+| DEFERRED | First-article release evidence ledger | 2 | `python3 circuits/check_first_article_release_evidence.py` |
 | PASS | USB/VBUS topology | 0 | `python3 circuits/check_usb_vbus_interface.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | ESP32 reset/boot controls | 0 | `python3 circuits/check_esp32_reset_boot_controls.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | USB connector footprint/source match | 0 | `python3 circuits/check_usb_vbus_interface.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy connector-source-match` |
@@ -83,7 +84,7 @@ First-article/production release status: BLOCKED
 
 ## PASS: Python compile
 
-Command: `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_courtyard_overlap_triage.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_power_bringup_template.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_firmware_validation_template.py circuits/check_optical_calibration_template.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_bringup_template.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/check_procurement_release_template.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py circuits/check_jlcpcb_order_package.py`
+Command: `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_courtyard_overlap_triage.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_power_bringup_template.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_firmware_validation_template.py circuits/check_optical_calibration_template.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_bringup_template.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/check_procurement_release_template.py circuits/check_first_article_release_evidence.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py circuits/check_jlcpcb_order_package.py`
 
 ## PASS: Generate schematic/BOM
 
@@ -199,6 +200,32 @@ Command: `python3 circuits/check_procurement_release_template.py`
 
 ```text
 PASS procurement release template: quote-time BOM/POS, substitution, derating, temperature, and order-archive evidence rows are present
+```
+
+## DEFERRED: First-article release evidence ledger
+
+Command: `python3 circuits/check_first_article_release_evidence.py`
+
+First-article and production-release evidence rows are present, but one or more rows remain OPEN because physical measurement, firmware, procurement, or protection evidence has not been recorded.
+
+```text
+DEFERRED first-article release evidence: 16 evidence row(s) still OPEN
+  - PASSIVE_PRODUCTION_AVL_AND_DERATING/quote_acceptance
+  - PASSIVE_PRODUCTION_AVL_AND_DERATING/passive_derating
+  - VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT/first_power_limits
+  - VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT/buck_rail_measurement
+  - VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT/production_protection
+  - PER_DIODE_LASER_THERMAL_BUDGET/laser_bringup
+  - PER_DIODE_LASER_THERMAL_BUDGET/laser_safety_fixture
+  - AP2112_BENCH_MEASUREMENT_OR_REGULATOR_CHANGE/no_rf_current_temp
+  - AP2112_BENCH_MEASUREMENT_OR_REGULATOR_CHANGE/regulator_decision
+  - AD7606_SYSTEM_INTERFACE/digital_timing
+  - AD7606_SYSTEM_INTERFACE/dout_readback
+  - AD7606_SYSTEM_INTERFACE/scaling_channel_order_known_input
+  - TIA_READOUT_RANGE_CALIBRATION/signal_pd_calibration
+  - TIA_READOUT_RANGE_CALIBRATION/ambient_saturation_policy
+  - MONITOR_PD_FRONTEND_RANGE_CALIBRATION/monitor_pd_calibration
+  - MONITOR_PD_FRONTEND_RANGE_CALIBRATION/mpd4_blue_spare_open
 ```
 
 ## PASS: USB/VBUS topology
@@ -831,18 +858,18 @@ Command: `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/
 Command: `/snap/bin/kicad.kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv`
 
 ```text
-07:16:09: Debug: Adding duplicate image handler for 'PNG file'
-07:16:09: Debug: Adding duplicate image handler for 'JPEG file'
-07:16:09: Debug: Adding duplicate image handler for 'TIFF file'
-07:16:09: Debug: Adding duplicate image handler for 'GIF file'
-07:16:09: Debug: Adding duplicate image handler for 'PNM file'
-07:16:09: Debug: Adding duplicate image handler for 'PCX file'
-07:16:09: Debug: Adding duplicate image handler for 'IFF file'
-07:16:09: Debug: Adding duplicate image handler for 'Windows icon file'
-07:16:09: Debug: Adding duplicate image handler for 'Windows cursor file'
-07:16:09: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-07:16:09: Debug: Adding duplicate image handler for 'TGA file'
-07:16:09: Debug: Adding duplicate image handler for 'XPM file'
+07:25:58: Debug: Adding duplicate image handler for 'PNG file'
+07:25:58: Debug: Adding duplicate image handler for 'JPEG file'
+07:25:58: Debug: Adding duplicate image handler for 'TIFF file'
+07:25:58: Debug: Adding duplicate image handler for 'GIF file'
+07:25:58: Debug: Adding duplicate image handler for 'PNM file'
+07:25:58: Debug: Adding duplicate image handler for 'PCX file'
+07:25:58: Debug: Adding duplicate image handler for 'IFF file'
+07:25:58: Debug: Adding duplicate image handler for 'Windows icon file'
+07:25:58: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:25:58: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:25:58: Debug: Adding duplicate image handler for 'TGA file'
+07:25:58: Debug: Adding duplicate image handler for 'XPM file'
 Wrote position data to '/tmp/lc_pos.csv'.
 ```
 
@@ -868,18 +895,18 @@ Saved ERC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/
 Command: `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
-07:16:10: Debug: Adding duplicate image handler for 'PNG file'
-07:16:10: Debug: Adding duplicate image handler for 'JPEG file'
-07:16:10: Debug: Adding duplicate image handler for 'TIFF file'
-07:16:10: Debug: Adding duplicate image handler for 'GIF file'
-07:16:10: Debug: Adding duplicate image handler for 'PNM file'
-07:16:10: Debug: Adding duplicate image handler for 'PCX file'
-07:16:10: Debug: Adding duplicate image handler for 'IFF file'
-07:16:10: Debug: Adding duplicate image handler for 'Windows icon file'
-07:16:10: Debug: Adding duplicate image handler for 'Windows cursor file'
-07:16:10: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-07:16:10: Debug: Adding duplicate image handler for 'TGA file'
-07:16:10: Debug: Adding duplicate image handler for 'XPM file'
+07:26:01: Debug: Adding duplicate image handler for 'PNG file'
+07:26:01: Debug: Adding duplicate image handler for 'JPEG file'
+07:26:01: Debug: Adding duplicate image handler for 'TIFF file'
+07:26:01: Debug: Adding duplicate image handler for 'GIF file'
+07:26:01: Debug: Adding duplicate image handler for 'PNM file'
+07:26:01: Debug: Adding duplicate image handler for 'PCX file'
+07:26:01: Debug: Adding duplicate image handler for 'IFF file'
+07:26:01: Debug: Adding duplicate image handler for 'Windows icon file'
+07:26:01: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:26:01: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:26:01: Debug: Adding duplicate image handler for 'TGA file'
+07:26:01: Debug: Adding duplicate image handler for 'XPM file'
 Found 4 violations
 Found 0 unconnected items
 Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt
@@ -890,18 +917,18 @@ Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/
 Command: `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
-07:16:11: Debug: Adding duplicate image handler for 'PNG file'
-07:16:11: Debug: Adding duplicate image handler for 'JPEG file'
-07:16:11: Debug: Adding duplicate image handler for 'TIFF file'
-07:16:11: Debug: Adding duplicate image handler for 'GIF file'
-07:16:11: Debug: Adding duplicate image handler for 'PNM file'
-07:16:11: Debug: Adding duplicate image handler for 'PCX file'
-07:16:11: Debug: Adding duplicate image handler for 'IFF file'
-07:16:11: Debug: Adding duplicate image handler for 'Windows icon file'
-07:16:11: Debug: Adding duplicate image handler for 'Windows cursor file'
-07:16:11: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-07:16:11: Debug: Adding duplicate image handler for 'TGA file'
-07:16:11: Debug: Adding duplicate image handler for 'XPM file'
+07:26:02: Debug: Adding duplicate image handler for 'PNG file'
+07:26:02: Debug: Adding duplicate image handler for 'JPEG file'
+07:26:02: Debug: Adding duplicate image handler for 'TIFF file'
+07:26:02: Debug: Adding duplicate image handler for 'GIF file'
+07:26:02: Debug: Adding duplicate image handler for 'PNM file'
+07:26:02: Debug: Adding duplicate image handler for 'PCX file'
+07:26:02: Debug: Adding duplicate image handler for 'IFF file'
+07:26:02: Debug: Adding duplicate image handler for 'Windows icon file'
+07:26:02: Debug: Adding duplicate image handler for 'Windows cursor file'
+07:26:02: Debug: Adding duplicate image handler for 'Windows animated cursor file'
+07:26:02: Debug: Adding duplicate image handler for 'TGA file'
+07:26:02: Debug: Adding duplicate image handler for 'XPM file'
 Found 4 violations
 Found 0 unconnected items
 Found 0 schematic parity issues
