@@ -179,6 +179,7 @@ procurement/assembly items listed below.
 | C70 | 22µF 100V SMD electrolytic | **C90264** | — | `VIN_24V` input bulk capacitor copied from access-controller PoE bulk input. |
 | C (100nF) | 100nF 0402 16V X7R | **C83056** | — | decoupling and monitor-PD low-pass filters. |
 | C (10µF) | 10µF 0805 25V X5R | **C318691** | — | bulk decoupling. |
+| C64-C65/C67-C68 | 22µF 0805 25V X5R | **C45783** | Basic | AP63205/AP63200 buck output capacitor banks, 2x22µF per rail. |
 | J1-J2 | USB Mini-B receptacle | **C5120592** | (JLC assy) | Würth `65100516121` metadata on the matching KiCad Würth land pattern. |
 
 ### Hand-add / not in SMT assembly
@@ -279,10 +280,10 @@ KiCad TSOT-23-6 footprint geometry and local Open_Automation L1/L2 footprints.
 `check_buck_input_power_budget.py` separately enforces the AP63205/AP63200 pinout,
 feedback, input-current, and inductor-stress policy. The selected-diode 9.3 V
 max-current reference and all-channel per-channel analog-limit case pass the
-500 mA J5 bench input rating. The same checker also keeps the
-AP632 production component blocker visible: C64+C65/C67+C68 provide 20 uF per
-buck output, below the AP632 datasheet's generic 2x22 uF output reference
-guidance. C61+C62 are now 20 uF nominal VIN ceramic input capacitance.
+500 mA J5 bench input rating. The same checker also keeps the AP632 production
+component guard visible: C64+C65/C67+C68 now provide 44 uF per buck output with
+2x22 uF 25 V ceramics, and C61+C62 are 20 uF nominal VIN ceramic input
+capacitance.
 `check_laser_current_budget.py` separately checks the laser command clamp, selected
 LD1-LD4 current limits, sense resistor power, AO3400A heat, and safe `LASER_V+`
 window for the selected diode forward voltage. The selected-diode policies show

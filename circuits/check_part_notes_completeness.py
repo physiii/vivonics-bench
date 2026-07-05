@@ -261,7 +261,7 @@ NOTE_CHECKS: tuple[NoteCheck, ...] = (
             "check_vin24_input_protection.py --policy production-protection",
             "no fuse/PTC/TVS/reverse-protection",
             "C61+C62 = `20uF`",
-            "`2x22uF` style output capacitance",
+            "C64+C65 = `44uF`",
         ),
     ),
     NoteCheck(

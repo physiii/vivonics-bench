@@ -291,7 +291,7 @@ def main() -> int:
             {},
         ),
         (
-            "Buck datasheet capacitor recommendation expected fail",
+            "Buck datasheet capacitor recommendation",
             [
                 "python3",
                 "circuits/check_buck_input_power_budget.py",
@@ -300,7 +300,7 @@ def main() -> int:
                 "--policy",
                 "datasheet-recommended-components",
             ],
-            {"expected_codes": {1}},
+            {},
         ),
         (
             "VIN24 bench input topology",

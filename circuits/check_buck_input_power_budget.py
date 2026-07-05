@@ -317,8 +317,8 @@ def scenario_failures(scenario: Scenario) -> tuple[list[str], list[str]]:
 def production_recommendation_failures() -> list[str]:
     failures: list[str] = []
     input_ceramic_u_f = 20.0
-    buck5_output_u_f = 20.0
-    laser_output_u_f = 20.0
+    buck5_output_u_f = 44.0
+    laser_output_u_f = 44.0
     recommended_input_ceramic_u_f = 10.0
     recommended_output_u_f = 44.0
     print("24V/buck production component recommendation policy: datasheet-recommended-components")

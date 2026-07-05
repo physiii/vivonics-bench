@@ -78,6 +78,13 @@ CAP_RATINGS = {
         package="0805",
         source="LCSC C318691 / Samsung CL21A106KAYNNNG page: 10uF +/-10%, X5R, 25Vdc.",
     ),
+    "CL21A226MAQNNNE": CapacitorRating(
+        value="22uF",
+        voltage_v=25.0,
+        dielectric="X5R",
+        package="0805",
+        source="JLCPCB/LCSC C45783 / Samsung CL21A226MAQNNNE page: 22uF +/-20%, X5R, 25Vdc.",
+    ),
     "CL31B105KCHNNNE": CapacitorRating(
         value="1uF",
         voltage_v=100.0,
@@ -276,12 +283,12 @@ def capacitor_stress(comp: dict[str, str]) -> CapacitorStress:
             voltage_v=24.0,
             reason="24V barrel/RJ45 input capacitor on VIN_24V",
         )
-    if value == "10uF laser buck":
+    if value in {"10uF laser buck", "22uF laser buck"}:
         return CapacitorStress(
             voltage_v=9.38,
             reason="AP63200 laser-buck output capacitor at the 237k/22.1k LASER_V+ setting",
         )
-    if value in {"10uF 5V buck", "10uF +5V bulk"}:
+    if value in {"10uF 5V buck", "22uF 5V buck", "10uF +5V bulk"}:
         return CapacitorStress(
             voltage_v=5.1,
             reason="5V buck/post-OR board rail bulk capacitor",

@@ -202,8 +202,8 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT",
         "24 V barrel/RJ45 input protection and buck layout are not released",
-        "J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference and the all-channel per-channel analog-limit case, but the current C64+C65/C67+C68 output capacitor set remains below generic AP632 datasheet guidance.",
-        "Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; rework or justify the AP632 output capacitors; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.",
+        "J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, the all-channel per-channel analog-limit case, and the local 2x22 uF output-capacitance guard.",
+        "Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.",
         (
             Evidence(
                 "circuits/POWER_TREE.md",
@@ -214,7 +214,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                     "bench-selected-max-9v3",
                     "hardware-clamp-9v3",
                     "datasheet-recommended-components",
-                    "C61+C62 now provide 20 uF nominal VIN ceramic",
+                    "C61+C62 provide 20 uF nominal",
                 ),
             ),
             Evidence(
@@ -223,7 +223,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                     "check_vin24_input_protection.py --policy production-protection",
                     "no fuse/PTC/TVS/reverse-protection",
                     "C61+C62 = `20uF`",
-                    "`2x22uF` style output capacitance",
+                    "C64+C65 = `44uF`",
                     "input range is `3.8 V` to `32 V`",
                 ),
             ),

@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T05:51:07+00:00
+Generated: 2026-07-05T06:02:24+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -29,7 +29,7 @@ Overall release status: BLOCKED
 | PASS | AP6320x package/PCB pinout | 0 | `python3 circuits/check_ap6320x_package_pcb.py --netlist /tmp/lc.net --board circuits/laser_controller.kicad_pcb` |
 | PASS | Buck/input selected-diode max-current reference | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy bench-selected-max-9v3` |
 | PASS | Buck/input all-channel analog-limit budget | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy hardware-clamp-9v3` |
-| PASS | Buck datasheet capacitor recommendation expected fail | 1 | `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy datasheet-recommended-components` |
+| PASS | Buck datasheet capacitor recommendation | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy datasheet-recommended-components` |
 | PASS | VIN24 bench input topology | 0 | `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net` |
 | PASS | VIN24 production input-protection expected fail | 1 | `python3 circuits/check_vin24_input_protection.py --netlist /tmp/lc.net --policy production-protection` |
 | PASS | Laser-driver selected-current control-loop budget | 0 | `python3 circuits/check_laser_driver_control_loop.py --netlist /tmp/lc.net` |
@@ -78,7 +78,7 @@ wrote tia_ir.kicad_sch (36315 bytes, 569 lines)
   wrote laser_red.kicad_sch (35160 bytes, 538 lines)
   wrote laser_green.kicad_sch (35150 bytes, 538 lines)
   wrote laser_blue.kicad_sch (34847 bytes, 536 lines)
-  wrote power_io.kicad_sch (199066 bytes, 3121 lines)
+  wrote power_io.kicad_sch (199062 bytes, 3121 lines)
   wrote laser_controller.kicad_sch (30750 bytes, 247 lines)
   wrote laser_controller_bom_jlcpcb.csv
 ```
@@ -116,7 +116,7 @@ PASS schematic presentation guardrails: no generated wire segments enter symbol 
 Command: `python3 circuits/check_laser_controller_sources.py /tmp/lc.net`
 
 ```text
-PASS source-register coverage for 98 MPN/LCSC tokens across 179 components, intent coverage for 156 exported nets, 589 component-pin intent roles, and 3 documentation designator guard files
+PASS source-register coverage for 100 MPN/LCSC tokens across 179 components, intent coverage for 156 exported nets, 589 component-pin intent roles, and 3 documentation designator guard files
 ```
 
 ## PASS: Part-note completeness assertions
@@ -277,7 +277,7 @@ Command: `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.ne
 PASS 24V/buck policy for the checked assumptions.
 ```
 
-## PASS: Buck datasheet capacitor recommendation expected fail
+## PASS: Buck datasheet capacitor recommendation
 
 Command: `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.net --policy datasheet-recommended-components`
 
@@ -285,10 +285,8 @@ Command: `python3 circuits/check_buck_input_power_budget.py --netlist /tmp/lc.ne
 24V/buck production component recommendation policy: datasheet-recommended-components
   Diodes AP63200/AP63205 application guidance calls for close VIN ceramic capacitance, 2x22uF style output capacitance in the reference designs/tables, close feedback parts, and 2oz/thermal-via layout for 2A operation.
   current input ceramic: C61+C62=20.0uF plus C70 22uF electrolytic; recommended ceramic threshold=10.0uF
-  current output caps: C64+C65=20.0uF on BUCK_5V, C67+C68=20.0uF on LASER_V+; reference target=44.0uF each
-FAIL 24V/buck policy
-  BUCK_5V nominal ceramic output capacitance is 20.0uF, below the 2x22uF reference target
-  LASER_V+ nominal ceramic output capacitance is 20.0uF, below the 2x22uF reference target
+  current output caps: C64+C65=44.0uF on BUCK_5V, C67+C68=44.0uF on LASER_V+; reference target=44.0uF each
+PASS 24V/buck policy for the checked assumptions.
 ```
 
 ## PASS: VIN24 bench input topology
@@ -661,8 +659,8 @@ BLOCKED release readiness: 8 open fabrication/release blockers
     Detail: The AP2112 is acceptable only for the bench no-RF policy. Sustained ESP32 wireless load fails the current SOT25 LDO budget.
     Required action: Measure AP2112 package temperature and +3V3 current during bring-up, keep RF disabled for this bench board, or replace the rail before sustained Wi-Fi/BLE.
   [VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT] 24 V barrel/RJ45 input protection and buck layout are not released
-    Detail: J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference and the all-channel per-channel analog-limit case, but the current C64+C65/C67+C68 output capacitor set remains below generic AP632 datasheet guidance.
-    Required action: Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; rework or justify the AP632 output capacitors; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.
+    Detail: J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for bench use only with a selected current-limited adapter and reviewed switch-loop/thermal layout. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, the all-channel per-channel analog-limit case, and the local 2x22 uF output-capacitance guard.
+    Required action: Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.
   [PASSIVE_PRODUCTION_AVL_AND_DERATING] Production passive AVL, pulse/surge derating, and temperature evidence are open
     Detail: The current derating gate covers bench steady-state voltage and power, not lifecycle, surge, pulse, or production procurement lock.
     Required action: Create a production procurement lock with final orderable passive datasheets, lifecycle/AVL state, pulse/surge/current derating, and board-temperature evidence.
