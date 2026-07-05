@@ -53,12 +53,12 @@ and AO3400A gate-drive nodes.
 Current state: placement, filled power/ground planes, and routed copper are
 present. The custom PCB checker and generated-copper release gate pass for the
 current artifact, including route-layer, route-width, USB route, laser-current
-width, and laser sense-return checks.
+width, laser sense-return checks, and headless schematic/PCB pad-net parity.
 Zones are filled and verified for the checks in this repo: zero footprint
 courtyard/pad overlaps, zero copper outside the board outline, and zero
 antenna-keepout intrusions. The 2026-07-04 return-path layout signoff captures
-the current GND/via/sensitive-route review. KiCad GUI ERC/DRC with schematic
-parity still blocks fabrication. The old J3 AD7606 debug/output header has
+the current GND/via/sensitive-route review. KiCad GUI ERC/DRC with native
+schematic parity still blocks fabrication. The old J3 AD7606 debug/output header has
 been removed now that U14 is on-board.
 
 ## Board

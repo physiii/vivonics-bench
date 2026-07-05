@@ -18,10 +18,12 @@ the `POWER_IO` buck/ADC/monitor cluster sitting in the gap between the two
 regions) is meant to be explicit trunk-trace routing, not a wide flood -- see
 `PCB_LAYOUT.md` for why. The current PCB artifact has filled zone definitions,
 1611 routed copper segments, 236 vias, and passes the custom PCB and
-generated-copper release gates. A 2026-07-04 GUI DRC screenshot captures
-refilled-zone DRC with zero violations and zero unconnected items, but schematic
-parity was not run in that dialog. The 2026-07-04 return-path layout signoff
-captures the current GND/via/sensitive-route review for this routed PCB.
+generated-copper release gates. `check_schematic_pcb_parity.py` passes the
+headless exported-netlist-to-current-PCB pad-net comparison. A 2026-07-04 GUI
+DRC screenshot captures refilled-zone DRC with zero violations and zero
+unconnected items, but native schematic parity was not run in that dialog. The
+2026-07-04 return-path layout signoff captures the current
+GND/via/sensitive-route review for this routed PCB.
 KiCad GUI ERC and native schematic-parity evidence remain separate release
 requirements.
 
