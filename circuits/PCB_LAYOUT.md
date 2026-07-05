@@ -175,6 +175,9 @@ evidence remain open.
   (0.10 mm track/space) where dense SMD escapes cannot satisfy the broader
   analog keepaway rules; the custom checker still owns the larger functional
   separation checks above.
+- Courtyard overlaps in the dense PD/TIA and buck clusters are treated as
+  warnings rather than release-blocking errors; they must still be reviewed
+  visually against actual component bodies before ordering assembly.
 - **USB D+/D−**: short USB routes with copied-sheet discrete ESD at each connector.
 - **Antenna keep-out**: copper-free zone around ESP32 antenna (top edge).
 - **Decoupling**: 100 nF adjacent to each IC V+ pin.
