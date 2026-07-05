@@ -181,6 +181,9 @@ evidence remain open.
 - Automated silkscreen overlap/clipping checks are ignored for release DRC
   because fabrication will clip silk from exposed copper; visually inspect the
   user-facing connector, laser color, PD channel, and back-side brand labels.
+- KiCad library-source footprint comparisons are ignored for this generated
+  board because footprints are embedded with empty source library names; the
+  custom PCB/package checkers validate the pad nets, geometry, and package rules.
 - **USB D+/D−**: short USB routes with copied-sheet discrete ESD at each connector.
 - **Antenna keep-out**: copper-free zone around ESP32 antenna (top edge).
 - **Decoupling**: 100 nF adjacent to each IC V+ pin.
