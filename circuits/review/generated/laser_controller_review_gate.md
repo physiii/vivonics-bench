@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T07:11:24+00:00
+Generated: 2026-07-05T07:28:41+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 Fabrication remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -9,7 +9,7 @@ Overall release status: BLOCKED
 
 | Status | Step | Return | Command |
 |---|---|---:|---|
-| PASS | Python compile | 0 | `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py` |
+| PASS | Python compile | 0 | `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_courtyard_overlap_triage.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py` |
 | PASS | Generate schematic/BOM | 0 | `python3 circuits/gen_laser_controller.py` |
 | PASS | Export schematic netlist | 0 | `kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /tmp/lc.net` |
 | PASS | Netlist assertions | 0 | `python3 circuits/check_laser_controller_netlist.py /tmp/lc.net` |
@@ -48,6 +48,7 @@ Overall release status: BLOCKED
 | PASS | Generated-copper release gate | 0 | `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /tmp/lc.net` |
 | PASS | Focused layout-geometry review | 0 | `python3 circuits/check_layout_review_geometry.py circuits/laser_controller.kicad_pcb` |
 | PASS | Headless Pcbnew DRC report | 0 | `/usr/bin/python3 circuits/check_kicad_pcbnew_drc_report.py` |
+| BLOCKED | Native courtyard-overlap triage | 2 | `/usr/bin/python3 circuits/check_courtyard_overlap_triage.py` |
 | PASS | AP2112 bench thermal policy | 0 | `python3 circuits/check_power_thermal_budget.py --policy bench-uart-usb` |
 | PASS | AP2112 first-article no-RF signoff | 0 | `python3 circuits/check_ap2112_first_article_signoff.py` |
 | PASS | AP2112 sustained Wi-Fi expected fail | 1 | `python3 circuits/check_power_thermal_budget.py --policy wifi-tx-100-duty` |
@@ -73,7 +74,7 @@ Overall release status: BLOCKED
 
 ## PASS: Python compile
 
-Command: `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py`
+Command: `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_courtyard_overlap_triage.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py`
 
 ## PASS: Generate schematic/BOM
 
@@ -486,6 +487,23 @@ PASS headless Pcbnew DRC report: zones refilled in memory, unconnected pads=0, f
   KiCad pcbnew build: 7.0.11+dfsg-1build4
 ```
 
+## BLOCKED: Native courtyard-overlap triage
+
+Command: `/usr/bin/python3 circuits/check_courtyard_overlap_triage.py`
+
+Native Pcbnew reports courtyard overlaps that require KiCad layout review, package/placement changes, or explicit assembly waivers before fabrication.
+
+```text
+BLOCKED courtyard-overlap triage: 14 native courtyard warnings; 6 F.Fab/body-box overlaps; 8 courtyard-only overlaps; report=/home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_courtyard_overlap_triage.md
+  F.Fab/body-box overlap candidates:
+    - U2/D2: 2.155 mm x 1.575 mm, area 3.394 mm^2
+    - U4/D4: 4.000 mm x 3.230 mm, area 12.920 mm^2
+    - U3/D3: 3.230 mm x 1.325 mm, area 4.280 mm^2
+    - C61/L1: 1.425 mm x 1.087 mm, area 1.549 mm^2
+    - C61/U15: 1.700 mm x 0.137 mm, area 0.233 mm^2
+    - D1/U1: 3.845 mm x 3.230 mm, area 12.420 mm^2
+```
+
 ## PASS: AP2112 bench thermal policy
 
 Command: `python3 circuits/check_power_thermal_budget.py --policy bench-uart-usb`
@@ -740,8 +758,8 @@ The release-readiness registry has unresolved source, direct-laser, thermal, man
 ```text
 BLOCKED release readiness: 8 open fabrication/release blockers
   [KICAD_ERC_DRC_ZONE_SIGNOFF] Native KiCad ERC/DRC signoff is still open
-    Detail: Available netlist/source/custom PCB checks pass, the local schematic/PCB parity checker passes, a 2026-07-04 GUI DRC screenshot captures refilled-zone DRC with 0 violations and 0 unconnected items, and the system-Python Pcbnew report refills zones in memory with 0 unconnected pads, 0 footprint errors, and only 14 documented courtyard-overlap warnings. Full fabrication signoff is still not proven because this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC, and neither the screenshot nor the headless Pcbnew report runs native schematic ERC/parity. Formal schematic ERC and native schematic-parity evidence remain unproven.
-    Required action: Run GUI ERC on the regenerated schematic, update PCB from schematic, refill zones, run PCB DRC with schematic parity and review/waive the courtyard warnings, or use a KiCad CLI build that supports sch erc and pcb drc, then document any waivers/reports.
+    Detail: Available netlist/source/custom PCB checks pass, the local schematic/PCB parity checker passes, a 2026-07-04 GUI DRC screenshot captures refilled-zone DRC with 0 violations and 0 unconnected items, and the system-Python Pcbnew report refills zones in memory with 0 unconnected pads, 0 footprint errors, and 14 documented courtyard-overlap warnings. The current courtyard triage blocks fabrication because 6 of those native warnings also have F.Fab/body-box overlaps and 8 are courtyard-only assembly-clearance warnings. Full fabrication signoff is still not proven because this KiCad 7.0.11 CLI only exposes sch/pcb export commands, not ERC/DRC, and neither the screenshot nor the headless Pcbnew report runs native schematic ERC/parity. Formal schematic ERC and native schematic-parity evidence remain unproven.
+    Required action: Run GUI ERC on the regenerated schematic, update PCB from schematic, resolve the F.Fab/body-box overlaps with a safe layout reroute or package/placement change, refill zones, run PCB DRC with schematic parity and review/waive any remaining courtyard-only warnings, or use a KiCad CLI build that supports sch erc and pcb drc, then document any waivers/reports.
   [MONITOR_PD_FRONTEND_RANGE_CALIBRATION] Monitor-PD front-end range and calibration are not released
     Detail: The exported netlist now proves the INA4180/LM4040 monitor topology is connected as intended, and the 240R/gain20 monitor scale covers the captured D7805I/D6505I/PLT5 520EB_P monitor-current range inside the local ADC-headroom guard. The first-article signoff requires external optical-meter calibration before MPD telemetry is used for APC, normalization, or safety behavior. PLT5 450GB has no monitor photodiode, so MPD4 is not blue-source telemetry. Measured optical calibration and firmware behavior are still unreleased.
     Required action: Calibrate each monitor-capable source against an external optical meter, record dark/off counts, response slope, saturation threshold, setpoint, and optical-power reading, and verify firmware fail-shutoff behavior before using MPD telemetry for production APC, normalization, or safety decisions.

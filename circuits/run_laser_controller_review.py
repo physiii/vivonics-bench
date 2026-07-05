@@ -3,10 +3,10 @@
 
 This wrapper is intentionally explicit about what it proves and what it cannot
 prove in this environment.  It runs the custom source, netlist, PCB, generated
-copper, thermal, open-release-blocker, headless Pcbnew DRC, and availability
-gates.  It also attempts KiCad CLI ERC/DRC and marks them as release blockers
-when the installed KiCad CLI does not expose those commands. Use --release to
-make blockers produce a nonzero exit code.
+copper, thermal, open-release-blocker, headless Pcbnew DRC, native courtyard
+triage, and availability gates.  It also attempts KiCad CLI ERC/DRC and marks
+them as release blockers when the installed KiCad CLI does not expose those
+commands. Use --release to make blockers produce a nonzero exit code.
 """
 from __future__ import annotations
 
@@ -151,6 +151,7 @@ def main() -> int:
         "circuits/check_laser_controller_release_gate.py",
         "circuits/check_layout_review_geometry.py",
         "circuits/check_kicad_pcbnew_drc_report.py",
+        "circuits/check_courtyard_overlap_triage.py",
         "circuits/check_laser_controller_release_readiness.py",
         "circuits/check_schematic_hierarchy_labels.py",
         "circuits/check_schematic_presentation.py",
@@ -473,6 +474,17 @@ def main() -> int:
             "Headless Pcbnew DRC report",
             ["/usr/bin/python3", "circuits/check_kicad_pcbnew_drc_report.py"],
             {},
+        ),
+        (
+            "Native courtyard-overlap triage",
+            ["/usr/bin/python3", "circuits/check_courtyard_overlap_triage.py"],
+            {
+                "blocked_codes": {2},
+                "blocked_note": (
+                    "Native Pcbnew reports courtyard overlaps that require KiCad layout review, "
+                    "package/placement changes, or explicit assembly waivers before fabrication."
+                ),
+            },
         ),
         ("AP2112 bench thermal policy", ["python3", "circuits/check_power_thermal_budget.py", "--policy", "bench-uart-usb"], {}),
         ("AP2112 first-article no-RF signoff", ["python3", "circuits/check_ap2112_first_article_signoff.py"], {}),
