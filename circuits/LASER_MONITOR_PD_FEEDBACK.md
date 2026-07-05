@@ -72,9 +72,10 @@ current with the current 3.3 V headroom guard.
 
 This fixes the PLT5-style 10.5 V bench-bias defect, but it is still source
 telemetry rather than a release-approved production APC loop. Firmware must keep
-the current loop as the hard safety limit, and every actual laser MPN still
-needs a pin table, can/common polarity, monitor-PD reverse-bias limit, and
-optical calibration check before relying on MPD feedback.
+the current loop as the hard safety limit. The 2026-07-04 direct-laser signoff
+closes the selected MPN/footprint pad-net mapping review; monitor-PD
+reverse-bias limits, optical calibration, and physical diode orientation before
+soldering remain bring-up checks before relying on MPD feedback.
 
 The selected LD1-LD3 pin topology is compatible with the high-side
 INA4180/LM4040 front end. The present `240R` / INA4180A1 gain-20 scaling fits
@@ -129,7 +130,8 @@ or detector gain drift.
 
 ## Bring-up checklist
 
-- Confirm each laser MPN's exact pin table and can/common-node polarity.
+- Inspect each received laser can against the signed-off pin table and
+  can/common-node polarity before soldering.
 - Verify the high-side INA4180/LM4040 monitor front end against D6505I, D7805I,
   and PLT5 520EB_P monitor-PD reverse-bias limits before bring-up.
 - Keep PLT5 450GB case isolated/no-connect unless the mechanical design

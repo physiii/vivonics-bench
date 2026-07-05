@@ -461,7 +461,8 @@ def main() -> int:
 
     print(
         "PASS laser current-loop policy for this diode/supply assumption. "
-        "Actual laser MPN and direct-footprint pinout still require release review."
+        "Direct laser MPN/footprint mapping is covered by the 2026-07-04 signoff; "
+        "current/thermal and optical-safety limits still require release review."
     )
     return 0
 

@@ -314,6 +314,7 @@ REQUIRED_LOCAL = [
     LocalEvidence("KiCad Wuerth Mini-B footprint", "/usr/share/kicad/footprints/Connector_USB.pretty/USB_Mini-B_Wuerth_65100516121_Horizontal.kicad_mod", 1_000),
     LocalEvidence("KiCad Bourns 3224W footprint", "/usr/share/kicad/footprints/Potentiometer_SMD.pretty/Potentiometer_Bourns_3224W_Vertical.kicad_mod", 1_000),
     LocalEvidence("SS14 and Bourns order/orientation signoff", "circuits/review/signoff/2026-07-04-ss14-bourns-order-source-signoff.md", 2_000),
+    LocalEvidence("direct laser MPN/footprint signoff", "circuits/review/signoff/2026-07-04-direct-laser-mpn-footprint-signoff.md", 2_000),
     LocalEvidence("KiCad 2512 hand-solder footprint", "/usr/share/kicad/footprints/Resistor_SMD.pretty/R_2512_6332Metric_Pad1.40x3.35mm_HandSolder.kicad_mod", 1_000),
     LocalEvidence("KiCad 0603 hand-solder footprint", "/usr/share/kicad/footprints/Resistor_SMD.pretty/R_0603_1608Metric_Pad0.98x0.95mm_HandSolder.kicad_mod", 1_000),
     LocalEvidence("KiCad 0402 hand-solder footprint", "/usr/share/kicad/footprints/Capacitor_SMD.pretty/C_0402_1005Metric_Pad0.74x0.62mm_HandSolder.kicad_mod", 1_000),

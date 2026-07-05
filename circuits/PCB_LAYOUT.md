@@ -143,9 +143,11 @@ evidence remain open.
   Würth 65100516121 footprint, horizontal SMD, port faces board edge; review
   pin-1, shield pads, board-edge orientation, ESD placement, and final quote.
 - **SFH2201**: pad 1 = cathode, pad 2 = anode — check PD orientation.
-- **Direct laser pinout**: confirm every raw laser MPN's LD/PD/common/case pin table before
-  soldering a diode into `LD1..LD4`. Current Digikey-cart
-  mapping: `D7805I` -> channel 1 with `OptoDevice:LaserDiode_TO18-D5.6-3`,
+- **Direct laser pinout**: the 2026-07-04 direct-laser MPN/footprint signoff
+  closes the selected MPN-to-`LDx` pin-table and PCB pad-net mapping review.
+  Physically inspect each received diode's orientation before soldering it into
+  `LD1..LD4`. Current Digikey-cart mapping: `D7805I` -> channel 1 with
+  `OptoDevice:LaserDiode_TO18-D5.6-3`,
   `D6505I` -> channel 2 with `OptoDevice:LaserDiode_TO18-D5.6-3`,
   `PLT5 520EB_P` -> channel 3 with `OptoDevice:LaserDiode_TO56-3`, and
   `PLT5 450GB` -> channel 4 with `OptoDevice:LaserDiode_TO56-3`. The first
@@ -221,10 +223,11 @@ The bench/no-RF AP2112 thermal policy passes, and the PLT5 520EB_P
 reference laser-current budget passes only for a controlled 10.5 V green-style
 supply assumption. `check_laser_controller_release_readiness.py` intentionally
 reports the remaining open blockers. KiCad GUI ERC, zone refill, PCB DRC with
-schematic parity, AP2112 bring-up temperature measurement, actual laser direct-footprint
-MPN review, per-diode laser-current thermal budget, and visual return-path
-review still must pass before fabrication. This actual laser direct-footprint MPN review
-must verify every selected diode pin table before the diodes are soldered.
+schematic parity, AP2112 bring-up temperature measurement, per-diode
+laser-current thermal budget, and visual return-path review still must pass
+before fabrication. The selected direct-laser MPN/footprint pad-net mapping is
+closed by `review/signoff/2026-07-04-direct-laser-mpn-footprint-signoff.md`;
+received diode orientation still must be inspected before soldering.
 
 ## BOM Summary
 

@@ -143,8 +143,8 @@ Current bench board:
   should not rely on a common rail plus firmware alone for laser safety.
 - Do not run all four colors at the clamp from one high rail without thermal
   measurement.
-- Solder direct laser cans only after checking each actual laser MPN pin table
-  and can/common-node polarity.
+- Solder direct laser cans only after inspecting each received part against the
+  2026-07-04 signed-off MPN/footprint pin table and can/common-node polarity.
 - Do not treat the 247.5 mA hardware clamp as safe for the selected Digikey-cart
   D6505I, D7805I, PLT5 520EB_P, or PLT5 450GB without per-channel current
   limits and optical safety signoff.

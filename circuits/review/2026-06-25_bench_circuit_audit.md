@@ -160,7 +160,9 @@ These are not optional:
 2. Refill zones and run KiCad PCB DRC with schematic parity.
 3. Review `+5V` and `GND` rail/zone copper visually after refill.
 4. Inspect return paths so laser current does not share the TIA summing-node return path.
-5. Lock actual laser MPNs, can pin code, common/case node, and direct `LDx` footprint orientation.
+5. Selected laser MPN/can pin-code/direct `LDx` footprint mapping is closed by
+   `circuits/review/signoff/2026-07-04-direct-laser-mpn-footprint-signoff.md`;
+   inspect received diode orientation before soldering.
 6. Run per-diode laser current and thermal budgets for the chosen `LASER_V+`, current, and duty cycle.
 7. Measure AP2112 package temperature and +3V3 current during bring-up, or replace the regulator before sustained RF.
 8. Define external 5V current limiting/protection or add board protection.

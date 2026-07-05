@@ -97,9 +97,12 @@ Monitor-current implication:
 - The `selected-monitor-typ-9v3` and `selected-monitor-worst-9v3` policies
   now pass for ADC headroom with the 240R/gain20 scale.
 
-Required action before laser bring-up:
-- Solder each diode directly into the matching `LDx` TO-can footprint after
-  checking the exact per-MPN pin table above.
+Direct-footprint signoff and required action before laser bring-up:
+- The 2026-07-04 direct-laser MPN/footprint signoff closes the selected
+  MPN-to-`LDx` pin-table and current-PCB pad-net mapping review for this board.
+- Solder each diode directly into the matching `LDx` TO-can footprint only after
+  physically checking the received part orientation against the exact per-MPN
+  pin table above.
 - Do not connect PLT5 450GB case pin 2 to `MPD_RAW4`; that net is an analog
   monitor input, not a case/shield node.
 - Do not rely on `MPD4` optical telemetry for PLT5 450GB. Use laser current

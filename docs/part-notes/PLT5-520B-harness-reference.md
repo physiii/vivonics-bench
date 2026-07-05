@@ -46,8 +46,11 @@ PLT5 450GB result:
   selected diode max-current cases, assuming real current limiting and bench
   thermal verification.
 
-Release blocker:
-- Every actual laser MPN must be checked against its own pin table and can/common
+Direct-footprint signoff and bring-up blockers:
+- The 2026-07-04 direct-laser MPN/footprint signoff checked the selected
+  Digikey-cart MPNs against their pin tables, the direct `LDx` footprints, and
+  the current PCB pad nets.
+- Still inspect each received diode's physical pin orientation and can/common
   polarity before soldering the diode into `LDx`.
 - Direct `MPD_RAWx` telemetry is approved only for the three compatible
   monitor-PD parts in this Digikey set: `D7805I`, `D6505I`, and

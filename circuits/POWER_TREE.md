@@ -103,7 +103,8 @@ Block fabrication until:
 4. `GND` has a visually reviewed return path after zone refill.
 5. AP2112 bench/no-RF thermal policy is accepted and measured during bring-up,
    or the regulator is replaced before sustained Wi-Fi/BLE use.
-6. Each actual laser MPN and direct-footprint pinout is checked against its datasheet.
+6. Received laser-can orientation is inspected against the signed-off MPN/footprint
+   mapping before soldering.
 7. Each selected diode and `LASER_V+` setting passes the laser current thermal budget.
 8. `check_vin24_input_protection.py --policy bench-topology` passes, the
    expected-fail `production-protection` blocker is designed out or explicitly

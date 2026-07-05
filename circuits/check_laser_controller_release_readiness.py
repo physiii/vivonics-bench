@@ -91,44 +91,6 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
         ),
     ),
     ReleaseBlocker(
-        "ACTUAL_LASER_MPN_DIRECT_FOOTPRINT",
-        "Actual laser MPN pin tables and direct footprints are not released",
-        "The Digikey cart MPNs have mixed pin-code behavior: D7805I, D6505I, and PLT5 520EB_P match the bench monitor front end, while PLT5 450GB has no monitor photodiode and its case pin must not be tied into MPD_RAW4.",
-        "Verify the exact per-MPN pin table against the direct LDx footprint wiring, inspect can/case handling, and document that PLT5 450GB has no MPD telemetry before laser bring-up.",
-        (
-            Evidence(
-                "docs/part-notes/PLT5-520B-harness-reference.md",
-                (
-                    "Every actual laser MPN must be checked against its own pin table",
-                    "`PLT5 450GB` has no monitor photodiode",
-                ),
-            ),
-            Evidence(
-                "docs/part-notes/laser-harness-pin-code-compatibility.md",
-                (
-                    "IR `D7805I`, Digikey `38-1028-ND`",
-                    "Blue `PLT5 450GB`, Digikey `475-PLT5450GB-ND`",
-                    "Do not connect PLT5 450GB case pin 2 to `MPD_RAW4`",
-                ),
-            ),
-            Evidence(
-                "circuits/PCB_LAYOUT.md",
-                (
-                    "confirm every raw laser MPN's LD/PD/common/case pin table",
-                    "actual laser direct-footprint MPN review",
-                    "PLT5 450GB",
-                ),
-            ),
-            Evidence(
-                "docs/source-register.md",
-                (
-                    "D7805I",
-                    "PLT5 450GB has no monitor photodiode",
-                ),
-            ),
-        ),
-    ),
-    ReleaseBlocker(
         "MONITOR_PD_FRONTEND_RANGE_CALIBRATION",
         "Monitor-PD front-end range and calibration are not released",
         "The exported netlist now proves the INA4180/LM4040 monitor topology is connected as intended, and the 240R/gain20 monitor scale covers the captured D7805I/D6505I/PLT5 520EB_P monitor-current range inside the local ADC-headroom guard. PLT5 450GB has no monitor photodiode, so MPD4 is not blue-source telemetry. Optical calibration and safety behavior are still unreleased.",
@@ -162,7 +124,7 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 "docs/source-register.md",
                 (
                     "D7805I 600 uA high-end monitor current maps to about 2.88 V",
-                    "It still cannot read monitor telemetry",
+                    "read monitor telemetry from `PLT5 450GB`",
                 ),
             ),
         ),
