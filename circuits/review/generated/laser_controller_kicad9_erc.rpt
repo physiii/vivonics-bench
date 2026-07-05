@@ -1,36 +1,6 @@
-ERC report (2026-07-05T06:01:55-0500, Encoding UTF8)
+ERC report (2026-07-05T06:12:14-0500, Encoding UTF8)
 
 ***** Sheet /
-[label_dangling]: Label not connected to anything
-    ; error
-    @(227.051 mm, 75.971 mm): Label 'IO39'
-[label_dangling]: Label not connected to anything
-    ; error
-    @(227.051 mm, 78.511 mm): Label 'IO40'
-[label_dangling]: Label not connected to anything
-    ; error
-    @(227.051 mm, 81.051 mm): Label 'IO41'
-[label_dangling]: Label not connected to anything
-    ; error
-    @(227.051 mm, 83.591 mm): Label 'IO42'
-[label_dangling]: Label not connected to anything
-    ; error
-    @(227.051 mm, 126.771 mm): Label 'IO35'
-[label_dangling]: Label not connected to anything
-    ; error
-    @(227.051 mm, 129.311 mm): Label 'IO36'
-[label_dangling]: Label not connected to anything
-    ; error
-    @(227.051 mm, 131.851 mm): Label 'IO37'
-[label_dangling]: Label not connected to anything
-    ; error
-    @(239.751 mm, 209.321 mm): Label 'CP2102_VBUS'
-[label_dangling]: Label not connected to anything
-    ; error
-    @(320.523 mm, 124.231 mm): Label 'IO45'
-[label_dangling]: Label not connected to anything
-    ; error
-    @(320.523 mm, 126.771 mm): Label 'IO46'
 [same_local_global_label]: Local and global labels have same name
     ; warning
     @(309.88 mm, 92.71 mm): Global Label 'MPD_RAW1'
@@ -55,10 +25,10 @@ ERC report (2026-07-05T06:01:55-0500, Encoding UTF8)
     @(67.158 mm, 35.077 mm): Horizontal Wire, length 1.27 mm
 [endpoint_off_grid]: Symbol pin or wire end off connection grid
     ; warning
-    @(65.253 mm, 56.286 mm): Horizontal Wire, length 3.81 mm
+    @(66.65 mm, 56.286 mm): Horizontal Wire, length 2.413 mm
 [endpoint_off_grid]: Symbol pin or wire end off connection grid
     ; warning
-    @(65.507 mm, 60.477 mm): Horizontal Wire, length 3.937 mm
+    @(66.904 mm, 60.477 mm): Horizontal Wire, length 2.54 mm
 [endpoint_off_grid]: Symbol pin or wire end off connection grid
     ; warning
     @(69.444 mm, 60.477 mm): Symbol R60 Pin 1 [Passive, Line]
@@ -257,6 +227,9 @@ ERC report (2026-07-05T06:01:55-0500, Encoding UTF8)
 [lib_symbol_issues]: The current configuration does not include the symbol library 'power'
     ; warning
     @(125.832 mm, 164.617 mm): Symbol #PWR036 [GND]
+[lib_symbol_mismatch]: Symbol 'USB_MINI_B_SMD' doesn't match copy in library 'open_automation'
+    ; warning
+    @(134.468 mm, 158.521 mm): Symbol J1 [USB_MINI_B_SMD]
 [endpoint_off_grid]: Symbol pin or wire end off connection grid
     ; warning
     @(142.088 mm, 153.441 mm): Symbol J1 Pin 1 [VBUS, Power output, Line]
@@ -359,12 +332,12 @@ ERC report (2026-07-05T06:01:55-0500, Encoding UTF8)
 [endpoint_off_grid]: Symbol pin or wire end off connection grid
     ; warning
     @(123.546 mm, 204.241 mm): Horizontal Wire, length 1.27 mm
+[lib_symbol_mismatch]: Symbol 'USB_MINI_B_SMD' doesn't match copy in library 'open_automation'
+    ; warning
+    @(132.436 mm, 199.161 mm): Symbol J2 [USB_MINI_B_SMD]
 [endpoint_off_grid]: Symbol pin or wire end off connection grid
     ; warning
     @(140.056 mm, 194.081 mm): Symbol J2 Pin 1 [VBUS, Power output, Line]
-[endpoint_off_grid]: Symbol pin or wire end off connection grid
-    ; warning
-    @(227.051 mm, 75.971 mm): Horizontal Wire, length 1.016 mm
 [endpoint_off_grid]: Symbol pin or wire end off connection grid
     ; warning
     @(123.546 mm, 205.257 mm): Symbol #PWR038 Hidden pin 1 [GND, Power input, Line]
@@ -377,15 +350,6 @@ ERC report (2026-07-05T06:01:55-0500, Encoding UTF8)
 [lib_symbol_mismatch]: Symbol 'C_10uF' doesn't match copy in library 'open_automation'
     ; warning
     @(176.886 mm, 162.331 mm): Symbol C42 [C_10uF]
-[endpoint_off_grid]: Symbol pin or wire end off connection grid
-    ; warning
-    @(227.051 mm, 78.511 mm): Horizontal Wire, length 1.016 mm
-[endpoint_off_grid]: Symbol pin or wire end off connection grid
-    ; warning
-    @(227.051 mm, 81.051 mm): Horizontal Wire, length 1.016 mm
-[endpoint_off_grid]: Symbol pin or wire end off connection grid
-    ; warning
-    @(227.051 mm, 83.591 mm): Horizontal Wire, length 1.016 mm
 [endpoint_off_grid]: Symbol pin or wire end off connection grid
     ; warning
     @(176.886 mm, 166.141 mm): Vertical Wire, length 4.064 mm
@@ -454,9 +418,6 @@ ERC report (2026-07-05T06:01:55-0500, Encoding UTF8)
     @(152.248 mm, 210.337 mm): Vertical Wire, length 0.762 mm
 [endpoint_off_grid]: Symbol pin or wire end off connection grid
     ; warning
-    @(227.051 mm, 126.771 mm): Horizontal Wire, length 1.016 mm
-[endpoint_off_grid]: Symbol pin or wire end off connection grid
-    ; warning
     @(152.248 mm, 211.099 mm): Horizontal Wire, length 5.08 mm
 [lib_symbol_mismatch]: Symbol 'D_ESD9B5.0ST5G' doesn't match copy in library 'open_automation'
     ; warning
@@ -469,9 +430,6 @@ ERC report (2026-07-05T06:01:55-0500, Encoding UTF8)
     @(258.293 mm, 38.633 mm): Vertical Wire, length 1.27 mm
 [endpoint_off_grid]: Symbol pin or wire end off connection grid
     ; warning
-    @(227.051 mm, 129.311 mm): Horizontal Wire, length 1.016 mm
-[endpoint_off_grid]: Symbol pin or wire end off connection grid
-    ; warning
     @(175.108 mm, 194.081 mm): Vertical Wire, length 5.334 mm
 [lib_symbol_mismatch]: Symbol 'C_10uF' doesn't match copy in library 'Open_Automation'
     ; warning
@@ -479,9 +437,6 @@ ERC report (2026-07-05T06:01:55-0500, Encoding UTF8)
 [endpoint_off_grid]: Symbol pin or wire end off connection grid
     ; warning
     @(258.293 mm, 46.761 mm): Vertical Wire, length 0.508 mm
-[endpoint_off_grid]: Symbol pin or wire end off connection grid
-    ; warning
-    @(227.051 mm, 131.851 mm): Horizontal Wire, length 1.016 mm
 [endpoint_off_grid]: Symbol pin or wire end off connection grid
     ; warning
     @(258.293 mm, 47.523 mm): Vertical Wire, length 0.762 mm
@@ -742,12 +697,6 @@ ERC report (2026-07-05T06:01:55-0500, Encoding UTF8)
     @(320.523 mm, 121.691 mm): Horizontal Wire, length 1.016 mm
 [endpoint_off_grid]: Symbol pin or wire end off connection grid
     ; warning
-    @(320.523 mm, 124.231 mm): Horizontal Wire, length 1.016 mm
-[endpoint_off_grid]: Symbol pin or wire end off connection grid
-    ; warning
-    @(320.523 mm, 126.771 mm): Horizontal Wire, length 1.016 mm
-[endpoint_off_grid]: Symbol pin or wire end off connection grid
-    ; warning
     @(320.523 mm, 129.311 mm): Horizontal Wire, length 1.016 mm
 [endpoint_off_grid]: Symbol pin or wire end off connection grid
     ; warning
@@ -878,45 +827,7 @@ ERC report (2026-07-05T06:01:55-0500, Encoding UTF8)
 ***** Sheet /LASER_BLUE/
 
 ***** Sheet /MCU_ESP32-S3/
-[hier_label_mismatch]: Hierarchical label I2C_DATA has no matching sheet pin in the parent sheet
-    ; error
-    @(65.253 mm, 56.286 mm): Hierarchical Label 'I2C_DATA'
-[hier_label_mismatch]: Hierarchical label I2C_CLK has no matching sheet pin in the parent sheet
-    ; error
-    @(65.507 mm, 60.477 mm): Hierarchical Label 'I2C_CLK'
-[pin_not_connected]: Pin not connected
-    ; error
-    @(126.848 mm, 161.061 mm): Symbol J1 Pin 4 [ID, Passive, Line]
-[pin_to_pin]: Pins of type Power output and Power output are connected
-    ; error
-    @(126.848 mm, 163.601 mm): Symbol J1 Pin 5 [GND, Power output, Line]
-    @(124.816 mm, 204.241 mm): Symbol J2 Pin 5 [GND, Power output, Line]
-[pin_to_pin]: Pins of type Power output and Power output are connected
-    ; error
-    @(126.848 mm, 163.601 mm): Symbol J1 Hidden pin 6 [GND, Power output, Line]
-    @(124.816 mm, 204.241 mm): Symbol J2 Pin 5 [GND, Power output, Line]
-[pin_not_connected]: Pin not connected
-    ; error
-    @(124.816 mm, 201.701 mm): Symbol J2 Pin 4 [ID, Passive, Line]
-[pin_not_connected]: Pin not connected
-    ; error
-    @(265.151 mm, 189.001 mm): Symbol U10 Pin 12 [SUSPEND, Output, Line]
-[multiple_net_names]: Both IO14 and I2C_DATA are attached to the same items; IO14 will be used in the netlist
-    ; warning
-    @(66.65 mm, 56.286 mm): Label 'IO14'
-    @(65.253 mm, 56.286 mm): Hierarchical Label 'I2C_DATA'
-[multiple_net_names]: Both IO13 and I2C_CLK are attached to the same items; IO13 will be used in the netlist
-    ; warning
-    @(66.904 mm, 60.477 mm): Label 'IO13'
-    @(65.507 mm, 60.477 mm): Hierarchical Label 'I2C_CLK'
-[no_connect_dangling]: Unconnected "no connection" flag
-    ; warning
-    @(265.278 mm, 189.001 mm): No Connect
 
 ***** Sheet /POWER_IO/
-[pin_to_pin]: Pins of type Power output and Power output are connected
-    ; error
-    @(127.00 mm, 201.93 mm): Symbol #PWR0334 Pin 1 [Power output, Line]
-    @(124.816 mm, 204.241 mm): Symbol J2 Hidden pin 6 [GND, Power output, Line]
 
- ** ERC messages: 296  Errors 18  Warnings 278
+ ** ERC messages: 268  Errors 0  Warnings 268

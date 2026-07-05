@@ -576,8 +576,8 @@ def main() -> int:
             ("2", "D-", "passive"),
             ("3", "D+", "passive"),
             ("4", "ID", "passive"),
-            ("5", "GND", "power_out"),
-            ("6", "GND", "power_out"),
+            ("5", "GND", "passive"),
+            ("6", "GND", "passive"),
         ]:
             expect_pin(ref, pin, function, pintype)
     for pin, function in [
