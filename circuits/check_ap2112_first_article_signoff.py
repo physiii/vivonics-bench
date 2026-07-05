@@ -18,6 +18,7 @@ REQUIRED_PHRASES = (
     "Keep continuous +3V3 current no higher than 120 mA.",
     "Measure AP2112 package temperature and +3V3 rail current during first bring-up.",
     "Sustained Wi-Fi/BLE requires a buck regulator",
+    "check_power_thermal_budget.py --policy ble-tx-20dbm",
     "does not close production regulator decision",
 )
 

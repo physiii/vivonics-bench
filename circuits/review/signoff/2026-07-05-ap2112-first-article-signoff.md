@@ -23,6 +23,8 @@ close production regulator decision or sustained wireless operation.
   120 mA, 85 degC, no-RF bench policy.
 - `check_power_thermal_budget.py --policy wifi-tx-100-duty` is an expected fail
   for sustained Wi-Fi on the current AP2112 SOT25 rail.
+- `check_power_thermal_budget.py --policy ble-tx-20dbm` is an expected fail
+  for sustained BLE TX on the current AP2112 SOT25 rail.
 - `check_layout_review_geometry.py` passes AP2112 input/output capacitor
   proximity checks on the current PCB artifact.
 

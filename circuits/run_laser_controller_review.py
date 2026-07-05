@@ -540,6 +540,11 @@ def main() -> int:
             {"expected_codes": {1}},
         ),
         (
+            "AP2112 BLE TX expected fail",
+            ["python3", "circuits/check_power_thermal_budget.py", "--policy", "ble-tx-20dbm"],
+            {"expected_codes": {1}},
+        ),
+        (
             "Green high-Vf laser-current thermal reference",
             ["python3", "circuits/check_laser_current_budget.py", "--policy", "green-high-vf-10v5"],
             {},

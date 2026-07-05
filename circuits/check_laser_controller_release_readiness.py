@@ -242,7 +242,19 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                     "Keep ESP32 Wi-Fi/BLE disabled on this board.",
                     "Keep continuous +3V3 current no higher than 120 mA.",
                     "Measure AP2112 package temperature and +3V3 rail current during first bring-up.",
+                    "ble-tx-20dbm",
                     "does not close production regulator decision",
+                ),
+            ),
+            Evidence(
+                "circuits/review/signoff/2026-07-05-ap2112-category-review.md",
+                (
+                    "Rank 3, high",
+                    "ESP32 Wi-Fi disabled",
+                    "ESP32 BLE disabled",
+                    "`no_rf_current_temp`",
+                    "`regulator_decision`",
+                    "not a cleared sustained-wireless",
                 ),
             ),
             Evidence(
