@@ -63,6 +63,10 @@ requirements.
   the production capacitor guard visible: C64+C65/C67+C68 output banks now
   provide 44 uF each with 2x22 uF 25 V ceramics. C61+C62 provide 20 uF nominal
   VIN ceramic input capacitance.
+- `circuits/review/signoff/2026-07-05-ap632-first-article-buck-validation-signoff.md`
+  records first-article AP632 rail verification, startup/ripple/load-step
+  capture, and U15/U16/L1/L2/D6/output-cap temperature measurement requirements
+  under the J5-only external-current-limit input policy.
 - `check_vin24_input_protection.py` keeps the input-protection distinction
   explicit. The present bench topology is direct J5/J6-to-`VIN_24V`, while the
   production policy is an expected fail until current limiting, transient

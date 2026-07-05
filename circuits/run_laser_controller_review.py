@@ -162,6 +162,7 @@ def main() -> int:
         "circuits/check_tia_first_article_signoff.py",
         "circuits/check_ap6320x_package_pcb.py",
         "circuits/check_buck_input_power_budget.py",
+        "circuits/check_ap632_first_article_signoff.py",
         "circuits/check_vin24_input_protection.py",
         "circuits/check_usb_vbus_interface.py",
         "circuits/check_esp32_reset_boot_controls.py",
@@ -312,6 +313,7 @@ def main() -> int:
             ],
             {},
         ),
+        ("AP632 first-article buck validation signoff", ["python3", "circuits/check_ap632_first_article_signoff.py"], {}),
         (
             "VIN24 bench input topology",
             [

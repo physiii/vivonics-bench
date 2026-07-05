@@ -254,9 +254,21 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT",
         "24 V barrel/RJ45 input protection and buck layout are not released",
-        "J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for first-article bench use only under the 2026-07-05 external current-limit signoff: J5 barrel, 24.0 V, current limit no higher than 300 mA, no RJ45 power injection, no hot-plug, and verified center-positive polarity. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no onboard fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, the all-channel per-channel analog-limit case, and the local 2x22 uF output-capacitance guard.",
-        "Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; then verify AP63205/AP63200 switch-loop routing, copper width, output ripple/transient/stability, and temperature before production.",
+        "J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for first-article bench use only under the 2026-07-05 external current-limit signoff: J5 barrel, 24.0 V, current limit no higher than 300 mA, no RJ45 power injection, no hot-plug, and verified center-positive polarity. The AP632 first-article signoff now requires rail verification, startup/ripple/load-step measurement, and buck component temperature measurement before trusting VIN24 buck rails. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no onboard fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, the all-channel per-channel analog-limit case, and the local 2x22 uF output-capacitance guard.",
+        "Define the adapter current limit, RJ45 harness current limit, fuse/current-limit element, reverse-polarity strategy, and transient/TVS protection; then measure AP63205/AP63200 startup, ripple, load-step transient/stability, copper/current path behavior, and temperature before production.",
         (
+            Evidence(
+                "circuits/review/signoff/2026-07-05-ap632-first-article-buck-validation-signoff.md",
+                (
+                    "J5 barrel input only",
+                    "external current limit no higher than 300 mA",
+                    "Verify `/POWER_IO/BUCK_5V`, post-OR `+5V`, and `LASER_V+`",
+                    "Treat `LASER_V+` as a 9.3 V-class rail",
+                    "Measure startup overshoot, steady ripple, and load-step transient",
+                    "Measure U15, U16, L1, L2, D6, C64-C65, and C67-C68 temperature",
+                    "does not close production input protection",
+                ),
+            ),
             Evidence(
                 "circuits/POWER_TREE.md",
                 (
