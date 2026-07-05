@@ -398,6 +398,16 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 ),
             ),
             Evidence(
+                "circuits/review/signoff/2026-07-05-passive-category-review.md",
+                (
+                    "Rank 7, medium",
+                    "24 passive MPN/LCSC pairs",
+                    "`quote_acceptance`",
+                    "`passive_derating`",
+                    "not a static CAD/package defect",
+                ),
+            ),
+            Evidence(
                 "circuits/review/calibration/quote_time_procurement_release_template.csv",
                 (
                     "current quote timestamp; every C-code accepted by JLCPCB",
