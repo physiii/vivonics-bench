@@ -5,7 +5,7 @@ Date: 2026-07-05
 Scope: Native KiCad courtyard-overlap warnings in the current
 `laser_controller.kicad_pcb` layout.
 
-## Severity Ranking
+## Overall Severity Ranking
 
 The current category order for release cleanup is:
 
@@ -17,7 +17,7 @@ The current category order for release cleanup is:
 4. Expected-fail policy checks: deliberately bad operating scenarios that must
    keep failing.
 
-## Category 1 Result
+## Courtyard/Layout Category Result
 
 The native KiCad 9 physical DRC report still lists four warning-level
 `[courtyards_overlap]` pairs:
