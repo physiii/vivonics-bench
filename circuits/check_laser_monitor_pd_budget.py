@@ -260,7 +260,7 @@ def validate_schematic(netlist_path: Path) -> list[str]:
 
     require_comp(failures, comps, "U12", mpn="INA4180A1IPWR", footprint_suffix="TSSOP-14_4.4x5mm_P0.65mm")
     require_comp(failures, comps, "U13", mpn="LM4040C50IDBZR", footprint_suffix="SOT-23")
-    require_comp(failures, comps, "R41", mpn="CRCW06032K49FKEAHP", value_contains="2.49k")
+    require_comp(failures, comps, "R41", mpn="RTT032491FTP", value_contains="2.49k")
     require_comp(failures, comps, "C35", mpn="0402B104K160CT", value_contains="100nF")
     require_comp(failures, comps, "C36", mpn="0402B104K160CT", value_contains="100nF MPD bias")
     require_comp(failures, comps, "LD1", mpn="D7805I", footprint_suffix="LaserDiode_TO18-D5.6-3")
@@ -269,7 +269,7 @@ def validate_schematic(netlist_path: Path) -> list[str]:
     require_comp(failures, comps, "LD4", mpn="PLT5 450GB", footprint_suffix="LaserDiode_TO56-3")
 
     for ref in ("R42", "R44", "R46", "R48"):
-        require_comp(failures, comps, ref, mpn="RC0603FR-07240RL", value_contains="240R MPD sense")
+        require_comp(failures, comps, ref, mpn="RTT032400FTP", value_contains="240R MPD sense")
     for ref in ("R43", "R45", "R47", "R49"):
         require_comp(failures, comps, ref, mpn="FRC0603F1001TS", value_contains="1k ADC")
     for ref in ("C37", "C38", "C39", "C40"):

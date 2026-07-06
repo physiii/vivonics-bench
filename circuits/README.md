@@ -71,9 +71,9 @@ python3 gen_laser_controller.py
 | `mcu.kicad_sch` | ESP32-S3-WROOM-1 + CP2102N USB-UART + two USB Mini-B connectors + discrete USB/VBUS ESD + reset/program/factory buttons. |
 | `power_io.kicad_sch` | 5V OR-ing, laser supply, on-board AD7606-4 signal ADC, and shared INA4180/LM4040 monitor-PD front end. |
 | `laser_controller_bom_jlcpcb.csv` | JLCPCB SMT assembly CSV (Comment, Designator, Footprint, LCSC); hand-add headers and direct laser cans are listed separately. |
-| `fab/laser_controller_pos.csv` | JLCPCB SMT CPL/POS CSV generated from the current PCB; designators match the JLCPCB BOM. |
+| `fab/laser_controller_pos.csv` | JLCPCB SMT CPL CSV converted to the five-column upload format (`Designator,Mid X,Mid Y,Layer,Rotation`); designators match the JLCPCB BOM. |
 | `laser_controller_gerbers.zip` | Current PCB Gerber/drill zip for JLCPCB PCB fabrication upload. |
-| `laser_controller_jlcpcb_package.zip` | Flat review/transfer archive containing Gerber/drill files plus BOM and POS. |
+| `laser_controller_jlcpcb_package.zip` | Flat review/transfer archive containing Gerber/drill files plus BOM and JLCPCB-format CPL. |
 | `laser_controller.kicad_pro` | KiCad 7 project file. |
 | `LASER_MONITOR_PD_FEEDBACK.md` | Design note for the internal laser monitor photodiode feedback path and production APC implications. |
 | `LASER_CURRENT_THERMAL_BUDGET.md` | Laser current-loop thermal budget and common-rail bench limitation. |
@@ -174,8 +174,8 @@ procurement/assembly items listed below.
 | RV1–RV4 | 10k SMD trimmer | **C81348** | Extended | VBIAS, Bourns **3224W-1-103E** (SMD, JLCPCB-mountable); pin 2 wiper orientation signed off on 2026-07-04. |
 | RV5–RV8 | 2M SMD trimmer | **C116323** | Extended | TIA feedback trim, Bourns **3224W-1-205E**, pin 2 wiper tied to OPA380 output side; orientation signed off on 2026-07-04. |
 | R (10k) | 10k 0603 1% | **C844918** | — | VBIAS / EN / BOOT pull-up resistors. |
-| R (240Ω) | 240Ω 0603 1% | **C114613** | — | monitor-PD high-side sense resistors. |
-| R (2.49k) | 2.49k 0603 1% | **C2099849** | — | LM4040/`MPD_BIAS` sink resistor. |
+| R (240Ω) | 240Ω 0603 1% | **C103446** | Extended | monitor-PD high-side sense resistors, RALEC `RTT032400FTP`. |
+| R (2.49k) | 2.49k 0603 1% | **C103460** | Extended | LM4040/`MPD_BIAS` sink resistor, RALEC `RTT032491FTP`. |
 | R61/R62/C69 | 237k / 22.1k / 100pF feedback set | **C2998117 / C2929993 / C1546** | — | AP63200 feedback divider and feed-forward capacitor for about 9.38 V `LASER_V+`. |
 | R (1k) | 1k 0603 1% | **C2907002** | — | gate / ISENSE-isolation / PD-bias / monitor-ADC isolation resistor. |
 | R21/R26/R31/R36 | 1.3k / 750Ω / 3k / 4.7k 0603 1% | **C22767 / C23241 / C4211 / C23162** | Basic | Per-channel PWM command limiter pulldowns for IR / red / green / blue. |
@@ -183,7 +183,7 @@ procurement/assembly items listed below.
 | C (10pF) | 10pF C0G 0603 | **C106245** | Extended | Cf / loop-comp. |
 | C (1µF) | 1µF 0402 25V X5R | **C7472946** | — | PWM filter / PD-bias bypass / LDO input. |
 | C61-C62 | 10µF 1206 50V X7R | **C89632** | Extended | high-voltage `VIN_24V` ceramic input capacitors for AP632 local bypass. |
-| C70 | 22µF 100V SMD electrolytic | **C90264** | — | `VIN_24V` input bulk capacitor copied from access-controller PoE bulk input. |
+| C70 | 22µF 100V SMD electrolytic | **C242011** | Extended | `VIN_24V` input bulk capacitor, SUNCON `100CE22FS+P`. |
 | C (100nF) | 100nF 0402 16V X7R | **C83056** | — | decoupling and monitor-PD low-pass filters. |
 | C (10µF) | 10µF 0805 25V X5R | **C318691** | — | bulk decoupling. |
 | C64-C65/C67-C68 | 22µF 0805 25V X5R | **C45783** | Basic | AP63205/AP63200 buck output capacitor banks, 2x22µF per rail. |

@@ -747,21 +747,21 @@ Total schematic components: **181**.
 | `C67` | `/POWER_IO/` | 22uF laser buck | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `C45783` | `CL21A226MAQNNNE` |
 | `C68` | `/POWER_IO/` | 22uF laser buck | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `C45783` | `CL21A226MAQNNNE` |
 | `C69` | `/POWER_IO/` | 100pF FF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `C1546` | `0402CG101J500NT` |
-| `C70` | `/POWER_IO/` | 22uF 100V | `Capacitor_SMD:C_Elec_8x10.2` | `C90264` | `RVT2A220M0810` |
+| `C70` | `/POWER_IO/` | 22uF 100V | `Capacitor_SMD:C_Elec_8x10.2` | `C242011` | `100CE22FS+P` |
 | `D5` | `/POWER_IO/` | SS14 | `Diode_SMD:D_SMA` | `C2480` | `SS14` |
 | `D6` | `/POWER_IO/` | SS14 | `Diode_SMD:D_SMA` | `C2480` | `SS14` |
 | `J5` | `/POWER_IO/` | 24V DC IN | `Open_Automation:BarrelJack_OD5.5_ID2.5` | `C194407` | `DC-470-2.1GP` |
 | `J6` | `/POWER_IO/` | CONN_RJ45 | `Connector_RJ:RJ45_Amphenol_RJHSE538X` | `C386757` | `R-RJ45R08P-C000` |
 | `L1` | `/POWER_IO/` | 4.7uH | `Open_Automation:L_5.4x5.3_H3` | `C408410` | `MWSA0503S-4R7MT` |
 | `L2` | `/POWER_IO/` | 10uH | `Open_Automation:L_4x4` | `C98364` | `WPN4020H100MT` |
-| `R41` | `/POWER_IO/` | 2.49k MPD bias | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2099849` | `CRCW06032K49FKEAHP` |
-| `R42` | `/POWER_IO/` | 240R MPD sense | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C114613` | `RC0603FR-07240RL` |
+| `R41` | `/POWER_IO/` | 2.49k MPD bias | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C103460` | `RTT032491FTP` |
+| `R42` | `/POWER_IO/` | 240R MPD sense | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C103446` | `RTT032400FTP` |
 | `R43` | `/POWER_IO/` | 1k ADC | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2907002` | `FRC0603F1001TS` |
-| `R44` | `/POWER_IO/` | 240R MPD sense | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C114613` | `RC0603FR-07240RL` |
+| `R44` | `/POWER_IO/` | 240R MPD sense | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C103446` | `RTT032400FTP` |
 | `R45` | `/POWER_IO/` | 1k ADC | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2907002` | `FRC0603F1001TS` |
-| `R46` | `/POWER_IO/` | 240R MPD sense | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C114613` | `RC0603FR-07240RL` |
+| `R46` | `/POWER_IO/` | 240R MPD sense | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C103446` | `RTT032400FTP` |
 | `R47` | `/POWER_IO/` | 1k ADC | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2907002` | `FRC0603F1001TS` |
-| `R48` | `/POWER_IO/` | 240R MPD sense | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C114613` | `RC0603FR-07240RL` |
+| `R48` | `/POWER_IO/` | 240R MPD sense | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C103446` | `RTT032400FTP` |
 | `R49` | `/POWER_IO/` | 1k ADC | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2907002` | `FRC0603F1001TS` |
 | `R61` | `/POWER_IO/` | 237k FB | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2998117` | `FRC0603F2373TS` |
 | `R62` | `/POWER_IO/` | 22.1K FB | `Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder` | `C2929993` | `FRC0402F2212TS` |

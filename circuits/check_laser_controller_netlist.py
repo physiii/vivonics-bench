@@ -394,7 +394,7 @@ def main() -> int:
         "RJR45LED": ("10K", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "CRCW060310K0FKEA", "C844918"),
         "CIN24A": ("10uF 50V", "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder", "CL31B106KBHNNNE", "C89632"),
         "CIN24B": ("10uF 50V", "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder", "CL31B106KBHNNNE", "C89632"),
-        "CIN24BULK": ("22uF 100V", "Capacitor_SMD:C_Elec_8x10.2", "RVT2A220M0810", "C90264"),
+        "CIN24BULK": ("22uF 100V", "Capacitor_SMD:C_Elec_8x10.2", "100CE22FS+P", "C242011"),
         "U5V": ("AP63205WU-7 5V BUCK", "Package_TO_SOT_SMD:TSOT-23-6", "AP63205WU-7", "C2071056"),
         "L5V": ("4.7uH", "Open_Automation:L_5.4x5.3_H3", "MWSA0503S-4R7MT", "C408410"),
         "CBST5V": ("100nF BST", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
@@ -425,7 +425,7 @@ def main() -> int:
         "CREG2": ("1uF ADC REGCAP", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "HGC0402R5105K250NTEJ", "C7472946"),
         "CREFIN": ("10uF ADC REF", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
         "CREFCAP": ("10uF ADC REFCAP", "Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder", "CL21A106KAYNNNG", "C318691"),
-        "RBIAS": ("2.49k MPD bias", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "CRCW06032K49FKEAHP", "C2099849"),
+        "RBIAS": ("2.49k MPD bias", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "RTT032491FTP", "C103460"),
         "U3V3": ("AP2112K-3.3", "Package_TO_SOT_SMD:SOT-23-5", "AP2112K-3.3TRG1", "C51118"),
         "UMPD": ("INA4180A1", "Package_SO:TSSOP-14_4.4x5mm_P0.65mm", "INA4180A1IPWR", "C2057528"),
         "UREF": ("LM4040C50 5V", "Package_TO_SOT_SMD:SOT-23", "LM4040C50IDBZR", "C69316"),
@@ -433,7 +433,7 @@ def main() -> int:
     for index in range(1, 5):
         power_io_components[f"CMPD{index}"] = ("100nF MPD ADC", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056")
         power_io_components[f"RADC{index}"] = ("1k ADC", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "FRC0603F1001TS", "C2907002")
-        power_io_components[f"RMPD{index}"] = ("240R MPD sense", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "RC0603FR-07240RL", "C114613")
+        power_io_components[f"RMPD{index}"] = ("240R MPD sense", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "RTT032400FTP", "C103446")
     for color in WL:
         for ref, fields in tia_components.items():
             expect_component(f"/TIA_{color}/", ref_for(f"TIA_{color}", ref), *fields)
@@ -1229,7 +1229,7 @@ def main() -> int:
         "C318691": 12,
         "C45783": 4,
         "C89632": 2,  # 10uF 50V input caps (was C13832 1uF 100V)
-        "C90264": 1,
+        "C242011": 1,
         "C201677": 4,
         "C20917": 4,
         "C2907002": 16,
@@ -1237,7 +1237,7 @@ def main() -> int:
         "C23241": 1,
         "C4211": 1,
         "C23162": 1,
-        "C2099849": 1,
+        "C103460": 1,
         "C2480": 2,
         "C191123": 8,
         "C844918": 14,
@@ -1245,7 +1245,7 @@ def main() -> int:
         "C2913199": 1,
         "C398363": 4,
         "C2057528": 1,
-        "C114613": 4,
+        "C103446": 4,
         "C69316": 1,
         "C51118": 1,
         "C5123624": 4,

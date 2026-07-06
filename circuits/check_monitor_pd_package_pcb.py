@@ -47,8 +47,8 @@ EXPECTED_COMPONENTS = {
         "sheet": "/POWER_IO/",
         "value": "2.49k MPD bias",
         "footprint": "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder",
-        "mpn": "CRCW06032K49FKEAHP",
-        "lcsc": "C2099849",
+        "mpn": "RTT032491FTP",
+        "lcsc": "C103460",
     },
     "C35": {
         "sheet": "/POWER_IO/",
@@ -71,8 +71,8 @@ for ref in ("R42", "R44", "R46", "R48"):
         "sheet": "/POWER_IO/",
         "value": "240R MPD sense",
         "footprint": "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder",
-        "mpn": "RC0603FR-07240RL",
-        "lcsc": "C114613",
+        "mpn": "RTT032400FTP",
+        "lcsc": "C103446",
     }
 for ref in ("R43", "R45", "R47", "R49"):
     EXPECTED_COMPONENTS[ref] = {

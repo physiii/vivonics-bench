@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-06T02:48:00+00:00
+Generated: 2026-07-06T04:16:44+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -20,7 +20,7 @@ First-article/production release status: BLOCKED
 | PASS | Source-register assertions | 0 | `python3 circuits/check_laser_controller_sources.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Part-note completeness assertions | 0 | `python3 circuits/check_part_notes_completeness.py` |
 | PASS | Source-document evidence | 0 | `python3 circuits/check_source_documents.py` |
-| PASS | Passive derating assertions | 0 | `python3 circuits/check_passive_derating.py` |
+| PASS | Passive derating assertions | 0 | `python3 circuits/check_passive_derating.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Passive first-article AVL lock | 0 | `python3 circuits/check_passive_avl_lock.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Procurement/derating release template | 0 | `python3 circuits/check_procurement_release_template.py` |
 | DEFERRED | First-article release evidence ledger | 2 | `python3 circuits/check_first_article_release_evidence.py` |
@@ -80,8 +80,8 @@ First-article/production release status: BLOCKED
 | PASS | Export placement | 0 | `/usr/bin/kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv` |
 | PASS | JLCPCB order package | 0 | `python3 circuits/check_jlcpcb_order_package.py` |
 | PASS | KiCad 9 ERC | 0 | `/usr/bin/kicad-cli sch erc --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_erc.rpt circuits/laser_controller.kicad_sch` |
-| PASS | KiCad 9 physical DRC report | 0 | `/usr/bin/kicad-cli pcb drc --all-track-errors --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb` |
-| PASS | KiCad 9 DRC with schematic parity | 0 | `/usr/bin/kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb` |
+| PASS | KiCad 9 physical DRC report | 0 | `/usr/bin/kicad-cli pcb drc --all-track-errors --refill-zones --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb` |
+| PASS | KiCad 9 DRC with schematic parity | 0 | `/usr/bin/kicad-cli pcb drc --all-track-errors --schematic-parity --refill-zones --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb` |
 | PASS | Git diff whitespace | 0 | `git diff --check` |
 | PASS | Trailing whitespace scan | 1 | `rg -n [ \t]+$ circuits docs -g *.md -g *.py -g *.kicad_sch -g *.kicad_pcb` |
 
@@ -102,7 +102,7 @@ wrote tia_ir.kicad_sch (37648 bytes, 579 lines)
   wrote laser_red.kicad_sch (36306 bytes, 547 lines)
   wrote laser_green.kicad_sch (36296 bytes, 547 lines)
   wrote laser_blue.kicad_sch (35993 bytes, 545 lines)
-  wrote power_io.kicad_sch (201983 bytes, 3142 lines)
+  wrote power_io.kicad_sch (201959 bytes, 3142 lines)
   wrote laser_controller.kicad_sch (36434 bytes, 346 lines)
   wrote lib/viv.kicad_sym
   wrote laser_controller_bom_jlcpcb.csv
@@ -169,18 +169,20 @@ WARN Farnell mirror of Wuerth 65100516121 drawing: reachable; Distributor mirror
 WARN LCSC C2907002 FRC0603F1001TS 1k resistor page: reachable; Distributor/order source for active 1k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C22984 30k resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C844918 CRCW060310K0FKEA 10k resistor page: reachable; Distributor/order source for active 10k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN LCSC C114613 RC0603FR-07240RL 240 ohm resistor page: reachable; Distributor/order source for active 240 ohm monitor-PD sense resistor evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
+WARN JLCPCB C103446 RTT032400FTP 240 ohm resistor page: reachable; Distributor/order source for active 240 ohm monitor-PD sense resistor evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
+WARN JLCPCB C103460 RTT032491FTP 2.49k resistor page: reachable; Distributor/order source for active 2.49k monitor-PD bias resistor evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
+WARN JLCPCB C242011 100CE22FS+P electrolytic page: reachable; Distributor/order source for active 22uF 100V VIN_24V bulk electrolytic evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LRC L8050QLT1G transistor datasheet: reachable; Manufacturer datasheet for the Q5 NPN SOT-23 auto-reset transistor. [HEAD HTTP 200, type=application/pdf, length=543317]
 WARN LCSC C39282 L8550HQLT1G transistor page: reachable; Distributor/order source for the Q6 PNP SOT-23 auto-reset transistor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C127509 K2-1102SP-C4SC-04 switch page: reachable; Distributor/order source for the SW1-SW3 tactile reset/program/factory buttons. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C192300 2x4 SMT pin header page: reachable; Distributor/order source for J7; page identifies BOOMELE 2.54-2*4P as SMD, 2 rows, 8 pins, surface-mount vertical. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C5123624 10 ohm 2512 sense resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-PASS source-document evidence: 22 required online sources, 0 rate-limited required online source(s), 27 required local artifacts, and 18 secondary/open-risk sources reviewed
+PASS source-document evidence: 21 required online sources, 0 rate-limited required online source(s), 27 required local artifacts, and 20 secondary/open-risk sources reviewed
 ```
 
 ## PASS: Passive derating assertions
 
-Command: `python3 circuits/check_passive_derating.py`
+Command: `python3 circuits/check_passive_derating.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS passive derating: checked 65 capacitors and 64 resistors/trimmers
@@ -918,7 +920,7 @@ Wrote position data to '/tmp/lc_pos.csv'.
 Command: `python3 circuits/check_jlcpcb_order_package.py`
 
 ```text
-PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 173/173 BOM/POS designators match, J7 is C192300 2x4 SMD, only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present
+PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 173/173 BOM/CPL designators match, CPL is JLCPCB five-column mm format, J7 is C192300 2x4 SMD, only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present
 ```
 
 ## PASS: KiCad 9 ERC
@@ -932,20 +934,20 @@ Saved ERC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/
 
 ## PASS: KiCad 9 physical DRC report
 
-Command: `/usr/bin/kicad-cli pcb drc --all-track-errors --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb`
+Command: `/usr/bin/kicad-cli pcb drc --all-track-errors --refill-zones --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
-Found 86 violations
+Found 0 violations
 Found 0 unconnected items
 Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt
 ```
 
 ## PASS: KiCad 9 DRC with schematic parity
 
-Command: `/usr/bin/kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb`
+Command: `/usr/bin/kicad-cli pcb drc --all-track-errors --schematic-parity --refill-zones --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
-Found 86 violations
+Found 0 violations
 Found 0 unconnected items
 Found 36 schematic parity issues
 Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt

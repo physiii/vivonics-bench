@@ -99,12 +99,12 @@ CAP_RATINGS = {
         package="1206",
         source="JLCPCB/LCSC C89632 / Samsung CL31B106KBHNNNE page: 10uF +/-10%, X7R, 50Vdc.",
     ),
-    "RVT2A220M0810": CapacitorRating(
+    "100CE22FS+P": CapacitorRating(
         value="22uF",
         voltage_v=100.0,
         dielectric="aluminum electrolytic",
         package="8x10.2mm SMD can",
-        source="LCSC C90264 / ROQANG RVT2A220M0810 page: 22uF, 100Vdc aluminum electrolytic.",
+        source="JLCPCB C242011 / SUNCON 100CE22FS+P page: 22uF, 100Vdc aluminum electrolytic.",
     ),
     "CC0603JRNPO9BN100": CapacitorRating(
         value="10pF",
@@ -188,21 +188,21 @@ RES_RATINGS = {
         package="0603",
         source="LCSC C23162 / UNI-ROYAL 0603WAF4701T5E page: 4.7k, 100mW, 75V, +/-1%.",
     ),
-    "CRCW06032K49FKEAHP": ResistorRating(
+    "RTT032491FTP": ResistorRating(
         value="2.49k",
-        power_w=0.333,
+        power_w=0.10,
         voltage_v=75.0,
         tolerance="+/-1%",
         package="0603",
-        source="LCSC C2099849 / Vishay CRCW06032K49FKEAHP page: 2.49k, 333mW, 75V, +/-1%, +/-100ppm/C.",
+        source="JLCPCB C103460 / RALEC RTT032491FTP page: 2.49k, 100mW, 75V, +/-1%, +/-100ppm/C.",
     ),
-    "RC0603FR-07240RL": ResistorRating(
+    "RTT032400FTP": ResistorRating(
         value="240R",
         power_w=0.10,
         voltage_v=75.0,
         tolerance="+/-1%",
         package="0603",
-        source="Yageo RC0603FR-07240RL specsheet and LCSC C114613 page: 240 ohm, 100mW, 75V, +/-1%, +/-100ppm/C.",
+        source="JLCPCB C103446 / RALEC RTT032400FTP page: 240 ohm, 100mW, 75V, +/-1%, +/-100ppm/C.",
     ),
     "RT0402BRD071KL": ResistorRating(
         value="1k",

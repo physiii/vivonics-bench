@@ -173,12 +173,6 @@ REQUIRED_ONLINE = [
         "https://yageogroup.com/download/specsheet/CC0603JRNPO9BN100",
         True,
     ),
-    OnlineEvidence(
-        "Yageo RC0603FR-07240RL 240 ohm resistor specsheet",
-        "https://yageogroup.com/component-documentation/download/specsheet/RC0603FR-07240RL",
-        True,
-        expect_pdf=True,
-    ),
 ]
 
 
@@ -261,10 +255,22 @@ WARNING_ONLINE = [
         note="Distributor/order source for active 10k 0603 passive rating evidence.",
     ),
     OnlineEvidence(
-        "LCSC C114613 RC0603FR-07240RL 240 ohm resistor page",
-        "https://www.lcsc.com/product-detail/C114613.html",
+        "JLCPCB C103446 RTT032400FTP 240 ohm resistor page",
+        "https://jlcpcb.com/partdetail/RALEC-RTT032400FTP/C103446",
         False,
         note="Distributor/order source for active 240 ohm monitor-PD sense resistor evidence.",
+    ),
+    OnlineEvidence(
+        "JLCPCB C103460 RTT032491FTP 2.49k resistor page",
+        "https://jlcpcb.com/partdetail/RALEC-RTT032491FTP/C103460",
+        False,
+        note="Distributor/order source for active 2.49k monitor-PD bias resistor evidence.",
+    ),
+    OnlineEvidence(
+        "JLCPCB C242011 100CE22FS+P electrolytic page",
+        "https://jlcpcb.com/partdetail/240857-100CE22FSP/C242011",
+        False,
+        note="Distributor/order source for active 22uF 100V VIN_24V bulk electrolytic evidence.",
     ),
     OnlineEvidence(
         "LRC L8050QLT1G transistor datasheet",

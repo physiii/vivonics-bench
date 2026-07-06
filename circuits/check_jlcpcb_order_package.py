@@ -33,6 +33,7 @@ PACKAGE_ONLY_FILES = (
     "laser_controller_bom_jlcpcb.csv",
     "laser_controller_pos.csv",
 )
+JLCPCB_CPL_COLUMNS = ("Designator", "Mid X", "Mid Y", "Layer", "Rotation")
 REQUIRED_BOARD_TEXT = {
     ("vivonics", "B.SilkS"),
     ("RED", "F.SilkS"),
@@ -55,6 +56,34 @@ REQUIRED_TOP_TIA_REFS = {
 def read_csv(path: Path) -> list[dict[str, str]]:
     with path.open(newline="") as handle:
         return list(csv.DictReader(handle))
+
+
+def read_cpl(path: Path) -> tuple[list[dict[str, str]], list[str]]:
+    failures: list[str] = []
+    with path.open(newline="") as handle:
+        reader = csv.DictReader(handle)
+        columns = tuple(reader.fieldnames or ())
+        if columns != JLCPCB_CPL_COLUMNS:
+            failures.append(
+                f"{path.name}: expected JLCPCB CPL columns {list(JLCPCB_CPL_COLUMNS)}, "
+                f"found {list(columns)}"
+            )
+        rows = list(reader)
+    return rows, failures
+
+
+def parse_mm_cell(value: str, field: str, ref: str) -> tuple[float | None, str | None]:
+    text = value.strip()
+    if not text.lower().endswith("mm"):
+        return None, f"{ref}: CPL {field} value {value!r} must include mm suffix"
+    number = text[:-2]
+    try:
+        parsed = float(number)
+    except ValueError:
+        return None, f"{ref}: CPL {field} value {value!r} is not numeric"
+    if parsed < 0:
+        return None, f"{ref}: CPL {field} value {value!r} must be positive"
+    return parsed, None
 
 
 def footprint_blocks() -> list[tuple[str, str, str]]:
@@ -177,9 +206,10 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
         return failures, 0, 0
 
     bom_rows = read_csv(BOM_PATH)
-    pos_rows = read_csv(POS_PATH)
+    pos_rows, cpl_failures = read_cpl(POS_PATH)
+    failures.extend(cpl_failures)
     bom_refs = bom_designators(bom_rows)
-    pos_refs = {row["Ref"] for row in pos_rows}
+    pos_refs = {row.get("Designator", "") for row in pos_rows}
     pcb_sides = footprint_layers()
     missing = sorted(bom_refs - pos_refs)
     extra = sorted(pos_refs - bom_refs)
@@ -189,15 +219,26 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
         failures.append(f"POS designators missing from BOM: {', '.join(extra)}")
 
     for row in pos_rows:
-        ref = row["Ref"]
-        side = row["Side"]
-        expected_side = pcb_sides.get(ref)
+        ref = row.get("Designator", "")
+        layer = row.get("Layer", "")
+        expected_side = {"top": "Top", "bottom": "Bottom"}.get(pcb_sides.get(ref, ""))
         if expected_side is None:
             failures.append(f"POS designator {ref} is missing from PCB footprints")
-        elif side != expected_side:
+        elif layer != expected_side:
             failures.append(
-                f"POS side for {ref} is {side}, expected {expected_side} from PCB layer"
+                f"POS layer for {ref} is {layer}, expected {expected_side} from PCB layer"
             )
+        for field in ("Mid X", "Mid Y"):
+            _, error = parse_mm_cell(row.get(field, ""), field, ref)
+            if error:
+                failures.append(error)
+        try:
+            rotation = float(row.get("Rotation", ""))
+        except ValueError:
+            failures.append(f"{ref}: CPL Rotation value {row.get('Rotation', '')!r} is not numeric")
+        else:
+            if not 0.0 <= rotation < 360.0:
+                failures.append(f"{ref}: CPL Rotation value {rotation:g} must be in [0, 360)")
 
     bad_lcsc = sorted(
         {
@@ -223,17 +264,13 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
         if "PinHeader_2x04_P2.54mm_SMD_Vertical_C192300" not in row["Footprint"]:
             failures.append(f"J7 BOM footprint is not the 2x4 SMD C192300 header: {row['Footprint']}")
 
-    j7_pos = [row for row in pos_rows if row["Ref"] == "J7"]
+    j7_pos = [row for row in pos_rows if row.get("Designator") == "J7"]
     if len(j7_pos) != 1:
         failures.append(f"expected exactly one J7 POS row, found {len(j7_pos)}")
     else:
         row = j7_pos[0]
-        if row["Val"] != "C192300":
-            failures.append(f"J7 POS value is {row['Val']}, expected C192300")
-        if row["Package"] != "PinHeader_2x04_P2.54mm_SMD_Vertical_C192300":
-            failures.append(f"J7 POS package is {row['Package']}, expected C192300 2x4 SMD header")
-        if row["Side"] != "top":
-            failures.append(f"J7 POS side is {row['Side']}, expected top")
+        if row.get("Layer") != "Top":
+            failures.append(f"J7 POS layer is {row.get('Layer')}, expected Top")
 
     return failures, len(bom_refs), len(pos_refs)
 
@@ -349,7 +386,8 @@ def main() -> int:
     print(
         "PASS JLCPCB order package: "
         f"{len(files)} Gerber/drill files, package archive includes BOM/POS, "
-        f"{bom_count}/{pos_count} BOM/POS designators match, J7 is C192300 2x4 SMD, "
+        f"{bom_count}/{pos_count} BOM/CPL designators match, CPL is JLCPCB five-column mm format, "
+        "J7 is C192300 2x4 SMD, "
         "only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present"
     )
     return 0

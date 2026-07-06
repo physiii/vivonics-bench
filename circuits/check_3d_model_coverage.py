@@ -13,10 +13,11 @@ DEFAULT_BOARD = Path(__file__).resolve().parent / "laser_controller.kicad_pcb"
 DEFAULT_KICAD_3DMODELS = Path("/usr/share/kicad/3dmodels")
 J7_EXPECTED_MODEL = "packages3d/Connector_PinHeader.3dshapes/PinHeader_2x04_P2.54mm_SMD_Vertical_C192300.wrl"
 J7_EXPECTED_OFFSET = (0.0, 0.0, 0.0)
-J7_EXPECTED_SCALE = (1.0, 1.0, 1.0)
+J7_EXPECTED_SCALE = (0.3937007874, 0.3937007874, 0.3937007874)
 J7_EXPECTED_ROTATION = (0.0, 0.0, 0.0)
 OFFSET_TOLERANCE_MM = 0.001
 FOOT_CENTER_TOLERANCE_MM = 0.01
+VRML_UNIT_MM = 2.54
 
 
 def ensure_pcbnew():
@@ -150,7 +151,10 @@ def check_j7_model(fp, env: dict[str, str], board_path: Path) -> list[str]:
         )
         return failures
     for pad, expected in sorted(pad_centers.items(), key=lambda item: int(item[0])):
-        actual = model_centers[pad]
+        actual = (
+            model_centers[pad][0] * scale[0] * VRML_UNIT_MM + offset[0],
+            model_centers[pad][1] * scale[1] * VRML_UNIT_MM + offset[1],
+        )
         if any(abs(a - e) > FOOT_CENTER_TOLERANCE_MM for a, e in zip(actual, expected)):
             failures.append(
                 f"J7 C192300 visual model SMT foot {pad} is centered at "

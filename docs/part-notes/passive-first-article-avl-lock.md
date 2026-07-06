@@ -31,7 +31,7 @@ derating for field use, or board-temperature measurement after assembly.
 | `CL21A226MAQNNNE` | `C45783` | 4 | 22 uF 0805 X5R AP632 output banks |
 | `CL31B106KBHNNNE` | `C89632` | 2 | 10 uF 1206 50 V VIN_24V ceramic input capacitors |
 | `HGC0402R5105K250NTEJ` | `C7472946` | 14 | 1 uF 0402 X5R local decoupling and ADC REGCAP capacitors |
-| `RVT2A220M0810` | `C90264` | 1 | 22 uF 100 V SMD electrolytic VIN_24V bulk capacitor |
+| `100CE22FS+P` | `C242011` | 1 | 22 uF 100 V SMD electrolytic VIN_24V bulk capacitor |
 
 ## Locked Resistors And Trimmers
 
@@ -45,13 +45,13 @@ derating for field use, or board-temperature measurement after assembly.
 | `3224W-1-103E` | `C81348` | 4 | Bourns 10 k VBIAS SMD trimmers |
 | `3224W-1-205E` | `C116323` | 4 | Bourns 2 M TIA feedback SMD trimmers |
 | `CRCW060310K0FKEA` | `C844918` | 14 | 10 k 0603 bias, pull, and RJ45 LED/contact resistors |
-| `CRCW06032K49FKEAHP` | `C2099849` | 1 | 2.49 k monitor-PD bias shunt resistor |
+| `RTT032491FTP` | `C103460` | 1 | 2.49 k monitor-PD bias shunt resistor |
 | `ERJ2RKF1002X` | `C191123` | 8 | 10 k 0402 ESP32/CP2102 pull resistors |
 | `FRC0402F2212TS` | `C2929993` | 2 | 22.1 k AP632 feedback and VBUS divider resistors |
 | `FRC0603F1001TS` | `C2907002` | 16 | 1 k 0603 gate, sense, and ADC filter resistors |
 | `FRC0603F2373TS` | `C2998117` | 1 | 237 k AP632 laser buck top feedback resistor |
 | `HoCR2512-2W-10R-1%` | `C5123624` | 4 | 10 ohm 2512 2 W laser current sense resistors |
-| `RC0603FR-07240RL` | `C114613` | 4 | 240 ohm monitor-PD sense resistors |
+| `RTT032400FTP` | `C103446` | 4 | 240 ohm monitor-PD sense resistors |
 | `RT0402BRD071KL` | `C852624` | 1 | 1 k precision CP2102N VBUS divider resistor |
 
 ## Remaining Production Evidence

@@ -9660,7 +9660,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C114613"
+		(property "LCSC" "C103446"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -9672,7 +9672,7 @@
 				)
 			)
 		)
-		(property "Part Number" "RC0603FR-07240RL"
+		(property "Part Number" "RTT032400FTP"
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -13554,7 +13554,7 @@
 				(xyz 0 0 0)
 			)
 			(scale
-				(xyz 1 1 1)
+				(xyz 0.3937007874 0.3937007874 0.3937007874)
 			)
 			(rotate
 				(xyz 0 0 0)
@@ -16059,7 +16059,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C114613"
+		(property "LCSC" "C103446"
 			(at 281.3267 -49.0517 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -16071,7 +16071,7 @@
 				)
 			)
 		)
-		(property "Part Number" "RC0603FR-07240RL"
+		(property "Part Number" "RTT032400FTP"
 			(at 281.3267 -49.0517 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -24664,7 +24664,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C114613"
+		(property "LCSC" "C103446"
 			(at 289.1875 -60.3625 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -24676,7 +24676,7 @@
 				)
 			)
 		)
-		(property "Part Number" "RC0603FR-07240RL"
+		(property "Part Number" "RTT032400FTP"
 			(at 289.1875 -60.3625 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -27570,7 +27570,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C114613"
+		(property "LCSC" "C103446"
 			(at 293.7125 -62.5375 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -27582,7 +27582,7 @@
 				)
 			)
 		)
-		(property "Part Number" "RC0603FR-07240RL"
+		(property "Part Number" "RTT032400FTP"
 			(at 293.7125 -62.5375 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -32662,7 +32662,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C2099849"
+		(property "LCSC" "C103460"
 			(at 184.8875 45.8875 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -32674,7 +32674,7 @@
 				)
 			)
 		)
-		(property "Part Number" "CRCW06032K49FKEAHP"
+		(property "Part Number" "RTT032491FTP"
 			(at 184.8875 45.8875 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -35517,7 +35517,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C90264"
+		(property "LCSC" "C242011"
 			(at 225.5 36.45 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -35529,7 +35529,7 @@
 				)
 			)
 		)
-		(property "Part Number" "RVT2A220M0810"
+		(property "Part Number" "100CE22FS+P"
 			(at 225.5 36.45 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -44030,15 +44030,14 @@
 		(descr "Laser Diode, TO18-like (D=5.6mm), 3pin")
 		(tags "Laser Diode TO18-like")
 		(property "Reference" "LD1"
-			(at 4.87 -2.6625 180)
-			(layer "B.SilkS")
+			(at 4.87 -2.6625 -180)
+			(layer "F.SilkS")
 			(uuid "b0b0b0b0-0000-4000-a000-000000000895")
 			(effects
 				(font
 					(size 1 1)
 					(thickness 0.15)
 				)
-				(justify mirror)
 			)
 		)
 		(property "Value" "D7805I 780nm TO18 STYLE-A LASER+MPD"
@@ -44326,16 +44325,15 @@
 		(descr "PhotoDiode, Clear Silicone, Osram TOPLED, 4x5.09mm, area: 2.85x2.85mm, Orientation mark at cathode, https://dammedia.osram.info/media/resource/hires/osram-dam-25688470/SFH%202201%20A01_EN.pdf")
 		(tags "PhotoDiode silicone")
 		(property "Reference" "D4"
-			(at -3.925 1.655 180)
+			(at -0.6 -0.05 0)
 			(unlocked yes)
-			(layer "B.SilkS")
+			(layer "F.SilkS")
 			(uuid "b0b0b0b0-0000-4000-a000-000000000574")
 			(effects
 				(font
 					(size 1 1)
 					(thickness 0.15)
 				)
-				(justify mirror)
 			)
 		)
 		(property "Value" "SFH2201"
@@ -44686,16 +44684,15 @@
 		(descr "PhotoDiode, Clear Silicone, Osram TOPLED, 4x5.09mm, area: 2.85x2.85mm, Orientation mark at cathode, https://dammedia.osram.info/media/resource/hires/osram-dam-25688470/SFH%202201%20A01_EN.pdf")
 		(tags "PhotoDiode silicone")
 		(property "Reference" "D2"
-			(at 4.025 1.5875 180)
+			(at -0.1 -0.075 0)
 			(unlocked yes)
-			(layer "B.SilkS")
+			(layer "F.SilkS")
 			(uuid "b0b0b0b0-0000-4000-a000-000000000192")
 			(effects
 				(font
 					(size 1 1)
 					(thickness 0.15)
 				)
-				(justify mirror)
 			)
 		)
 		(property "Value" "SFH2201"
@@ -45046,15 +45043,14 @@
 		(descr "Laser Diode, TO-56, 3pin")
 		(tags "Laser Diode TO56")
 		(property "Reference" "LD4"
-			(at 5.625 2.5625 180)
-			(layer "B.SilkS")
+			(at 5.625 -2.4375 -180)
+			(layer "F.SilkS")
 			(uuid "b0b0b0b0-0000-4000-a000-000000001350")
 			(effects
 				(font
 					(size 1 1)
 					(thickness 0.15)
 				)
-				(justify mirror)
 			)
 		)
 		(property "Value" "PLT5 450GB TO56 LASER CASE"
@@ -45329,21 +45325,20 @@
 		(descr "Laser Diode, TO18-like (D=5.6mm), 3pin")
 		(tags "Laser Diode TO18-like")
 		(property "Reference" "LD2"
-			(at -3.13 2.5375 180)
-			(layer "B.SilkS")
-			(uuid "b0b0b0b0-0000-4000-a000-000000001047")
+			(at 5.12 -2.4375 -180)
+			(layer "F.SilkS")
+			(uuid "ae107ff8-dba2-4d10-9ccb-272d7b74893f")
 			(effects
 				(font
 					(size 1 1)
 					(thickness 0.15)
 				)
-				(justify mirror)
 			)
 		)
 		(property "Value" "D6505I 650nm TO18 STYLE-A LASER+MPD"
 			(at 1 -3.8 180)
 			(layer "B.Fab")
-			(uuid "b0b0b0b0-0000-4000-a000-000000001048")
+			(uuid "c3cf9307-341d-488e-86e0-b4bd9a885274")
 			(effects
 				(font
 					(size 1 1)
@@ -45356,7 +45351,7 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "be274778-d956-4658-897b-bb7ecc423cae")
+			(uuid "a61e41a8-f52a-4df1-9d6f-7d1f0bd2b2b0")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45368,7 +45363,7 @@
 			(at 0 0 0)
 			(layer "F.Fab")
 			(hide yes)
-			(uuid "5117e1d9-d2bb-4653-9c6f-859be0409b2b")
+			(uuid "03cbb386-7b31-441c-9655-70626fd457e8")
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -45625,16 +45620,15 @@
 		(descr "PhotoDiode, Clear Silicone, Osram TOPLED, 4x5.09mm, area: 2.85x2.85mm, Orientation mark at cathode, https://dammedia.osram.info/media/resource/hires/osram-dam-25688470/SFH%202201%20A01_EN.pdf")
 		(tags "PhotoDiode silicone")
 		(property "Reference" "D3"
-			(at -0.25 -3.124999 180)
+			(at -0.1 -0.05 -0)
 			(unlocked yes)
-			(layer "B.SilkS")
+			(layer "F.SilkS")
 			(uuid "b0b0b0b0-0000-4000-a000-000000000383")
 			(effects
 				(font
 					(size 1 1)
 					(thickness 0.15)
 				)
-				(justify mirror)
 			)
 		)
 		(property "Value" "SFH2201"
@@ -45985,15 +45979,14 @@
 		(descr "Laser Diode, TO-56, 3pin")
 		(tags "Laser Diode TO56")
 		(property "Reference" "LD3"
-			(at 6.35 -1.9125 180)
-			(layer "B.SilkS")
+			(at 5.6 -2.4375 -180)
+			(layer "F.SilkS")
 			(uuid "b0b0b0b0-0000-4000-a000-000000001199")
 			(effects
 				(font
 					(size 1 1)
 					(thickness 0.15)
 				)
-				(justify mirror)
 			)
 		)
 		(property "Value" "PLT5 520EB_P TO56 LASER+MPD"
@@ -46270,16 +46263,15 @@
 		(descr "PhotoDiode, Clear Silicone, Osram TOPLED, 4x5.09mm, area: 2.85x2.85mm, Orientation mark at cathode, https://dammedia.osram.info/media/resource/hires/osram-dam-25688470/SFH%202201%20A01_EN.pdf")
 		(tags "PhotoDiode silicone")
 		(property "Reference" "D1"
-			(at -4.1 1.3625 180)
+			(at -0.1 -0.05 0)
 			(unlocked yes)
-			(layer "B.SilkS")
+			(layer "F.SilkS")
 			(uuid "b0b0b0b0-0000-4000-a000-000000000001")
 			(effects
 				(font
 					(size 1 1)
 					(thickness 0.15)
 				)
-				(justify mirror)
 			)
 		)
 		(property "Value" "SFH2201"
@@ -46740,17 +46732,6 @@
 			)
 		)
 	)
-	(gr_text "INFRARED"
-		(at 170.1 114.225 0)
-		(layer "F.SilkS")
-		(uuid "e4f45c46-dbc6-4e55-8b4b-7dc69dc4103f")
-		(effects
-			(font
-				(size 1.1 1.1)
-				(thickness 0.17)
-			)
-		)
-	)
 	(gr_text "LASER DRV"
 		(at 184 139 0)
 		(layer "F.SilkS")
@@ -46770,6 +46751,39 @@
 			(font
 				(size 1.15 1.15)
 				(thickness 0.18)
+			)
+		)
+	)
+	(gr_text "MCU"
+		(at 71.875 80.95 0)
+		(layer "F.SilkS")
+		(uuid "79193fc8-0b40-4f98-8dbd-b436abb9fc09")
+		(effects
+			(font
+				(size 1.25 1.25)
+				(thickness 0.2)
+			)
+		)
+	)
+	(gr_text "ADC"
+		(at 104.05 86.1 0)
+		(layer "F.SilkS")
+		(uuid "d2c4d3b5-7ba3-4c2f-8f9f-b66b95b371ab")
+		(effects
+			(font
+				(size 1.25 1.25)
+				(thickness 0.2)
+			)
+		)
+	)
+	(gr_text "INFRARED"
+		(at 170.1 114.225 0)
+		(layer "F.SilkS")
+		(uuid "e4f45c46-dbc6-4e55-8b4b-7dc69dc4103f")
+		(effects
+			(font
+				(size 1.1 1.1)
+				(thickness 0.17)
 			)
 		)
 	)
@@ -46850,28 +46864,6 @@
 			)
 		)
 	)
-	(gr_text "MCU"
-		(at 71.875 80.95 0)
-		(layer "F.SilkS")
-		(uuid "79193fc8-0b40-4f98-8dbd-b436abb9fc09")
-		(effects
-			(font
-				(size 1.25 1.25)
-				(thickness 0.2)
-			)
-		)
-	)
-	(gr_text "ADC"
-		(at 104.05 86.1 0)
-		(layer "F.SilkS")
-		(uuid "d2c4d3b5-7ba3-4c2f-8f9f-b66b95b371ab")
-		(effects
-			(font
-				(size 1.25 1.25)
-				(thickness 0.2)
-			)
-		)
-	)
 	(gr_text "PHOTODIODES"
 		(at 145.9 110.6 0)
 		(layer "F.SilkS")
@@ -46895,7 +46887,7 @@
 		)
 	)
 	(gr_text "vivonics"
-		(at 117.5 111 0)
+		(at 88 118.5 0)
 		(layer "B.SilkS")
 		(uuid "733e0e71-1f44-43d6-8fce-f39fc9076ebe")
 		(effects

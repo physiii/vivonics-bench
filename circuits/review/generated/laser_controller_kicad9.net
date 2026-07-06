@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/andy/projects/vivonics/vivonics/bench/circuits/laser_controller.kicad_sch")
-		(date "2026-07-05T21:45:27")
+		(date "2026-07-05T23:14:31")
 		(tool "Eeschema 10.0.4-10.0.4~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -10130,9 +10130,9 @@
 			(footprint "Capacitor_SMD:C_Elec_8x10.2")
 			(fields
 				(field
-					(name "Part Number") "RVT2A220M0810")
+					(name "Part Number") "100CE22FS+P")
 				(field
-					(name "LCSC") "C90264")
+					(name "LCSC") "C242011")
 				(field
 					(name "Footprint") "Capacitor_SMD:C_Elec_8x10.2")
 				(field
@@ -10149,11 +10149,11 @@
 			)
 			(property
 				(name "Part Number")
-				(value "RVT2A220M0810")
+				(value "100CE22FS+P")
 			)
 			(property
 				(name "LCSC")
-				(value "C90264")
+				(value "C242011")
 			)
 			(property
 				(name "Sheetname")
@@ -10577,9 +10577,9 @@
 			(footprint "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder")
 			(fields
 				(field
-					(name "Part Number") "CRCW06032K49FKEAHP")
+					(name "Part Number") "RTT032491FTP")
 				(field
-					(name "LCSC") "C2099849")
+					(name "LCSC") "C103460")
 				(field
 					(name "Footprint") "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder")
 				(field
@@ -10596,11 +10596,11 @@
 			)
 			(property
 				(name "Part Number")
-				(value "CRCW06032K49FKEAHP")
+				(value "RTT032491FTP")
 			)
 			(property
 				(name "LCSC")
-				(value "C2099849")
+				(value "C103460")
 			)
 			(property
 				(name "Sheetname")
@@ -10635,9 +10635,9 @@
 			(footprint "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder")
 			(fields
 				(field
-					(name "Part Number") "RC0603FR-07240RL")
+					(name "Part Number") "RTT032400FTP")
 				(field
-					(name "LCSC") "C114613")
+					(name "LCSC") "C103446")
 				(field
 					(name "Footprint") "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder")
 				(field
@@ -10654,11 +10654,11 @@
 			)
 			(property
 				(name "Part Number")
-				(value "RC0603FR-07240RL")
+				(value "RTT032400FTP")
 			)
 			(property
 				(name "LCSC")
-				(value "C114613")
+				(value "C103446")
 			)
 			(property
 				(name "Sheetname")
@@ -10751,9 +10751,9 @@
 			(footprint "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder")
 			(fields
 				(field
-					(name "Part Number") "RC0603FR-07240RL")
+					(name "Part Number") "RTT032400FTP")
 				(field
-					(name "LCSC") "C114613")
+					(name "LCSC") "C103446")
 				(field
 					(name "Footprint") "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder")
 				(field
@@ -10770,11 +10770,11 @@
 			)
 			(property
 				(name "Part Number")
-				(value "RC0603FR-07240RL")
+				(value "RTT032400FTP")
 			)
 			(property
 				(name "LCSC")
-				(value "C114613")
+				(value "C103446")
 			)
 			(property
 				(name "Sheetname")
@@ -10867,9 +10867,9 @@
 			(footprint "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder")
 			(fields
 				(field
-					(name "Part Number") "RC0603FR-07240RL")
+					(name "Part Number") "RTT032400FTP")
 				(field
-					(name "LCSC") "C114613")
+					(name "LCSC") "C103446")
 				(field
 					(name "Footprint") "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder")
 				(field
@@ -10886,11 +10886,11 @@
 			)
 			(property
 				(name "Part Number")
-				(value "RC0603FR-07240RL")
+				(value "RTT032400FTP")
 			)
 			(property
 				(name "LCSC")
-				(value "C114613")
+				(value "C103446")
 			)
 			(property
 				(name "Sheetname")
@@ -10983,9 +10983,9 @@
 			(footprint "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder")
 			(fields
 				(field
-					(name "Part Number") "RC0603FR-07240RL")
+					(name "Part Number") "RTT032400FTP")
 				(field
-					(name "LCSC") "C114613")
+					(name "LCSC") "C103446")
 				(field
 					(name "Footprint") "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder")
 				(field
@@ -11002,11 +11002,11 @@
 			)
 			(property
 				(name "Part Number")
-				(value "RC0603FR-07240RL")
+				(value "RTT032400FTP")
 			)
 			(property
 				(name "LCSC")
-				(value "C114613")
+				(value "C103446")
 			)
 			(property
 				(name "Sheetname")

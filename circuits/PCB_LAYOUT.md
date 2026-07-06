@@ -114,12 +114,12 @@ been removed now that U14 is on-board.
   standard stackup, standard solder mask/silkscreen, top-side SMT assembly only.
 - Upload files: `circuits/laser_controller_gerbers.zip` for PCB fabrication,
   `circuits/laser_controller_bom_jlcpcb.csv` as BOM, and
-  `circuits/fab/laser_controller_pos.csv` as CPL/POS. The convenience archive
+  `circuits/fab/laser_controller_pos.csv` as the JLCPCB-format CPL. The convenience archive
   `circuits/laser_controller_jlcpcb_package.zip` contains the same Gerber/drill
-  files plus the BOM and POS at top level for review/transfer.
+  files plus the BOM and CPL at top level for review/transfer.
 - Before upload, run `python3 circuits/check_jlcpcb_order_package.py` from the
   repo root. It checks that the zip entries match the source Gerber/drill files,
-  BOM/POS designators match, J7 remains the C192300 2x4 SMD header, and the
+  BOM/CPL designators match, J7 remains the C192300 2x4 SMD header, and the
   required PD/laser/backside board labels are present.
 - Hand-add exclusions: J5, J6, LD1-LD4, mounting holes, and any other
   through-hole/mechanical-only items are not in the JLCPCB SMT BOM/POS flow.

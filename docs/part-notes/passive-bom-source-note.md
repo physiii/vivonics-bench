@@ -12,12 +12,12 @@ Current passive families:
 - 100 nF 0402: `0402B104K160CT`, LCSC `C83056`
 - 1 uF 0402: `HGC0402R5105K250NTEJ`, LCSC `C7472946`
 - 10 uF 1206 50 V: `CL31B106KBHNNNE`, LCSC `C89632`
-- 22 uF 100 V SMD electrolytic: `RVT2A220M0810`, LCSC `C90264`
+- 22 uF 100 V SMD electrolytic: `100CE22FS+P`, LCSC/JLCPCB `C242011`
 - 10 uF 0805: `CL21A106KAYNNNG`, LCSC `C318691`
 - 1 k / 10 k / 30 k / 22 ohm / 10 M 0603 resistor families as encoded in
   the generated BOM and netlist checker.
-- 240 ohm 0603 monitor-PD sense resistor: `RC0603FR-07240RL`, LCSC `C114613`.
-- 2.49 k 0603 monitor-bias sink resistor: `CRCW06032K49FKEAHP`, LCSC `C2099849`.
+- 240 ohm 0603 monitor-PD sense resistor: `RTT032400FTP`, LCSC/JLCPCB `C103446`.
+- 2.49 k 0603 monitor-bias sink resistor: `RTT032491FTP`, LCSC/JLCPCB `C103460`.
 - 237 k 0603 AP63200 feedback resistor: `FRC0603F2373TS`, LCSC `C2998117`.
 - 10 ohm 2512 2 W laser sense resistors: `HoCR2512-2W-10R-1%`, LCSC `C5123624`.
 - Bourns 3224W SMD trimmers: `3224W-1-103E` / LCSC `C81348` for VBIAS,

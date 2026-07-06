@@ -67,7 +67,7 @@
     (tstamp cc4507df-1d10-4fbd-af5f-0363d6ffbf44))
   (model "${KIPRJMOD}/packages3d/Connector_PinHeader.3dshapes/PinHeader_2x04_P2.54mm_SMD_Vertical_C192300.wrl"
     (offset (xyz 0 0 0))
-    (scale (xyz 1 1 1))
+    (scale (xyz 0.3937007874 0.3937007874 0.3937007874))
     (rotate (xyz 0 0 0))
   )
 )
