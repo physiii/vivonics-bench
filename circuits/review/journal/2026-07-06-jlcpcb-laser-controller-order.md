@@ -124,6 +124,16 @@ cc2a82c030d8bbb17dc394fd4fdf4b33de54d7cf10f1a0a383278b746caf655d  circuits/fab/l
 9e6e2266a2cebb7bb652c375bdf4190f4084cacffa63eb1634251269d71d228f  circuits/fab/laser_controller_full_procurement.csv
 ```
 
+## Captured JLCPCB Preview Images
+
+Top-side JLCPCB placement / board preview captured after order placement:
+
+![JLCPCB laser controller top-side placement preview](assets/2026-07-06-jlcpcb-placement-preview-top.png)
+
+```text
+01eee27b21ea59ea4702960212312023ae7211f63de336fc69c854f794fb369f  circuits/review/journal/assets/2026-07-06-jlcpcb-placement-preview-top.png
+```
+
 ## Follow-Up On Receipt
 
 - Save JLCPCB DFM/review result once review completes.
