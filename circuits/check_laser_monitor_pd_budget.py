@@ -35,6 +35,12 @@ PLT5_520EBP_MONITOR_REFERENCE_VRPD_V = 5.0
 DEFAULT_NETLIST = Path("/tmp/lc.net")
 
 
+def canon_net(net: str | None) -> str | None:
+    if net in {"LASER_V+", "LASER_VP"}:
+        return "LASER_V+"
+    return net
+
+
 @dataclass(frozen=True)
 class MonitorChannel:
     name: str
@@ -206,7 +212,7 @@ def node_map(netlist_path: Path) -> dict[tuple[str, str], str]:
     pin_nets: dict[tuple[str, str], str] = {}
     for net_name, nodes in parse_netlist(netlist_path).items():
         for ref, pin, _pin_name, _sheet in nodes:
-            pin_nets[(ref, pin)] = net_name
+            pin_nets[(ref, pin)] = canon_net(net_name) or net_name
     return pin_nets
 
 
@@ -243,7 +249,7 @@ def require_pin_net(
     expected_net: str,
 ) -> None:
     actual = pin_nets.get((ref, pin))
-    if actual != expected_net:
+    if actual != canon_net(expected_net):
         failures.append(f"{ref}.{pin}: expected {expected_net}, got {actual or '<unconnected>'}")
 
 

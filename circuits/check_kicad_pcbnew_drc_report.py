@@ -1,10 +1,5 @@
 #!/usr/bin/env python3
-"""Generate and validate a headless Pcbnew DRC report.
-
-KiCad 7.0.11's `kicad-cli` package in this environment exposes only
-schematic/PCB export commands, but the system Python package includes KiCad's
-`pcbnew` module. This checker uses that module to refill zones in memory and
-write a native Pcbnew DRC report for the current board.
+"""Generate and validate a headless KiCad PCB DRC report.
 
 This is still not schematic ERC or native schematic-parity DRC. It is a
 stronger PCB-rule artifact than the custom parser gates and keeps documented
@@ -14,6 +9,8 @@ from __future__ import annotations
 
 import argparse
 import re
+import shutil
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -34,17 +31,6 @@ class DrcFinding:
     code: str
     severity: str
     header: str
-
-
-def ensure_pcbnew():
-    try:
-        import pcbnew  # type: ignore
-    except ModuleNotFoundError as exc:
-        raise SystemExit(
-            "pcbnew Python module not available. Run this checker with system "
-            "Python, e.g. `/usr/bin/python3 circuits/check_kicad_pcbnew_drc_report.py`."
-        ) from exc
-    return pcbnew
 
 
 def parse_findings(report_text: str) -> list[DrcFinding]:
@@ -73,6 +59,23 @@ def extract_count(report_text: str, label: str) -> int | None:
     return int(match.group(1))
 
 
+def run_kicad_drc(board: Path, report: Path) -> subprocess.CompletedProcess[str]:
+    kicad_cli = shutil.which("kicad-cli") or "/usr/bin/kicad-cli"
+    command = [
+        kicad_cli,
+        "pcb",
+        "drc",
+        "--refill-zones",
+        "--all-track-errors",
+        "--format",
+        "report",
+        "--output",
+        str(report),
+        str(board),
+    ]
+    return subprocess.run(command, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--board", type=Path, default=DEFAULT_BOARD)
@@ -82,31 +85,22 @@ def main() -> int:
     if not args.board.exists():
         raise SystemExit(f"board file not found: {args.board}")
 
-    pcbnew = ensure_pcbnew()
-    board = pcbnew.LoadBoard(str(args.board))
-    zones = board.Zones()
-    fill_ok = pcbnew.ZONE_FILLER(board).Fill(zones)
-    if not fill_ok:
-        print("FAIL headless Pcbnew DRC: zone refill failed")
-        return 1
-
     args.report.parent.mkdir(parents=True, exist_ok=True)
-    write_ok = pcbnew.WriteDRCReport(
-        board,
-        str(args.report),
-        pcbnew.EDA_UNITS_MILLIMETRES,
-        True,
-    )
-    if not write_ok:
-        print(f"FAIL headless Pcbnew DRC: could not write report {args.report}")
+    result = run_kicad_drc(args.board, args.report)
+    if result.returncode != 0:
+        print("FAIL headless KiCad DRC: kicad-cli pcb drc failed")
+        print(result.stdout.strip())
         return 1
 
     report_text = args.report.read_text(errors="replace")
     findings = parse_findings(report_text)
+    drc_violations = extract_count(report_text, "DRC violations")
     unconnected = extract_count(report_text, "unconnected pads")
     footprint_errors = extract_count(report_text, "Footprint errors")
 
     failures: list[str] = []
+    if drc_violations != 0:
+        failures.append(f"expected 0 DRC violations, got {drc_violations}")
     if unconnected != 0:
         failures.append(f"expected 0 unconnected pads, got {unconnected}")
     if footprint_errors != 0:
@@ -125,7 +119,7 @@ def main() -> int:
             )
 
     if failures:
-        print("FAIL headless Pcbnew DRC report")
+        print("FAIL headless KiCad DRC report")
         for failure in failures:
             print(f"  - {failure}")
         print(f"  report: {args.report}")
@@ -138,11 +132,11 @@ def main() -> int:
     if not allowed_summary:
         allowed_summary = "none"
     print(
-        "PASS headless Pcbnew DRC report: "
-        f"zones refilled in memory, unconnected pads=0, footprint errors=0, "
+        "PASS headless KiCad DRC report: "
+        f"zones refilled, DRC violations=0, unconnected pads=0, footprint errors=0, "
         f"allowed warning findings: {allowed_summary}; report={args.report}"
     )
-    print(f"  KiCad pcbnew build: {pcbnew.GetBuildVersion()}")
+    print(result.stdout.strip())
     return 0
 
 

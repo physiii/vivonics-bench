@@ -46,13 +46,21 @@ def require_unconnected_pin(
     ref: str,
     pin: str,
 ) -> None:
-    connected = [
-        net
+    connected: list[tuple[str, list[tuple[str, str, str, str]]]] = [
+        (net, nodes)
         for net, nodes in sorted(nets.items())
         if any(node_ref == ref and node_pin == pin for node_ref, node_pin, _, _ in nodes)
     ]
-    if connected:
-        errors.append(f"{ref}.{pin}: expected intentional no-connect, got net(s) {connected}")
+    if not connected:
+        return
+    if len(connected) == 1:
+        net, nodes = connected[0]
+        if nodes == [(ref, pin, "ID", "passive+no_connect")] and net == f"unconnected-({ref}-ID-Pad{pin})":
+            return
+    errors.append(
+        f"{ref}.{pin}: expected intentional no-connect, got "
+        + ", ".join(f"{net}={nodes}" for net, nodes in connected)
+    )
 
 
 def require_comp(

@@ -387,6 +387,15 @@ def pad_blocks(footprint_text: str) -> list[str]:
 
 
 def parse_pad_geometry_from_text(board_text: str) -> dict[str, dict[str, list[dict[str, float | str]]]]:
+    def net_name_from_pad(pad_text: str) -> str:
+        direct = re.search(r'\(net\s+"([^"]*)"\)', pad_text)
+        if direct:
+            return direct.group(1)
+        coded = re.search(r'\(net\s+\d+\s+"([^"]*)"\)', pad_text)
+        if coded:
+            return coded.group(1)
+        return ""
+
     geometry: dict[str, dict[str, list[dict[str, float | str]]]] = {}
     for block in footprint_blocks(board_text):
         ref = fp_ref(block)
@@ -402,7 +411,6 @@ def parse_pad_geometry_from_text(board_text: str) -> dict[str, dict[str, list[di
             pad_match = re.search(r'\(pad\s+(?:"([^"]*)"|([^\s\)]+))', pad)
             pad_at = re.search(r'\(at\s+([-\d.]+)\s+([-\d.]+)(?:\s+([-\d.]+))?\)', pad)
             size_match = re.search(r'\(size\s+([-\d.]+)\s+([-\d.]+)\)', pad)
-            net_match = re.search(r'\(net\s+(\d+)\s+"([^"]*)"\)', pad)
             layers_match = re.search(r'\(layers\s+([^\)]*)\)', pad)
             if not pad_match or not pad_at or not size_match:
                 continue
@@ -417,7 +425,7 @@ def parse_pad_geometry_from_text(board_text: str) -> dict[str, dict[str, list[di
                     "w": float(size_match.group(1)),
                     "h": float(size_match.group(2)),
                     "rot": lrot if lrot is not None else grot,
-                    "net": net_match.group(2) if net_match else "",
+                    "net": net_name_from_pad(pad),
                     "layers": layers_match.group(1) if layers_match else "",
                 }
             )

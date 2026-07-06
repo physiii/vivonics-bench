@@ -1,10 +1,369 @@
 ** Drc report for laser_controller.kicad_pcb **
-** Created on 2026-07-05T15:59:24-0500 **
+** Created on 2026-07-05T21:14:59 **
+** Report includes: Errors, Warnings, Exclusions **
 
-** Found 0 DRC violations **
+** Found 86 DRC violations **
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(127.8000 mm, 97.5750 mm): Track [/TIA_RED/VBIAS_TOP] on In1.Cu, length 9.7834 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(137.5000 mm, 96.3000 mm): Via [/TIA_RED/VBIAS_TOP] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(137.5000 mm, 96.3000 mm): Via [/TIA_RED/VBIAS_TOP] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(137.5000 mm, 96.3000 mm): Via [/TIA_RED/VBIAS_TOP] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(137.5000 mm, 96.3000 mm): Via [/TIA_RED/VBIAS_TOP] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(123.2000 mm, 127.0000 mm): Via [MPD_RAW2] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(123.2000 mm, 127.0000 mm): Via [MPD_RAW2] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(123.2000 mm, 127.0000 mm): Via [MPD_RAW2] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(123.2000 mm, 127.0000 mm): Via [MPD_RAW2] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(164.5000 mm, 116.1000 mm): Via [MPD_RAW2] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(164.5000 mm, 116.1000 mm): Via [MPD_RAW2] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(164.5000 mm, 116.1000 mm): Via [MPD_RAW2] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(164.5000 mm, 116.1000 mm): Via [MPD_RAW2] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(123.5000 mm, 123.6000 mm): Via [MPD_RAW3] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(123.5000 mm, 123.6000 mm): Via [MPD_RAW3] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(123.5000 mm, 123.6000 mm): Via [MPD_RAW3] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(123.5000 mm, 123.6000 mm): Via [MPD_RAW3] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(179.0000 mm, 121.0000 mm): Track [PWM3] on In1.Cu, length 9.0250 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(158.0000 mm, 112.0000 mm): Track [PWM3] on In1.Cu, length 9.0000 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(179.0000 mm, 130.0250 mm): Track [PWM3] on In1.Cu, length 6.0250 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(131.4250 mm, 123.4750 mm): Track [PWM3] on In1.Cu, length 11.4750 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(158.0000 mm, 121.0000 mm): Track [PWM3] on In1.Cu, length 21.0000 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(131.4250 mm, 112.0000 mm): Track [PWM3] on In1.Cu, length 26.5750 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(130.9434 mm, 113.4751 mm): Track [ISENSE3] on In2.Cu, length 2.8057 mm
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(151.0350 mm, 100.0000 mm): Via [/TIA_IR/PD_ANODE] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(151.0350 mm, 100.0000 mm): Via [/TIA_IR/PD_ANODE] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(122.0745 mm, 119.9940 mm): Track [ISENSE3] on In2.Cu, length 2.3500 mm
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(151.0350 mm, 100.0000 mm): Via [/TIA_IR/PD_ANODE] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(151.0350 mm, 100.0000 mm): Via [/TIA_IR/PD_ANODE] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(114.4500 mm, 112.3695 mm): Track [ISENSE3] on In2.Cu, length 10.7827 mm
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(124.4245 mm, 119.9940 mm): Track [ISENSE3] on In2.Cu, length 9.2191 mm
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(146.1000 mm, 135.4065 mm): Track [ISENSE3] on In1.Cu, length 5.0804 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(143.6750 mm, 124.9000 mm): Track [ISENSE3] on In1.Cu, length 3.4295 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(146.1000 mm, 127.3250 mm): Track [ISENSE3] on In1.Cu, length 8.0815 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(150.4685 mm, 138.0000 mm): Via [ISENSE3] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(150.4685 mm, 138.0000 mm): Via [ISENSE3] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(150.4685 mm, 138.0000 mm): Via [ISENSE3] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(150.4685 mm, 138.0000 mm): Via [ISENSE3] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(127.0000 mm, 108.5000 mm): Track [/TIA_RED/PD_CATHODE] on In1.Cu, length 2.5000 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(141.5000 mm, 108.5000 mm): Track [/TIA_RED/PD_CATHODE] on In1.Cu, length 14.5000 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(127.8000 mm, 97.5750 mm): Via [/TIA_RED/VBIAS_TOP] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(127.8000 mm, 97.5750 mm): Via [/TIA_RED/VBIAS_TOP] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(127.8000 mm, 97.5750 mm): Via [/TIA_RED/VBIAS_TOP] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(127.8000 mm, 97.5750 mm): Via [/TIA_RED/VBIAS_TOP] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(127.0000 mm, 106.0000 mm): Via [/TIA_RED/PD_CATHODE] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(127.0000 mm, 106.0000 mm): Via [/TIA_RED/PD_CATHODE] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(127.0000 mm, 106.0000 mm): Via [/TIA_RED/PD_CATHODE] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(127.0000 mm, 106.0000 mm): Via [/TIA_RED/PD_CATHODE] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(141.5000 mm, 100.4000 mm): Track [/TIA_RED/PD_CATHODE] on In1.Cu, length 8.1000 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(119.8000 mm, 123.3000 mm): Via [MPD_RAW1] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(119.8000 mm, 123.3000 mm): Via [MPD_RAW1] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(119.8000 mm, 123.3000 mm): Via [MPD_RAW1] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(119.8000 mm, 123.3000 mm): Via [MPD_RAW1] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(151.0350 mm, 115.2000 mm): Via [/TIA_GREEN/PD_ANODE] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(151.0350 mm, 115.2000 mm): Via [/TIA_GREEN/PD_ANODE] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(151.0350 mm, 115.2000 mm): Via [/TIA_GREEN/PD_ANODE] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(151.0350 mm, 115.2000 mm): Via [/TIA_GREEN/PD_ANODE] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(162.0000 mm, 117.0000 mm): Track [ISENSE2] on In2.Cu, length 2.4500 mm
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(151.0000 mm, 137.0000 mm): Track [ISENSE2] on In2.Cu, length 20.0000 mm
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(103.0000 mm, 137.0000 mm): Track [ISENSE2] on In2.Cu, length 48.0000 mm
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(151.0000 mm, 117.0000 mm): Track [ISENSE2] on In2.Cu, length 11.0000 mm
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(103.0000 mm, 120.5440 mm): Via [ISENSE2] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(103.0000 mm, 120.5440 mm): Via [ISENSE2] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(135.0350 mm, 100.0000 mm): Via [/TIA_RED/PD_ANODE] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(135.0350 mm, 100.0000 mm): Via [/TIA_RED/PD_ANODE] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(135.0350 mm, 100.0000 mm): Via [/TIA_RED/PD_ANODE] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(135.0350 mm, 100.0000 mm): Via [/TIA_RED/PD_ANODE] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(109.5000 mm, 97.0000 mm): Track [PWM2] on In2.Cu, length 54.5000 mm
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(164.0000 mm, 97.0000 mm): Track [PWM2] on In1.Cu, length 9.0500 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(164.0000 mm, 97.0000 mm): Via [PWM2] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(164.0000 mm, 97.0000 mm): Via [PWM2] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(173.0500 mm, 105.8500 mm): Via [PWM2] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(164.0000 mm, 97.0000 mm): Via [PWM2] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(173.0500 mm, 105.8500 mm): Via [PWM2] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(164.0000 mm, 97.0000 mm): Via [PWM2] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(173.0500 mm, 105.8500 mm): Via [PWM2] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(173.0500 mm, 105.8500 mm): Via [PWM2] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(173.0500 mm, 97.0000 mm): Track [PWM2] on In1.Cu, length 8.8500 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(139.8000 mm, 102.4250 mm): Track [+5V] on In1.Cu, length 9.8000 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(139.8000 mm, 98.9125 mm): Track [+5V] on In1.Cu, length 3.5125 mm
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(139.8000 mm, 98.9125 mm): Via [+5V] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(135.0350 mm, 115.2000 mm): Via [/TIA_BLUE/PD_ANODE] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(135.0350 mm, 115.2000 mm): Via [/TIA_BLUE/PD_ANODE] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
+[clearance]: Clearance violation (zone clearance 0.3000 mm; actual 0.0000 mm)
+    Local override; error
+    @(135.0350 mm, 115.2000 mm): Via [/TIA_BLUE/PD_ANODE] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(135.0350 mm, 115.2000 mm): Via [/TIA_BLUE/PD_ANODE] on F.Cu - B.Cu
+    @(117.0000 mm, 81.0000 mm): Zone '+5V_region' [+5V] on In2.Cu, priority 0
+[hole_clearance]: Hole clearance violation (board setup constraints hole clearance 0.2500 mm; actual 0.0000 mm)
+    Rule: board setup constraints hole; error
+    @(139.8000 mm, 98.9125 mm): Via [+5V] on F.Cu - B.Cu
+    @(31.4750 mm, 80.3750 mm): Zone 'GND_plane' [GND] on In1.Cu, priority 0
 
 ** Found 0 unconnected pads **
 
 ** Found 0 Footprint errors **
+
+** Ignored checks **
+    - Footprint has no courtyard defined
+    - Track endpoint not centered on via
+    - Tuning profile track geometries
+    - Footprint doesn't match symbol's footprint filters
+    - Silkscreen clearance
+    - Silkscreen clipped by solder mask
+    - Silkscreen clipped by board edge
+    - PTH inside courtyard
+    - NPTH inside courtyard
+    - Footprint component type doesn't match footprint pads
+    - Footprint not found in libraries
+    - Footprint doesn't match copy in library
 
 ** End of Report **

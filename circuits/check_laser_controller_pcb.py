@@ -33,6 +33,8 @@ BOARD_HEIGHT_MM = float(gen_pcb.BOARD_H_MM)
 BOARD_SIZE_TOLERANCE_MM = 0.05
 ZONE_OR_RAIL_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_24V", "/POWER_IO/BUCK_5V", "LASER_V+"}
 EXPECTED_ZONE_OR_RAIL_PENDING_NETS = {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_24V", "/POWER_IO/BUCK_5V", "LASER_V+"}
+ZONE_OR_RAIL_NETS.add("LASER_VP")
+EXPECTED_ZONE_OR_RAIL_PENDING_NETS.add("LASER_VP")
 RAIL_PAD_VIA_TARGETS = {
     "GND": {"In1.Cu"},
     "+3V3": {"In2.Cu"},
@@ -202,6 +204,20 @@ def board_bounds_label(board_bounds: tuple[float, float, float, float]) -> str:
     )
 
 
+def _net_name_from_text(text: str, net_by_code: dict[int, str] | None = None) -> tuple[int | None, str]:
+    direct = re.search(r'\(net\s+"([^"]*)"\)', text)
+    if direct:
+        return None, direct.group(1)
+    coded_named = re.search(r'\(net\s+(\d+)\s+"([^"]*)"\)', text)
+    if coded_named:
+        return int(coded_named.group(1)), coded_named.group(2)
+    coded = re.search(r'\(net\s+(\d+)\)', text)
+    if coded:
+        code = int(coded.group(1))
+        return code, net_by_code.get(code, "") if net_by_code is not None else ""
+    return None, ""
+
+
 def parse_board_pad_nets(board_path: Path) -> tuple[dict[str, dict[str, str]], list[str]]:
     board_text = board_path.read_text()
     pad_nets: dict[str, dict[str, str]] = {}
@@ -216,10 +232,10 @@ def parse_board_pad_nets(board_path: Path) -> tuple[dict[str, dict[str, str]], l
         pads: dict[str, str] = {}
         for pad in pad_blocks(block):
             pad_match = re.search(r'\(pad\s+(?:"([^"]*)"|([^\s\)]+))', pad)
-            net_match = re.search(r'\(net\s+(\d+)\s+"([^"]*)"\)', pad)
-            if pad_match and net_match:
+            _, net_name = _net_name_from_text(pad)
+            if pad_match and net_name:
                 pad_name = pad_match.group(1) if pad_match.group(1) is not None else pad_match.group(2)
-                pads[pad_name] = net_match.group(2)
+                pads[pad_name] = net_name
         pad_nets[ref] = pads
     return pad_nets, duplicate_refs
 
@@ -235,8 +251,8 @@ def parse_board_pad_inventory(board_path: Path) -> dict[str, list[tuple[str, str
             if not pad_match:
                 continue
             pad_name = pad_match.group(1) if pad_match.group(1) is not None else pad_match.group(2)
-            net_match = re.search(r'\(net\s+\d+\s+"([^"]*)"\)', pad)
-            inventory[ref].append((pad_name, net_match.group(1) if net_match else ""))
+            _, net_name = _net_name_from_text(pad)
+            inventory[ref].append((pad_name, net_name))
     return inventory
 
 
@@ -359,9 +375,14 @@ def intentional_unnetted_pad_names(
 def parse_board_net_table(board_path: Path) -> dict[str, int]:
     board_text = board_path.read_text()
     table: dict[str, int] = {}
-    for code, name in re.findall(r'^\s*\(net\s+(\d+)\s+"([^"]*)"\)', board_text, re.M):
+    for code, name in re.findall(r'\(net\s+(\d+)\s+"([^"]*)"\)', board_text):
         if name:
             table[name] = int(code)
+    next_code = max(table.values(), default=0) + 1
+    for name in re.findall(r'\(net\s+"([^"]*)"\)', board_text):
+        if name and name not in table:
+            table[name] = next_code
+            next_code += 1
     return table
 
 
@@ -371,10 +392,18 @@ def parse_board_segments(board_path: Path, net_by_code: dict[int, str]) -> list[
     pattern = re.compile(
         r'\(segment\s+\(start\s+([-\d.]+)\s+([-\d.]+)\)\s+'
         r'\(end\s+([-\d.]+)\s+([-\d.]+)\)\s+'
-        r'\(width\s+([-\d.]+)\)\s+\(layer\s+"([^"]+)"\)\s+\(net\s+(\d+)\)'
+        r'\(width\s+([-\d.]+)\)\s+\(layer\s+"([^"]+)"\)\s+'
+        r'\(net\s+(?:(\d+)(?:\s+"([^"]*)")?|"([^"]*)")\)'
     )
     for match in pattern.finditer(text):
-        net_code = int(match.group(7))
+        net_code = int(match.group(7)) if match.group(7) is not None else None
+        net_name = (
+            match.group(9)
+            if match.group(9) is not None
+            else match.group(8)
+            if match.group(8) is not None
+            else net_by_code.get(net_code, "") if net_code is not None else ""
+        )
         segments.append(
             {
                 "a": (float(match.group(1)), float(match.group(2))),
@@ -382,7 +411,7 @@ def parse_board_segments(board_path: Path, net_by_code: dict[int, str]) -> list[
                 "width": float(match.group(5)),
                 "layer": match.group(6),
                 "net_code": net_code,
-                "net": net_by_code.get(net_code, ""),
+                "net": net_name,
             }
         )
     return segments
@@ -481,10 +510,19 @@ def parse_board_vias(board_path: Path, net_by_code: dict[int, str]) -> list[dict
     pattern = re.compile(
         r'\(via(?:\s+(micro|blind|buried))?\s+\(at\s+([-\d.]+)\s+([-\d.]+)\)\s+'
         r'\(size\s+([-\d.]+)\)\s+\(drill\s+([-\d.]+)\)\s+'
-        r'\(layers\s+"([^"]+)"\s+"([^"]+)"\)\s+\(net\s+(\d+)\)'
+        r'\(layers\s+"([^"]+)"\s+"([^"]+)"\).*?'
+        r'\(net\s+(?:(\d+)(?:\s+"([^"]*)")?|"([^"]*)")\)',
+        re.DOTALL,
     )
     for match in pattern.finditer(text):
-        net_code = int(match.group(8))
+        net_code = int(match.group(8)) if match.group(8) is not None else None
+        net_name = (
+            match.group(10)
+            if match.group(10) is not None
+            else match.group(9)
+            if match.group(9) is not None
+            else net_by_code.get(net_code, "") if net_code is not None else ""
+        )
         vias.append(
             {
                 "at": (float(match.group(2)), float(match.group(3))),
@@ -492,7 +530,7 @@ def parse_board_vias(board_path: Path, net_by_code: dict[int, str]) -> list[dict
                 "drill": float(match.group(5)),
                 "layers": {match.group(6), match.group(7)},
                 "net_code": net_code,
-                "net": net_by_code.get(net_code, ""),
+                "net": net_name,
                 "type": match.group(1) or "through",
             }
         )
@@ -1075,6 +1113,7 @@ def split_multi_pad_signal_nets(
 
     graph_by_net: dict[str, dict[RouteNode, set[RouteNode]]] = defaultdict(lambda: defaultdict(set))
     route_points_by_net_layer: dict[tuple[str, str], set[tuple[float, float]]] = defaultdict(set)
+    route_segments_by_net_layer: dict[tuple[str, str], list[dict[str, object]]] = defaultdict(list)
     for segment in segments:
         net = str(segment["net"])
         layer = str(segment["layer"])
@@ -1087,6 +1126,7 @@ def split_multi_pad_signal_nets(
         graph_by_net[net][b].add(a)
         route_points_by_net_layer[(net, layer)].add((a[0], a[1]))
         route_points_by_net_layer[(net, layer)].add((b[0], b[1]))
+        route_segments_by_net_layer[(net, layer)].append(segment)
 
     for via in vias:
         net = str(via["net"])
@@ -1122,6 +1162,18 @@ def split_multi_pad_signal_nets(
                             route_node = route_point_key(route_point, node[2])
                             graph_by_net[net][node].add(route_node)
                             graph_by_net[net][route_node].add(node)
+                    for segment in route_segments_by_net_layer.get((net, node[2]), []):
+                        a_point = segment["a"]
+                        b_point = segment["b"]
+                        assert isinstance(a_point, tuple) and isinstance(b_point, tuple)
+                        if not _segment_intersects_pad(a_point, b_point, pad, 0.01):
+                            continue
+                        a_node = route_point_key(a_point, node[2])
+                        b_node = route_point_key(b_point, node[2])
+                        graph_by_net[net][node].add(a_node)
+                        graph_by_net[net][a_node].add(node)
+                        graph_by_net[net][node].add(b_node)
+                        graph_by_net[net][b_node].add(node)
                 pads_by_net[net].append(
                     {
                         "ref": ref,
@@ -1313,12 +1365,12 @@ def _filled_zone_polygons(
 ) -> list[list[tuple[float, float]]]:
     polygons: list[list[tuple[float, float]]] = []
     for zone in zone_blocks(board_path.read_text()):
-        first = zone.splitlines()[0]
-        net_name_match = re.search(r'\(net_name\s+(?:"([^"]*)"|([^\s\)]+))\)', first)
+        _, direct_net_name = _net_name_from_text(zone)
+        net_name_match = re.search(r'\(net_name\s+(?:"([^"]*)"|([^\s\)]+))\)', zone)
         zone_net_name = (
             net_name_match.group(1)
             if net_name_match and net_name_match.group(1) is not None
-            else net_name_match.group(2) if net_name_match else ""
+            else net_name_match.group(2) if net_name_match else direct_net_name
         )
         if zone_net_name != net_name:
             continue
@@ -1799,6 +1851,7 @@ def critical_route_link_statuses(
     pad_geometry = parse_pad_geometry_from_text(board_path.read_text())
     graph_by_net: dict[str, dict[RouteNode, set[RouteNode]]] = defaultdict(lambda: defaultdict(set))
     route_points_by_net_layer: dict[tuple[str, str], set[tuple[float, float]]] = defaultdict(set)
+    route_segments_by_net_layer: dict[tuple[str, str], list[dict[str, object]]] = defaultdict(list)
 
     for segment in segments:
         net = str(segment["net"])
@@ -1809,6 +1862,7 @@ def critical_route_link_statuses(
         graph_by_net[net][b].add(a)
         route_points_by_net_layer[(net, layer)].add((a[0], a[1]))
         route_points_by_net_layer[(net, layer)].add((b[0], b[1]))
+        route_segments_by_net_layer[(net, layer)].append(segment)
 
     for via in vias:
         net = str(via["net"])
@@ -1841,6 +1895,18 @@ def critical_route_link_statuses(
                             routed_node = route_node(route_point, node[2])
                             graph_by_net[net][node].add(routed_node)
                             graph_by_net[net][routed_node].add(node)
+                    for segment in route_segments_by_net_layer.get((net, node[2]), []):
+                        a_point = segment["a"]
+                        b_point = segment["b"]
+                        assert isinstance(a_point, tuple) and isinstance(b_point, tuple)
+                        if not _segment_intersects_pad(a_point, b_point, pad, 0.01):
+                            continue
+                        a_node = route_node(a_point, node[2])
+                        b_node = route_node(b_point, node[2])
+                        graph_by_net[net][node].add(a_node)
+                        graph_by_net[net][a_node].add(node)
+                        graph_by_net[net][node].add(b_node)
+                        graph_by_net[net][b_node].add(node)
                 pads_by_net[net].append(
                     {
                         "ref": ref,
@@ -1982,7 +2048,7 @@ def zone_blocks(board_text: str) -> list[str]:
     depth = 0
     in_block = False
     for line in board_text.splitlines():
-        if not in_block and line.lstrip().startswith("(zone "):
+        if not in_block and line.lstrip().startswith("(zone"):
             current = [line]
             depth = line.count("(") - line.count(")")
             in_block = True
@@ -2191,11 +2257,10 @@ def parse_zone_summaries(
 ) -> list[dict[str, object]]:
     summaries: list[dict[str, object]] = []
     for block in zone_blocks(board_path.read_text()):
-        first = block.splitlines()[0]
-        net_match = re.search(r'\(net\s+(\d+)\)', first)
-        net_name_match = re.search(r'\(net_name\s+(?:"([^"]*)"|([^\s\)]+))\)', first)
-        layer_match = re.search(r'\(layer\s+(?:"([^"]*)"|([^\s\)]+))\)', first)
-        layers_match = re.search(r'\(layers\s+([^\)]*)\)', first)
+        net_code, direct_net_name = _net_name_from_text(block)
+        net_name_match = re.search(r'\(net_name\s+(?:"([^"]*)"|([^\s\)]+))\)', block)
+        layer_match = re.search(r'\(layer\s+(?:"([^"]*)"|([^\s\)]+))\)', block)
+        layers_match = re.search(r'\(layers\s+([^\)]*)\)', block)
         layers: set[str] = set()
         if layer_match:
             layers.add(layer_match.group(1) if layer_match.group(1) is not None else layer_match.group(2))
@@ -2203,11 +2268,11 @@ def parse_zone_summaries(
             layers.update(_parse_copper_layer_tokens(layers_match.group(1), copper_layers))
         summaries.append(
             {
-                "net": int(net_match.group(1)) if net_match else None,
+                "net": net_code,
                 "net_name": (
                     net_name_match.group(1)
                     if net_name_match and net_name_match.group(1) is not None
-                    else net_name_match.group(2) if net_name_match else ""
+                    else net_name_match.group(2) if net_name_match else direct_net_name
                 ),
                 "layers": layers,
                 "is_keepout": "(keepout " in block,

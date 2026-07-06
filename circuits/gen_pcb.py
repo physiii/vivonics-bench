@@ -161,6 +161,11 @@ def place(libid, ref, val, x, y, rot=0, metadata=None):
     fp=get_fp(libid)
     if fp is None: return None
     fp=normalize_legacy_module_footprint(fp)
+    if libid == "Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal":
+        # The schematic symbol uses pin 6 for the connector shield.  KiCad's
+        # stock Wuerth footprint names those pads SH, so normalize the loaded
+        # footprint to keep generated staging pad nets aligned with the board.
+        fp = re.sub(r'(\(pad\s+)"SH"', r'\1"6"', fp)
     fp=re.sub(
         r'^(\(footprint\s+)(?:"[^"]+"|[^\s\)]+)',
         lambda m: m.group(1) + sexpr_quote(libid),

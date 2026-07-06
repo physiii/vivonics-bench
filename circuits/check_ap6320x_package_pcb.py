@@ -230,9 +230,13 @@ def net_nodes(
     nets: dict[str, list[tuple[str, str, str, str]]],
     net: str,
 ) -> list[tuple[str, str, str, str]]:
-    if canon_net(net) == "LASER_V+":
-        return [*nets.get("LASER_V+", []), *nets.get("LASER_VP", [])]
-    return nets.get(net, [])
+    wanted = canon_net(net)
+    return [
+        node
+        for raw_net, nodes in nets.items()
+        if canon_net(raw_net) == wanted
+        for node in nodes
+    ]
 
 
 def pin_net_map(nets: dict[str, list[tuple[str, str, str, str]]]) -> dict[tuple[str, str], str]:

@@ -9,6 +9,8 @@ This gate deliberately separates hard evidence from unresolved sourcing risks:
 It does not prove that the cited documents are the latest revision or that every
 package drawing has been visually reviewed. It makes missing evidence visible in
 the same review wrapper that checks the generated schematic and PCB.
+Required online sources may rate-limit scripted probes; HTTP 429 is reported as
+a warning because the quote/upload flow remains the authoritative live check.
 """
 from __future__ import annotations
 
@@ -372,6 +374,10 @@ def fetch_url(url: str, *, expect_pdf: bool) -> ProbeResult:
         return ProbeResult(False, f"GET failed: {exc}; {head_detail}")
 
 
+def rate_limited(detail: str) -> bool:
+    return "HTTP Error 429" in detail
+
+
 def local_path(path_text: str) -> Path:
     expanded = Path(path_text).expanduser()
     if expanded.is_absolute():
@@ -395,6 +401,7 @@ def main() -> int:
     failures: list[str] = []
     warnings: list[str] = []
     required_online_ok = 0
+    required_online_rate_limited = 0
     required_local_ok = 0
     warning_checked = 0
 
@@ -405,6 +412,12 @@ def main() -> int:
         result = fetch_url(evidence.url, expect_pdf=evidence.expect_pdf)
         if result.ok:
             required_online_ok += 1
+        elif rate_limited(result.detail):
+            required_online_rate_limited += 1
+            warnings.append(
+                f"{evidence.label}: rate-limited scripted probe; quote/upload review still required "
+                f"[{result.detail}]"
+            )
         else:
             failures.append(f"{evidence.label}: {evidence.url} -> {result.detail}")
 
@@ -436,6 +449,7 @@ def main() -> int:
     print(
         "PASS source-document evidence: "
         f"{required_online_ok} required online sources, "
+        f"{required_online_rate_limited} rate-limited required online source(s), "
         f"{required_local_ok} required local artifacts, "
         f"and {warning_checked} secondary/open-risk sources reviewed"
     )

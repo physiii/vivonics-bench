@@ -1,4 +1,5 @@
-ERC report (2026-07-05T09:43:15-0500, Encoding UTF8)
+ERC report (2026-07-05T21:14:53, Encoding UTF8)
+Report includes: Errors, Warnings, Exclusions
 
 ***** Sheet /
 
@@ -23,3 +24,11 @@ ERC report (2026-07-05T09:43:15-0500, Encoding UTF8)
 ***** Sheet /POWER_IO/
 
  ** ERC messages: 0  Errors 0  Warnings 0
+
+ ** Ignored checks:
+    - Global label only appears once in the schematic
+    - Symbol pin or wire end off connection grid
+    - Four connection points are joined together
+    - SPICE model issue
+    - Symbol doesn't match copy in library
+    - Assigned footprint doesn't match footprint filters

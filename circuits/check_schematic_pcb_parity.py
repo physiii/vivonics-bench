@@ -66,6 +66,16 @@ def schematic_pin_nets(netlist_path: Path) -> dict[tuple[str, str], str]:
     return pins
 
 
+def board_pad_net_names(pad_nets: dict[str, dict[str, set[str]]]) -> set[str]:
+    return {
+        net
+        for pads in pad_nets.values()
+        for nets in pads.values()
+        for net in nets
+        if net
+    }
+
+
 def check_parity(netlist_path: Path, board_path: Path) -> list[str]:
     if not netlist_path.exists():
         return [f"netlist file not found: {netlist_path}"]
@@ -124,7 +134,7 @@ def check_parity(netlist_path: Path, board_path: Path) -> list[str]:
             failures.append(f"{ref} footprint mismatch: schematic={component['footprint']} pcb={actual_name}")
 
     expected_net_names = set(parse_netlist(netlist_path))
-    actual_net_names = set(board_net_table(board_text))
+    actual_net_names = set(board_net_table(board_text)) | board_pad_net_names(pad_nets)
     missing_real_nets = sorted(
         name
         for name in expected_net_names - actual_net_names
@@ -182,6 +192,7 @@ def main() -> int:
 
     components = parse_components(args.netlist)
     board_text = args.board.read_text()
+    pad_nets = board_pad_nets(board_text)
     physical_count = sum(1 for component in components if component["footprint"])
     expected_physical_refs = {
         component["ref"]
@@ -190,7 +201,7 @@ def main() -> int:
     }
     board_ref_count = len(board_footprints(board_text))
     board_only_refs = sorted((set(board_footprints(board_text)) - expected_physical_refs) & BOARD_ONLY_FOOTPRINT_REFS)
-    net_count = len(board_net_table(board_text))
+    net_count = len(set(board_net_table(board_text)) | board_pad_net_names(pad_nets))
     board_only_clause = (
         f" plus {len(board_only_refs)} board-only mechanical refs"
         if board_only_refs

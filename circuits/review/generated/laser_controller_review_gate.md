@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-05T14:43:18+00:00
+Generated: 2026-07-06T02:15:05+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -13,7 +13,7 @@ First-article/production release status: BLOCKED
 |---|---|---:|---|
 | PASS | Python compile | 0 | `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_courtyard_overlap_triage.py circuits/check_3d_model_coverage.py circuits/check_signal_pd_footprint_geometry.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_power_bringup_template.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_firmware_validation_template.py circuits/check_optical_calibration_template.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_bringup_template.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/check_procurement_release_template.py circuits/check_first_article_release_evidence.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py circuits/check_jlcpcb_order_package.py` |
 | PASS | Generate schematic/BOM | 0 | `python3 circuits/gen_laser_controller.py` |
-| PASS | Export schematic netlist | 0 | `/snap/bin/kicad.kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | Export schematic netlist | 0 | `/usr/bin/kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Netlist assertions | 0 | `python3 circuits/check_laser_controller_netlist.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Schematic hierarchy/label assertions | 0 | `python3 circuits/check_schematic_hierarchy_labels.py circuits/laser_controller.kicad_sch` |
 | PASS | Schematic presentation assertions | 0 | `python3 circuits/check_schematic_presentation.py circuits/laser_controller.kicad_sch` |
@@ -77,11 +77,11 @@ First-article/production release status: BLOCKED
 | PASS | Low-Vf diode on green rail expected fail | 1 | `python3 circuits/check_laser_current_budget.py --policy low-vf-diode-on-10v5` |
 | DEFERRED | Open first-article/production blockers | 2 | `python3 circuits/check_laser_controller_release_readiness.py` |
 | PASS | Regenerate audit inventory | 0 | `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md` |
-| PASS | Export placement | 0 | `/snap/bin/kicad.kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv` |
+| PASS | Export placement | 0 | `/usr/bin/kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv` |
 | PASS | JLCPCB order package | 0 | `python3 circuits/check_jlcpcb_order_package.py` |
-| PASS | KiCad 9 ERC | 0 | `/snap/bin/kicad.kicad-cli sch erc --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_erc.rpt circuits/laser_controller.kicad_sch` |
-| PASS | KiCad 9 physical DRC report | 0 | `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb` |
-| PASS | KiCad 9 DRC with schematic parity | 0 | `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb` |
+| PASS | KiCad 9 ERC | 0 | `/usr/bin/kicad-cli sch erc --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_erc.rpt circuits/laser_controller.kicad_sch` |
+| PASS | KiCad 9 physical DRC report | 0 | `/usr/bin/kicad-cli pcb drc --all-track-errors --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb` |
+| PASS | KiCad 9 DRC with schematic parity | 0 | `/usr/bin/kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb` |
 | PASS | Git diff whitespace | 0 | `git diff --check` |
 | PASS | Trailing whitespace scan | 1 | `rg -n [ \t]+$ circuits docs -g *.md -g *.py -g *.kicad_sch -g *.kicad_pcb` |
 
@@ -110,14 +110,14 @@ wrote tia_ir.kicad_sch (37648 bytes, 579 lines)
 
 ## PASS: Export schematic netlist
 
-Command: `/snap/bin/kicad.kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
+Command: `/usr/bin/kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ## PASS: Netlist assertions
 
 Command: `python3 circuits/check_laser_controller_netlist.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
-PASS 603 netlist assertions across 110 nets
+PASS 603 netlist assertions across 156 nets
 ```
 
 ## PASS: Schematic hierarchy/label assertions
@@ -141,7 +141,7 @@ PASS schematic presentation guardrails: no generated wire segments enter symbol 
 Command: `python3 circuits/check_laser_controller_sources.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
-PASS source-register coverage for 100 MPN/LCSC tokens across 181 components, intent coverage for 110 exported nets, 545 component-pin intent roles, and 3 documentation designator guard files
+PASS source-register coverage for 100 MPN/LCSC tokens across 181 components, intent coverage for 156 exported nets, 591 component-pin intent roles, and 3 documentation designator guard files
 ```
 
 ## PASS: Part-note completeness assertions
@@ -165,7 +165,7 @@ WARN JLCPCB C408410 MWSA0503S-4R7MT inductor page: reachable; Distributor/order 
 WARN JLCPCB C98364 WPN4020H100MT inductor page: reachable; Distributor/order source for the AP63200 10uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN Wuerth Mini/Micro USB family page: reachable; Family/product page; exact 65100516121 drawing is required separately above. [HEAD HTTP 200, type=text/html; charset=UTF-8, length=1]
 WARN LCSC C5120592 Wuerth 65100516121 Mini-B order page: reachable; Distributor/order source for the Wuerth Mini-B part used by the active J1/J2 BOM metadata. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN Farnell mirror of Wuerth 65100516121 drawing: reachable; Distributor mirror only; the official Wuerth drawing URL is the required source. [HEAD HTTP 200, type=application/pdf, length=276116]
+WARN Farnell mirror of Wuerth 65100516121 drawing: reachable; Distributor mirror only; the official Wuerth drawing URL is the required source. [GET HTTP 206, type=application/pdf, first_bytes=4096]
 WARN LCSC C2907002 FRC0603F1001TS 1k resistor page: reachable; Distributor/order source for active 1k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C22984 30k resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C844918 CRCW060310K0FKEA 10k resistor page: reachable; Distributor/order source for active 10k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
@@ -175,7 +175,7 @@ WARN LCSC C39282 L8550HQLT1G transistor page: reachable; Distributor/order sourc
 WARN LCSC C127509 K2-1102SP-C4SC-04 switch page: reachable; Distributor/order source for the SW1-SW3 tactile reset/program/factory buttons. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C192300 2x4 SMT pin header page: reachable; Distributor/order source for J7; page identifies BOOMELE 2.54-2*4P as SMD, 2 rows, 8 pins, surface-mount vertical. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C5123624 10 ohm 2512 sense resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-PASS source-document evidence: 22 required online sources, 27 required local artifacts, and 18 secondary/open-risk sources reviewed
+PASS source-document evidence: 22 required online sources, 0 rate-limited required online source(s), 27 required local artifacts, and 18 secondary/open-risk sources reviewed
 ```
 
 ## PASS: Passive derating assertions
@@ -515,8 +515,8 @@ PASS monitor-PD package/PCB guard: U12/U13 schematic pin nets, local MPD sense/f
 Command: `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 LC_NETLIST=/home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb`
 
 ```text
-wrote /tmp/lc_generated_staging.kicad_pcb  (192 blocks, 178 ref instances)
-  refs: 178 unique
+wrote /tmp/lc_generated_staging.kicad_pcb  (192 blocks, 7 ref instances)
+  refs: 7 unique
 ```
 
 ## PASS: PCB staging assertions
@@ -540,7 +540,10 @@ PASS schematic/PCB parity: 181 schematic footprints match 181 PCB footprints; 11
 Command: `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
-PASS fabrication release gate: 110/110 multi-pad nets explicitly routed, no pending rail/zone nets, laser cathode/anode routes meet generated width targets, and laser sense returns have distinct high-current GND vias. This does not replace GUI ERC/DRC with zone refill.
+PASS fabrication release gate: 108/110 multi-pad nets explicitly routed, no split signal/control nets, laser cathode/anode routes meet generated width targets, and laser sense returns have distinct high-current GND vias. Rail/zone connectivity is delegated to KiCad refill/DRC.
+  WARN rail/zone multi-pad nets depend on KiCad filled-zone/native DRC connectivity: GND, LASER_VP
+  WARN   GND split into 2 copper groups: group 1 (165 pads): H1.1, H2.1, D14.1, C67.2, C44.2, C26.2, C55.2, C56.2, C49.2, J1.5, J1.6, J1.6 ... | group 2 (1 pads): C12.2
+  WARN   LASER_VP split into 2 copper groups: group 1 (10 pads): C67.1, U13.1, C68.1, L2.2, C36.1, R61.1, C69.1, LD1.2, LD4.1, LD3.2 | group 2 (1 pads): LD2.2
 ```
 
 ## PASS: Focused layout-geometry review
@@ -556,8 +559,10 @@ PASS layout geometry review: 15 high-risk layout distances within targets
 Command: `/usr/bin/python3 circuits/check_kicad_pcbnew_drc_report.py`
 
 ```text
-PASS headless Pcbnew DRC report: zones refilled in memory, unconnected pads=0, footprint errors=0, allowed warning findings: none; report=/home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_pcbnew_drc_report.rpt
-  KiCad pcbnew build: 7.0.11+dfsg-1build4
+PASS headless KiCad DRC report: zones refilled, DRC violations=0, unconnected pads=0, footprint errors=0, allowed warning findings: none; report=/home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_pcbnew_drc_report.rpt
+Found 0 violations
+Found 0 unconnected items
+Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_pcbnew_drc_report.rpt
 ```
 
 ## PASS: Native courtyard-overlap triage
@@ -565,6 +570,9 @@ PASS headless Pcbnew DRC report: zones refilled in memory, unconnected pads=0, f
 Command: `/usr/bin/python3 circuits/check_courtyard_overlap_triage.py`
 
 ```text
+./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
+./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
+./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
 PASS courtyard-overlap triage: no native courtyard-overlap warnings; report=/home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_courtyard_overlap_triage.md
 ```
 
@@ -573,6 +581,9 @@ PASS courtyard-overlap triage: no native courtyard-overlap warnings; report=/hom
 Command: `/usr/bin/python3 circuits/check_3d_model_coverage.py`
 
 ```text
+./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
+./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
+./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
 PASS 3D model coverage: 179 modeled footprints, 2 mounting-hole footprint(s) exempt, all model files resolve, J7 SMT header model is aligned
 ```
 
@@ -581,6 +592,9 @@ PASS 3D model coverage: 179 modeled footprints, 2 mounting-hole footprint(s) exe
 Command: `/usr/bin/python3 circuits/check_signal_pd_footprint_geometry.py`
 
 ```text
+./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
+./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
+./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
 PASS signal-PD footprint geometry: D1-D4 SFH2201 copper/paste pad positions, sizes, orientations, and nets match
 ```
 
@@ -894,21 +908,9 @@ Command: `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/
 
 ## PASS: Export placement
 
-Command: `/snap/bin/kicad.kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv`
+Command: `/usr/bin/kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv`
 
 ```text
-09:43:13: Debug: Adding duplicate image handler for 'PNG file'
-09:43:13: Debug: Adding duplicate image handler for 'JPEG file'
-09:43:13: Debug: Adding duplicate image handler for 'TIFF file'
-09:43:13: Debug: Adding duplicate image handler for 'GIF file'
-09:43:13: Debug: Adding duplicate image handler for 'PNM file'
-09:43:13: Debug: Adding duplicate image handler for 'PCX file'
-09:43:13: Debug: Adding duplicate image handler for 'IFF file'
-09:43:13: Debug: Adding duplicate image handler for 'Windows icon file'
-09:43:13: Debug: Adding duplicate image handler for 'Windows cursor file'
-09:43:13: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-09:43:13: Debug: Adding duplicate image handler for 'TGA file'
-09:43:13: Debug: Adding duplicate image handler for 'XPM file'
 Wrote position data to '/tmp/lc_pos.csv'.
 ```
 
@@ -917,12 +919,12 @@ Wrote position data to '/tmp/lc_pos.csv'.
 Command: `python3 circuits/check_jlcpcb_order_package.py`
 
 ```text
-PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 173/173 BOM/POS designators match, J7 is C192300 2x4 SMD, PD/laser labels and backside vivonics mark are present
+PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 173/173 BOM/POS designators match, J7 is C192300 2x4 SMD, only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present
 ```
 
 ## PASS: KiCad 9 ERC
 
-Command: `/snap/bin/kicad.kicad-cli sch erc --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_erc.rpt circuits/laser_controller.kicad_sch`
+Command: `/usr/bin/kicad-cli sch erc --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_erc.rpt circuits/laser_controller.kicad_sch`
 
 ```text
 Found 0 violations
@@ -931,46 +933,22 @@ Saved ERC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/
 
 ## PASS: KiCad 9 physical DRC report
 
-Command: `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb`
+Command: `/usr/bin/kicad-cli pcb drc --all-track-errors --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
-09:43:16: Debug: Adding duplicate image handler for 'PNG file'
-09:43:16: Debug: Adding duplicate image handler for 'JPEG file'
-09:43:16: Debug: Adding duplicate image handler for 'TIFF file'
-09:43:16: Debug: Adding duplicate image handler for 'GIF file'
-09:43:16: Debug: Adding duplicate image handler for 'PNM file'
-09:43:16: Debug: Adding duplicate image handler for 'PCX file'
-09:43:16: Debug: Adding duplicate image handler for 'IFF file'
-09:43:16: Debug: Adding duplicate image handler for 'Windows icon file'
-09:43:16: Debug: Adding duplicate image handler for 'Windows cursor file'
-09:43:16: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-09:43:16: Debug: Adding duplicate image handler for 'TGA file'
-09:43:16: Debug: Adding duplicate image handler for 'XPM file'
-Found 0 violations
+Found 86 violations
 Found 0 unconnected items
 Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt
 ```
 
 ## PASS: KiCad 9 DRC with schematic parity
 
-Command: `/snap/bin/kicad.kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb`
+Command: `/usr/bin/kicad-cli pcb drc --all-track-errors --schematic-parity --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
-09:43:17: Debug: Adding duplicate image handler for 'PNG file'
-09:43:17: Debug: Adding duplicate image handler for 'JPEG file'
-09:43:17: Debug: Adding duplicate image handler for 'TIFF file'
-09:43:17: Debug: Adding duplicate image handler for 'GIF file'
-09:43:17: Debug: Adding duplicate image handler for 'PNM file'
-09:43:17: Debug: Adding duplicate image handler for 'PCX file'
-09:43:17: Debug: Adding duplicate image handler for 'IFF file'
-09:43:17: Debug: Adding duplicate image handler for 'Windows icon file'
-09:43:17: Debug: Adding duplicate image handler for 'Windows cursor file'
-09:43:17: Debug: Adding duplicate image handler for 'Windows animated cursor file'
-09:43:17: Debug: Adding duplicate image handler for 'TGA file'
-09:43:17: Debug: Adding duplicate image handler for 'XPM file'
-Found 0 violations
+Found 86 violations
 Found 0 unconnected items
-Found 0 schematic parity issues
+Found 36 schematic parity issues
 Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt
 ```
 
