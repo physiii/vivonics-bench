@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-06T15:27:28+00:00
+Generated: 2026-07-06T16:24:58+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -518,8 +518,8 @@ PASS monitor-PD package/PCB guard: U12/U13 schematic pin nets, local MPD sense/f
 Command: `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 LC_NETLIST=/home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb`
 
 ```text
-wrote /tmp/lc_generated_staging.kicad_pcb  (192 blocks, 7 ref instances)
-  refs: 7 unique
+wrote /tmp/lc_generated_staging.kicad_pcb  (192 blocks, 6 ref instances)
+  refs: 6 unique
 ```
 
 ## PASS: PCB staging assertions
@@ -543,9 +543,12 @@ PASS schematic/PCB parity: 181 schematic footprints match 181 PCB footprints; 11
 Command: `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
-PASS fabrication release gate: 109/110 multi-pad nets explicitly routed, no split signal/control nets, laser cathode/anode routes meet generated width targets, and laser sense returns have distinct high-current GND vias. Rail/zone connectivity is delegated to KiCad refill/DRC.
-  WARN rail/zone multi-pad nets depend on KiCad filled-zone/native DRC connectivity: GND
-  WARN   GND split into 2 copper groups: group 1 (165 pads): H1.1, H2.1, D14.1, C67.2, C44.2, C26.2, C55.2, C56.2, C49.2, J1.5, J1.6, J1.6 ... | group 2 (1 pads): C12.2
+PASS fabrication release gate: 106/110 multi-pad nets explicitly routed, no split signal/control nets, laser cathode/anode routes meet generated width targets, and laser sense returns have distinct high-current GND vias. Rail/zone connectivity is delegated to KiCad refill/DRC.
+  WARN rail/zone multi-pad nets depend on KiCad filled-zone/native DRC connectivity: +3V3, +5V, GND, VIN_24V
+  WARN   +3V3 split into 2 copper groups: group 1 (23 pads): C55.1, C49.1, C43.1, J7.3, C47.1, U14.6, U14.7, U14.23, U14.34, U10.6, U10.7, R60.2 ... | group 2 (1 pads): J7.4
+  WARN   +5V split into 2 copper groups: group 1 (40 pads): C26.1, C56.1, C23.1, U2.7, R12.1, J7.6, D6.2, C53.1, U4.7, U3.7, R16.1, C17.1 ... | group 2 (1 pads): J7.5
+  WARN   GND split into 4 copper groups: group 1 (163 pads): H1.1, H2.1, D14.1, C67.2, C44.2, C26.2, C55.2, C56.2, C49.2, J1.5, J1.6, J1.6 ... | group 2 (1 pads): J7.1 | group 3 (1 pads): J7.2 | group 4 (1 pads): C12.2
+  WARN   VIN_24V split into 3 copper groups: group 1 (11 pads): C62.1, C61.1, U16.2, U16.3, U15.2, U15.3, J5.1, C70.1, R63.1, J6.4, J6.5 | group 2 (1 pads): J7.7 | group 3 (1 pads): J7.8
 ```
 
 ## PASS: Focused layout-geometry review
@@ -929,7 +932,7 @@ Wrote JLCPCB CPL with 175 placements to /home/andy/projects/vivonics/vivonics/be
 Command: `python3 circuits/check_jlcpcb_order_package.py`
 
 ```text
-PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 175/175 BOM/CPL designators match, CPL is JLCPCB five-column mm format, CPL coordinates match PCB footprint midpoints, J1/J2 use stocked C53207143 Mini-B assembly, full procurement manifest separates JLC SMT/THT from hand-installed optical parts, J5/J6 are included for THT connector assembly, J7 is C192300 2x4 SMD, only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present
+PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 175/175 BOM/CPL designators match, CPL is JLCPCB five-column mm format, CPL coordinates match PCB footprint midpoints except connector rows use JLCPCB library origins, J1/J2 use stocked C53207143 Mini-B assembly, full procurement manifest separates JLC SMT/THT from hand-installed optical parts, J5/J6 are included for THT connector assembly, J7 is C192300 2x4 SMD, only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present
 ```
 
 ## PASS: KiCad 9 ERC

@@ -24,6 +24,107 @@ KICAD_COLUMNS = ("Ref", "Val", "Package", "PosX", "PosY", "Rot", "Side")
 JLCPCB_COLUMNS = ("Designator", "Mid X", "Mid Y", "Layer", "Rotation")
 COORD_RE = r"([-+]?\d+(?:\.\d+)?)"
 
+# JLCPCB's CPL file is named "Mid X/Mid Y", but the web PCBA preview places
+# stocked connectors against the origin of JLC's own library footprint. For
+# connector packages where the KiCad footprint origin/centroid differs from the
+# JLC library origin, align a small set of known pads and emit that JLC origin.
+JLCPCB_LOCAL_PADS: dict[str, dict[str, tuple[float, float]]] = {
+    "C53207143": {
+        "1": (-1.60, -2.80),
+        "2": (-0.80, -2.80),
+        "3": (0.00, -2.80),
+        "4": (0.80, -2.80),
+        "5": (1.60, -2.80),
+        "6": (-4.45, -2.70),
+        "7": (4.45, -2.70),
+        "8": (-4.45, 2.80),
+        "9": (4.45, 2.80),
+    },
+    "C194407": {
+        "1": (3.10, -2.35),
+        "2": (-3.10, -2.35),
+        "3": (0.10, 2.35),
+    },
+    "C386757": {
+        "1": (3.57, 3.30),
+        "2": (2.55, 1.51),
+        "3": (1.53, 3.30),
+        "4": (0.51, 1.51),
+        "5": (-0.51, 3.30),
+        "6": (-1.53, 1.51),
+        "7": (-2.55, 3.30),
+        "8": (-3.57, 1.51),
+        "13": (8.13, 2.27),
+        "14": (-8.13, 2.27),
+    },
+}
+
+PadSelector = tuple[str, int] | str
+
+JLCPCB_ORIGIN_ALIGNMENT: dict[
+    str, tuple[str, tuple[tuple[PadSelector, str], ...], tuple[int, ...], float]
+] = {
+    "J1": (
+        "C53207143",
+        (
+            ("1", "1"),
+            ("2", "2"),
+            ("3", "3"),
+            ("4", "4"),
+            ("5", "5"),
+            (("6", 0), "6"),
+            (("6", 1), "8"),
+            (("6", 2), "7"),
+            (("6", 3), "9"),
+        ),
+        (270,),
+        0.15,
+    ),
+    "J2": (
+        "C53207143",
+        (
+            ("1", "1"),
+            ("2", "2"),
+            ("3", "3"),
+            ("4", "4"),
+            ("5", "5"),
+            (("6", 0), "6"),
+            (("6", 1), "8"),
+            (("6", 2), "7"),
+            (("6", 3), "9"),
+        ),
+        (270,),
+        0.15,
+    ),
+    "J5": ("C194407", (("1", "1"), ("2", "2"), ("3", "3")), (0,), 0.40),
+    "J6": (
+        "C386757",
+        (
+            ("1", "1"),
+            ("2", "2"),
+            ("3", "3"),
+            ("4", "4"),
+            ("5", "5"),
+            ("6", "6"),
+            ("7", "7"),
+            ("8", "8"),
+            (("SH", 0), "13"),
+            (("SH", 1), "14"),
+        ),
+        (270,),
+        0.15,
+    ),
+}
+
+JLCPCB_ROTATION_OVERRIDES = {
+    # C127509's JLC footprint has the switch legs on the north/south sides.
+    # The KiCad SPST footprint is electrically equivalent with duplicated
+    # pads, but JLC's model/package orientation needs a 90-degree CPL rotation.
+    "SW1": 90,
+    "SW2": 90,
+    "SW3": 90,
+}
+
 
 def mm(value: float) -> str:
     return f"{value:.4f}mm"
@@ -120,10 +221,12 @@ def footprint_layer_points(block: str, layers: tuple[str, ...]) -> list[tuple[fl
 
 
 def rotate_point(x: float, y: float, degrees: float) -> tuple[float, float]:
+    # KiCad PCB coordinates are Y-down, so positive footprint rotation is
+    # clockwise in the file coordinate frame rather than Cartesian CCW.
     radians = math.radians(degrees)
     return (
-        x * math.cos(radians) - y * math.sin(radians),
-        x * math.sin(radians) + y * math.cos(radians),
+        x * math.cos(radians) + y * math.sin(radians),
+        -x * math.sin(radians) + y * math.cos(radians),
     )
 
 
@@ -177,6 +280,98 @@ def footprint_midpoint_offsets(pcb_path: Path) -> dict[str, tuple[float, float]]
     return offsets
 
 
+def footprint_pad_centers(pcb_path: Path) -> dict[str, list[tuple[str, float, float]]]:
+    centers: dict[str, list[tuple[str, float, float]]] = {}
+    text = pcb_path.read_text()
+    for block in balanced_blocks(text, "(footprint "):
+        ref_match = re.search(r'\(property "Reference" "([^"]+)"', block)
+        at_match = re.search(rf"\(at\s+{COORD_RE}\s+{COORD_RE}(?:\s+{COORD_RE})?", block)
+        if not ref_match or not at_match:
+            continue
+        at_x, at_y = float(at_match.group(1)), float(at_match.group(2))
+        fp_rot = float(at_match.group(3) or 0.0)
+        pads: list[tuple[str, float, float]] = []
+        for pad in balanced_blocks(block, "(pad "):
+            number_match = re.match(r'\(pad\s+"?([^"\s\)]+)"?', pad)
+            at = re.search(rf"\(at\s+{COORD_RE}\s+{COORD_RE}(?:\s+{COORD_RE})?", pad)
+            if not number_match or not at:
+                continue
+            local_x, local_y = float(at.group(1)), float(at.group(2))
+            dx, dy = rotate_point(local_x, local_y, fp_rot)
+            pads.append((number_match.group(1), at_x + dx, at_y + dy))
+        centers[ref_match.group(1)] = pads
+    return centers
+
+
+def select_pad(
+    pads: list[tuple[str, float, float]],
+    selector: PadSelector,
+) -> tuple[float, float]:
+    if isinstance(selector, tuple):
+        number, index = selector
+        matches = [(x, y) for pad_number, x, y in pads if pad_number == number]
+        if index >= len(matches):
+            raise ValueError(f"missing duplicate pad {number}[{index}]")
+        return matches[index]
+    for pad_number, x, y in pads:
+        if pad_number == selector:
+            return x, y
+    raise ValueError(f"missing pad {selector}")
+
+
+def solve_jlcpcb_origin(
+    board_pads: list[tuple[str, float, float]],
+    lcsc: str,
+    pad_pairs: tuple[tuple[PadSelector, str], ...],
+    rotations: tuple[int, ...],
+    max_error_mm: float,
+) -> tuple[float, float, int]:
+    local_pads = JLCPCB_LOCAL_PADS[lcsc]
+    best: tuple[float, float, int, float, float] | None = None
+    for rot in rotations:
+        deltas: list[tuple[float, float]] = []
+        for board_selector, jlc_pad in pad_pairs:
+            board_x, board_y = select_pad(board_pads, board_selector)
+            local_x, local_y = rotate_point(*local_pads[jlc_pad], rot)
+            deltas.append((board_x - local_x, board_y - local_y))
+        origin_x = sum(x for x, _ in deltas) / len(deltas)
+        origin_y = sum(y for _, y in deltas) / len(deltas)
+        errors: list[float] = []
+        for board_selector, jlc_pad in pad_pairs:
+            board_x, board_y = select_pad(board_pads, board_selector)
+            local_x, local_y = rotate_point(*local_pads[jlc_pad], rot)
+            errors.append(math.hypot(origin_x + local_x - board_x, origin_y + local_y - board_y))
+        rms = math.sqrt(sum(error * error for error in errors) / len(errors))
+        worst = max(errors)
+        candidate = (origin_x, origin_y, rot, rms, worst)
+        if best is None or (rms, worst) < (best[3], best[4]):
+            best = candidate
+    if best is None:
+        raise ValueError("no candidate rotations")
+    if best[4] > max_error_mm:
+        raise ValueError(
+            f"JLC footprint alignment worst pad error is {best[4]:.3f} mm, "
+            f"above {max_error_mm:.3f} mm"
+        )
+    return best[0], -best[1], best[2]
+
+
+def jlcpcb_origin_overrides(pcb_path: Path) -> dict[str, tuple[float, float, int]]:
+    board_pads_by_ref = footprint_pad_centers(pcb_path)
+    overrides: dict[str, tuple[float, float, int]] = {}
+    for ref, (lcsc, pad_pairs, rotations, max_error_mm) in JLCPCB_ORIGIN_ALIGNMENT.items():
+        if ref not in board_pads_by_ref:
+            continue
+        overrides[ref] = solve_jlcpcb_origin(
+            board_pads_by_ref[ref],
+            lcsc,
+            pad_pairs,
+            rotations,
+            max_error_mm,
+        )
+    return overrides
+
+
 def footprint_cpl_midpoints(pcb_path: Path) -> dict[str, tuple[float, float]]:
     midpoints: dict[str, tuple[float, float]] = {}
     text = pcb_path.read_text()
@@ -198,22 +393,29 @@ def footprint_cpl_midpoints(pcb_path: Path) -> dict[str, tuple[float, float]]:
 def convert_rows(
     rows: list[dict[str, str]],
     midpoint_offsets: dict[str, tuple[float, float]] | None = None,
+    origin_overrides: dict[str, tuple[float, float, int]] | None = None,
 ) -> list[dict[str, str]]:
     converted: list[dict[str, str]] = []
     for row in rows:
-        pos_x = float(row["PosX"])
-        pos_y = float(row["PosY"])
-        if midpoint_offsets and row["Ref"] in midpoint_offsets:
-            dx, dy = rotate_point(*midpoint_offsets[row["Ref"]], float(row["Rot"]))
-            pos_x += dx
-            pos_y -= dy
+        cpl_rotation: str | int = row["Rot"]
+        if origin_overrides and row["Ref"] in origin_overrides:
+            pos_x, pos_y, cpl_rotation = origin_overrides[row["Ref"]]
+        else:
+            pos_x = float(row["PosX"])
+            pos_y = float(row["PosY"])
+            if midpoint_offsets and row["Ref"] in midpoint_offsets:
+                dx, dy = rotate_point(*midpoint_offsets[row["Ref"]], float(row["Rot"]))
+                pos_x += dx
+                pos_y -= dy
+            if row["Ref"] in JLCPCB_ROTATION_OVERRIDES:
+                cpl_rotation = JLCPCB_ROTATION_OVERRIDES[row["Ref"]]
         converted.append(
             {
                 "Designator": row["Ref"],
                 "Mid X": mm(pos_x),
                 "Mid Y": mm(pos_y),
                 "Layer": layer(row["Side"]),
-                "Rotation": rotation(row["Rot"]),
+                "Rotation": rotation(str(cpl_rotation)),
             }
         )
     return converted
@@ -265,7 +467,8 @@ def main() -> int:
         rows = [row for row in rows if row["Ref"] in allowed_refs]
 
     midpoint_offsets = footprint_midpoint_offsets(args.pcb) if args.pcb is not None else None
-    converted = convert_rows(rows, midpoint_offsets)
+    origin_overrides = jlcpcb_origin_overrides(args.pcb) if args.pcb is not None else None
+    converted = convert_rows(rows, midpoint_offsets, origin_overrides)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     with args.output.open("w", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=JLCPCB_COLUMNS, lineterminator="\n")

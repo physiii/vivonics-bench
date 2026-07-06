@@ -15,7 +15,11 @@ import sys
 import zipfile
 from pathlib import Path
 
-from convert_kicad_pos_to_jlcpcb_cpl import footprint_cpl_midpoints
+from convert_kicad_pos_to_jlcpcb_cpl import (
+    JLCPCB_ROTATION_OVERRIDES,
+    footprint_cpl_midpoints,
+    jlcpcb_origin_overrides,
+)
 
 
 CIRCUITS_DIR = Path(__file__).resolve().parent
@@ -247,6 +251,11 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
     except Exception as exc:
         failures.append(f"could not calculate PCB footprint midpoints for CPL audit: {exc}")
         expected_midpoints = {}
+    try:
+        expected_origins = jlcpcb_origin_overrides(BOARD_PATH)
+    except Exception as exc:
+        failures.append(f"could not calculate JLCPCB connector origins for CPL audit: {exc}")
+        expected_origins = {}
     bom_refs = bom_designators(bom_rows)
     pos_refs = {row.get("Designator", "") for row in pos_rows}
     pcb_sides = footprint_layers()
@@ -280,7 +289,21 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
                         f"{ref}: CPL {field} value {parsed:.4f}mm is outside "
                         f"Gerber coordinate bounds {lower:.4f}..{upper:.4f}mm"
                     )
-        if ref in expected_midpoints and {"Mid X", "Mid Y"} <= parsed_coordinates.keys():
+        if ref in expected_origins and {"Mid X", "Mid Y"} <= parsed_coordinates.keys():
+            expected_x, expected_y, expected_rotation = expected_origins[ref]
+            actual_x = parsed_coordinates["Mid X"]
+            actual_y = parsed_coordinates["Mid Y"]
+            if abs(actual_x - expected_x) > 0.025 or abs(actual_y - expected_y) > 0.025:
+                failures.append(
+                    f"{ref}: CPL JLCPCB origin is ({actual_x:.4f}, {actual_y:.4f})mm, "
+                    f"expected JLCPCB library origin ({expected_x:.4f}, {expected_y:.4f})mm"
+                )
+            if row.get("Rotation") != str(expected_rotation):
+                failures.append(
+                    f"{ref}: CPL Rotation is {row.get('Rotation')}, expected "
+                    f"{expected_rotation} from JLCPCB library-pad alignment"
+                )
+        elif ref in expected_midpoints and {"Mid X", "Mid Y"} <= parsed_coordinates.keys():
             expected_x, expected_y = expected_midpoints[ref]
             actual_x = parsed_coordinates["Mid X"]
             actual_y = parsed_coordinates["Mid Y"]
@@ -296,6 +319,12 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
         else:
             if not 0.0 <= rotation < 360.0:
                 failures.append(f"{ref}: CPL Rotation value {rotation:g} must be in [0, 360)")
+            expected_rotation = JLCPCB_ROTATION_OVERRIDES.get(ref)
+            if expected_rotation is not None and row.get("Rotation") != str(expected_rotation):
+                failures.append(
+                    f"{ref}: CPL Rotation is {row.get('Rotation')}, expected "
+                    f"{expected_rotation} for JLCPCB package orientation"
+                )
 
     bad_lcsc = sorted(
         {
@@ -333,8 +362,8 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
         "J1": ("C53207143", "Top", "270"),
         "J2": ("C53207143", "Top", "270"),
         "J5": ("C194407", "Top"),
-        "J6": ("C386757", "Top", "90"),
-        "J7": ("C192300", "Top"),
+        "J6": ("C386757", "Top", "270"),
+        "J7": ("C192300", "Top", "270"),
     }
     for ref, expected in required_connectors.items():
         lcsc, expected_layer, *expected_rotation = expected
@@ -545,7 +574,8 @@ def main() -> int:
         "PASS JLCPCB order package: "
         f"{len(files)} Gerber/drill files, package archive includes BOM/POS, "
         f"{bom_count}/{pos_count} BOM/CPL designators match, CPL is JLCPCB five-column mm format, "
-        "CPL coordinates match PCB footprint midpoints, J1/J2 use stocked C53207143 Mini-B assembly, "
+        "CPL coordinates match PCB footprint midpoints except connector rows use JLCPCB library origins, "
+        "J1/J2 use stocked C53207143 Mini-B assembly, "
         "full procurement manifest separates JLC SMT/THT from hand-installed optical parts, "
         "J5/J6 are included for THT connector assembly, J7 is C192300 2x4 SMD, "
         "only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present"

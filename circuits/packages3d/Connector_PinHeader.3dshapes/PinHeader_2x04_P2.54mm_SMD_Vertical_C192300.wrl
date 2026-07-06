@@ -1,15 +1,15 @@
 #VRML V2.0 utf8
 # BOOMELE 2.54-2*4P / LCSC C192300
-# 2x04 2.54mm pitch vertical SMT pin header visual model.
-# Origin is pad 1 of Open_Automation:PinHeader_2x04_P2.54mm_SMD_Vertical_C192300.
-# SMT_FOOT pad=1 center=(0.00,0.00) size=(1.45,1.65,0.12)
-# SMT_FOOT pad=2 center=(2.54,0.00) size=(1.45,1.65,0.12)
-# SMT_FOOT pad=3 center=(0.00,2.54) size=(1.45,1.65,0.12)
-# SMT_FOOT pad=4 center=(2.54,2.54) size=(1.45,1.65,0.12)
-# SMT_FOOT pad=5 center=(0.00,5.08) size=(1.45,1.65,0.12)
-# SMT_FOOT pad=6 center=(2.54,5.08) size=(1.45,1.65,0.12)
-# SMT_FOOT pad=7 center=(0.00,7.62) size=(1.45,1.65,0.12)
-# SMT_FOOT pad=8 center=(2.54,7.62) size=(1.45,1.65,0.12)
+# 2x04 2.54 mm pitch vertical SMT pin header visual model.
+# Origin matches the JLCPCB/LCSC C192300 footprint center.
+# SMT_FOOT pad=1 center=(-3.81,2.80) size=(1.27,2.80,0.12)
+# SMT_FOOT pad=2 center=(-3.81,-2.80) size=(1.27,2.80,0.12)
+# SMT_FOOT pad=3 center=(-1.27,2.80) size=(1.27,2.80,0.12)
+# SMT_FOOT pad=4 center=(-1.27,-2.80) size=(1.27,2.80,0.12)
+# SMT_FOOT pad=5 center=(1.27,2.80) size=(1.27,2.80,0.12)
+# SMT_FOOT pad=6 center=(1.27,-2.80) size=(1.27,2.80,0.12)
+# SMT_FOOT pad=7 center=(3.81,2.80) size=(1.27,2.80,0.12)
+# SMT_FOOT pad=8 center=(3.81,-2.79) size=(1.27,2.80,0.12)
 WorldInfo { title "C192300 2x04 2.54mm SMT Vertical Header" }
 
 Shape { appearance Appearance { material DEF BODY Material {
@@ -19,17 +19,16 @@ Shape { appearance Appearance { material DEF METAL Material {
 Shape { appearance Appearance { material DEF MARK Material {
   ambientIntensity 0.20 diffuseColor 0.95 0.95 0.90 specularColor 0.20 0.20 0.18 shininess 0.20 } } }
 
-# Black plastic body. The outline follows the footprint centerline while leaving
-# the SMT feet visible around the body edges in KiCad's 3D viewer.
-Transform { translation 1.27 3.81 1.35 children [
+# Black plastic body centered between the two SMT solder-foot rows.
+Transform { translation 0.00 0.00 1.35 children [
   Shape {
     appearance Appearance { material USE BODY }
-    geometry Box { size 3.95 9.00 2.30 }
+    geometry Box { size 9.60 3.60 2.30 }
   }
 ] }
 
 # Pin 1 top mark near the pad-1 corner.
-Transform { translation -0.42 -0.55 2.52 children [
+Transform { translation -4.35 1.55 2.52 children [
   Shape {
     appearance Appearance { material USE MARK }
     geometry Box { size 0.36 0.36 0.06 }
@@ -37,31 +36,31 @@ Transform { translation -0.42 -0.55 2.52 children [
 ] }
 
 # Surface-mount feet at the exact local pad centers.
-Transform { translation 0.00 0.00 0.06 children [
+Transform { translation -3.81 2.80 0.06 children [
   DEF SMTFOOT Shape {
     appearance Appearance { material USE METAL }
-    geometry Box { size 1.45 1.65 0.12 }
+    geometry Box { size 1.27 2.80 0.12 }
   }
 ] }
-Transform { translation 2.54 0.00 0.06 children [ USE SMTFOOT ] }
-Transform { translation 0.00 2.54 0.06 children [ USE SMTFOOT ] }
-Transform { translation 2.54 2.54 0.06 children [ USE SMTFOOT ] }
-Transform { translation 0.00 5.08 0.06 children [ USE SMTFOOT ] }
-Transform { translation 2.54 5.08 0.06 children [ USE SMTFOOT ] }
-Transform { translation 0.00 7.62 0.06 children [ USE SMTFOOT ] }
-Transform { translation 2.54 7.62 0.06 children [ USE SMTFOOT ] }
+Transform { translation -3.81 -2.80 0.06 children [ USE SMTFOOT ] }
+Transform { translation -1.27 2.80 0.06 children [ USE SMTFOOT ] }
+Transform { translation -1.27 -2.80 0.06 children [ USE SMTFOOT ] }
+Transform { translation 1.27 2.80 0.06 children [ USE SMTFOOT ] }
+Transform { translation 1.27 -2.80 0.06 children [ USE SMTFOOT ] }
+Transform { translation 3.81 2.80 0.06 children [ USE SMTFOOT ] }
+Transform { translation 3.81 -2.79 0.06 children [ USE SMTFOOT ] }
 
 # Vertical mating pins above the plastic body. There are no through-board pins.
-Transform { translation 0.00 0.00 5.50 children [
+Transform { translation -3.81 1.27 5.50 children [
   DEF PIN Shape {
     appearance Appearance { material USE METAL }
     geometry Box { size 0.55 0.55 6.00 }
   }
 ] }
-Transform { translation 2.54 0.00 5.50 children [ USE PIN ] }
-Transform { translation 0.00 2.54 5.50 children [ USE PIN ] }
-Transform { translation 2.54 2.54 5.50 children [ USE PIN ] }
-Transform { translation 0.00 5.08 5.50 children [ USE PIN ] }
-Transform { translation 2.54 5.08 5.50 children [ USE PIN ] }
-Transform { translation 0.00 7.62 5.50 children [ USE PIN ] }
-Transform { translation 2.54 7.62 5.50 children [ USE PIN ] }
+Transform { translation -3.81 -1.27 5.50 children [ USE PIN ] }
+Transform { translation -1.27 1.27 5.50 children [ USE PIN ] }
+Transform { translation -1.27 -1.27 5.50 children [ USE PIN ] }
+Transform { translation 1.27 1.27 5.50 children [ USE PIN ] }
+Transform { translation 1.27 -1.27 5.50 children [ USE PIN ] }
+Transform { translation 3.81 1.27 5.50 children [ USE PIN ] }
+Transform { translation 3.81 -1.27 5.50 children [ USE PIN ] }

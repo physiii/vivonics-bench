@@ -23,9 +23,9 @@ Schematic references are generated globally unique before KiCad netlist export. 
 | `intentional_unnetted_pad_instances` | 79 |
 | `connected_critical_local_route_links` | 111/111 |
 | `multi_pad_nets` | 110 |
-| `explicitly_routed_multi_pad_nets` | 108 |
+| `explicitly_routed_multi_pad_nets` | 105 |
 | `unrouted_multi_pad_nets` | 1 |
-| `zone_or_rail_pending_multi_pad_nets` | 1 |
+| `zone_or_rail_pending_multi_pad_nets` | 4 |
 
 ### Routed Copper Geometry By Net Class
 
@@ -34,7 +34,7 @@ This table reports the generated routed copper that exists in the current PCB ar
 | Net Class | Segment Widths | Via Size/Drill |
 |---|---|---|
 | `Laser_Current` | 0.20mm x28, 0.60mm x47, 0.80mm x45 | 1.20/0.60mm x5 |
-| `Power_Rails` | 0.15mm x1, 0.20mm x34, 0.22mm x4, 0.25mm x195, 0.30mm x3, 0.50mm x133, 0.60mm x139 | 0.60/0.30mm x64, 1.00/0.50mm x80, 1.00/0.60mm x1 |
+| `Power_Rails` | 0.15mm x1, 0.20mm x34, 0.22mm x4, 0.25mm x195, 0.30mm x6, 0.50mm x131, 0.60mm x139 | 0.60/0.30mm x65, 1.00/0.50mm x79, 1.00/0.60mm x1 |
 | `Switching_Power` | 0.40mm x14 | - |
 | `Switcher_Control` | 0.20mm x11 | - |
 | `USB` | 0.25mm x49 | 0.60/0.30mm x2 |
@@ -101,7 +101,10 @@ These are the only multi-pad nets currently allowed to remain route/zone pending
 
 | Net | Pads | Copper Components | Review Status | Required Release Action | Component Groups |
 |---|---:|---:|---|---|---|
-| `GND` | 166 | 2 | REVIEWED_PENDING | Maintain the signed-off In1.Cu GND reference zone and keep laser-current return paths out of TIA summing-node returns after any reroute. | H1.1, H2.1, D14.1, C67.2, C44.2, C26.2, C55.2, C56.2 ... \| C12.2 |
+| `+3V3` | 24 | 2 | REVIEWED_PENDING | Route the AP2112 output rail to ESP32-S3 and strap/decoupling loads; verify LDO thermal margin under radio bursts. | C55.1, C49.1, C43.1, J7.3, C47.1, U14.6, U14.7, U14.23 ... \| J7.4 |
+| `+5V` | 41 | 2 | REVIEWED_PENDING | Route or pour the post-OR board 5 V rail to every analog, laser-driver, and LDO input load; verify diode drop and current. | C26.1, C56.1, C23.1, U2.7, R12.1, J7.6, D6.2, C53.1 ... \| J7.5 |
+| `GND` | 166 | 4 | REVIEWED_PENDING | Maintain the signed-off In1.Cu GND reference zone and keep laser-current return paths out of TIA summing-node returns after any reroute. | H1.1, H2.1, D14.1, C67.2, C44.2, C26.2, C55.2, C56.2 ... \| J7.1 \| J7.2 \| C12.2 |
+| `VIN_24V` | 13 | 3 | REVIEWED_PENDING | Route the J5 barrel/J6 RJ45 input to the AP63205/AP63200 input capacitors and VIN pins with protected, short 24 V copper. | J7.7 \| J7.8 \| C62.1, C61.1, U16.2, U16.3, U15.2, U15.3, J5.1, C70.1 ... |
 
 ### Placement Proximity Checks
 
@@ -347,9 +350,10 @@ This table checks whether every pad on each multi-pad PCB net is connected by ex
 | Net | Pads | Copper Components | Status | Component Groups |
 |---|---:|---:|---|---|
 | `/TIA_BLUE/VBIAS` | 3 | 2 | UNROUTED | R15.2, U4.3 \| C16.1 |
-| `GND` | 166 | 2 | ZONE_OR_RAIL_PENDING | H1.1, H2.1, D14.1, C67.2, C44.2, C26.2, C55.2, C56.2 ... \| C12.2 |
-| `+3V3` | 24 | 1 | EXPLICITLY_ROUTED | C55.1, C49.1, C43.1, C47.1, J7.3, J7.4, U14.6, U14.7 ... |
-| `+5V` | 41 | 1 | EXPLICITLY_ROUTED | C26.1, C56.1, C23.1, U2.7, R12.1, D6.2, C53.1, U4.7 ... |
+| `+3V3` | 24 | 2 | ZONE_OR_RAIL_PENDING | C55.1, C49.1, C43.1, J7.3, C47.1, U14.6, U14.7, U14.23 ... \| J7.4 |
+| `+5V` | 41 | 2 | ZONE_OR_RAIL_PENDING | C26.1, C56.1, C23.1, U2.7, R12.1, J7.6, D6.2, C53.1 ... \| J7.5 |
+| `GND` | 166 | 4 | ZONE_OR_RAIL_PENDING | H1.1, H2.1, D14.1, C67.2, C44.2, C26.2, C55.2, C56.2 ... \| J7.1 \| J7.2 \| C12.2 |
+| `VIN_24V` | 13 | 3 | ZONE_OR_RAIL_PENDING | J7.7 \| J7.8 \| C62.1, C61.1, U16.2, U16.3, U15.2, U15.3, J5.1, C70.1 ... |
 | `/LASER_BLUE/CMD_FILTER` | 4 | 1 | EXPLICITLY_ROUTED | U8.3, C27.1, R35.2, R36.1 |
 | `/LASER_BLUE/FB` | 5 | 1 | EXPLICITLY_ROUTED | U8.4, Q4.2, R33.1, C28.1, R34.1 |
 | `/LASER_BLUE/GATE` | 2 | 1 | EXPLICITLY_ROUTED | Q4.1, R32.2 |
@@ -451,7 +455,6 @@ This table checks whether every pad on each multi-pad PCB net is connected by ex
 | `PWM3` | 2 | 1 | EXPLICITLY_ROUTED | R30.1, U9.20 |
 | `PWM4` | 2 | 1 | EXPLICITLY_ROUTED | U9.9, R35.1 |
 | `VBUS_5V` | 8 | 1 | EXPLICITLY_ROUTED | D14.2, D10.1, D9.2, C41.1, D5.1, D13.1, C42.1, R55.2 |
-| `VIN_24V` | 13 | 1 | EXPLICITLY_ROUTED | C62.1, C61.1, U16.2, U16.3, J7.7, J7.8, U15.2, U15.3 ... |
 | `VOUT1` | 5 | 1 | EXPLICITLY_ROUTED | U14.49, C1.2, RV5.2, RV5.3, U1.6 |
 | `VOUT2` | 5 | 1 | EXPLICITLY_ROUTED | U2.6, C5.2, U14.51, RV6.2, RV6.3 |
 | `VOUT3` | 5 | 1 | EXPLICITLY_ROUTED | U3.6, C9.2, U14.57, RV7.2, RV7.3 |
