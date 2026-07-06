@@ -74,6 +74,7 @@ python3 gen_laser_controller.py
 | `fab/laser_controller_pos.csv` | JLCPCB CPL CSV converted to the five-column upload format (`Designator,Mid X,Mid Y,Layer,Rotation`); designators match the JLCPCB BOM. |
 | `laser_controller_gerbers.zip` | Current PCB Gerber/drill zip for JLCPCB PCB fabrication upload. |
 | `laser_controller_jlcpcb_package.zip` | Flat review/transfer archive containing Gerber/drill files plus BOM and JLCPCB-format CPL. |
+| `review/journal/2026-07-06-jlcpcb-laser-controller-order.md` | JLCPCB first-article order record for work order `W2026070704037950`; excludes shipping/billing PII and card details. |
 | `laser_controller.kicad_pro` | KiCad 7 project file. |
 | `LASER_MONITOR_PD_FEEDBACK.md` | Design note for the internal laser monitor photodiode feedback path and production APC implications. |
 | `LASER_CURRENT_THERMAL_BUDGET.md` | Laser current-loop thermal budget and common-rail bench limitation. |

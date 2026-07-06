@@ -82,6 +82,25 @@ Do not change the PCB just to resolve one quote-time stock row. For this
 first-article build, a quote-page substitute or hand-place decision is lower
 risk than another layout churn.
 
+## Placed Order
+
+Order placed and paid on 2026-07-06:
+
+- JLCPCB work order / batch: `W2026070704037950`
+- PCB order: `Y57-2673627A`
+- PCBA order: `SMT026070663451-2673627A`
+- Invoice: `2673627A2026070704037950`
+- Quantity: 5 boards
+- PCB line: USD 37.20
+- PCBA line: USD 432.83
+- Shipping: USD 51.66
+- State sales/use tax: USD 44.99
+- Customs duties and taxes: USD 164.52
+- Grand total: USD 731.20
+
+Detailed order capture is archived in
+`circuits/review/journal/2026-07-06-jlcpcb-laser-controller-order.md`.
+
 ## Final Go/No-Go
 
 Go for JLCPCB first-article ordering when the quote page shows zero unmatched

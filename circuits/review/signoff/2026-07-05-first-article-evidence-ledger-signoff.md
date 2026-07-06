@@ -1,6 +1,6 @@
 # First-Article Evidence Ledger Signoff
 
-Date: 2026-07-05
+Date: 2026-07-05; updated 2026-07-06 after JLCPCB first-article order placement
 
 Scope: Machine-checkable closure criteria for the remaining first-article and
 production-release blockers.
@@ -24,10 +24,17 @@ categories:
 - `MONITOR_PD_FRONTEND_RANGE_CALIBRATION`
 - `PASSIVE_PRODUCTION_AVL_AND_DERATING`
 
-Every row is intentionally `OPEN`. A row may only be changed to `CLOSED` after
-an evidence file exists and contains the row's required tokens. This prevents
+All rows were initially `OPEN`. A row may only be changed to `CLOSED` after an
+evidence file exists and contains the row's required tokens. This prevents
 clearing the blocker registry with prose-only signoff or incomplete bring-up
 notes.
+
+The `PASSIVE_PRODUCTION_AVL_AND_DERATING/quote_acceptance` row was closed on
+2026-07-06 after order placement, with evidence in
+`circuits/review/journal/2026-07-06-jlcpcb-laser-controller-order.md`. This
+only closes quote/order acceptance evidence; it does not close passive
+derating, board-temperature, calibration, firmware, laser-safety, or bring-up
+evidence.
 
 The release-readiness checker now verifies that the seven blocker IDs in its
 registry match the blocker IDs required by the ledger. If a ledger row is
@@ -39,7 +46,7 @@ removed from the reported production-release blockers.
 
 - `python3 circuits/check_first_article_release_evidence.py`
   - returns `2`
-  - reports 16 open evidence rows
+  - reports 15 open evidence rows after quote-acceptance closure
 - `python3 circuits/run_laser_controller_review.py`
   - reports `DEFERRED: First-article release evidence ledger`
   - keeps `JLCPCB order package status: READY`

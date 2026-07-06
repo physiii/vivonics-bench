@@ -19,6 +19,25 @@ procurement, and measured bring-up work. They do not invalidate the current
 Gerber/BOM/POS upload package, but they must be closed before trusting the board
 for bench measurements, optical safety behavior, production, or field use.
 
+## Placed First-Article Order
+
+Order placed and paid on 2026-07-06:
+
+- JLCPCB work order / batch: `W2026070704037950`
+- PCB order: `Y57-2673627A`
+- PCBA order: `SMT026070663451-2673627A`
+- Invoice: `2673627A2026070704037950`
+- Gerber file name on JLCPCB: `laser_controller_gerbers_Y57`
+- BOM/CPL files: `laser_controller_bom_jlcpcb.csv`,
+  `laser_controller_pos.csv`
+- Quantity: 5 boards
+- Assembly side captured from order page: top side
+- Grand total: USD 731.20
+
+The order record is archived in
+`circuits/review/journal/2026-07-06-jlcpcb-laser-controller-order.md`.
+Shipping/billing PII and card details were intentionally left out of git.
+
 ## Verification
 
 - `python3 circuits/check_jlcpcb_order_package.py`
@@ -100,9 +119,9 @@ not-assembled and hand-place that part.
 ## SHA256
 
 ```text
-3730f102d80d324f102b1389aa7bca26fae99ee2de6410645ecc54020f130a70  circuits/laser_controller_gerbers.zip
-273c19e37b7a2c1a1635f72a1780f998a1aa3f6db19dd41ab04ee472302e3c98  circuits/laser_controller_jlcpcb_package.zip
+99edd53cbfd12dce3b5175e06c791c4805ac131a8c83f409c281d4962d1f306f  circuits/laser_controller_gerbers.zip
+1923d2e624c5fecf20f3a804278eac854853a2d5e9b1e9ac31bfbd97530b8c29  circuits/laser_controller_jlcpcb_package.zip
 0d0de72c72e62a764d51373d87a15c74c038ac83cad23bf5caaeb77b6064c286  circuits/laser_controller_bom_jlcpcb.csv
-931baae0bb0b2612ddf2a50e91958001469bce7d4c7e04b66a211b1e16ae7bfb  circuits/fab/laser_controller_pos.csv
+cc2a82c030d8bbb17dc394fd4fdf4b33de54d7cf10f1a0a383278b746caf655d  circuits/fab/laser_controller_pos.csv
 9e6e2266a2cebb7bb652c375bdf4190f4084cacffa63eb1634251269d71d228f  circuits/fab/laser_controller_full_procurement.csv
 ```
