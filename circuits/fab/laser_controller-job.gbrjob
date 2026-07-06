@@ -5,7 +5,7 @@
       "Application": "Pcbnew",
       "Version": "10.0.4-10.0.4~ubuntu24.04.1"
     },
-    "CreationDate": "2026-07-05T18:09:41-05:00"
+    "CreationDate": "2026-07-05T20:25:08-05:00"
   },
   "GeneralSpecs": {
     "ProjectId": {
@@ -41,57 +41,57 @@
   ],
   "FilesAttributes": [
     {
-      "Path": "laser_controller-F_Cu.gtl",
+      "Path": "laser_controller-F_Cu.gbr",
       "FileFunction": "Copper,L1,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "laser_controller-In1_Cu.g1",
+      "Path": "laser_controller-In1_Cu.gbr",
       "FileFunction": "Copper,L2,Inr",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "laser_controller-In2_Cu.g2",
+      "Path": "laser_controller-In2_Cu.gbr",
       "FileFunction": "Copper,L3,Inr",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "laser_controller-B_Cu.gbl",
+      "Path": "laser_controller-B_Cu.gbr",
       "FileFunction": "Copper,L4,Bot",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "laser_controller-F_Paste.gtp",
+      "Path": "laser_controller-F_Paste.gbr",
       "FileFunction": "SolderPaste,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "laser_controller-B_Paste.gbp",
+      "Path": "laser_controller-B_Paste.gbr",
       "FileFunction": "SolderPaste,Bot",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "laser_controller-F_Silkscreen.gto",
+      "Path": "laser_controller-F_Silkscreen.gbr",
       "FileFunction": "Legend,Top",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "laser_controller-B_Silkscreen.gbo",
+      "Path": "laser_controller-B_Silkscreen.gbr",
       "FileFunction": "Legend,Bot",
       "FilePolarity": "Positive"
     },
     {
-      "Path": "laser_controller-F_Mask.gts",
+      "Path": "laser_controller-F_Mask.gbr",
       "FileFunction": "SolderMask,Top",
       "FilePolarity": "Negative"
     },
     {
-      "Path": "laser_controller-B_Mask.gbs",
+      "Path": "laser_controller-B_Mask.gbr",
       "FileFunction": "SolderMask,Bot",
       "FilePolarity": "Negative"
     },
     {
-      "Path": "laser_controller-Edge_Cuts.gm1",
+      "Path": "laser_controller-Edge_Cuts.gbr",
       "FileFunction": "Profile",
       "FilePolarity": "Positive"
     }

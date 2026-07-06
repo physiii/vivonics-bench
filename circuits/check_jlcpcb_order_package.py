@@ -57,9 +57,9 @@ def read_csv(path: Path) -> list[dict[str, str]]:
         return list(csv.DictReader(handle))
 
 
-def footprint_layers() -> dict[str, str]:
+def footprint_blocks() -> list[tuple[str, str, str]]:
     text = BOARD_PATH.read_text()
-    layers: dict[str, str] = {}
+    blocks: list[tuple[str, str, str]] = []
     index = 0
     while True:
         start = text.find("(footprint ", index)
@@ -94,7 +94,14 @@ def footprint_layers() -> dict[str, str]:
         ref = re.search(r'\(property "Reference" "([^"]+)"', block)
         layer = re.search(r'\(layer "([FB])\.Cu"\)', block)
         if ref and layer:
-            layers[ref.group(1)] = "top" if layer.group(1) == "F" else "bottom"
+            blocks.append((ref.group(1), "top" if layer.group(1) == "F" else "bottom", block))
+    return blocks
+
+
+def footprint_layers() -> dict[str, str]:
+    layers: dict[str, str] = {}
+    for ref, side, _ in footprint_blocks():
+        layers[ref] = side
     return layers
 
 
@@ -250,15 +257,27 @@ def verify_board_text() -> list[str]:
 
 def verify_optical_side_placement() -> list[str]:
     failures: list[str] = []
-    layers = footprint_layers()
+    blocks = footprint_blocks()
+    layers = {ref: side for ref, side, _ in blocks}
     bottom_refs = {ref for ref, side in layers.items() if side == "bottom"}
+    bottom_paste_refs = {
+        ref
+        for ref, _, block in blocks
+        if '"B.Paste"' in block
+    }
 
     unexpected_bottom = sorted(bottom_refs - ALLOWED_BOTTOM_REFS)
     missing_bottom = sorted(ALLOWED_BOTTOM_REFS - bottom_refs)
+    unexpected_bottom_paste = sorted(bottom_paste_refs - {"D1", "D2", "D3", "D4"})
     if unexpected_bottom:
         failures.append(
             "unexpected bottom-side footprints outside optical PD/LD set: "
             + ", ".join(unexpected_bottom)
+        )
+    if unexpected_bottom_paste:
+        failures.append(
+            "unexpected bottom-paste SMT footprints outside signal PD set: "
+            + ", ".join(unexpected_bottom_paste)
         )
     if missing_bottom:
         failures.append(
@@ -274,6 +293,20 @@ def verify_optical_side_placement() -> list[str]:
         failures.append(
             "TIA SMT footprints must be top-side for single-sided SMT assembly: "
             + ", ".join(wrong_top)
+        )
+    wrong_internal_layers = sorted(
+        ref
+        for ref, _, block in blocks
+        if ref in REQUIRED_TOP_TIA_REFS
+        and any(
+            token in block
+            for token in ('"B.Cu"', '"B.Mask"', '"B.Paste"', '"B.SilkS"', '"B.Fab"', '"B.CrtYd"')
+        )
+    )
+    if wrong_internal_layers:
+        failures.append(
+            "TIA SMT footprints still contain bottom-side pads or drawings: "
+            + ", ".join(wrong_internal_layers)
         )
     return failures
 
