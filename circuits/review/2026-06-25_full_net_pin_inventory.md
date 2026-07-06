@@ -700,8 +700,8 @@ Total schematic components: **181**.
 | `D7` | `/MCU_ESP32-S3/` | ESD_5V | `Diode_SMD:D_SOD-523` | `C5199850` | `LESD5D5.0CT1G(UMW)` |
 | `D8` | `/MCU_ESP32-S3/` | ESD_5V | `Diode_SMD:D_SOD-523` | `C5199850` | `LESD5D5.0CT1G(UMW)` |
 | `D9` | `/MCU_ESP32-S3/` | ESD_5V | `Diode_SMD:D_SOD-523` | `C5199850` | `LESD5D5.0CT1G(UMW)` |
-| `J1` | `/MCU_ESP32-S3/` | USB_MINI_B | `Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal` | `C91144` | `U-M-M5SS-W-2` |
-| `J2` | `/MCU_ESP32-S3/` | USB_MINI_B | `Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal` | `C91144` | `U-M-M5SS-W-2` |
+| `J1` | `/MCU_ESP32-S3/` | USB_MINI_B | `Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal` | `C46391` | `920-462A2021S10101` |
+| `J2` | `/MCU_ESP32-S3/` | USB_MINI_B | `Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal` | `C46391` | `920-462A2021S10101` |
 | `J7` | `/MCU_ESP32-S3/` | C192300 | `Open_Automation:PinHeader_2x04_P2.54mm_SMD_Vertical_C192300` | `C192300` | `2.54-2*4P` |
 | `Q5` | `/MCU_ESP32-S3/` | Q_L8050QLT1G | `Package_TO_SOT_SMD:SOT-23` | `C49581` | `L8050QLT1G` |
 | `Q6` | `/MCU_ESP32-S3/` | Q_L8550HQLT1G | `Package_TO_SOT_SMD:SOT-23` | `C39282` | `L8550HQLT1G` |

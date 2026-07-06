@@ -72,7 +72,7 @@ After BOM/CPL upload, the JLCPCB quote should show:
 
 - no unmatched components,
 - no CPL processing failure,
-- `J1,J2` selected as `C91144` for top-side Mini-B USB assembly,
+- `J1,J2` selected as `C46391` for top-side Mini-B USB assembly,
 - `J5` selected as `C194407` for THT/wave/manual connector assembly,
 - `J6` selected as `C386757` for THT/wave/manual connector assembly,
 - `J7` selected as `C192300`,
@@ -100,9 +100,9 @@ not-assembled and hand-place that part.
 ## SHA256
 
 ```text
-b1f870732f8fed66134bb115be6e702689e6cdc7b257093c8ed1f39718ed077f  circuits/laser_controller_gerbers.zip
-e8d7bbcb93cfd111e07453fe0329c5cc1d76d35e4bc07c77a8e5817427dda2f8  circuits/laser_controller_jlcpcb_package.zip
-fc26d5a2018ff8cfcbda2a62b3cc2d9b08577f38d6dca39539a3011b68093b71  circuits/laser_controller_bom_jlcpcb.csv
-9780971d3f80a4f4e2ee02a578c64bcc52108a78efc5d3c34768af5c95557877  circuits/fab/laser_controller_pos.csv
-110769cc20a1d441e6375c3c992ab0a4771065b2b9c12254e628123146e90ad0  circuits/fab/laser_controller_full_procurement.csv
+3730f102d80d324f102b1389aa7bca26fae99ee2de6410645ecc54020f130a70  circuits/laser_controller_gerbers.zip
+273c19e37b7a2c1a1635f72a1780f998a1aa3f6db19dd41ab04ee472302e3c98  circuits/laser_controller_jlcpcb_package.zip
+0d0de72c72e62a764d51373d87a15c74c038ac83cad23bf5caaeb77b6064c286  circuits/laser_controller_bom_jlcpcb.csv
+931baae0bb0b2612ddf2a50e91958001469bce7d4c7e04b66a211b1e16ae7bfb  circuits/fab/laser_controller_pos.csv
+9e6e2266a2cebb7bb652c375bdf4190f4084cacffa63eb1634251269d71d228f  circuits/fab/laser_controller_full_procurement.csv
 ```

@@ -27,22 +27,21 @@ COORD_RE = r"([-+]?\d+(?:\.\d+)?)"
 # JLCPCB's CPL file is named "Mid X/Mid Y", but the web PCBA preview places
 # stocked connectors against the origin of JLC's own library footprint. For
 # connector packages where the KiCad footprint origin/centroid differs from the
-# JLC library origin, align a small set of known pads and emit that JLC origin.
+# JLC library origin, align known pads and emit that JLC origin.
 JLCPCB_LOCAL_PADS: dict[str, dict[str, tuple[float, float]]] = {
-    # C91144 is JLCPCB's stocked U-M-M5SS-W-2 Mini-B SMT assembly part. The
-    # signal pins align with KiCad's Wuerth Mini-B land pattern at 270 degrees;
-    # the shield pads are slightly narrower, so the solved origin splits the
-    # harmless ~0.19 mm shell-pad mismatch across the oversized KiCad pads.
-    "C91144": {
-        "1": (-1.61, -2.92),
-        "2": (-0.81, -2.92),
-        "3": (-0.01, -2.92),
-        "4": (0.79, -2.92),
-        "5": (1.59, -2.92),
-        "SH_UL": (-4.45, 2.92),
-        "SH_UR": (-4.45, -2.58),
-        "SH_LL": (4.45, 2.92),
-        "SH_LR": (4.45, -2.58),
+    # C46391 is the JLCPCB/EasyEDA footprint used by the access-controller
+    # project for this 5-pin USB shell geometry. Its signal and shield pads
+    # match the present Wuerth Mini-B land pattern closely enough for assembly.
+    "C46391": {
+        "1": (2.90, -1.60),
+        "2": (2.90, -0.80),
+        "3": (2.90, 0.00),
+        "4": (2.90, 0.80),
+        "5": (2.90, 1.60),
+        "SH_UR": (2.60, -4.45),
+        "SH_UL": (-2.90, -4.45),
+        "SH_LR": (2.60, 4.45),
+        "SH_LL": (-2.90, 4.45),
     },
     "C194407": {
         "1": (3.10, -2.35),
@@ -58,6 +57,10 @@ JLCPCB_LOCAL_PADS: dict[str, dict[str, tuple[float, float]]] = {
         "6": (-1.53, 1.51),
         "7": (-2.55, 3.30),
         "8": (-3.57, 1.51),
+        "9": (-6.86, -3.30),
+        "10": (-4.57, -3.30),
+        "11": (4.57, -3.30),
+        "12": (6.86, -3.30),
         "13": (8.13, 2.27),
         "14": (-8.13, 2.27),
     },
@@ -69,7 +72,7 @@ JLCPCB_ORIGIN_ALIGNMENT: dict[
     str, tuple[str, tuple[tuple[PadSelector, str], ...], tuple[int, ...], float]
 ] = {
     "J1": (
-        "C91144",
+        "C46391",
         (
             ("1", "1"),
             ("2", "2"),
@@ -81,11 +84,11 @@ JLCPCB_ORIGIN_ALIGNMENT: dict[
             (("6", 2), "SH_LR"),
             (("6", 3), "SH_LL"),
         ),
-        (270,),
+        (0,),
         0.20,
     ),
     "J2": (
-        "C91144",
+        "C46391",
         (
             ("1", "1"),
             ("2", "2"),
@@ -97,12 +100,54 @@ JLCPCB_ORIGIN_ALIGNMENT: dict[
             (("6", 2), "SH_LR"),
             (("6", 3), "SH_LL"),
         ),
-        (270,),
+        (0,),
         0.20,
+    ),
+    "J5": (
+        "C194407",
+        (
+            ("1", "1"),
+            ("2", "2"),
+            ("3", "3"),
+        ),
+        (0,),
+        0.40,
+    ),
+    "J6": (
+        "C386757",
+        (
+            ("1", "1"),
+            ("2", "2"),
+            ("3", "3"),
+            ("4", "4"),
+            ("5", "5"),
+            ("6", "6"),
+            ("7", "7"),
+            ("8", "8"),
+            # The selected JLC RJ45 numbers the four LED-side holes opposite
+            # KiCad's Amphenol footprint, but the physical hole locations are
+            # the same. Map physical holes here so the assembled connector
+            # body and pins land on the board footprint.
+            ("9", "12"),
+            ("10", "11"),
+            ("11", "10"),
+            ("12", "9"),
+            (("SH", 0), "13"),
+            (("SH", 1), "14"),
+        ),
+        (270,),
+        0.15,
     ),
 }
 
 JLCPCB_ROTATION_OVERRIDES = {
+    # JLC's SOIC-8_L4.9-W3.9-P1.27-LS6.0-BL orientation is 90 degrees from
+    # KiCad's SOIC-8_3.9x4.9mm footprint. 270 degrees is the pad-number match
+    # that puts OPA380 pin 1 on the KiCad pad-1 side.
+    "U1": 270,
+    "U2": 270,
+    "U3": 270,
+    "U4": 270,
     # C127509's JLC footprint has the switch legs on the north/south sides.
     # The KiCad SPST footprint is electrically equivalent with duplicated
     # pads, but JLC's model/package orientation needs a 90-degree CPL rotation.
@@ -111,13 +156,7 @@ JLCPCB_ROTATION_OVERRIDES = {
     "SW3": 90,
 }
 
-JLCPCB_KICAD_ANCHOR_REFS = {
-    # JLCPCB's THT connector preview follows the KiCad/access-controller anchor
-    # convention for these large parts. Do not recenter them to courtyard or to
-    # the EasyEDA library origin; that shifts the visible RJ45/barrel bodies.
-    "J5",
-    "J6",
-}
+JLCPCB_KICAD_ANCHOR_REFS: set[str] = set()
 
 
 def mm(value: float) -> str:

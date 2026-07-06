@@ -85,8 +85,8 @@ REQUIRED_ONLINE = [
         expect_pdf=True,
     ),
     OnlineEvidence(
-        "JLC/LCSC Mini-B C91144 assembly source",
-        "https://jlcpcb.com/partdetail/U-M-M5SS-W-2/C91144",
+        "JLC/LCSC Mini-B C46391 assembly source",
+        "https://jlcpcb.com/partdetail/920_462A2021S10101/C46391",
         True,
     ),
     OnlineEvidence(
@@ -220,7 +220,7 @@ WARNING_ONLINE = [
         "Wuerth Mini/Micro USB family page",
         "https://www.we-online.com/en/components/products/INPUT_OUTPUT_WR_USB_MINI_MICRO",
         False,
-        note="Family/product page for the KiCad footprint naming lineage; active JLC assembly metadata is C91144.",
+        note="Family/product page for the KiCad footprint naming lineage; active JLC assembly metadata is C46391.",
     ),
     OnlineEvidence(
         "Farnell mirror of Wuerth 65100516121 drawing",

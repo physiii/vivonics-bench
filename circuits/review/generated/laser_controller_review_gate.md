@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-06T17:01:35+00:00
+Generated: 2026-07-06T17:57:15+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -165,7 +165,7 @@ WARN Vishay SS12-SS16 family datasheet: reachable; Family reference only; curren
 WARN LCSC C2480 SS14 order page: reachable; Distributor/order source matching the 2026-07-04 C2480 MDD SS14 signoff. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C408410 MWSA0503S-4R7MT inductor page: reachable; Distributor/order source for the AP63205 4.7uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C98364 WPN4020H100MT inductor page: reachable; Distributor/order source for the AP63200 10uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN Wuerth Mini/Micro USB family page: reachable; Family/product page for the KiCad footprint naming lineage; active JLC assembly metadata is C91144. [HEAD HTTP 200, type=text/html; charset=UTF-8, length=1]
+WARN Wuerth Mini/Micro USB family page: reachable; Family/product page for the KiCad footprint naming lineage; active JLC assembly metadata is C46391. [HEAD HTTP 200, type=text/html; charset=UTF-8, length=1]
 WARN Farnell mirror of Wuerth 65100516121 drawing: reachable; Distributor mirror only; the official Wuerth drawing URL is the required source. [HEAD HTTP 200, type=application/pdf, length=276116]
 WARN LCSC C2907002 FRC0603F1001TS 1k resistor page: reachable; Distributor/order source for active 1k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C22984 30k resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
@@ -932,7 +932,7 @@ Wrote JLCPCB CPL with 175 placements to /home/andy/projects/vivonics/vivonics/be
 Command: `python3 circuits/check_jlcpcb_order_package.py`
 
 ```text
-PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 175/175 BOM/CPL designators match, CPL is JLCPCB five-column mm format, CPL coordinates match PCB footprint midpoints except USB rows use JLCPCB library origins and THT connector rows use KiCad anchors, J1/J2 use stocked C91144 Mini-B assembly, full procurement manifest separates JLC SMT/THT from hand-installed optical parts, J5/J6 are included for THT connector assembly, J7 is C192300 2x4 SMD, only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present
+PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 175/175 BOM/CPL designators match, CPL is JLCPCB five-column mm format, CPL coordinates match PCB footprint midpoints except connector rows use solved JLCPCB library origins, J1/J2 use C46391 USB assembly, full procurement manifest separates JLC SMT/THT from hand-installed optical parts, J5/J6 are included for THT connector assembly, J7 is C192300 2x4 SMD, only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present
 ```
 
 ## PASS: KiCad 9 ERC

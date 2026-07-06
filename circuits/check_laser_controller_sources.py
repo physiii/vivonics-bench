@@ -43,7 +43,7 @@ DOCUMENTATION_DESIGNATOR_GUARDS = [
         SOURCE_REGISTER,
         [
             "Silicon Labs `CP2102N-A02-GQFN28R` / `C964632`",
-            "Mini-B `U-M-M5SS-W-2` / `C91144`",
+            "Mini-B `920-462A2021S10101` / `C46391`",
             "UMW `LESD5D5.0CT1G(UMW)` / `C5199850`",
             "| Diodes Inc. `AP2112K-3.3TRG1`, LCSC `C51118` | U11 |",
         ],

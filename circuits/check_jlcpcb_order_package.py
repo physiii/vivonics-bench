@@ -378,10 +378,10 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
             failures.append(f"J7 POS layer is {row.get('Layer')}, expected Top")
 
     required_connectors = {
-        "J1": ("C91144", "Top", "270"),
-        "J2": ("C91144", "Top", "270"),
+        "J1": ("C46391", "Top", "0"),
+        "J2": ("C46391", "Top", "0"),
         "J5": ("C194407", "Top"),
-        "J6": ("C386757", "Top", "90"),
+        "J6": ("C386757", "Top", "270"),
         "J7": ("C192300", "Top", "270"),
     }
     for ref, expected in required_connectors.items():
@@ -593,8 +593,8 @@ def main() -> int:
         "PASS JLCPCB order package: "
         f"{len(files)} Gerber/drill files, package archive includes BOM/POS, "
         f"{bom_count}/{pos_count} BOM/CPL designators match, CPL is JLCPCB five-column mm format, "
-        "CPL coordinates match PCB footprint midpoints except USB rows use JLCPCB library origins and THT connector rows use KiCad anchors, "
-        "J1/J2 use stocked C91144 Mini-B assembly, "
+        "CPL coordinates match PCB footprint midpoints except connector rows use solved JLCPCB library origins, "
+        "J1/J2 use C46391 USB assembly, "
         "full procurement manifest separates JLC SMT/THT from hand-installed optical parts, "
         "J5/J6 are included for THT connector assembly, J7 is C192300 2x4 SMD, "
         "only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present"
