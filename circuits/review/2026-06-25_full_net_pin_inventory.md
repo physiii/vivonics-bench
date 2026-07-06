@@ -23,9 +23,9 @@ Schematic references are generated globally unique before KiCad netlist export. 
 | `intentional_unnetted_pad_instances` | 79 |
 | `connected_critical_local_route_links` | 111/111 |
 | `multi_pad_nets` | 110 |
-| `explicitly_routed_multi_pad_nets` | 105 |
+| `explicitly_routed_multi_pad_nets` | 107 |
 | `unrouted_multi_pad_nets` | 1 |
-| `zone_or_rail_pending_multi_pad_nets` | 4 |
+| `zone_or_rail_pending_multi_pad_nets` | 2 |
 
 ### Routed Copper Geometry By Net Class
 
@@ -34,7 +34,7 @@ This table reports the generated routed copper that exists in the current PCB ar
 | Net Class | Segment Widths | Via Size/Drill |
 |---|---|---|
 | `Laser_Current` | 0.20mm x28, 0.60mm x47, 0.80mm x45 | 1.20/0.60mm x5 |
-| `Power_Rails` | 0.15mm x1, 0.20mm x34, 0.22mm x4, 0.25mm x195, 0.30mm x6, 0.50mm x131, 0.60mm x139 | 0.60/0.30mm x65, 1.00/0.50mm x79, 1.00/0.60mm x1 |
+| `Power_Rails` | 0.15mm x1, 0.20mm x34, 0.22mm x4, 0.25mm x195, 0.30mm x6, 0.50mm x131, 0.60mm x138 | 0.60/0.30mm x65, 1.00/0.50mm x79, 1.00/0.60mm x1 |
 | `Switching_Power` | 0.40mm x14 | - |
 | `Switcher_Control` | 0.20mm x11 | - |
 | `USB` | 0.25mm x49 | 0.60/0.30mm x2 |
@@ -78,8 +78,8 @@ This table separates the high-current laser cathode/load paths from source-sense
 | `LASER_N2` | `F.Cu` | 0.60 mm | 7 | 26.54 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
 | `LASER_N3` | `F.Cu` | 0.60 mm | 7 | 21.30 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
 | `LASER_N4` | `F.Cu` | 0.60 mm | 4 | 17.56 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
-| `LASER_VP` | `B.Cu` | 0.80 mm | 9 | 72.57 mm | laser current net | REVIEW |
-| `LASER_VP` | `F.Cu` | 0.80 mm | 21 | 51.19 mm | laser current net | REVIEW |
+| `LASER_VP` | `B.Cu` | 0.80 mm | 9 | 73.65 mm | laser current net | REVIEW |
+| `LASER_VP` | `F.Cu` | 0.80 mm | 21 | 50.53 mm | laser current net | REVIEW |
 | `LASER_VP` | `In2.Cu` | 0.80 mm | 15 | 88.73 mm | laser current net | REVIEW |
 
 ### Laser Sense Return Detail
@@ -101,10 +101,8 @@ These are the only multi-pad nets currently allowed to remain route/zone pending
 
 | Net | Pads | Copper Components | Review Status | Required Release Action | Component Groups |
 |---|---:|---:|---|---|---|
-| `+3V3` | 24 | 2 | REVIEWED_PENDING | Route the AP2112 output rail to ESP32-S3 and strap/decoupling loads; verify LDO thermal margin under radio bursts. | C55.1, C49.1, C43.1, J7.3, C47.1, U14.6, U14.7, U14.23 ... \| J7.4 |
-| `+5V` | 41 | 2 | REVIEWED_PENDING | Route or pour the post-OR board 5 V rail to every analog, laser-driver, and LDO input load; verify diode drop and current. | C26.1, C56.1, C23.1, U2.7, R12.1, J7.6, D6.2, C53.1 ... \| J7.5 |
-| `GND` | 166 | 4 | REVIEWED_PENDING | Maintain the signed-off In1.Cu GND reference zone and keep laser-current return paths out of TIA summing-node returns after any reroute. | H1.1, H2.1, D14.1, C67.2, C44.2, C26.2, C55.2, C56.2 ... \| J7.1 \| J7.2 \| C12.2 |
-| `VIN_24V` | 13 | 3 | REVIEWED_PENDING | Route the J5 barrel/J6 RJ45 input to the AP63205/AP63200 input capacitors and VIN pins with protected, short 24 V copper. | J7.7 \| J7.8 \| C62.1, C61.1, U16.2, U16.3, U15.2, U15.3, J5.1, C70.1 ... |
+| `GND` | 166 | 2 | REVIEWED_PENDING | Maintain the signed-off In1.Cu GND reference zone and keep laser-current return paths out of TIA summing-node returns after any reroute. | H1.1, H2.1, D14.1, C67.2, C44.2, C26.2, C55.2, C56.2 ... \| C12.2 |
+| `VIN_24V` | 13 | 2 | REVIEWED_PENDING | Route the J5 barrel/J6 RJ45 input to the AP63205/AP63200 input capacitors and VIN pins with protected, short 24 V copper. | J7.7, J7.8 \| C62.1, C61.1, U16.2, U16.3, U15.2, U15.3, J5.1, C70.1 ... |
 
 ### Placement Proximity Checks
 
@@ -350,10 +348,10 @@ This table checks whether every pad on each multi-pad PCB net is connected by ex
 | Net | Pads | Copper Components | Status | Component Groups |
 |---|---:|---:|---|---|
 | `/TIA_BLUE/VBIAS` | 3 | 2 | UNROUTED | R15.2, U4.3 \| C16.1 |
-| `+3V3` | 24 | 2 | ZONE_OR_RAIL_PENDING | C55.1, C49.1, C43.1, J7.3, C47.1, U14.6, U14.7, U14.23 ... \| J7.4 |
-| `+5V` | 41 | 2 | ZONE_OR_RAIL_PENDING | C26.1, C56.1, C23.1, U2.7, R12.1, J7.6, D6.2, C53.1 ... \| J7.5 |
-| `GND` | 166 | 4 | ZONE_OR_RAIL_PENDING | H1.1, H2.1, D14.1, C67.2, C44.2, C26.2, C55.2, C56.2 ... \| J7.1 \| J7.2 \| C12.2 |
-| `VIN_24V` | 13 | 3 | ZONE_OR_RAIL_PENDING | J7.7 \| J7.8 \| C62.1, C61.1, U16.2, U16.3, U15.2, U15.3, J5.1, C70.1 ... |
+| `GND` | 166 | 2 | ZONE_OR_RAIL_PENDING | H1.1, H2.1, D14.1, C67.2, C44.2, C26.2, C55.2, C56.2 ... \| C12.2 |
+| `VIN_24V` | 13 | 2 | ZONE_OR_RAIL_PENDING | J7.7, J7.8 \| C62.1, C61.1, U16.2, U16.3, U15.2, U15.3, J5.1, C70.1 ... |
+| `+3V3` | 24 | 1 | EXPLICITLY_ROUTED | C55.1, C49.1, C43.1, J7.3, J7.4, C47.1, U14.6, U14.7 ... |
+| `+5V` | 41 | 1 | EXPLICITLY_ROUTED | C26.1, C56.1, C23.1, U2.7, R12.1, J7.5, J7.6, D6.2 ... |
 | `/LASER_BLUE/CMD_FILTER` | 4 | 1 | EXPLICITLY_ROUTED | U8.3, C27.1, R35.2, R36.1 |
 | `/LASER_BLUE/FB` | 5 | 1 | EXPLICITLY_ROUTED | U8.4, Q4.2, R33.1, C28.1, R34.1 |
 | `/LASER_BLUE/GATE` | 2 | 1 | EXPLICITLY_ROUTED | Q4.1, R32.2 |

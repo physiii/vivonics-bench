@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/andy/projects/vivonics/vivonics/bench/circuits/laser_controller.kicad_sch")
-		(date "2026-07-06T12:55:13")
+		(date "2026-07-06T14:14:19")
 		(tool "Eeschema 10.0.4-10.0.4~ubuntu24.04.1")
 		(sheet
 			(number "1")

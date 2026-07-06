@@ -175,6 +175,7 @@ def main() -> int:
         "circuits/check_layout_review_geometry.py",
         "circuits/check_kicad_pcbnew_drc_report.py",
         "circuits/check_courtyard_overlap_triage.py",
+        "circuits/check_assembly_clearance_geometry.py",
         "circuits/check_3d_model_coverage.py",
         "circuits/check_signal_pd_footprint_geometry.py",
         "circuits/check_laser_controller_release_readiness.py",
@@ -535,6 +536,11 @@ def main() -> int:
                     "package/placement changes, or explicit assembly waivers before fabrication."
                 ),
             },
+        ),
+        (
+            "Assembly clearance geometry",
+            ["/usr/bin/python3", "circuits/check_assembly_clearance_geometry.py"],
+            {},
         ),
         (
             "3D model coverage",
