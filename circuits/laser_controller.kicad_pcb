@@ -32662,7 +32662,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C103460"
+		(property "LCSC" "C22908"
 			(at 184.8875 45.8875 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -32674,7 +32674,7 @@
 				)
 			)
 		)
-		(property "Part Number" "RTT032491FTP"
+		(property "Part Number" "0603WAF2491T5E"
 			(at 184.8875 45.8875 0)
 			(layer "F.Fab")
 			(hide yes)

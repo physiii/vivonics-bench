@@ -47,8 +47,8 @@ EXPECTED_COMPONENTS = {
         "sheet": "/POWER_IO/",
         "value": "2.49k MPD bias",
         "footprint": "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder",
-        "mpn": "RTT032491FTP",
-        "lcsc": "C103460",
+        "mpn": "0603WAF2491T5E",
+        "lcsc": "C22908",
     },
     "C35": {
         "sheet": "/POWER_IO/",

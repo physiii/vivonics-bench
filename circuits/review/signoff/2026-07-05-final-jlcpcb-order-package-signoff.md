@@ -79,21 +79,22 @@ PCBA review and hand-place the SFH2201 photodiodes with the laser cans.
 The July 5 quote triage replaced the three rows JLCPCB flagged:
 
 - `R42,R44,R46,R48`: `RTT032400FTP`, JLCPCB `C103446`, 240 ohm 0603.
-- `R41`: `RTT032491FTP`, JLCPCB `C103460`, 2.49 k 0603.
+- `R41`: `0603WAF2491T5E`, JLCPCB `C22908`, 2.49 k 0603.
 - `C70`: `100CE22FS+P`, JLCPCB `C242011`, 22 uF 100 V SMD electrolytic.
 
-`C103460` and `C242011` had enough live stock for a 5-board first-article order
-but little margin during the July 5 quote review. If either row is short when
-uploading, do not change copper or footprints; either select a same-footprint
-JLCPCB substitute on the quote page and checkpoint the new C-code, or mark the
-single row not-assembled and hand-place that part.
+`R41` was moved to `C22908` after JLCPCB reported a shortfall for `C103460`.
+`C242011` had enough live stock for a 5-board first-article order but little
+margin during the July 5 quote review. If `C70` is short when uploading, do not
+change copper or footprints; either select a same-footprint JLCPCB substitute on
+the quote page and checkpoint the new C-code, or mark the single row
+not-assembled and hand-place that part.
 
 ## SHA256
 
 ```text
 33c8f6449577ae67f07ff8e31ee011681506ea8993b0e252b03f5605c0534d2d  circuits/laser_controller_gerbers.zip
-f075d82c0d6a9324df66dfd3cbf389ebdfa800796416dfd0a56a55c0b4fe4584  circuits/laser_controller_jlcpcb_package.zip
-55adad1c70b27a3081e82dbff26a597234760427a83e7209e614c154f2aff3f2  circuits/laser_controller_bom_jlcpcb.csv
+30fa58e1037460bf963f7a0ff70bb134222de2bdda7d0b982fe09e01090d5055  circuits/laser_controller_jlcpcb_package.zip
+516f5eb10b5ff3ffc922ced47a639696911c27de949bab44d5e5d5ad19db8ee7  circuits/laser_controller_bom_jlcpcb.csv
 4a6c5aeeabfd5a95fe43617c8fc85b13948063afd09e5b1d515f6554f7799e3b  circuits/fab/laser_controller_pos.csv
-947c8f2afd85d1c2a3ab2536ab3597b26edd6fa468bd060c5235a962057314ab  circuits/fab/laser_controller_full_procurement.csv
+226ab7ad5e31b6de9c83ec9a00cf4b0b54bd082182fccf55c41c047927926b72  circuits/fab/laser_controller_full_procurement.csv
 ```

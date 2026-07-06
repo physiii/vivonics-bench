@@ -1,6 +1,5 @@
 Comment,Designator,Footprint,LCSC
 "240R MPD sense","R42,R44,R46,R48","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C103446"
-"2.49k MPD bias","R41","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C103460"
 "10pF C0G","C1,C5,C9,C13,C19,C22,C25,C28","Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder","C106245"
 "RF 2M","RV5,RV6,RV7,RV8","Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical","C116323"
 "SW_PUSH","SW1,SW2,SW3","Button_Switch_SMD:SW_SPST_PTS645","C127509"
@@ -13,6 +12,7 @@ Comment,Designator,Footprint,LCSC
 "AP63200WU-7 9.3V BUCK","U16","Package_TO_SOT_SMD:TSOT-23-6","C2071868"
 "AO3400A","Q1,Q2,Q3,Q4","Package_TO_SOT_SMD:SOT-23","C20917"
 "1.3k LIMIT","R21","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C22767"
+"2.49k MPD bias","R41","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C22908"
 "47.5K","R56","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C23061"
 "4.7k LIMIT","R36","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C23162"
 "750R LIMIT","R26","Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder","C23241"

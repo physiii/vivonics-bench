@@ -260,7 +260,7 @@ def validate_schematic(netlist_path: Path) -> list[str]:
 
     require_comp(failures, comps, "U12", mpn="INA4180A1IPWR", footprint_suffix="TSSOP-14_4.4x5mm_P0.65mm")
     require_comp(failures, comps, "U13", mpn="LM4040C50IDBZR", footprint_suffix="SOT-23")
-    require_comp(failures, comps, "R41", mpn="RTT032491FTP", value_contains="2.49k")
+    require_comp(failures, comps, "R41", mpn="0603WAF2491T5E", value_contains="2.49k")
     require_comp(failures, comps, "C35", mpn="0402B104K160CT", value_contains="100nF")
     require_comp(failures, comps, "C36", mpn="0402B104K160CT", value_contains="100nF MPD bias")
     require_comp(failures, comps, "LD1", mpn="D7805I", footprint_suffix="LaserDiode_TO18-D5.6-3")

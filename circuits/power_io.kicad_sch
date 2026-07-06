@@ -1584,8 +1584,8 @@
     (property "Value" "2.49k MPD bias" (at 201.18 203.33 0) (effects (font (size 1.0 1.0)) (justify left)))
     (property "Footprint" "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder" (at 195.58 201.93 0) (effects (font (size 1.0 1.0)) hide))
     (property "Datasheet" "" (at 195.58 201.93 0) (effects (font (size 1.0 1.0)) hide))
-    (property "Part Number" "RTT032491FTP" (at 195.58 201.93 0) (effects (font (size 1.0 1.0)) hide))
-    (property "LCSC" "C103460" (at 195.58 201.93 0) (effects (font (size 1.0 1.0)) hide))
+    (property "Part Number" "0603WAF2491T5E" (at 195.58 201.93 0) (effects (font (size 1.0 1.0)) hide))
+    (property "LCSC" "C22908" (at 195.58 201.93 0) (effects (font (size 1.0 1.0)) hide))
     (pin "1" (uuid c1d2e3f4-6000-4000-a000-000000001132))
     (pin "2" (uuid c1d2e3f4-6000-4000-a000-000000001133))
     (instances

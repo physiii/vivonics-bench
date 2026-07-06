@@ -17,7 +17,7 @@ Current passive families:
 - 1 k / 10 k / 30 k / 22 ohm / 10 M 0603 resistor families as encoded in
   the generated BOM and netlist checker.
 - 240 ohm 0603 monitor-PD sense resistor: `RTT032400FTP`, LCSC/JLCPCB `C103446`.
-- 2.49 k 0603 monitor-bias sink resistor: `RTT032491FTP`, LCSC/JLCPCB `C103460`.
+- 2.49 k 0603 monitor-bias sink resistor: `0603WAF2491T5E`, LCSC/JLCPCB `C22908`.
 - 237 k 0603 AP63200 feedback resistor: `FRC0603F2373TS`, LCSC `C2998117`.
 - 10 ohm 2512 2 W laser sense resistors: `HoCR2512-2W-10R-1%`, LCSC `C5123624`.
 - Bourns 3224W SMD trimmers: `3224W-1-103E` / LCSC `C81348` for VBIAS,
@@ -46,7 +46,7 @@ Open production gap:
 First-article upload note:
 - The JLCPCB upload manifest is
   `circuits/fab/laser_controller_jlcpcb_upload_manifest.md`. For the current
-  five-board first-article order, `R41` (`C103460`) and `C70` (`C242011`) are the
-  only passive rows with known thin quote-time stock margin. If JLCPCB flags
-  either row, use a same-footprint quote-page substitute with a new checkpoint
-  commit, or hand-place the affected part.
+  five-board first-article order, `R41` was moved from thin-stock `C103460` to
+  `C22908`. `C70` (`C242011`) remains the only passive row with known thin
+  quote-time stock margin. If JLCPCB flags it, use a same-footprint quote-page
+  substitute with a new checkpoint commit, or hand-place the affected part.

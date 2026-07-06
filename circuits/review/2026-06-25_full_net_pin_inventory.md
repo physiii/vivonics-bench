@@ -754,7 +754,7 @@ Total schematic components: **181**.
 | `J6` | `/POWER_IO/` | CONN_RJ45 | `Connector_RJ:RJ45_Amphenol_RJHSE538X` | `C386757` | `R-RJ45R08P-C000` |
 | `L1` | `/POWER_IO/` | 4.7uH | `Open_Automation:L_5.4x5.3_H3` | `C408410` | `MWSA0503S-4R7MT` |
 | `L2` | `/POWER_IO/` | 10uH | `Open_Automation:L_4x4` | `C98364` | `WPN4020H100MT` |
-| `R41` | `/POWER_IO/` | 2.49k MPD bias | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C103460` | `RTT032491FTP` |
+| `R41` | `/POWER_IO/` | 2.49k MPD bias | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C22908` | `0603WAF2491T5E` |
 | `R42` | `/POWER_IO/` | 240R MPD sense | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C103446` | `RTT032400FTP` |
 | `R43` | `/POWER_IO/` | 1k ADC | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C2907002` | `FRC0603F1001TS` |
 | `R44` | `/POWER_IO/` | 240R MPD sense | `Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder` | `C103446` | `RTT032400FTP` |

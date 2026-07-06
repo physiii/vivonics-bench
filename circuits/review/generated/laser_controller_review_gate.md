@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-06T04:27:15+00:00
+Generated: 2026-07-06T12:06:34+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -102,7 +102,7 @@ wrote tia_ir.kicad_sch (37648 bytes, 579 lines)
   wrote laser_red.kicad_sch (36306 bytes, 547 lines)
   wrote laser_green.kicad_sch (36296 bytes, 547 lines)
   wrote laser_blue.kicad_sch (35993 bytes, 545 lines)
-  wrote power_io.kicad_sch (201959 bytes, 3142 lines)
+  wrote power_io.kicad_sch (201960 bytes, 3142 lines)
   wrote laser_controller.kicad_sch (36434 bytes, 346 lines)
   wrote lib/viv.kicad_sym
   wrote laser_controller_bom_jlcpcb.csv
@@ -171,7 +171,7 @@ WARN LCSC C2907002 FRC0603F1001TS 1k resistor page: reachable; Distributor/order
 WARN JLCPCB C22984 30k resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C844918 CRCW060310K0FKEA 10k resistor page: reachable; Distributor/order source for active 10k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C103446 RTT032400FTP 240 ohm resistor page: reachable; Distributor/order source for active 240 ohm monitor-PD sense resistor evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN JLCPCB C103460 RTT032491FTP 2.49k resistor page: reachable; Distributor/order source for active 2.49k monitor-PD bias resistor evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
+WARN JLCPCB C22908 0603WAF2491T5E 2.49k resistor page: reachable; Distributor/order source for active 2.49k monitor-PD bias resistor evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C242011 100CE22FS+P electrolytic page: reachable; Distributor/order source for active 22uF 100V VIN_24V bulk electrolytic evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LRC L8050QLT1G transistor datasheet: reachable; Manufacturer datasheet for the Q5 NPN SOT-23 auto-reset transistor. [HEAD HTTP 200, type=application/pdf, length=543317]
 WARN LCSC C39282 L8550HQLT1G transistor page: reachable; Distributor/order source for the Q6 PNP SOT-23 auto-reset transistor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]

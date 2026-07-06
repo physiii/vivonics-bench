@@ -261,8 +261,8 @@ WARNING_ONLINE = [
         note="Distributor/order source for active 240 ohm monitor-PD sense resistor evidence.",
     ),
     OnlineEvidence(
-        "JLCPCB C103460 RTT032491FTP 2.49k resistor page",
-        "https://jlcpcb.com/partdetail/RALEC-RTT032491FTP/C103460",
+        "JLCPCB C22908 0603WAF2491T5E 2.49k resistor page",
+        "https://jlcpcb.com/partdetail/UniroyalElec-0603WAF2491T5E/C22908",
         False,
         note="Distributor/order source for active 2.49k monitor-PD bias resistor evidence.",
     ),

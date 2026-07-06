@@ -17,8 +17,8 @@ derating for field use, or board-temperature measurement after assembly.
 - Quote-time lifecycle/stock check required: JLCPCB/LCSC availability, assembly
   tier, minimum order status, and substitute suggestions win over this static
   repository lock.
-- If JLCPCB flags only `R41` or `C70` at quote time, prefer a same-footprint
-  quote-page substitute or hand-placement over another PCB layout change.
+- If JLCPCB flags only `C70` at quote time, prefer a same-footprint quote-page
+  substitute or hand-placement over another PCB layout change.
 - Board-temperature measurement remains required before production release.
 - Pulse/surge/current derating remains required before production or field use.
 
@@ -47,7 +47,7 @@ derating for field use, or board-temperature measurement after assembly.
 | `3224W-1-103E` | `C81348` | 4 | Bourns 10 k VBIAS SMD trimmers |
 | `3224W-1-205E` | `C116323` | 4 | Bourns 2 M TIA feedback SMD trimmers |
 | `CRCW060310K0FKEA` | `C844918` | 14 | 10 k 0603 bias, pull, and RJ45 LED/contact resistors |
-| `RTT032491FTP` | `C103460` | 1 | 2.49 k monitor-PD bias shunt resistor |
+| `0603WAF2491T5E` | `C22908` | 1 | 2.49 k monitor-PD bias shunt resistor |
 | `ERJ2RKF1002X` | `C191123` | 8 | 10 k 0402 ESP32/CP2102 pull resistors |
 | `FRC0402F2212TS` | `C2929993` | 2 | 22.1 k AP632 feedback and VBUS divider resistors |
 | `FRC0603F1001TS` | `C2907002` | 16 | 1 k 0603 gate, sense, and ADC filter resistors |
@@ -58,9 +58,11 @@ derating for field use, or board-temperature measurement after assembly.
 
 ## Quote-Time Watch Items
 
-During the July 5 JLCPCB upload triage, `C103460` and `C242011` had enough live
-stock for a five-board first-article order but little margin. If either part is
-short when the order is placed, the acceptable first-article actions are:
+During the July 6 JLCPCB upload triage, `C103460` was short because JLCPCB
+required 20 pieces for the single `R41` assembly row and had only 7 available.
+`R41` is now locked to higher-stock `C22908` / `0603WAF2491T5E`. `C242011` had
+enough live stock for a five-board first-article order but little margin. If
+`C242011` is short when the order is placed, the acceptable first-article actions are:
 
 - select a same-footprint, same-value, equal-or-better-voltage/power JLCPCB
   substitute and checkpoint the replacement C-code, or

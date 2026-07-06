@@ -175,7 +175,7 @@ procurement/assembly items listed below.
 | RV5–RV8 | 2M SMD trimmer | **C116323** | Extended | TIA feedback trim, Bourns **3224W-1-205E**, pin 2 wiper tied to OPA380 output side; orientation signed off on 2026-07-04. |
 | R (10k) | 10k 0603 1% | **C844918** | — | VBIAS / EN / BOOT pull-up resistors. |
 | R (240Ω) | 240Ω 0603 1% | **C103446** | Extended | monitor-PD high-side sense resistors, RALEC `RTT032400FTP`. |
-| R (2.49k) | 2.49k 0603 1% | **C103460** | Extended | LM4040/`MPD_BIAS` sink resistor, RALEC `RTT032491FTP`. |
+| R (2.49k) | 2.49k 0603 1% | **C22908** | Extended | LM4040/`MPD_BIAS` sink resistor, UNI-ROYAL `0603WAF2491T5E`. |
 | R61/R62/C69 | 237k / 22.1k / 100pF feedback set | **C2998117 / C2929993 / C1546** | — | AP63200 feedback divider and feed-forward capacitor for about 9.38 V `LASER_V+`. |
 | R (1k) | 1k 0603 1% | **C2907002** | — | gate / ISENSE-isolation / PD-bias / monitor-ADC isolation resistor. |
 | R21/R26/R31/R36 | 1.3k / 750Ω / 3k / 4.7k 0603 1% | **C22767 / C23241 / C4211 / C23162** | Basic | Per-channel PWM command limiter pulldowns for IR / red / green / blue. |

@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/andy/projects/vivonics/vivonics/bench/circuits/laser_controller.kicad_sch")
-		(date "2026-07-05T23:24:55")
+		(date "2026-07-06T07:04:19")
 		(tool "Eeschema 10.0.4-10.0.4~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -10577,9 +10577,9 @@
 			(footprint "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder")
 			(fields
 				(field
-					(name "Part Number") "RTT032491FTP")
+					(name "Part Number") "0603WAF2491T5E")
 				(field
-					(name "LCSC") "C103460")
+					(name "LCSC") "C22908")
 				(field
 					(name "Footprint") "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder")
 				(field
@@ -10596,11 +10596,11 @@
 			)
 			(property
 				(name "Part Number")
-				(value "RTT032491FTP")
+				(value "0603WAF2491T5E")
 			)
 			(property
 				(name "LCSC")
-				(value "C103460")
+				(value "C22908")
 			)
 			(property
 				(name "Sheetname")

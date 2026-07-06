@@ -31,7 +31,7 @@ After re-uploading the BOM and CPL, the quote page should show:
 - no failed CPL processing,
 - no inventory shortage for the current 5-board order,
 - `J7` selected as `C192300`,
-- `R41` selected as `C103460`,
+- `R41` selected as `C22908`,
 - `R42,R44,R46,R48` selected as `C103446`,
 - `C70` selected as `C242011`.
 
@@ -66,7 +66,7 @@ no-selection issues:
 | Designators | MPN | JLCPCB/LCSC | Action if JLC flags it again |
 |---|---|---:|---|
 | `R42,R44,R46,R48` | `RTT032400FTP` | `C103446` | Keep; choose same-footprint 240 ohm 0603 1% only if JLC stock changes. |
-| `R41` | `RTT032491FTP` | `C103460` | Stock was thin; same-footprint 2.49 k 0603 1% substitute is acceptable after checkpointing the new C-code. |
+| `R41` | `0603WAF2491T5E` | `C22908` | Same-footprint 2.49 k 0603 1% replacement for short `C103460`; keep unless JLC stock changes. |
 | `C70` | `100CE22FS+P` | `C242011` | Stock was exactly enough for five boards; if short, hand-place a 22 uF 100 V SMD electrolytic with D8xL10.2 mm footprint compatibility. |
 
 Do not change the PCB just to resolve one quote-time stock row. For this

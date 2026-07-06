@@ -188,13 +188,13 @@ RES_RATINGS = {
         package="0603",
         source="LCSC C23162 / UNI-ROYAL 0603WAF4701T5E page: 4.7k, 100mW, 75V, +/-1%.",
     ),
-    "RTT032491FTP": ResistorRating(
+    "0603WAF2491T5E": ResistorRating(
         value="2.49k",
         power_w=0.10,
         voltage_v=75.0,
         tolerance="+/-1%",
         package="0603",
-        source="JLCPCB C103460 / RALEC RTT032491FTP page: 2.49k, 100mW, 75V, +/-1%, +/-100ppm/C.",
+        source="JLCPCB C22908 / UNI-ROYAL 0603WAF2491T5E page: 2.49k, 100mW, 75V, +/-1%, +/-100ppm/C.",
     ),
     "RTT032400FTP": ResistorRating(
         value="240R",
