@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-06T02:30:53+00:00
+Generated: 2026-07-06T02:48:00+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -583,7 +583,7 @@ Command: `/usr/bin/python3 circuits/check_3d_model_coverage.py`
 ./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
 ./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
 ./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
-PASS 3D model coverage: 179 modeled footprints, 2 mounting-hole footprint(s) exempt, all model files resolve, J7 SMT header model is aligned
+PASS 3D model coverage: 179 modeled footprints, 2 mounting-hole footprint(s) exempt, all model files resolve, J7 SMT header visual model is aligned to pad centers
 ```
 
 ## PASS: Signal-PD footprint geometry

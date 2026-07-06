@@ -1,7 +1,7 @@
 # Project-local 3D model sources
 
-These STEP models are used by `circuits/laser_controller.kicad_pcb` where the
-KiCad 7 system library did not provide a footprint-matched STEP model.
+These project-local models are used by `circuits/laser_controller.kicad_pcb`
+where the KiCad 7 system library did not provide a footprint-matched model.
 
 ## Imported via easyeda2kicad
 
@@ -29,15 +29,20 @@ KiCad 7 system library did not provide a footprint-matched STEP model.
 
 ## Generated project models
 
-- `Connector_PinHeader.3dshapes/PinHeader_2x04_P2.54mm_SMD_Vertical_C192300.step`
+- `Connector_PinHeader.3dshapes/PinHeader_2x04_P2.54mm_SMD_Vertical_C192300.wrl`
   - Generated from the `Open_Automation:PinHeader_2x04_P2.54mm_SMD_Vertical_C192300`
-    footprint geometry.
+    footprint geometry for KiCad 3D assembly review.
   - LCSC part checked: `C192300`
   - Manufacturer part: BOOMELE `2.54-2*4P`
   - Published package/spec basis: SMT, 2.54 mm pitch, 2 rows, 8 pins,
     vertical, 2.54 mm row spacing.
-  - Footprint/model layout: two columns by four positions, with duplicated
+  - Footprint/model layout: eight visible SMT feet at the footprint pad centers,
+    two columns by four positions, with duplicated
     `GND`, `+3V3`, `+5V`, and `VIN_24V` rails on the two sides.
+- `Connector_PinHeader.3dshapes/PinHeader_2x04_P2.54mm_SMD_Vertical_C192300.step`
+  - Legacy simplified solid generated from the same footprint geometry. The
+    active board footprint uses the WRL above because it shows the SMT feet
+    against the pads more clearly in KiCad's 3D viewer.
 - `OptoDevice.3dshapes/LaserDiode_TO18-D5.6-3.step`
 - `OptoDevice.3dshapes/LaserDiode_TO56-3.step`
 

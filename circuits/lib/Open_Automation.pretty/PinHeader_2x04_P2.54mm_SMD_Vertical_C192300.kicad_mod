@@ -65,7 +65,7 @@
     (tstamp 6bf7ea8c-7d41-46b2-9d88-8f376f4cab42))
   (pad "8" smd roundrect (at 2.54 7.62) (size 1.6 1.8) (layers "F.Cu" "F.Paste" "F.Mask") (roundrect_rratio 0.15)
     (tstamp cc4507df-1d10-4fbd-af5f-0363d6ffbf44))
-  (model "${KIPRJMOD}/packages3d/Connector_PinHeader.3dshapes/PinHeader_2x04_P2.54mm_SMD_Vertical_C192300.step"
+  (model "${KIPRJMOD}/packages3d/Connector_PinHeader.3dshapes/PinHeader_2x04_P2.54mm_SMD_Vertical_C192300.wrl"
     (offset (xyz 0 0 0))
     (scale (xyz 1 1 1))
     (rotate (xyz 0 0 0))

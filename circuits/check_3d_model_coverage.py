@@ -11,14 +11,12 @@ from pathlib import Path
 
 DEFAULT_BOARD = Path(__file__).resolve().parent / "laser_controller.kicad_pcb"
 DEFAULT_KICAD_3DMODELS = Path("/usr/share/kicad/3dmodels")
-J7_EXPECTED_MODEL = "packages3d/Connector_PinHeader.3dshapes/PinHeader_2x04_P2.54mm_SMD_Vertical_C192300.step"
+J7_EXPECTED_MODEL = "packages3d/Connector_PinHeader.3dshapes/PinHeader_2x04_P2.54mm_SMD_Vertical_C192300.wrl"
 J7_EXPECTED_OFFSET = (0.0, 0.0, 0.0)
 J7_EXPECTED_SCALE = (1.0, 1.0, 1.0)
 J7_EXPECTED_ROTATION = (0.0, 0.0, 0.0)
-J7_EXPECTED_STEP_BBOX = (-1.10, -1.10, 0.0, 3.64, 8.72, 8.50)
-J7_EXPECTED_GRID_CENTER = (1.27, 3.81)
 OFFSET_TOLERANCE_MM = 0.001
-BBOX_TOLERANCE_MM = 0.01
+FOOT_CENTER_TOLERANCE_MM = 0.01
 
 
 def ensure_pcbnew():
@@ -82,23 +80,26 @@ def expand_model_path(raw: str, env: dict[str, str], board_path: Path) -> tuple[
     return path, None
 
 
-def step_bbox(path: Path) -> tuple[float, float, float, float, float, float] | None:
-    points: list[tuple[float, float, float]] = []
+def wrl_smt_foot_centers(path: Path) -> dict[str, tuple[float, float]]:
+    centers: dict[str, tuple[float, float]] = {}
     text = path.read_text(errors="replace")
-    for match in re.finditer(r"CARTESIAN_POINT\([^,]*,\(([^)]*)\)\)", text):
-        coords = [
-            float(value)
-            for value in re.findall(
-                r"[-+]?\d+(?:\.\d*)?(?:[Ee][-+]?\d+)?|[-+]?\.\d+(?:[Ee][-+]?\d+)?",
-                match.group(1),
-            )
-        ]
-        if len(coords) == 3:
-            points.append((coords[0], coords[1], coords[2]))
-    if not points:
-        return None
-    xs, ys, zs = zip(*points)
-    return (min(xs), min(ys), min(zs), max(xs), max(ys), max(zs))
+    marker_re = re.compile(
+        r"^\s*#\s*SMT_FOOT\s+pad=(\d+)\s+center=\("
+        r"([-+]?\d+(?:\.\d*)?(?:[Ee][-+]?\d+)?|[-+]?\.\d+(?:[Ee][-+]?\d+)?),"
+        r"([-+]?\d+(?:\.\d*)?(?:[Ee][-+]?\d+)?|[-+]?\.\d+(?:[Ee][-+]?\d+)?)\)",
+        re.MULTILINE,
+    )
+    for match in marker_re.finditer(text):
+        centers[match.group(1)] = (float(match.group(2)), float(match.group(3)))
+    return centers
+
+
+def j7_pad_centers_mm(fp) -> dict[str, tuple[float, float]]:
+    centers: dict[str, tuple[float, float]] = {}
+    for pad in fp.Pads():
+        pos = pad.GetFPRelativePosition()
+        centers[str(pad.GetNumber())] = (float(pos.x) / 1_000_000.0, float(pos.y) / 1_000_000.0)
+    return centers
 
 
 def check_j7_model(fp, env: dict[str, str], board_path: Path) -> list[str]:
@@ -109,7 +110,7 @@ def check_j7_model(fp, env: dict[str, str], board_path: Path) -> list[str]:
     matching = [model for model in models if J7_EXPECTED_MODEL in model.m_Filename.replace("\\", "/")]
     if not matching:
         failures.append(
-            "J7 3D model is not the KiCad 2x04 vertical SMT header model "
+            "J7 3D model is not the project-local C192300 2x04 vertical SMT header visual model "
             f"({J7_EXPECTED_MODEL})"
         )
         return failures
@@ -139,25 +140,23 @@ def check_j7_model(fp, env: dict[str, str], board_path: Path) -> list[str]:
     if error is not None or resolved is None:
         failures.append(f"J7: {error or 'could not resolve model path'}")
         return failures
-    bbox = step_bbox(resolved)
-    if bbox is None:
-        failures.append(f"J7: could not read STEP geometry bbox from {resolved}")
+    model_centers = wrl_smt_foot_centers(resolved)
+    pad_centers = j7_pad_centers_mm(fp)
+    if sorted(model_centers) != sorted(pad_centers):
+        failures.append(
+            "J7 C192300 visual model SMT feet are defined for pads "
+            f"{', '.join(sorted(model_centers)) or 'none'}; "
+            f"expected pads {', '.join(sorted(pad_centers))}"
+        )
         return failures
-    if any(abs(actual - expected) > BBOX_TOLERANCE_MM for actual, expected in zip(bbox, J7_EXPECTED_STEP_BBOX)):
-        failures.append(
-            "J7 C192300 STEP bbox is "
-            f"({bbox[0]:.2f}, {bbox[1]:.2f}, {bbox[2]:.2f}, {bbox[3]:.2f}, {bbox[4]:.2f}, {bbox[5]:.2f}); "
-            f"expected ({J7_EXPECTED_STEP_BBOX[0]:.2f}, {J7_EXPECTED_STEP_BBOX[1]:.2f}, "
-            f"{J7_EXPECTED_STEP_BBOX[2]:.2f}, {J7_EXPECTED_STEP_BBOX[3]:.2f}, "
-            f"{J7_EXPECTED_STEP_BBOX[4]:.2f}, {J7_EXPECTED_STEP_BBOX[5]:.2f})"
-        )
-    center = ((bbox[0] + bbox[3]) / 2 + offset[0], (bbox[1] + bbox[4]) / 2 + offset[1])
-    if any(abs(actual - expected) > BBOX_TOLERANCE_MM for actual, expected in zip(center, J7_EXPECTED_GRID_CENTER)):
-        failures.append(
-            "J7 C192300 model XY center after offset is "
-            f"({center[0]:.2f}, {center[1]:.2f}); "
-            f"expected pad-grid center ({J7_EXPECTED_GRID_CENTER[0]:.2f}, {J7_EXPECTED_GRID_CENTER[1]:.2f})"
-        )
+    for pad, expected in sorted(pad_centers.items(), key=lambda item: int(item[0])):
+        actual = model_centers[pad]
+        if any(abs(a - e) > FOOT_CENTER_TOLERANCE_MM for a, e in zip(actual, expected)):
+            failures.append(
+                f"J7 C192300 visual model SMT foot {pad} is centered at "
+                f"({actual[0]:.2f}, {actual[1]:.2f}); expected footprint pad center "
+                f"({expected[0]:.2f}, {expected[1]:.2f})"
+            )
     return failures
 
 
@@ -211,7 +210,7 @@ def main() -> int:
     print(
         "PASS 3D model coverage: "
         f"{checked} modeled footprints, {exempt} mounting-hole footprint(s) exempt, "
-        "all model files resolve, J7 SMT header model is aligned"
+        "all model files resolve, J7 SMT header visual model is aligned to pad centers"
     )
     return 0
 
