@@ -214,6 +214,7 @@ def main() -> int:
         "circuits/check_part_notes_completeness.py",
         "circuits/check_source_documents.py",
         "circuits/check_jlcpcb_order_package.py",
+        "circuits/convert_kicad_pos_to_jlcpcb_cpl.py",
     ]
 
     steps: list[tuple[str, list[str], dict[str, object]]] = [

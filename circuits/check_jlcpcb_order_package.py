@@ -95,6 +95,20 @@ def parse_mm_cell(value: str, field: str, ref: str) -> tuple[float | None, str |
     return parsed, None
 
 
+def board_bounds() -> tuple[float, float, float, float]:
+    text = BOARD_PATH.read_text()
+    points: list[tuple[float, float]] = []
+    for match in re.finditer(r"\((?:gr_line|gr_rect|gr_arc)[\s\S]*?\(layer \"Edge\.Cuts\"\)[\s\S]*?\)", text):
+        block = match.group(0)
+        for x, y in re.findall(r"\((?:start|end|mid)\s+([-0-9.]+)\s+([-0-9.]+)\)", block):
+            points.append((float(x), float(y)))
+    if not points:
+        raise ValueError("no Edge.Cuts coordinates found in board")
+    xs = [x for x, _ in points]
+    ys = [y for _, y in points]
+    return min(xs), max(xs), min(ys), max(ys)
+
+
 def footprint_blocks() -> list[tuple[str, str, str]]:
     text = BOARD_PATH.read_text()
     blocks: list[tuple[str, str, str]] = []
@@ -217,6 +231,13 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
     bom_rows = read_csv(BOM_PATH)
     pos_rows, cpl_failures = read_cpl(POS_PATH)
     failures.extend(cpl_failures)
+    try:
+        min_x, max_x, min_y, max_y = board_bounds()
+        board_width = max_x - min_x
+        board_height = max_y - min_y
+    except ValueError as exc:
+        failures.append(str(exc))
+        board_width = board_height = 0.0
     bom_refs = bom_designators(bom_rows)
     pos_refs = {row.get("Designator", "") for row in pos_rows}
     pcb_sides = footprint_layers()
@@ -238,9 +259,16 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
                 f"POS layer for {ref} is {layer}, expected {expected_side} from PCB layer"
             )
         for field in ("Mid X", "Mid Y"):
-            _, error = parse_mm_cell(row.get(field, ""), field, ref)
+            parsed, error = parse_mm_cell(row.get(field, ""), field, ref)
             if error:
                 failures.append(error)
+            elif parsed is not None and board_width and board_height:
+                limit = board_width if field == "Mid X" else board_height
+                if parsed > limit + 0.05:
+                    failures.append(
+                        f"{ref}: CPL {field} value {parsed:.4f}mm is outside "
+                        f"board-local {'width' if field == 'Mid X' else 'height'} {limit:.4f}mm"
+                    )
         try:
             rotation = float(row.get("Rotation", ""))
         except ValueError:
