@@ -85,8 +85,8 @@ REQUIRED_ONLINE = [
         expect_pdf=True,
     ),
     OnlineEvidence(
-        "Access-controller Mini-B C46391 assembly source",
-        "https://www.lcsc.com/product-detail/USB-Connectors_Jing-Extension-of-the-Electronic-Co-920-462A2021S10101_C46391.html",
+        "JLC/LCSC Mini-B C53207143 assembly source",
+        "https://jlcpcb.com/partdetail/BXCONN-MINI_USB5P/C53207143",
         True,
     ),
     OnlineEvidence(
@@ -220,7 +220,7 @@ WARNING_ONLINE = [
         "Wuerth Mini/Micro USB family page",
         "https://www.we-online.com/en/components/products/INPUT_OUTPUT_WR_USB_MINI_MICRO",
         False,
-        note="Family/product page for the KiCad footprint naming lineage; active JLC assembly metadata is C46391.",
+        note="Family/product page for the KiCad footprint naming lineage; active JLC assembly metadata is C53207143.",
     ),
     OnlineEvidence(
         "Farnell mirror of Wuerth 65100516121 drawing",

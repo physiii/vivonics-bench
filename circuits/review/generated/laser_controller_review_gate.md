@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-06T14:07:14+00:00
+Generated: 2026-07-06T15:27:28+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -77,7 +77,8 @@ First-article/production release status: BLOCKED
 | PASS | Low-Vf diode on green rail expected fail | 1 | `python3 circuits/check_laser_current_budget.py --policy low-vf-diode-on-10v5` |
 | DEFERRED | Open first-article/production blockers | 2 | `python3 circuits/check_laser_controller_release_readiness.py` |
 | PASS | Regenerate audit inventory | 0 | `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md` |
-| PASS | Export placement | 0 | `/usr/bin/kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv` |
+| PASS | Export KiCad placement | 0 | `/usr/bin/kicad-cli pcb export pos --format csv --units mm circuits/laser_controller.kicad_pcb -o /tmp/lc_pos_kicad.csv` |
+| PASS | Convert JLCPCB CPL | 0 | `python3 circuits/convert_kicad_pos_to_jlcpcb_cpl.py --pcb circuits/laser_controller.kicad_pcb --bom circuits/laser_controller_bom_jlcpcb.csv /tmp/lc_pos_kicad.csv /home/andy/projects/vivonics/vivonics/bench/circuits/fab/laser_controller_pos.csv` |
 | PASS | JLCPCB order package | 0 | `python3 circuits/check_jlcpcb_order_package.py` |
 | PASS | KiCad 9 ERC | 0 | `/usr/bin/kicad-cli sch erc --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_erc.rpt circuits/laser_controller.kicad_sch` |
 | PASS | KiCad 9 physical DRC report | 0 | `/usr/bin/kicad-cli pcb drc --all-track-errors --refill-zones --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb` |
@@ -164,7 +165,7 @@ WARN Vishay SS12-SS16 family datasheet: reachable; Family reference only; curren
 WARN LCSC C2480 SS14 order page: reachable; Distributor/order source matching the 2026-07-04 C2480 MDD SS14 signoff. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C408410 MWSA0503S-4R7MT inductor page: reachable; Distributor/order source for the AP63205 4.7uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C98364 WPN4020H100MT inductor page: reachable; Distributor/order source for the AP63200 10uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN Wuerth Mini/Micro USB family page: reachable; Family/product page for the KiCad footprint naming lineage; active JLC assembly metadata is C46391. [HEAD HTTP 200, type=text/html; charset=UTF-8, length=1]
+WARN Wuerth Mini/Micro USB family page: reachable; Family/product page for the KiCad footprint naming lineage; active JLC assembly metadata is C53207143. [HEAD HTTP 200, type=text/html; charset=UTF-8, length=1]
 WARN Farnell mirror of Wuerth 65100516121 drawing: reachable; Distributor mirror only; the official Wuerth drawing URL is the required source. [HEAD HTTP 200, type=application/pdf, length=276116]
 WARN LCSC C2907002 FRC0603F1001TS 1k resistor page: reachable; Distributor/order source for active 1k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C22984 30k resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
@@ -907,12 +908,20 @@ BLOCKED production release readiness: 7 open first-article/production blockers a
 
 Command: `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md`
 
-## PASS: Export placement
+## PASS: Export KiCad placement
 
-Command: `/usr/bin/kicad-cli pcb export pos circuits/laser_controller.kicad_pcb -o /tmp/lc_pos.csv`
+Command: `/usr/bin/kicad-cli pcb export pos --format csv --units mm circuits/laser_controller.kicad_pcb -o /tmp/lc_pos_kicad.csv`
 
 ```text
-Wrote position data to '/tmp/lc_pos.csv'.
+Wrote position data to '/tmp/lc_pos_kicad.csv'.
+```
+
+## PASS: Convert JLCPCB CPL
+
+Command: `python3 circuits/convert_kicad_pos_to_jlcpcb_cpl.py --pcb circuits/laser_controller.kicad_pcb --bom circuits/laser_controller_bom_jlcpcb.csv /tmp/lc_pos_kicad.csv /home/andy/projects/vivonics/vivonics/bench/circuits/fab/laser_controller_pos.csv`
+
+```text
+Wrote JLCPCB CPL with 175 placements to /home/andy/projects/vivonics/vivonics/bench/circuits/fab/laser_controller_pos.csv
 ```
 
 ## PASS: JLCPCB order package
@@ -920,7 +929,7 @@ Wrote position data to '/tmp/lc_pos.csv'.
 Command: `python3 circuits/check_jlcpcb_order_package.py`
 
 ```text
-PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 175/175 BOM/CPL designators match, CPL is JLCPCB five-column mm format, full procurement manifest separates JLC SMT/THT from hand-installed optical parts, J5/J6 are included for THT connector assembly, J7 is C192300 2x4 SMD, only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present
+PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 175/175 BOM/CPL designators match, CPL is JLCPCB five-column mm format, CPL coordinates match PCB footprint midpoints, J1/J2 use stocked C53207143 Mini-B assembly, full procurement manifest separates JLC SMT/THT from hand-installed optical parts, J5/J6 are included for THT connector assembly, J7 is C192300 2x4 SMD, only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present
 ```
 
 ## PASS: KiCad 9 ERC

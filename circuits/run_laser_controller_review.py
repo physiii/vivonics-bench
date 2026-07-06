@@ -25,7 +25,8 @@ CIRCUITS_DIR = REPO_DIR / "circuits"
 REPORT_DIR = CIRCUITS_DIR / "review" / "generated"
 REPORT_PATH = REPORT_DIR / "laser_controller_review_gate.md"
 NETLIST_PATH = REPORT_DIR / "laser_controller_kicad9.net"
-POS_PATH = Path("/tmp/lc_pos.csv")
+RAW_POS_PATH = Path("/tmp/lc_pos_kicad.csv")
+JLCPCB_POS_PATH = CIRCUITS_DIR / "fab" / "laser_controller_pos.csv"
 GENERATED_PCB_PATH = Path("/tmp/lc_generated_staging.kicad_pcb")
 REPORT_OUTPUT_TAIL_CHARS = 12000
 KICAD9_ERC_REPORT = REPORT_DIR / "laser_controller_kicad9_erc.rpt"
@@ -672,8 +673,34 @@ def main() -> int:
             {},
         ),
         (
-            "Export placement",
-            [KICAD_CLI, "pcb", "export", "pos", "circuits/laser_controller.kicad_pcb", "-o", str(POS_PATH)],
+            "Export KiCad placement",
+            [
+                KICAD_CLI,
+                "pcb",
+                "export",
+                "pos",
+                "--format",
+                "csv",
+                "--units",
+                "mm",
+                "circuits/laser_controller.kicad_pcb",
+                "-o",
+                str(RAW_POS_PATH),
+            ],
+            {},
+        ),
+        (
+            "Convert JLCPCB CPL",
+            [
+                "python3",
+                "circuits/convert_kicad_pos_to_jlcpcb_cpl.py",
+                "--pcb",
+                "circuits/laser_controller.kicad_pcb",
+                "--bom",
+                "circuits/laser_controller_bom_jlcpcb.csv",
+                str(RAW_POS_PATH),
+                str(JLCPCB_POS_PATH),
+            ],
             {},
         ),
         ("JLCPCB order package", ["python3", "circuits/check_jlcpcb_order_package.py"], {}),

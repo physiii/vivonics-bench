@@ -15,6 +15,8 @@ import sys
 import zipfile
 from pathlib import Path
 
+from convert_kicad_pos_to_jlcpcb_cpl import footprint_cpl_midpoints
+
 
 CIRCUITS_DIR = Path(__file__).resolve().parent
 FAB_DIR = CIRCUITS_DIR / "fab"
@@ -240,6 +242,11 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
     except ValueError as exc:
         failures.append(str(exc))
         coordinate_bounds = {}
+    try:
+        expected_midpoints = footprint_cpl_midpoints(BOARD_PATH)
+    except Exception as exc:
+        failures.append(f"could not calculate PCB footprint midpoints for CPL audit: {exc}")
+        expected_midpoints = {}
     bom_refs = bom_designators(bom_rows)
     pos_refs = {row.get("Designator", "") for row in pos_rows}
     pcb_sides = footprint_layers()
@@ -260,17 +267,28 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
             failures.append(
                 f"POS layer for {ref} is {layer}, expected {expected_side} from PCB layer"
             )
+        parsed_coordinates: dict[str, float] = {}
         for field in ("Mid X", "Mid Y"):
             parsed, error = parse_mm_cell(row.get(field, ""), field, ref)
             if error:
                 failures.append(error)
             elif parsed is not None and field in coordinate_bounds:
+                parsed_coordinates[field] = parsed
                 lower, upper = coordinate_bounds[field]
                 if parsed < lower - 0.05 or parsed > upper + 0.05:
                     failures.append(
                         f"{ref}: CPL {field} value {parsed:.4f}mm is outside "
                         f"Gerber coordinate bounds {lower:.4f}..{upper:.4f}mm"
                     )
+        if ref in expected_midpoints and {"Mid X", "Mid Y"} <= parsed_coordinates.keys():
+            expected_x, expected_y = expected_midpoints[ref]
+            actual_x = parsed_coordinates["Mid X"]
+            actual_y = parsed_coordinates["Mid Y"]
+            if abs(actual_x - expected_x) > 0.025 or abs(actual_y - expected_y) > 0.025:
+                failures.append(
+                    f"{ref}: CPL midpoint is ({actual_x:.4f}, {actual_y:.4f})mm, "
+                    f"expected footprint midpoint ({expected_x:.4f}, {expected_y:.4f})mm"
+                )
         try:
             rotation = float(row.get("Rotation", ""))
         except ValueError:
@@ -312,8 +330,8 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
             failures.append(f"J7 POS layer is {row.get('Layer')}, expected Top")
 
     required_connectors = {
-        "J1": ("C46391", "Top", "270"),
-        "J2": ("C46391", "Top", "270"),
+        "J1": ("C53207143", "Top", "270"),
+        "J2": ("C53207143", "Top", "270"),
         "J5": ("C194407", "Top"),
         "J6": ("C386757", "Top", "90"),
         "J7": ("C192300", "Top"),
@@ -527,6 +545,7 @@ def main() -> int:
         "PASS JLCPCB order package: "
         f"{len(files)} Gerber/drill files, package archive includes BOM/POS, "
         f"{bom_count}/{pos_count} BOM/CPL designators match, CPL is JLCPCB five-column mm format, "
+        "CPL coordinates match PCB footprint midpoints, J1/J2 use stocked C53207143 Mini-B assembly, "
         "full procurement manifest separates JLC SMT/THT from hand-installed optical parts, "
         "J5/J6 are included for THT connector assembly, J7 is C192300 2x4 SMD, "
         "only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present"

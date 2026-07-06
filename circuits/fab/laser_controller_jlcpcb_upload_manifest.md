@@ -30,7 +30,7 @@ After re-uploading the BOM and CPL, the quote page should show:
 - no unmatched components,
 - no failed CPL processing,
 - no inventory shortage for the current 5-board order,
-- `J1,J2` selected as `C46391` for top-side Mini-B USB assembly,
+- `J1,J2` selected as `C53207143` for top-side Mini-B USB assembly,
 - `J7` selected as `C192300`,
 - `J5` selected as `C194407` for THT/wave/manual connector assembly,
 - `J6` selected as `C386757` for THT/wave/manual connector assembly,
@@ -73,7 +73,7 @@ no-selection issues:
 
 | Designators | MPN | JLCPCB/LCSC | Action if JLC flags it again |
 |---|---|---:|---|
-| `J1,J2` | `920-462A2021S10101` | `C46391` | Keep; this matches the access-controller JLCPCB Mini-B assembly row and current CPL rotations. |
+| `J1,J2` | `MINI-USB-5P` | `C53207143` | Keep; this is the stocked BXCONN/JLC Mini-B assembly row and matches the existing Mini-B land pattern. |
 | `R42,R44,R46,R48` | `RTT032400FTP` | `C103446` | Keep; choose same-footprint 240 ohm 0603 1% only if JLC stock changes. |
 | `R41` | `0603WAF2491T5E` | `C22908` | Same-footprint 2.49 k 0603 1% replacement for short `C103460`; keep unless JLC stock changes. |
 | `C70` | `100CE22FS+P` | `C242011` | Stock was exactly enough for five boards; if short, hand-place a 22 uF 100 V SMD electrolytic with D8xL10.2 mm footprint compatibility. |
