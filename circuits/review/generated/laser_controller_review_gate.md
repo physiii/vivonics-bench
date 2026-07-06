@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-06T04:16:44+00:00
+Generated: 2026-07-06T04:27:15+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -106,6 +106,7 @@ wrote tia_ir.kicad_sch (37648 bytes, 579 lines)
   wrote laser_controller.kicad_sch (36434 bytes, 346 lines)
   wrote lib/viv.kicad_sym
   wrote laser_controller_bom_jlcpcb.csv
+  wrote fab/laser_controller_full_procurement.csv
 ```
 
 ## PASS: Export schematic netlist
@@ -920,7 +921,7 @@ Wrote position data to '/tmp/lc_pos.csv'.
 Command: `python3 circuits/check_jlcpcb_order_package.py`
 
 ```text
-PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 173/173 BOM/CPL designators match, CPL is JLCPCB five-column mm format, J7 is C192300 2x4 SMD, only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present
+PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 173/173 BOM/CPL designators match, CPL is JLCPCB five-column mm format, full procurement manifest separates JLC SMT from hand-installed optical/mechanical parts, J7 is C192300 2x4 SMD, only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present
 ```
 
 ## PASS: KiCad 9 ERC

@@ -42,3 +42,11 @@ Open production gap:
   lifecycle/stock review, approved substitute policy, pulse/surge/current derating,
   final manufacturer datasheets for every orderable passive, and
   board-temperature measurement.
+
+First-article upload note:
+- The JLCPCB upload manifest is
+  `circuits/fab/laser_controller_jlcpcb_upload_manifest.md`. For the current
+  five-board first-article order, `R41` (`C103460`) and `C70` (`C242011`) are the
+  only passive rows with known thin quote-time stock margin. If JLCPCB flags
+  either row, use a same-footprint quote-page substitute with a new checkpoint
+  commit, or hand-place the affected part.

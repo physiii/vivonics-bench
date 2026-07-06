@@ -1,0 +1,68 @@
+Assembly,Comment,Designator,Qty,Footprint,MPN,LCSC,Notes
+Hand install mechanical,24V DC IN,J5,1,Open_Automation:BarrelJack_OD5.5_ID2.5,DC-470-2.1GP,C194407,Through-hole/mechanical connector; not in JLCPCB SMT assembly.
+Hand install mechanical,CONN_RJ45,J6,1,Connector_RJ:RJ45_Amphenol_RJHSE538X,R-RJ45R08P-C000,C386757,Through-hole/mechanical connector; not in JLCPCB SMT assembly.
+Hand install optical,D6505I 650nm TO18 STYLE-A LASER+MPD,LD2,1,OptoDevice:LaserDiode_TO18-D5.6-3,D6505I,,Direct laser can; install after PCB/PCBA and inspect pin orientation.
+Hand install optical,D7805I 780nm TO18 STYLE-A LASER+MPD,LD1,1,OptoDevice:LaserDiode_TO18-D5.6-3,D7805I,,Direct laser can; install after PCB/PCBA and inspect pin orientation.
+Hand install optical,PLT5 450GB TO56 LASER CASE,LD4,1,OptoDevice:LaserDiode_TO56-3,PLT5 450GB,,Direct laser can; install after PCB/PCBA and inspect pin orientation.
+Hand install optical,PLT5 520EB_P TO56 LASER+MPD,LD3,1,OptoDevice:LaserDiode_TO56-3,PLT5 520EB_P,,Direct laser can; install after PCB/PCBA and inspect pin orientation.
+JLCPCB SMT,1.3k LIMIT,R21,1,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,0603WAF1301T5E,C22767,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,100nF,"C2,C6,C10,C14,C17,C20,C23,C26,C49,C35,C43",11,Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,0402B104K160CT,C83056,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,100nF ADC AVCC,"C51,C52,C53,C54",4,Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,0402B104K160CT,C83056,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,100nF ADC VDRIVE,C55,1,Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,0402B104K160CT,C83056,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,100nF BST,"C63,C66",2,Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,0402B104K160CT,C83056,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,100nF MPD ADC,"C37,C38,C39,C40",4,Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,0402B104K160CT,C83056,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,100nF MPD bias,C36,1,Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,0402B104K160CT,C83056,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,100pF FF,C69,1,Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,0402CG101J500NT,C1546,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,10K,"R59,R52,R58,R60,R53,R50,R51,R54",8,Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,ERJ2RKF1002X,C191123,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,10K,"R63,R64",2,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,CRCW060310K0FKEA,C844918,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,10R 2W,"R18,R23,R28,R33",4,Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder,HoCR2512-2W-10R-1%,C5123624,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,10k,"R4,R3,R8,R7,R12,R11,R16,R15,R20,R25,R30,R35",12,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,CRCW060310K0FKEA,C844918,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,10pF C0G,"C1,C5,C9,C13,C19,C22,C25,C28",8,Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder,CC0603JRNPO9BN100,C106245,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,10uF,"C4,C8,C12,C16,C50",5,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,CL21A106KAYNNNG,C318691,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,10uF +5V bulk,C34,1,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,CL21A106KAYNNNG,C318691,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,10uF 50V,"C61,C62",2,Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder,CL31B106KBHNNNE,C89632,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,10uF ADC AVCC,C56,1,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,CL21A106KAYNNNG,C318691,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,10uF ADC REF,C59,1,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,CL21A106KAYNNNG,C318691,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,10uF ADC REFCAP,C60,1,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,CL21A106KAYNNNG,C318691,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,10uH,L2,1,Open_Automation:L_4x4,WPN4020H100MT,C98364,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,1K,R57,1,Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,RT0402BRD071KL,C852624,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,1k,"R2,R6,R10,R14,R17,R19,R22,R24,R27,R29,R32,R34",12,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,FRC0603F1001TS,C2907002,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,1k ADC,"R43,R45,R47,R49",4,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,FRC0603F1001TS,C2907002,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,1uF,"C3,C7,C11,C15,C18,C21,C24,C27,C48,C46,C44,C45",12,Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,HGC0402R5105K250NTEJ,C7472946,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,1uF ADC REGCAP,"C57,C58",2,Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder,HGC0402R5105K250NTEJ,C7472946,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,2.49k MPD bias,R41,1,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,RTT032491FTP,C103460,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,22.1K,R55,1,Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,FRC0402F2212TS,C2929993,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,22.1K FB,R62,1,Resistor_SMD:R_0402_1005Metric_Pad0.72x0.64mm_HandSolder,FRC0402F2212TS,C2929993,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,22uF 100V,C70,1,Capacitor_SMD:C_Elec_8x10.2,100CE22FS+P,C242011,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,22uF 5V buck,"C64,C65",2,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,CL21A226MAQNNNE,C45783,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,22uF laser buck,"C67,C68",2,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,CL21A226MAQNNNE,C45783,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,237k FB,R61,1,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,FRC0603F2373TS,C2998117,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,240R MPD sense,"R42,R44,R46,R48",4,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,RTT032400FTP,C103446,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,3k LIMIT,R31,1,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,0603WAF3001T5E,C4211,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,4.7k LIMIT,R36,1,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,0603WAF4701T5E,C23162,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,4.7uH,L1,1,Open_Automation:L_5.4x5.3_H3,MWSA0503S-4R7MT,C408410,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,47.5K,R56,1,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,0603WAF4752T5E,C23061,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,750R LIMIT,R26,1,Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder,0603WAF7500T5E,C23241,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,AD7606BSTZ-4,U14,1,Package_QFP:LQFP-64_10x10mm_P0.5mm,AD7606BSTZ-4RL,C51512,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,AO3400A,"Q1,Q2,Q3,Q4",4,Package_TO_SOT_SMD:SOT-23,AO3400A,C20917,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,AP2112K-3.3,U11,1,Package_TO_SOT_SMD:SOT-23-5,AP2112K-3.3TRG1,C51118,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,AP63200WU-7 9.3V BUCK,U16,1,Package_TO_SOT_SMD:TSOT-23-6,AP63200WU-7,C2071868,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,AP63205WU-7 5V BUCK,U15,1,Package_TO_SOT_SMD:TSOT-23-6,AP63205WU-7,C2071056,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,C192300,J7,1,Open_Automation:PinHeader_2x04_P2.54mm_SMD_Vertical_C192300,2.54-2*4P,C192300,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,CP2102N-Axx-xQFN28,U10,1,Package_DFN_QFN:QFN-28-1EP_5x5mm_P0.5mm_EP3.35x3.35mm,CP2102N-A02-GQFN28R,C964632,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,C_10uF,"C41,C47,C42",3,Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder,CL21A106KAYNNNG,C318691,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,D_1N5819HW,"D13,D10",2,Diode_SMD:D_SOD-123,1N5819HW-7-F,C82544,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,ESD_5V,"D7,D14,D9,D11,D12,D8",6,Diode_SMD:D_SOD-523,LESD5D5.0CT1G(UMW),C5199850,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,ESP32-S3-WROOM-1,U9,1,Espressif:ESP32-S3-WROOM-1,ESP32-S3-WROOM-1-N16,C2913199,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,INA4180A1,U12,1,Package_SO:TSSOP-14_4.4x5mm_P0.65mm,INA4180A1IPWR,C2057528,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,LM4040C50 5V,U13,1,Package_TO_SOT_SMD:SOT-23,LM4040C50IDBZR,C69316,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,OPA380AID,"U1,U2,U3,U4",4,Package_SO:SOIC-8_3.9x4.9mm_P1.27mm,OPA380AID,C201677,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,Q_L8050QLT1G,Q5,1,Package_TO_SOT_SMD:SOT-23,L8050QLT1G,C49581,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,Q_L8550HQLT1G,Q6,1,Package_TO_SOT_SMD:SOT-23,L8550HQLT1G,C39282,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,RF 2M,"RV5,RV6,RV7,RV8",4,Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical,3224W-1-205E,C116323,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,SFH2201,"D1,D2,D3,D4",4,OptoDevice:Osram_SFH2201,SFH2201,C2900216,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,SS14,"D5,D6",2,Diode_SMD:D_SMA,SS14,C2480,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,SW_PUSH,"SW1,SW2,SW3",3,Button_Switch_SMD:SW_SPST_PTS645,K2-1102SP-C4SC-04,C127509,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,TLV9001,"U5,U6,U7,U8",4,Package_TO_SOT_SMD:SOT-23-5,TLV9001IDBVR,C398363,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,USB_MINI_B,"J2,J1",2,Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal,65100516121,C5120592,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,VBIAS 10k,"RV1,RV2,RV3,RV4",4,Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical,3224W-1-103E,C81348,Included in laser_controller_bom_jlcpcb.csv and CPL.

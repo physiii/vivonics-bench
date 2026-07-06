@@ -2,9 +2,9 @@
 """Verify the JLCPCB prototype order package.
 
 This is narrower than full hardware release readiness. It checks that the
-current upload artifacts are internally consistent for a top-side SMT bench
-prototype order, while first-article calibration and production blockers remain
-owned by check_laser_controller_release_readiness.py.
+current upload artifacts are internally consistent for a JLCPCB bench prototype
+order, while first-article calibration and production blockers remain owned by
+check_laser_controller_release_readiness.py.
 """
 from __future__ import annotations
 
@@ -21,6 +21,7 @@ FAB_DIR = CIRCUITS_DIR / "fab"
 BOARD_PATH = CIRCUITS_DIR / "laser_controller.kicad_pcb"
 BOM_PATH = CIRCUITS_DIR / "laser_controller_bom_jlcpcb.csv"
 POS_PATH = FAB_DIR / "laser_controller_pos.csv"
+FULL_PROC_PATH = FAB_DIR / "laser_controller_full_procurement.csv"
 GERBER_ZIP_PATH = CIRCUITS_DIR / "laser_controller_gerbers.zip"
 PACKAGE_ZIP_PATH = CIRCUITS_DIR / "laser_controller_jlcpcb_package.zip"
 
@@ -50,6 +51,14 @@ REQUIRED_TOP_TIA_REFS = {
     "U1", "U2", "U3", "U4",
     "RV5", "RV6", "RV7", "RV8",
     "C1", "C2", "C5", "C6", "C9", "C10", "C13", "C14",
+}
+REQUIRED_HAND_PROCUREMENT = {
+    "J5": ("Hand install mechanical", "DC-470-2.1GP", "C194407"),
+    "J6": ("Hand install mechanical", "R-RJ45R08P-C000", "C386757"),
+    "LD1": ("Hand install optical", "D7805I", ""),
+    "LD2": ("Hand install optical", "D6505I", ""),
+    "LD3": ("Hand install optical", "PLT5 520EB_P", ""),
+    "LD4": ("Hand install optical", "PLT5 450GB", ""),
 }
 
 
@@ -275,6 +284,61 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
     return failures, len(bom_refs), len(pos_refs)
 
 
+def verify_full_procurement_manifest() -> list[str]:
+    failures: list[str] = []
+    if not FULL_PROC_PATH.exists():
+        return [f"missing full procurement manifest: {FULL_PROC_PATH}"]
+    if not BOM_PATH.exists():
+        return failures
+
+    bom_refs = bom_designators(read_csv(BOM_PATH))
+    rows = read_csv(FULL_PROC_PATH)
+    jlc_refs: set[str] = set()
+    hand_rows: dict[str, dict[str, str]] = {}
+    for row in rows:
+        refs = [ref.strip() for ref in row["Designator"].split(",") if ref.strip()]
+        if row["Assembly"] == "JLCPCB SMT":
+            jlc_refs.update(refs)
+        else:
+            for ref in refs:
+                hand_rows[ref] = row
+
+    missing_jlc = sorted(bom_refs - jlc_refs)
+    extra_jlc = sorted(jlc_refs - bom_refs)
+    if missing_jlc:
+        failures.append(
+            "full procurement manifest is missing JLC SMT BOM refs: "
+            + ", ".join(missing_jlc)
+        )
+    if extra_jlc:
+        failures.append(
+            "full procurement manifest has extra JLC SMT refs outside BOM: "
+            + ", ".join(extra_jlc)
+        )
+
+    for ref, (assembly, mpn, lcsc) in REQUIRED_HAND_PROCUREMENT.items():
+        row = hand_rows.get(ref)
+        if row is None:
+            failures.append(f"full procurement manifest missing hand-install row for {ref}")
+            continue
+        if row["Assembly"] != assembly:
+            failures.append(
+                f"full procurement manifest {ref} assembly is {row['Assembly']}, expected {assembly}"
+            )
+        if row["MPN"] != mpn:
+            failures.append(f"full procurement manifest {ref} MPN is {row['MPN']}, expected {mpn}")
+        if row["LCSC"] != lcsc:
+            failures.append(f"full procurement manifest {ref} LCSC is {row['LCSC']}, expected {lcsc}")
+
+    unexpected_hand = sorted(set(hand_rows) - set(REQUIRED_HAND_PROCUREMENT))
+    if unexpected_hand:
+        failures.append(
+            "full procurement manifest has unexpected non-JLC hand refs: "
+            + ", ".join(unexpected_hand)
+        )
+    return failures
+
+
 def verify_board_text() -> list[str]:
     failures: list[str] = []
     text = BOARD_PATH.read_text()
@@ -364,7 +428,7 @@ def main() -> int:
         }
     )
 
-    for path in (BOARD_PATH, BOM_PATH, POS_PATH):
+    for path in (BOARD_PATH, BOM_PATH, POS_PATH, FULL_PROC_PATH):
         if not path.exists():
             failures.append(f"missing required artifact: {path}")
 
@@ -374,6 +438,7 @@ def main() -> int:
     )
     bom_pos_failures, bom_count, pos_count = verify_bom_pos()
     failures.extend(bom_pos_failures)
+    failures.extend(verify_full_procurement_manifest())
     failures.extend(verify_board_text())
     failures.extend(verify_optical_side_placement())
 
@@ -387,6 +452,7 @@ def main() -> int:
         "PASS JLCPCB order package: "
         f"{len(files)} Gerber/drill files, package archive includes BOM/POS, "
         f"{bom_count}/{pos_count} BOM/CPL designators match, CPL is JLCPCB five-column mm format, "
+        "full procurement manifest separates JLC SMT from hand-installed optical/mechanical parts, "
         "J7 is C192300 2x4 SMD, "
         "only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present"
     )

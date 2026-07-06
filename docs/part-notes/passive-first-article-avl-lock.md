@@ -17,6 +17,8 @@ derating for field use, or board-temperature measurement after assembly.
 - Quote-time lifecycle/stock check required: JLCPCB/LCSC availability, assembly
   tier, minimum order status, and substitute suggestions win over this static
   repository lock.
+- If JLCPCB flags only `R41` or `C70` at quote time, prefer a same-footprint
+  quote-page substitute or hand-placement over another PCB layout change.
 - Board-temperature measurement remains required before production release.
 - Pulse/surge/current derating remains required before production or field use.
 
@@ -53,6 +55,20 @@ derating for field use, or board-temperature measurement after assembly.
 | `HoCR2512-2W-10R-1%` | `C5123624` | 4 | 10 ohm 2512 2 W laser current sense resistors |
 | `RTT032400FTP` | `C103446` | 4 | 240 ohm monitor-PD sense resistors |
 | `RT0402BRD071KL` | `C852624` | 1 | 1 k precision CP2102N VBUS divider resistor |
+
+## Quote-Time Watch Items
+
+During the July 5 JLCPCB upload triage, `C103460` and `C242011` had enough live
+stock for a five-board first-article order but little margin. If either part is
+short when the order is placed, the acceptable first-article actions are:
+
+- select a same-footprint, same-value, equal-or-better-voltage/power JLCPCB
+  substitute and checkpoint the replacement C-code, or
+- mark the affected row not-assembled and hand-place the part.
+
+This policy applies only to first-article procurement churn. A production build
+still needs a proper approved-vendor/substitute list and quote-time lifecycle
+evidence.
 
 ## Remaining Production Evidence
 

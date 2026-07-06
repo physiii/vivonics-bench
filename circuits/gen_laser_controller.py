@@ -9,6 +9,7 @@ Produces (1 channel, 4 wavelengths):
   mcu.kicad_sch                    — imported access-controller ESP32-S3 MCU sheet
   power_io.kicad_sch               — 24V barrel/RJ45 input, onboard 5V/laser bucks, AD7606-4 ADC, laser outputs, MPD feedback
   laser_controller_bom_jlcpcb.csv  — consolidated JLCPCB BOM
+  laser_controller_full_procurement.csv — SMT + hand-install procurement manifest
   laser_controller.kicad_pro       — minimal project file (written once if absent)
 
 Architecture: ONE optical channel, FOUR wavelengths (IR / RED / GREEN / BLUE). Each
@@ -28,8 +29,10 @@ click LCSC + Part Number fields (same convention as the access-controller projec
 Run:  python3 gen_laser_controller.py
 """
 from __future__ import annotations
+import csv
 import os
 import re
+from io import StringIO
 from pathlib import Path
 from circuit_designators import WL, actualize_parts
 from laser_command_limits import limiter_for_sheet
@@ -1563,6 +1566,36 @@ def build_bom():
         n+=len(refs); rows.append(f'"{val}","{",".join(refs)}","{fp}","{lcsc}"')
     return "\n".join(rows) + "\n"
 
+def build_procurement_manifest():
+    groups = {}
+    bom_sources = dict(BOM_REG)
+    bom_sources["MCU_ESP32-S3_IMPORTED"] = (1, imported_sheet_parts(OUT_DIR / "mcu.kicad_sch"))
+    for sheet, (mult, parts) in bom_sources.items():
+        for ref, (sym, val, fp, mpn, lcsc, x, y) in parts.items():
+            if sym in NON_SMT_ASSEMBLY:
+                assembly = "Hand install optical"
+                note = "Direct laser can; install after PCB/PCBA and inspect pin orientation."
+            elif sym in HAND:
+                assembly = "Hand install mechanical"
+                note = "Through-hole/mechanical connector; not in JLCPCB SMT assembly."
+            elif lcsc == "":
+                assembly = "Manual review"
+                note = "No JLCPCB/LCSC code in schematic fields."
+            else:
+                assembly = "JLCPCB SMT"
+                note = "Included in laser_controller_bom_jlcpcb.csv and CPL."
+            key = (assembly, val, fp, mpn, lcsc, note)
+            groups.setdefault(key, []).extend([ref] * mult)
+
+    output = StringIO()
+    writer = csv.writer(output, lineterminator="\n")
+    writer.writerow(["Assembly", "Comment", "Designator", "Qty", "Footprint", "MPN", "LCSC", "Notes"])
+    for (assembly, val, fp, mpn, lcsc, note), refs in sorted(
+        groups.items(), key=lambda kv: (kv[0][0], kv[0][1], kv[0][4], ",".join(kv[1]))
+    ):
+        writer.writerow([assembly, val, ",".join(refs), len(refs), fp, mpn, lcsc, note])
+    return output.getvalue()
+
 KICAD_PRO='{\n  "board": {"design_settings": {"rules": {}}},\n  "meta": {"filename": "laser_controller.kicad_pro", "version": 1},\n  "schematic": {"legacy_lib_dir": "", "legacy_lib_list": []},\n  "sheets": [],\n  "libraries": {"pinned_footprint_libs": [], "pinned_symbol_libs": []}\n}\n'
 
 def atomic_write(path, text):
@@ -1589,6 +1622,8 @@ def main():
     print("  wrote lib/viv.kicad_sym")
     atomic_write("laser_controller_bom_jlcpcb.csv", build_bom())
     print("  wrote laser_controller_bom_jlcpcb.csv")
+    atomic_write("fab/laser_controller_full_procurement.csv", build_procurement_manifest())
+    print("  wrote fab/laser_controller_full_procurement.csv")
     if not (OUT_DIR / "laser_controller.kicad_pro").exists():
         atomic_write("laser_controller.kicad_pro", KICAD_PRO)
         print("  wrote laser_controller.kicad_pro")
