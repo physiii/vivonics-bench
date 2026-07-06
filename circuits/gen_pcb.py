@@ -366,16 +366,36 @@ for sheet in LASER_CHANNEL_SHEETS:
     })
 
 def classify_net(net_name):
-    if re.match(r"LASER_N[1-4]$", net_name) or net_name == "LASER_V+" or net_name.endswith("/FB"):
+    if (
+        re.match(r"LASER_N[1-4]$", net_name)
+        or net_name in {"LASER_V+", "LASER_VP"}
+        or net_name.endswith("/FB")
+    ):
         return "Laser_Current"
     if (
-        net_name in {"+5V", "+3V3", "GND", "VBUS_5V", "VIN_24V", "/POWER_IO/BUCK_5V"}
+        net_name in {
+            "+5V",
+            "+3V3",
+            "GND",
+            "VBUS_5V",
+            "VIN_24V",
+            "/POWER_IO/BUCK_5V",
+            "/MCU_ESP32-S3/CP2102_VBUS",
+            "/MCU_ESP32-S3/USB_NATIVE_CONN_VBUS",
+            "/MCU_ESP32-S3/USB_UART_CONN_VBUS",
+        }
         or net_name in {"Net-(D10-A)", "Net-(D13-A)"}
     ):
         return "Power_Rails"
-    if re.match(r"^Net-\(U1[56]-SW\)$", net_name):
+    if re.match(r"^Net-\(U1[56]-SW\)$", net_name) or net_name in {
+        "/POWER_IO/BUCK5_SW",
+        "/POWER_IO/LASER_BUCK_SW",
+    }:
         return "Switching_Power"
-    if re.match(r"^Net-\(U1[56]-(BST|FB)\)$", net_name):
+    if re.match(r"^Net-\(U1[56]-(BST|FB)\)$", net_name) or re.match(
+        r"^/POWER_IO/(?:BUCK5|LASER_BUCK)_(?:BST|FB)$",
+        net_name,
+    ):
         return "Switcher_Control"
     if net_name in {
         "/MCU_ESP32-S3/D-",
@@ -387,11 +407,13 @@ def classify_net(net_name):
     if (
         net_name.startswith("VOUT")
         or net_name in TIA_SENSITIVE_AUTO_NETS
+        or re.match(r"^/TIA_(?:IR|RED|GREEN|BLUE)/(?:PD_ANODE|PD_CATHODE|VBIAS|VBIAS_TOP|VBIAS_WIPER)$", net_name)
     ):
         return "TIA_Sensitive"
     if (
         re.match(r"(MPD|ISENSE)[1-4]$", net_name)
         or "MPD_RAW" in net_name
+        or re.match(r"^/POWER_IO/ADC_(?:CREFIN|CREG1|CREG2|REFCAP)$", net_name)
         or re.match(r"/POWER_IO/MPD_AMP[1-4]$", net_name)
         or net_name == "/POWER_IO/MPD_BIAS"
         or re.match(r"Net-\(C5[78]-Pad1\)$", net_name)
@@ -401,6 +423,7 @@ def classify_net(net_name):
     if (
         re.match(r"PWM[1-4]$", net_name)
         or net_name in LASER_CONTROL_AUTO_NETS
+        or re.match(r"^/LASER_(?:IR|RED|GREEN|BLUE)/(?:CMD_FILTER|GATE)$", net_name)
         or net_name.endswith("/LOUT")
     ):
         return "Laser_Control"
@@ -418,6 +441,12 @@ def classify_net(net_name):
             "/MCU_ESP32-S3/FACT",
             "/MCU_ESP32-S3/PROG",
             "/MCU_ESP32-S3/RTS",
+            "/MCU_ESP32-S3/AUTO_BOOT_BASE",
+            "/MCU_ESP32-S3/AUTO_EN_BASE",
+            "/MCU_ESP32-S3/CP2102_RST",
+            "/MCU_ESP32-S3/CP2102_SUSPEND_N",
+            "/POWER_IO/RJ45_LED_CONTACT",
+            "/POWER_IO/RJ45_PWR_DETECT",
             "Net-(Q5-B)",
             "Net-(Q6-B)",
             "Net-(U10-VBUS)",

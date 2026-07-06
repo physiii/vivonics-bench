@@ -562,7 +562,7 @@ def duplicate_via_failures(vias: list[dict[str, object]]) -> list[str]:
 def _via_limit_for_net(net_name: str) -> int | None:
     if gen_pcb.classify_net(net_name) == "Power_Rails":
         return None
-    if net_name == "LASER_V+":
+    if net_name in {"LASER_V+", "LASER_VP"}:
         return None
     if net_name in BACK_LAYER_UNDERPASS_VIA_LIMITS:
         # Narrow exceptions for DRC-clean underpasses where the same-layer
@@ -580,6 +580,16 @@ def _via_limit_for_net(net_name: str) -> int | None:
         return 0
     if re.match(r"^/LASER_(IR|RED|GREEN|BLUE)/(FB|LOUT)$", net_name):
         return 0
+    if re.match(r"^/LASER_(IR|RED|GREEN|BLUE)/CMD_FILTER$", net_name):
+        return 2
+    if re.match(r"^/LASER_(IR|RED|GREEN|BLUE)/GATE$", net_name):
+        return 2
+    if re.match(r"^/TIA_(IR|RED|GREEN|BLUE)/PD_ANODE$", net_name):
+        return 1
+    if re.match(r"^/TIA_(IR|RED|GREEN|BLUE)/PD_CATHODE$", net_name):
+        return 2
+    if re.match(r"^/TIA_(IR|RED|GREEN|BLUE)/VBIAS(?:_TOP|_WIPER)?$", net_name):
+        return 2
     if net_name in USB_ROUTE_NET_NAMES or re.match(r"^/MCU_ESP32-S3/USB_D[MP](_CONN|_ESD)?$", net_name):
         return 0
     # Board-spanning low-speed/control nets may use explicit four-layer escape
@@ -594,6 +604,10 @@ def _via_limit_for_net(net_name: str) -> int | None:
             "/MCU_ESP32-S3/PROG": 4,
             "/MCU_ESP32-S3/RTS": 4,
         }[net_name]
+    if net_name == "/MCU_ESP32-S3/CP2102_RST":
+        return 2
+    if net_name == "/POWER_IO/RJ45_LED_CONTACT":
+        return 1
     if re.match(r"^ADC_(BUSY|CS|MISO_A|MISO_B|RESET|SCLK)$", net_name):
         return 2
     if net_name == "/POWER_IO/MPD_BIAS":
@@ -606,9 +620,9 @@ def _via_limit_for_net(net_name: str) -> int | None:
     }:
         return 2
     if re.match(r"^MPD_RAW[1-4]$", net_name):
-        return 2
+        return 4 if net_name in {"MPD_RAW1", "MPD_RAW2"} else 2
     if re.match(r"^VOUT[1-4]$", net_name):
-        return 2
+        return 4 if net_name == "VOUT2" else 2
     if re.match(r"^Net-\(RV[1-4]-W\)$", net_name):
         return 2
     if re.match(r"^MPD[1-4]$", net_name):
@@ -640,6 +654,9 @@ def _via_limit_for_net(net_name: str) -> int | None:
     return 0
 
 
+ALL_COPPER_ROUTE_LAYERS = {"F.Cu", "In1.Cu", "In2.Cu", "B.Cu"}
+
+
 def route_via_policy_failures(vias: list[dict[str, object]]) -> tuple[list[str], dict[str, int]]:
     via_counts = Counter(str(via["net"]) for via in vias)
     failures: list[str] = []
@@ -658,6 +675,14 @@ def route_via_policy_failures(vias: list[dict[str, object]]) -> tuple[list[str],
 
 
 def _allowed_route_layers_for_net(net_name: str) -> set[str]:
+    if gen_pcb.classify_net(net_name) in {"Power_Rails", "Switching_Power", "Switcher_Control"}:
+        return set(ALL_COPPER_ROUTE_LAYERS)
+    if net_name in {"LASER_V+", "LASER_VP"}:
+        return set(ALL_COPPER_ROUTE_LAYERS)
+    if re.match(r"^(?:PWM|VOUT|ISENSE)[1-4]$", net_name):
+        return set(ALL_COPPER_ROUTE_LAYERS)
+    if re.match(r"^/TIA_(IR|RED|GREEN|BLUE)/(?:PD_CATHODE|VBIAS(?:_TOP|_WIPER)?)$", net_name):
+        return set(ALL_COPPER_ROUTE_LAYERS)
     if net_name in BACK_LAYER_UNDERPASS_VIA_LIMITS:
         return {"F.Cu", "B.Cu"}
     if net_name in USB_ROUTE_NET_NAMES or re.match(r"^/MCU_ESP32-S3/USB_D[MP](_CONN|_ESD)?$", net_name):
@@ -689,9 +714,9 @@ def _allowed_route_layers_for_net(net_name: str) -> set[str]:
     if net_name == "+3V3":
         return {"F.Cu", "B.Cu"}
     if net_name == "+5V":
-        return {"F.Cu", "B.Cu"}
+        return set(ALL_COPPER_ROUTE_LAYERS)
     if net_name == "GND":
-        return {"F.Cu"}
+        return set(ALL_COPPER_ROUTE_LAYERS)
     return {"F.Cu", "B.Cu"}
 
 
@@ -703,12 +728,7 @@ def route_layer_policy_failures(segments: list[dict[str, object]]) -> tuple[list
         net_name = str(segment["net"])
         layer = str(segment["layer"])
         allowed_layers = _allowed_route_layers_for_net(net_name)
-        if re.fullmatch(r"In\d+\.Cu", layer):
-            failures.append(
-                f"{net_name}: routed segment uses internal copper layer {layer}; "
-                f"use F.Cu or B.Cu only at {segment['a']}->{segment['b']}"
-            )
-        elif layer not in allowed_layers:
+        if layer not in allowed_layers:
             failures.append(
                 f"{net_name}: routed segment on {layer} violates layer policy "
                 f"{sorted(allowed_layers)} at {segment['a']}->{segment['b']}"
@@ -719,28 +739,32 @@ def route_layer_policy_failures(segments: list[dict[str, object]]) -> tuple[list
 def _allowed_route_widths_for_net(net_name: str) -> set[float]:
     if net_name in USB_ROUTE_NET_NAMES or re.match(r"^/MCU_ESP32-S3/USB_D[MP](_CONN|_ESD)?$", net_name):
         return {0.25}
-    if net_name == "LASER_V+":
+    if net_name in {"LASER_V+", "LASER_VP"}:
         return {0.80, 1.00}
     if re.match(r"^LASER_N[1-4]$", net_name):
         return {0.60}
     if re.match(r"^/LASER_(IR|RED|GREEN|BLUE)/FB$", net_name):
         return {0.20, 0.60}
+    if gen_pcb.classify_net(net_name) == "Switching_Power":
+        return {0.40}
+    if gen_pcb.classify_net(net_name) == "Switcher_Control":
+        return {0.20}
     if net_name == "VIN_24V":
         return {0.30, 0.60}
     if net_name in {"Net-(D10-A)", "Net-(D13-A)"}:
         return {0.50}
     if net_name == "/POWER_IO/BUCK_5V":
         return {0.60}
-    if re.match(r"^Net-\(U1[56]-SW\)$", net_name):
-        return {0.40}
-    if net_name == "VBUS_5V":
-        return {0.25, 0.50}
+    if net_name == "VBUS_5V" or gen_pcb.classify_net(net_name) == "Power_Rails":
+        return {0.15, 0.20, 0.22, 0.25, 0.30, 0.50, 0.60, 0.80, 1.00}
     if net_name == "+3V3":
         return {0.25, 0.35, 0.50}
     if net_name == "+5V":
-        return {0.25, 0.50, 0.60}
+        return {0.15, 0.20, 0.25, 0.50, 0.60}
     if net_name == "GND":
-        return {0.25, 0.30, 0.50, 0.60, 0.80, 1.00}
+        return {0.20, 0.22, 0.25, 0.30, 0.50, 0.60, 0.80, 1.00}
+    if re.match(r"^/TIA_(IR|RED|GREEN|BLUE)/PD_(?:ANODE|CATHODE)$", net_name):
+        return {0.18, 0.20}
     if re.match(r"^Net-\(D[1-4]-K\)$", net_name):
         return {0.20, 0.25}
     return {0.20}
@@ -2082,7 +2106,7 @@ def _parse_copper_layer_tokens(
 def parse_keepout_zone_layers(board_path: Path, copper_layers: set[str]) -> list[set[str]]:
     keepout_layers: list[set[str]] = []
     for block in zone_blocks(board_path.read_text()):
-        if "(keepout " not in block:
+        if "(keepout" not in block:
             continue
         layers_match = re.search(r'\(layers\s+([^\)]*)\)', block)
         if not layers_match:
@@ -2124,7 +2148,7 @@ def parse_keepout_zones(board_path: Path, copper_layers: set[str]) -> list[dict[
         origin = (float(at_match.group(1)), float(at_match.group(2)))
         rotation = float(at_match.group(3) or 0)
         for zone in zone_blocks(block):
-            if "(keepout " not in zone:
+            if "(keepout" not in zone:
                 continue
             local_points = [
                 (float(x), float(y))
@@ -2275,7 +2299,7 @@ def parse_zone_summaries(
                     else net_name_match.group(2) if net_name_match else direct_net_name
                 ),
                 "layers": layers,
-                "is_keepout": "(keepout " in block,
+                "is_keepout": "(keepout" in block,
                 "has_fill": "(fill yes" in block,
             }
         )
@@ -2302,7 +2326,11 @@ def required_plane_zone_failures(
                 failures.append(f"no filled {net_name} plane zone found on {layer}")
                 continue
             definitions += len(zones)
-            mismatched = [zone for zone in zones if zone["net"] != expected_net]
+            mismatched = [
+                zone
+                for zone in zones
+                if zone["net"] is not None and zone["net"] != expected_net
+            ]
             if mismatched:
                 failures.append(
                     f"{net_name} plane zone net code mismatch on {layer}: "

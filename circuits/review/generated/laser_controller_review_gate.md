@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-06T02:15:05+00:00
+Generated: 2026-07-06T02:30:53+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -165,7 +165,7 @@ WARN JLCPCB C408410 MWSA0503S-4R7MT inductor page: reachable; Distributor/order 
 WARN JLCPCB C98364 WPN4020H100MT inductor page: reachable; Distributor/order source for the AP63200 10uH inductor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN Wuerth Mini/Micro USB family page: reachable; Family/product page; exact 65100516121 drawing is required separately above. [HEAD HTTP 200, type=text/html; charset=UTF-8, length=1]
 WARN LCSC C5120592 Wuerth 65100516121 Mini-B order page: reachable; Distributor/order source for the Wuerth Mini-B part used by the active J1/J2 BOM metadata. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN Farnell mirror of Wuerth 65100516121 drawing: reachable; Distributor mirror only; the official Wuerth drawing URL is the required source. [GET HTTP 206, type=application/pdf, first_bytes=4096]
+WARN Farnell mirror of Wuerth 65100516121 drawing: reachable; Distributor mirror only; the official Wuerth drawing URL is the required source. [HEAD HTTP 200, type=application/pdf, length=276116]
 WARN LCSC C2907002 FRC0603F1001TS 1k resistor page: reachable; Distributor/order source for active 1k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C22984 30k resistor page: reachable; Distributor/order source for passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C844918 CRCW060310K0FKEA 10k resistor page: reachable; Distributor/order source for active 10k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
@@ -540,10 +540,9 @@ PASS schematic/PCB parity: 181 schematic footprints match 181 PCB footprints; 11
 Command: `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
-PASS fabrication release gate: 108/110 multi-pad nets explicitly routed, no split signal/control nets, laser cathode/anode routes meet generated width targets, and laser sense returns have distinct high-current GND vias. Rail/zone connectivity is delegated to KiCad refill/DRC.
-  WARN rail/zone multi-pad nets depend on KiCad filled-zone/native DRC connectivity: GND, LASER_VP
+PASS fabrication release gate: 109/110 multi-pad nets explicitly routed, no split signal/control nets, laser cathode/anode routes meet generated width targets, and laser sense returns have distinct high-current GND vias. Rail/zone connectivity is delegated to KiCad refill/DRC.
+  WARN rail/zone multi-pad nets depend on KiCad filled-zone/native DRC connectivity: GND
   WARN   GND split into 2 copper groups: group 1 (165 pads): H1.1, H2.1, D14.1, C67.2, C44.2, C26.2, C55.2, C56.2, C49.2, J1.5, J1.6, J1.6 ... | group 2 (1 pads): C12.2
-  WARN   LASER_VP split into 2 copper groups: group 1 (10 pads): C67.1, U13.1, C68.1, L2.2, C36.1, R61.1, C69.1, LD1.2, LD4.1, LD3.2 | group 2 (1 pads): LD2.2
 ```
 
 ## PASS: Focused layout-geometry review

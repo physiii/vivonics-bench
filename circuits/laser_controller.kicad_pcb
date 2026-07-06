@@ -47206,14 +47206,6 @@
 		(uuid "1f912dfb-9d96-4c6d-a655-801b3cffbd76")
 	)
 	(segment
-		(start 162.075 131.225)
-		(end 162.125 131.275)
-		(width 0.5)
-		(layer "F.Cu")
-		(net "GND")
-		(uuid "1fc09780-eddc-400f-a4b4-2d9c2d25b31e")
-	)
-	(segment
 		(start 103.2325 99.2075)
 		(end 103.2 99.175)
 		(width 0.25)
@@ -49288,24 +49280,6 @@
 		(uuid "1ef6fad3-4615-4d32-baa9-61d7196d375e")
 	)
 	(via
-		(at 162.125 131.275)
-		(size 1)
-		(drill 0.5)
-		(layers "F.Cu" "B.Cu")
-		(capping no)
-		(covering
-			(front no)
-			(back no)
-		)
-		(plugging
-			(front no)
-			(back no)
-		)
-		(filling no)
-		(net "GND")
-		(uuid "1f1e01ca-ff46-4b2d-a7f6-a808e9bcc103")
-	)
-	(via
 		(at 171.475 86.85)
 		(size 1)
 		(drill 0.5)
@@ -50902,14 +50876,6 @@
 		(uuid "4272989d-b629-4a27-82f1-636900692b01")
 	)
 	(segment
-		(start 126.6 124.8)
-		(end 126.75 124.775)
-		(width 0.2)
-		(layer "F.Cu")
-		(net "VOUT4")
-		(uuid "0ea916b2-ce50-4817-be1b-fa9447f723c2")
-	)
-	(segment
 		(start 105.2325 102.3987)
 		(end 105.8 104.4)
 		(width 0.2)
@@ -51971,11 +51937,19 @@
 	)
 	(segment
 		(start 166.8 99.5)
-		(end 188.5 99.5)
+		(end 185.88 99.5)
 		(width 0.8)
 		(layer "In2.Cu")
 		(net "LASER_VP")
 		(uuid "7219d7aa-56f8-48a0-8b40-da6e94ff9c8c")
+	)
+	(segment
+		(start 185.88 99.5)
+		(end 188.5 99.5)
+		(width 0.8)
+		(layer "In2.Cu")
+		(net "LASER_VP")
+		(uuid "7a115df1-08d3-40c3-9568-75eb853d1e5c")
 	)
 	(segment
 		(start 185.88 99.5)
@@ -52770,14 +52744,6 @@
 		(uuid "da34f71e-790c-442c-814a-e7eb752b4c20")
 	)
 	(segment
-		(start 123 114.4675)
-		(end 123.8 115.4)
-		(width 0.25)
-		(layer "F.Cu")
-		(net "+5V")
-		(uuid "dadd5c83-40e0-40d4-9446-56a3e4ea052f")
-	)
-	(segment
 		(start 172.8275 134.0975)
 		(end 172.675 134.25)
 		(width 0.5)
@@ -52816,14 +52782,6 @@
 		(layer "F.Cu")
 		(net "+5V")
 		(uuid "e89be360-3a5e-46cf-8860-3a65d7c61c53")
-	)
-	(segment
-		(start 139.575 83.575)
-		(end 139.55 83.55)
-		(width 0.6)
-		(layer "F.Cu")
-		(net "+5V")
-		(uuid "eb555f0f-7171-44b4-b51c-7d35eb29d4b2")
 	)
 	(segment
 		(start 170.521 130.021)

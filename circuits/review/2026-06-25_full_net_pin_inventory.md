@@ -23,8 +23,8 @@ Schematic references are generated globally unique before KiCad netlist export. 
 | `intentional_unnetted_pad_instances` | 79 |
 | `connected_critical_local_route_links` | 111/111 |
 | `multi_pad_nets` | 110 |
-| `explicitly_routed_multi_pad_nets` | 107 |
-| `unrouted_multi_pad_nets` | 2 |
+| `explicitly_routed_multi_pad_nets` | 108 |
+| `unrouted_multi_pad_nets` | 1 |
 | `zone_or_rail_pending_multi_pad_nets` | 1 |
 
 ### Routed Copper Geometry By Net Class
@@ -33,14 +33,15 @@ This table reports the generated routed copper that exists in the current PCB ar
 
 | Net Class | Segment Widths | Via Size/Drill |
 |---|---|---|
-| `Laser_Current` | 0.20mm x28, 0.60mm x47 | 1.20/0.60mm x1 |
-| `Power_Rails` | 0.15mm x1, 0.20mm x27, 0.22mm x4, 0.25mm x190, 0.30mm x9, 0.50mm x130, 0.60mm x137 | 0.60/0.30mm x64, 1.00/0.50mm x79, 1.00/0.60mm x1 |
+| `Laser_Current` | 0.20mm x28, 0.60mm x47, 0.80mm x45 | 1.20/0.60mm x5 |
+| `Power_Rails` | 0.15mm x1, 0.20mm x34, 0.22mm x4, 0.25mm x189, 0.30mm x9, 0.50mm x133, 0.60mm x136 | 0.60/0.30mm x64, 1.00/0.50mm x78, 1.00/0.60mm x1 |
+| `Switching_Power` | 0.40mm x14 | - |
+| `Switcher_Control` | 0.20mm x11 | - |
 | `USB` | 0.25mm x49 | 0.60/0.30mm x2 |
-| `TIA_Sensitive` | 0.20mm x58 | 0.60/0.30mm x10 |
-| `Monitor_ADC` | 0.20mm x283 | 0.60/0.30mm x37 |
-| `Laser_Control` | 0.20mm x110 | 0.60/0.30mm x20 |
-| `Digital_Control` | 0.20mm x243 | 0.60/0.30mm x33 |
-| `Default` | 0.18mm x29, 0.20mm x145, 0.40mm x14, 0.50mm x4, 0.80mm x44 | 0.60/0.30mm x21, 1.20/0.60mm x4 |
+| `TIA_Sensitive` | 0.18mm x29, 0.20mm x106 | 0.60/0.30mm x26 |
+| `Monitor_ADC` | 0.20mm x302 | 0.60/0.30mm x37 |
+| `Laser_Control` | 0.20mm x147 | 0.60/0.30mm x22 |
+| `Digital_Control` | 0.20mm x265 | 0.60/0.30mm x36 |
 
 ### USB Route Detail
 
@@ -77,6 +78,9 @@ This table separates the high-current laser cathode/load paths from source-sense
 | `LASER_N2` | `F.Cu` | 0.60 mm | 7 | 26.54 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
 | `LASER_N3` | `F.Cu` | 0.60 mm | 7 | 21.30 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
 | `LASER_N4` | `F.Cu` | 0.60 mm | 4 | 17.56 mm | laser cathode load path | PASS: generated cathode route meets current width/length limits |
+| `LASER_VP` | `B.Cu` | 0.80 mm | 9 | 72.57 mm | laser current net | REVIEW |
+| `LASER_VP` | `F.Cu` | 0.80 mm | 21 | 51.19 mm | laser current net | REVIEW |
+| `LASER_VP` | `In2.Cu` | 0.80 mm | 15 | 88.73 mm | laser current net | REVIEW |
 
 ### Laser Sense Return Detail
 
@@ -343,7 +347,6 @@ This table checks whether every pad on each multi-pad PCB net is connected by ex
 | Net | Pads | Copper Components | Status | Component Groups |
 |---|---:|---:|---|---|
 | `/TIA_BLUE/VBIAS` | 3 | 2 | UNROUTED | R15.2, U4.3 \| C16.1 |
-| `LASER_VP` | 11 | 2 | UNROUTED | C67.1, U13.1, C68.1, L2.2, C36.1, R61.1, C69.1, LD1.2 ... \| LD2.2 |
 | `GND` | 166 | 2 | ZONE_OR_RAIL_PENDING | H1.1, H2.1, D14.1, C67.2, C44.2, C26.2, C55.2, C56.2 ... \| C12.2 |
 | `+3V3` | 24 | 1 | EXPLICITLY_ROUTED | C55.1, C49.1, C43.1, C47.1, J7.3, J7.4, U14.6, U14.7 ... |
 | `+5V` | 41 | 1 | EXPLICITLY_ROUTED | C26.1, C56.1, C23.1, U2.7, R12.1, D6.2, C53.1, U4.7 ... |
@@ -434,6 +437,7 @@ This table checks whether every pad on each multi-pad PCB net is connected by ex
 | `LASER_N2` | 2 | 1 | EXPLICITLY_ROUTED | Q2.3, LD2.1 |
 | `LASER_N3` | 2 | 1 | EXPLICITLY_ROUTED | Q3.3, LD3.1 |
 | `LASER_N4` | 2 | 1 | EXPLICITLY_ROUTED | Q4.3, LD4.3 |
+| `LASER_VP` | 11 | 1 | EXPLICITLY_ROUTED | C67.1, U13.1, C68.1, L2.2, C36.1, R61.1, C69.1, LD1.2 ... |
 | `MPD1` | 3 | 1 | EXPLICITLY_ROUTED | C37.1, R43.2, U9.38 |
 | `MPD2` | 3 | 1 | EXPLICITLY_ROUTED | C38.1, U9.15, R45.2 |
 | `MPD3` | 3 | 1 | EXPLICITLY_ROUTED | C39.1, R47.2, U9.12 |

@@ -751,7 +751,7 @@
       },
       {
         "netclass": "Laser_Current",
-        "pattern": "LASER_V+"
+        "pattern": "LASER_VP"
       },
       {
         "netclass": "Power_Rails",
@@ -763,6 +763,18 @@
       },
       {
         "netclass": "Power_Rails",
+        "pattern": "/MCU_ESP32-S3/CP2102_VBUS"
+      },
+      {
+        "netclass": "Power_Rails",
+        "pattern": "/MCU_ESP32-S3/USB_NATIVE_CONN_VBUS"
+      },
+      {
+        "netclass": "Power_Rails",
+        "pattern": "/MCU_ESP32-S3/USB_UART_CONN_VBUS"
+      },
+      {
+        "netclass": "Power_Rails",
         "pattern": "/POWER_IO/BUCK_5V"
       },
       {
@@ -771,19 +783,31 @@
       },
       {
         "netclass": "Power_Rails",
-        "pattern": "Net-(D10-A)"
-      },
-      {
-        "netclass": "Power_Rails",
-        "pattern": "Net-(D13-A)"
-      },
-      {
-        "netclass": "Power_Rails",
         "pattern": "VBUS_5V"
       },
       {
         "netclass": "Power_Rails",
         "pattern": "VIN_24V"
+      },
+      {
+        "netclass": "Switching_Power",
+        "pattern": "/POWER_IO/BUCK5_SW"
+      },
+      {
+        "netclass": "Switching_Power",
+        "pattern": "/POWER_IO/LASER_BUCK_SW"
+      },
+      {
+        "netclass": "Switcher_Control",
+        "pattern": "/POWER_IO/BUCK5_BST"
+      },
+      {
+        "netclass": "Switcher_Control",
+        "pattern": "/POWER_IO/LASER_BUCK_BST"
+      },
+      {
+        "netclass": "Switcher_Control",
+        "pattern": "/POWER_IO/LASER_BUCK_FB"
       },
       {
         "netclass": "USB",
@@ -803,83 +827,83 @@
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(D1-A)"
+        "pattern": "/TIA_BLUE/PD_ANODE"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(D1-K)"
+        "pattern": "/TIA_BLUE/PD_CATHODE"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(D2-A)"
+        "pattern": "/TIA_BLUE/VBIAS"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(D2-K)"
+        "pattern": "/TIA_BLUE/VBIAS_TOP"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(D3-A)"
+        "pattern": "/TIA_BLUE/VBIAS_WIPER"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(D3-K)"
+        "pattern": "/TIA_GREEN/PD_ANODE"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(D4-A)"
+        "pattern": "/TIA_GREEN/PD_CATHODE"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(D4-K)"
+        "pattern": "/TIA_GREEN/VBIAS"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(R12-Pad2)"
+        "pattern": "/TIA_GREEN/VBIAS_TOP"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(R16-Pad2)"
+        "pattern": "/TIA_GREEN/VBIAS_WIPER"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(R4-Pad2)"
+        "pattern": "/TIA_IR/PD_ANODE"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(R8-Pad2)"
+        "pattern": "/TIA_IR/PD_CATHODE"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(RV1-W)"
+        "pattern": "/TIA_IR/VBIAS"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(RV2-W)"
+        "pattern": "/TIA_IR/VBIAS_TOP"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(RV3-W)"
+        "pattern": "/TIA_IR/VBIAS_WIPER"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(RV4-W)"
+        "pattern": "/TIA_RED/PD_ANODE"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(U1-+)"
+        "pattern": "/TIA_RED/PD_CATHODE"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(U2-+)"
+        "pattern": "/TIA_RED/VBIAS"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(U3-+)"
+        "pattern": "/TIA_RED/VBIAS_TOP"
       },
       {
         "netclass": "TIA_Sensitive",
-        "pattern": "Net-(U4-+)"
+        "pattern": "/TIA_RED/VBIAS_WIPER"
       },
       {
         "netclass": "TIA_Sensitive",
@@ -896,6 +920,22 @@
       {
         "netclass": "TIA_Sensitive",
         "pattern": "VOUT4"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "/POWER_IO/ADC_CREFIN"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "/POWER_IO/ADC_CREG1"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "/POWER_IO/ADC_CREG2"
+      },
+      {
+        "netclass": "Monitor_ADC",
+        "pattern": "/POWER_IO/ADC_REFCAP"
       },
       {
         "netclass": "Monitor_ADC",
@@ -966,20 +1006,12 @@
         "pattern": "MPD_RAW4"
       },
       {
-        "netclass": "Monitor_ADC",
-        "pattern": "Net-(C57-Pad1)"
+        "netclass": "Laser_Control",
+        "pattern": "/LASER_BLUE/CMD_FILTER"
       },
       {
-        "netclass": "Monitor_ADC",
-        "pattern": "Net-(C58-Pad1)"
-      },
-      {
-        "netclass": "Monitor_ADC",
-        "pattern": "Net-(U14-REFCAPA)"
-      },
-      {
-        "netclass": "Monitor_ADC",
-        "pattern": "slash"
+        "netclass": "Laser_Control",
+        "pattern": "/LASER_BLUE/GATE"
       },
       {
         "netclass": "Laser_Control",
@@ -987,7 +1019,23 @@
       },
       {
         "netclass": "Laser_Control",
+        "pattern": "/LASER_GREEN/CMD_FILTER"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "/LASER_GREEN/GATE"
+      },
+      {
+        "netclass": "Laser_Control",
         "pattern": "/LASER_GREEN/LOUT"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "/LASER_IR/CMD_FILTER"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "/LASER_IR/GATE"
       },
       {
         "netclass": "Laser_Control",
@@ -995,39 +1043,15 @@
       },
       {
         "netclass": "Laser_Control",
+        "pattern": "/LASER_RED/CMD_FILTER"
+      },
+      {
+        "netclass": "Laser_Control",
+        "pattern": "/LASER_RED/GATE"
+      },
+      {
+        "netclass": "Laser_Control",
         "pattern": "/LASER_RED/LOUT"
-      },
-      {
-        "netclass": "Laser_Control",
-        "pattern": "Net-(Q1-G)"
-      },
-      {
-        "netclass": "Laser_Control",
-        "pattern": "Net-(Q2-G)"
-      },
-      {
-        "netclass": "Laser_Control",
-        "pattern": "Net-(Q3-G)"
-      },
-      {
-        "netclass": "Laser_Control",
-        "pattern": "Net-(Q4-G)"
-      },
-      {
-        "netclass": "Laser_Control",
-        "pattern": "Net-(U5-+)"
-      },
-      {
-        "netclass": "Laser_Control",
-        "pattern": "Net-(U6-+)"
-      },
-      {
-        "netclass": "Laser_Control",
-        "pattern": "Net-(U7-+)"
-      },
-      {
-        "netclass": "Laser_Control",
-        "pattern": "Net-(U8-+)"
       },
       {
         "netclass": "Laser_Control",
@@ -1044,6 +1068,22 @@
       {
         "netclass": "Laser_Control",
         "pattern": "PWM4"
+      },
+      {
+        "netclass": "Digital_Control",
+        "pattern": "/MCU_ESP32-S3/AUTO_BOOT_BASE"
+      },
+      {
+        "netclass": "Digital_Control",
+        "pattern": "/MCU_ESP32-S3/AUTO_EN_BASE"
+      },
+      {
+        "netclass": "Digital_Control",
+        "pattern": "/MCU_ESP32-S3/CP2102_RST"
+      },
+      {
+        "netclass": "Digital_Control",
+        "pattern": "/MCU_ESP32-S3/CP2102_SUSPEND_N"
       },
       {
         "netclass": "Digital_Control",
@@ -1067,34 +1107,6 @@
       },
       {
         "netclass": "Digital_Control",
-        "pattern": "/MCU_ESP32-S3/IO35"
-      },
-      {
-        "netclass": "Digital_Control",
-        "pattern": "/MCU_ESP32-S3/IO36"
-      },
-      {
-        "netclass": "Digital_Control",
-        "pattern": "/MCU_ESP32-S3/IO37"
-      },
-      {
-        "netclass": "Digital_Control",
-        "pattern": "/MCU_ESP32-S3/IO39"
-      },
-      {
-        "netclass": "Digital_Control",
-        "pattern": "/MCU_ESP32-S3/IO40"
-      },
-      {
-        "netclass": "Digital_Control",
-        "pattern": "/MCU_ESP32-S3/IO41"
-      },
-      {
-        "netclass": "Digital_Control",
-        "pattern": "/MCU_ESP32-S3/IO42"
-      },
-      {
-        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/IO43"
       },
       {
@@ -1103,19 +1115,19 @@
       },
       {
         "netclass": "Digital_Control",
-        "pattern": "/MCU_ESP32-S3/IO45"
-      },
-      {
-        "netclass": "Digital_Control",
-        "pattern": "/MCU_ESP32-S3/IO46"
-      },
-      {
-        "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/PROG"
       },
       {
         "netclass": "Digital_Control",
         "pattern": "/MCU_ESP32-S3/RTS"
+      },
+      {
+        "netclass": "Digital_Control",
+        "pattern": "/POWER_IO/RJ45_LED_CONTACT"
+      },
+      {
+        "netclass": "Digital_Control",
+        "pattern": "/POWER_IO/RJ45_PWR_DETECT"
       },
       {
         "netclass": "Digital_Control",
@@ -1144,54 +1156,6 @@
       {
         "netclass": "Digital_Control",
         "pattern": "CONVST"
-      },
-      {
-        "netclass": "Digital_Control",
-        "pattern": "Net-(Q5-B)"
-      },
-      {
-        "netclass": "Digital_Control",
-        "pattern": "Net-(Q6-B)"
-      },
-      {
-        "netclass": "Digital_Control",
-        "pattern": "Net-(U10-VBUS)"
-      },
-      {
-        "netclass": "Digital_Control",
-        "pattern": "Net-(U10-~{RST})"
-      },
-      {
-        "netclass": "Digital_Control",
-        "pattern": "Net-(U10-~{SUSPEND})"
-      },
-      {
-        "netclass": "Digital_Control",
-        "pattern": "Net-(J6-Pad10)"
-      },
-      {
-        "netclass": "Digital_Control",
-        "pattern": "Net-(J6-Pad12)"
-      },
-      {
-        "netclass": "Switcher_Control",
-        "pattern": "Net-(U15-BST)"
-      },
-      {
-        "netclass": "Switching_Power",
-        "pattern": "Net-(U15-SW)"
-      },
-      {
-        "netclass": "Switcher_Control",
-        "pattern": "Net-(U16-BST)"
-      },
-      {
-        "netclass": "Switcher_Control",
-        "pattern": "Net-(U16-FB)"
-      },
-      {
-        "netclass": "Switching_Power",
-        "pattern": "Net-(U16-SW)"
       }
     ]
   },

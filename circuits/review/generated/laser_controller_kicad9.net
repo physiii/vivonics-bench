@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/andy/projects/vivonics/vivonics/bench/circuits/laser_controller.kicad_sch")
-		(date "2026-07-05T21:12:25")
+		(date "2026-07-05T21:28:17")
 		(tool "Eeschema 10.0.4-10.0.4~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -14677,7 +14677,7 @@
 		(net
 			(code "3")
 			(name "/LASER_BLUE/CMD_FILTER")
-			(class "Default")
+			(class "Laser_Control")
 			(node
 				(ref "C27")
 				(pin "1")
@@ -14735,7 +14735,7 @@
 		(net
 			(code "5")
 			(name "/LASER_BLUE/GATE")
-			(class "Default")
+			(class "Laser_Control")
 			(node
 				(ref "Q4")
 				(pin "1")
@@ -14771,7 +14771,7 @@
 		(net
 			(code "7")
 			(name "/LASER_GREEN/CMD_FILTER")
-			(class "Default")
+			(class "Laser_Control")
 			(node
 				(ref "C24")
 				(pin "1")
@@ -14829,7 +14829,7 @@
 		(net
 			(code "9")
 			(name "/LASER_GREEN/GATE")
-			(class "Default")
+			(class "Laser_Control")
 			(node
 				(ref "Q3")
 				(pin "1")
@@ -14865,7 +14865,7 @@
 		(net
 			(code "11")
 			(name "/LASER_IR/CMD_FILTER")
-			(class "Default")
+			(class "Laser_Control")
 			(node
 				(ref "C18")
 				(pin "1")
@@ -14923,7 +14923,7 @@
 		(net
 			(code "13")
 			(name "/LASER_IR/GATE")
-			(class "Default")
+			(class "Laser_Control")
 			(node
 				(ref "Q1")
 				(pin "1")
@@ -14959,7 +14959,7 @@
 		(net
 			(code "15")
 			(name "/LASER_RED/CMD_FILTER")
-			(class "Default")
+			(class "Laser_Control")
 			(node
 				(ref "C21")
 				(pin "1")
@@ -15017,7 +15017,7 @@
 		(net
 			(code "17")
 			(name "/LASER_RED/GATE")
-			(class "Default")
+			(class "Laser_Control")
 			(node
 				(ref "Q2")
 				(pin "1")
@@ -15053,7 +15053,7 @@
 		(net
 			(code "19")
 			(name "/MCU_ESP32-S3/AUTO_BOOT_BASE")
-			(class "Default")
+			(class "Digital_Control")
 			(node
 				(ref "Q6")
 				(pin "1")
@@ -15069,7 +15069,7 @@
 		(net
 			(code "20")
 			(name "/MCU_ESP32-S3/AUTO_EN_BASE")
-			(class "Default")
+			(class "Digital_Control")
 			(node
 				(ref "Q5")
 				(pin "1")
@@ -15085,7 +15085,7 @@
 		(net
 			(code "21")
 			(name "/MCU_ESP32-S3/CP2102_RST")
-			(class "Default")
+			(class "Digital_Control")
 			(node
 				(ref "R57")
 				(pin "2")
@@ -15101,7 +15101,7 @@
 		(net
 			(code "22")
 			(name "/MCU_ESP32-S3/CP2102_SUSPEND_N")
-			(class "Default")
+			(class "Digital_Control")
 			(node
 				(ref "R58")
 				(pin "1")
@@ -15117,7 +15117,7 @@
 		(net
 			(code "23")
 			(name "/MCU_ESP32-S3/CP2102_VBUS")
-			(class "Default")
+			(class "Power_Rails")
 			(node
 				(ref "C45")
 				(pin "1")
@@ -15433,7 +15433,7 @@
 		(net
 			(code "37")
 			(name "/MCU_ESP32-S3/USB_NATIVE_CONN_VBUS")
-			(class "Default")
+			(class "Power_Rails")
 			(node
 				(ref "D13")
 				(pin "2")
@@ -15450,7 +15450,7 @@
 		(net
 			(code "38")
 			(name "/MCU_ESP32-S3/USB_UART_CONN_VBUS")
-			(class "Default")
+			(class "Power_Rails")
 			(node
 				(ref "D10")
 				(pin "2")
@@ -15467,7 +15467,7 @@
 		(net
 			(code "39")
 			(name "/POWER_IO/ADC_CREFIN")
-			(class "Default")
+			(class "Monitor_ADC")
 			(node
 				(ref "C59")
 				(pin "1")
@@ -15483,7 +15483,7 @@
 		(net
 			(code "40")
 			(name "/POWER_IO/ADC_CREG1")
-			(class "Default")
+			(class "Monitor_ADC")
 			(node
 				(ref "C57")
 				(pin "1")
@@ -15499,7 +15499,7 @@
 		(net
 			(code "41")
 			(name "/POWER_IO/ADC_CREG2")
-			(class "Default")
+			(class "Monitor_ADC")
 			(node
 				(ref "C58")
 				(pin "1")
@@ -15515,7 +15515,7 @@
 		(net
 			(code "42")
 			(name "/POWER_IO/ADC_REFCAP")
-			(class "Default")
+			(class "Monitor_ADC")
 			(node
 				(ref "C60")
 				(pin "1")
@@ -15537,7 +15537,7 @@
 		(net
 			(code "43")
 			(name "/POWER_IO/BUCK5_BST")
-			(class "Default")
+			(class "Switcher_Control")
 			(node
 				(ref "C63")
 				(pin "2")
@@ -15553,7 +15553,7 @@
 		(net
 			(code "44")
 			(name "/POWER_IO/BUCK5_SW")
-			(class "Default")
+			(class "Switching_Power")
 			(node
 				(ref "C63")
 				(pin "1")
@@ -15608,7 +15608,7 @@
 		(net
 			(code "46")
 			(name "/POWER_IO/LASER_BUCK_BST")
-			(class "Default")
+			(class "Switcher_Control")
 			(node
 				(ref "C66")
 				(pin "2")
@@ -15624,7 +15624,7 @@
 		(net
 			(code "47")
 			(name "/POWER_IO/LASER_BUCK_FB")
-			(class "Default")
+			(class "Switcher_Control")
 			(node
 				(ref "C69")
 				(pin "2")
@@ -15650,7 +15650,7 @@
 		(net
 			(code "48")
 			(name "/POWER_IO/LASER_BUCK_SW")
-			(class "Default")
+			(class "Switching_Power")
 			(node
 				(ref "C66")
 				(pin "1")
@@ -15807,7 +15807,7 @@
 		(net
 			(code "54")
 			(name "/POWER_IO/RJ45_LED_CONTACT")
-			(class "Default")
+			(class "Digital_Control")
 			(node
 				(ref "J6")
 				(pin "12")
@@ -15822,7 +15822,7 @@
 		(net
 			(code "55")
 			(name "/POWER_IO/RJ45_PWR_DETECT")
-			(class "Default")
+			(class "Digital_Control")
 			(node
 				(ref "J6")
 				(pin "10")
@@ -15837,7 +15837,7 @@
 		(net
 			(code "56")
 			(name "/TIA_BLUE/PD_ANODE")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "C13")
 				(pin "1")
@@ -15864,7 +15864,7 @@
 		(net
 			(code "57")
 			(name "/TIA_BLUE/PD_CATHODE")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "C15")
 				(pin "1")
@@ -15885,7 +15885,7 @@
 		(net
 			(code "58")
 			(name "/TIA_BLUE/VBIAS")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "C16")
 				(pin "1")
@@ -15906,7 +15906,7 @@
 		(net
 			(code "59")
 			(name "/TIA_BLUE/VBIAS_TOP")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "R16")
 				(pin "2")
@@ -15921,7 +15921,7 @@
 		(net
 			(code "60")
 			(name "/TIA_BLUE/VBIAS_WIPER")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "R15")
 				(pin "1")
@@ -15937,7 +15937,7 @@
 		(net
 			(code "61")
 			(name "/TIA_GREEN/PD_ANODE")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "C9")
 				(pin "1")
@@ -15964,7 +15964,7 @@
 		(net
 			(code "62")
 			(name "/TIA_GREEN/PD_CATHODE")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "C11")
 				(pin "1")
@@ -15985,7 +15985,7 @@
 		(net
 			(code "63")
 			(name "/TIA_GREEN/VBIAS")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "C12")
 				(pin "1")
@@ -16006,7 +16006,7 @@
 		(net
 			(code "64")
 			(name "/TIA_GREEN/VBIAS_TOP")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "R12")
 				(pin "2")
@@ -16021,7 +16021,7 @@
 		(net
 			(code "65")
 			(name "/TIA_GREEN/VBIAS_WIPER")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "R11")
 				(pin "1")
@@ -16037,7 +16037,7 @@
 		(net
 			(code "66")
 			(name "/TIA_IR/PD_ANODE")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "C1")
 				(pin "1")
@@ -16064,7 +16064,7 @@
 		(net
 			(code "67")
 			(name "/TIA_IR/PD_CATHODE")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "C3")
 				(pin "1")
@@ -16085,7 +16085,7 @@
 		(net
 			(code "68")
 			(name "/TIA_IR/VBIAS")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "C4")
 				(pin "1")
@@ -16106,7 +16106,7 @@
 		(net
 			(code "69")
 			(name "/TIA_IR/VBIAS_TOP")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "R4")
 				(pin "2")
@@ -16121,7 +16121,7 @@
 		(net
 			(code "70")
 			(name "/TIA_IR/VBIAS_WIPER")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "R3")
 				(pin "1")
@@ -16137,7 +16137,7 @@
 		(net
 			(code "71")
 			(name "/TIA_RED/PD_ANODE")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "C5")
 				(pin "1")
@@ -16164,7 +16164,7 @@
 		(net
 			(code "72")
 			(name "/TIA_RED/PD_CATHODE")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "C7")
 				(pin "1")
@@ -16185,7 +16185,7 @@
 		(net
 			(code "73")
 			(name "/TIA_RED/VBIAS")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "C8")
 				(pin "1")
@@ -16206,7 +16206,7 @@
 		(net
 			(code "74")
 			(name "/TIA_RED/VBIAS_TOP")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "R8")
 				(pin "2")
@@ -16221,7 +16221,7 @@
 		(net
 			(code "75")
 			(name "/TIA_RED/VBIAS_WIPER")
-			(class "Default")
+			(class "TIA_Sensitive")
 			(node
 				(ref "R7")
 				(pin "1")
@@ -17309,7 +17309,7 @@
 		(net
 			(code "92")
 			(name "LASER_VP")
-			(class "Default")
+			(class "Laser_Current")
 			(node
 				(ref "C36")
 				(pin "1")
@@ -18088,7 +18088,7 @@
 		(net
 			(code "132")
 			(name "unconnected-(U9-MTCK{slash}GPIO39{slash}CLK_OUT3{slash}SUBSPICS1-Pad32)")
-			(class "Monitor_ADC")
+			(class "Default")
 			(node
 				(ref "U9")
 				(pin "32")
@@ -18099,7 +18099,7 @@
 		(net
 			(code "133")
 			(name "unconnected-(U9-MTDI{slash}GPIO41{slash}CLK_OUT1-Pad34)")
-			(class "Monitor_ADC")
+			(class "Default")
 			(node
 				(ref "U9")
 				(pin "34")
@@ -18110,7 +18110,7 @@
 		(net
 			(code "134")
 			(name "unconnected-(U9-MTDO{slash}GPIO40{slash}CLK_OUT2-Pad33)")
-			(class "Monitor_ADC")
+			(class "Default")
 			(node
 				(ref "U9")
 				(pin "33")
@@ -18121,7 +18121,7 @@
 		(net
 			(code "135")
 			(name "unconnected-(U9-MTMS{slash}GPIO42-Pad35)")
-			(class "Monitor_ADC")
+			(class "Default")
 			(node
 				(ref "U9")
 				(pin "35")
@@ -18132,7 +18132,7 @@
 		(net
 			(code "136")
 			(name "unconnected-(U9-SPIDQS{slash}GPIO37{slash}FSPIQ{slash}SUBSPIQ-Pad30)")
-			(class "Monitor_ADC")
+			(class "Default")
 			(node
 				(ref "U9")
 				(pin "30")
@@ -18143,7 +18143,7 @@
 		(net
 			(code "137")
 			(name "unconnected-(U9-SPIIO6{slash}GPIO35{slash}FSPID{slash}SUBSPID-Pad28)")
-			(class "Monitor_ADC")
+			(class "Default")
 			(node
 				(ref "U9")
 				(pin "28")
@@ -18154,7 +18154,7 @@
 		(net
 			(code "138")
 			(name "unconnected-(U9-SPIIO7{slash}GPIO36{slash}FSPICLK{slash}SUBSPICLK-Pad29)")
-			(class "Monitor_ADC")
+			(class "Default")
 			(node
 				(ref "U9")
 				(pin "29")
@@ -18242,7 +18242,7 @@
 		(net
 			(code "146")
 			(name "unconnected-(U10-RS485{slash}GPIO.2-Pad17)")
-			(class "Monitor_ADC")
+			(class "Default")
 			(node
 				(ref "U10")
 				(pin "17")
@@ -18297,7 +18297,7 @@
 		(net
 			(code "151")
 			(name "unconnected-(U10-~{RI}{slash}CLK-Pad2)")
-			(class "Monitor_ADC")
+			(class "Default")
 			(node
 				(ref "U10")
 				(pin "2")
@@ -18308,7 +18308,7 @@
 		(net
 			(code "152")
 			(name "unconnected-(U10-~{RXT}{slash}GPIO.1-Pad18)")
-			(class "Monitor_ADC")
+			(class "Default")
 			(node
 				(ref "U10")
 				(pin "18")
@@ -18319,7 +18319,7 @@
 		(net
 			(code "153")
 			(name "unconnected-(U10-~{TXT}{slash}GPIO.0-Pad19)")
-			(class "Monitor_ADC")
+			(class "Default")
 			(node
 				(ref "U10")
 				(pin "19")
@@ -18330,7 +18330,7 @@
 		(net
 			(code "154")
 			(name "unconnected-(U10-~{WAKEUP}{slash}GPIO.3-Pad16)")
-			(class "Monitor_ADC")
+			(class "Default")
 			(node
 				(ref "U10")
 				(pin "16")
