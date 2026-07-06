@@ -34,14 +34,14 @@ This table reports the generated routed copper that exists in the current PCB ar
 | Net Class | Segment Widths | Via Size/Drill |
 |---|---|---|
 | `Laser_Current` | 0.20mm x28, 0.60mm x47, 0.80mm x45 | 1.20/0.60mm x5 |
-| `Power_Rails` | 0.15mm x1, 0.20mm x34, 0.22mm x4, 0.25mm x189, 0.30mm x9, 0.50mm x133, 0.60mm x136 | 0.60/0.30mm x64, 1.00/0.50mm x78, 1.00/0.60mm x1 |
+| `Power_Rails` | 0.15mm x1, 0.20mm x34, 0.22mm x4, 0.25mm x195, 0.30mm x3, 0.50mm x133, 0.60mm x139 | 0.60/0.30mm x64, 1.00/0.50mm x80, 1.00/0.60mm x1 |
 | `Switching_Power` | 0.40mm x14 | - |
 | `Switcher_Control` | 0.20mm x11 | - |
 | `USB` | 0.25mm x49 | 0.60/0.30mm x2 |
 | `TIA_Sensitive` | 0.18mm x29, 0.20mm x106 | 0.60/0.30mm x26 |
 | `Monitor_ADC` | 0.20mm x302 | 0.60/0.30mm x37 |
 | `Laser_Control` | 0.20mm x147 | 0.60/0.30mm x22 |
-| `Digital_Control` | 0.20mm x265 | 0.60/0.30mm x36 |
+| `Digital_Control` | 0.20mm x255, 0.25mm x4 | 0.60/0.30mm x35 |
 
 ### USB Route Detail
 
@@ -110,12 +110,12 @@ Rows marked `REVIEW` exceed generated ideal-placement targets; release gating is
 
 | Check | Actual | Limit | Status |
 |---|---:|---:|---|
-| USB UART D- connector to ESD | 4.74 mm | 7.50 mm | PASS |
-| USB UART D+ connector to ESD | 3.03 mm | 9.50 mm | PASS |
+| USB UART D- connector to ESD | 5.21 mm | 7.50 mm | PASS |
+| USB UART D+ connector to ESD | 3.50 mm | 9.50 mm | PASS |
 | USB UART D- ESD to CP2102N | 10.77 mm | 10.00 mm | REVIEW |
 | USB UART D+ ESD to CP2102N | 11.88 mm | 10.00 mm | REVIEW |
-| Native USB D- connector to ESD | 5.25 mm | 7.50 mm | PASS |
-| Native USB D+ connector to ESD | 3.38 mm | 9.50 mm | PASS |
+| Native USB D- connector to ESD | 5.74 mm | 7.50 mm | PASS |
+| Native USB D+ connector to ESD | 3.88 mm | 9.50 mm | PASS |
 | Native USB D- ESD to ESP32 GPIO19 | 18.57 mm | 4.50 mm | REVIEW |
 | Native USB D+ ESD to ESP32 GPIO20 | 20.06 mm | 4.50 mm | REVIEW |
 | AP2112 input cap at VIN | 2.95 mm | 4.00 mm | PASS |

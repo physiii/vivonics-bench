@@ -49,6 +49,9 @@ for bench measurements, optical safety behavior, production, or field use.
 copper, two inner copper layers, paste, silkscreen, mask, Edge.Cuts, Gerber job,
 PTH/NPTH drills, JLCPCB BOM, and JLCPCB POS.
 
+The CPL uses the same coordinate frame as the KiCad Gerbers, including negative
+Y coordinates. Do not shift it to a board-local `0,0` origin before upload.
+
 For the JLCPCB web flow, upload `laser_controller_gerbers.zip` on the PCB page,
 then upload `laser_controller_bom_jlcpcb.csv` and
 `circuits/fab/laser_controller_pos.csv` on the PCBA page. The combined
@@ -92,9 +95,9 @@ not-assembled and hand-place that part.
 ## SHA256
 
 ```text
-33c8f6449577ae67f07ff8e31ee011681506ea8993b0e252b03f5605c0534d2d  circuits/laser_controller_gerbers.zip
-41fd001c86e0cc4eb31d07e108d843eab606768c60b0208a2405c869096c891b  circuits/laser_controller_jlcpcb_package.zip
+8fe1c7d1025a869350062c41dfec1af31d63f486b756a8b3a9c14dd784c92028  circuits/laser_controller_gerbers.zip
+fb79c81967d990a2f9e976e1df6ce2cd272b73eca1f9156596f3e8066f9a5226  circuits/laser_controller_jlcpcb_package.zip
 516f5eb10b5ff3ffc922ced47a639696911c27de949bab44d5e5d5ad19db8ee7  circuits/laser_controller_bom_jlcpcb.csv
-c5704af3855ed5fbdeacd1eb143f5fd470c3f87a293efaefe96f07615b3f64eb  circuits/fab/laser_controller_pos.csv
+be0a1aacca2c03dd3875fa95a7aaee4b55620a9a7abc12bb8c5f4c571cf457c5  circuits/fab/laser_controller_pos.csv
 226ab7ad5e31b6de9c83ec9a00cf4b0b54bd082182fccf55c41c047927926b72  circuits/fab/laser_controller_full_procurement.csv
 ```

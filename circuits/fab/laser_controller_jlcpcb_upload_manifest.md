@@ -1,6 +1,6 @@
 # Laser Controller JLCPCB Upload Manifest
 
-Date: 2026-07-05
+Date: 2026-07-06
 
 Scope: first-article laser-controller PCB plus PCBA upload package.
 
@@ -41,8 +41,9 @@ The CPL is in JLCPCB's five-column sample format:
 Designator,Mid X,Mid Y,Layer,Rotation
 ```
 
-Coordinates include the `mm` suffix and KiCad's negative Y coordinate is
-converted to positive board coordinates for JLCPCB.
+Coordinates include the `mm` suffix and intentionally remain in the same
+coordinate frame as the Gerbers, including KiCad's negative Y coordinate. Do not
+shift the CPL to a board-local `0,0` origin before upload.
 
 ## Side Selection
 

@@ -1,5 +1,5 @@
 ** Drc report for laser_controller.kicad_pcb **
-** Created on 2026-07-06T07:36:33 **
+** Created on 2026-07-06T08:07:42 **
 ** Report includes: Errors, Warnings, Exclusions **
 
 ** Found 0 DRC violations **
@@ -60,10 +60,10 @@
     @(50.7225 mm, 98.7250 mm): Footprint D14
 [footprint_symbol_field_mismatch]: Missing symbol field 'Website' in footprint
     Local override; warning
-    @(37.3750 mm, 87.7750 mm): Footprint J1
+    @(36.9000 mm, 87.7750 mm): Footprint J1
 [footprint_symbol_field_mismatch]: Missing symbol field 'Website' in footprint
     Local override; warning
-    @(37.4000 mm, 101.5750 mm): Footprint J2
+    @(36.9000 mm, 101.5750 mm): Footprint J2
 [footprint_symbol_field_mismatch]: Missing symbol field 'Manufacturer' in footprint
     Local override; warning
     @(116.2600 mm, 127.6300 mm): Footprint J7

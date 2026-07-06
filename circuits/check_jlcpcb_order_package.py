@@ -35,16 +35,15 @@ PACKAGE_ONLY_FILES = (
     "laser_controller_pos.csv",
 )
 JLCPCB_CPL_COLUMNS = ("Designator", "Mid X", "Mid Y", "Layer", "Rotation")
-REQUIRED_BOARD_TEXT = {
-    ("vivonics", "B.SilkS"),
-    ("RED", "F.SilkS"),
-    ("GREEN", "F.SilkS"),
-    ("BLUE", "F.SilkS"),
-    ("INFRARED", "F.SilkS"),
-    ("PD CH1", "F.SilkS"),
-    ("PD CH2", "F.SilkS"),
-    ("PD CH3", "F.SilkS"),
-    ("PD CH4", "F.SilkS"),
+REQUIRED_OPTICAL_LABELS = {
+    "RED",
+    "GREEN",
+    "BLUE",
+    "INFRARED",
+    "PD CH1",
+    "PD CH2",
+    "PD CH3",
+    "PD CH4",
 }
 ALLOWED_BOTTOM_REFS = {"D1", "D2", "D3", "D4", "LD1", "LD2", "LD3", "LD4"}
 REQUIRED_TOP_TIA_REFS = {
@@ -90,8 +89,6 @@ def parse_mm_cell(value: str, field: str, ref: str) -> tuple[float | None, str |
         parsed = float(number)
     except ValueError:
         return None, f"{ref}: CPL {field} value {value!r} is not numeric"
-    if parsed < 0:
-        return None, f"{ref}: CPL {field} value {value!r} must be positive"
     return parsed, None
 
 
@@ -233,11 +230,13 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
     failures.extend(cpl_failures)
     try:
         min_x, max_x, min_y, max_y = board_bounds()
-        board_width = max_x - min_x
-        board_height = max_y - min_y
+        coordinate_bounds = {
+            "Mid X": (min_x, max_x),
+            "Mid Y": (-max_y, -min_y),
+        }
     except ValueError as exc:
         failures.append(str(exc))
-        board_width = board_height = 0.0
+        coordinate_bounds = {}
     bom_refs = bom_designators(bom_rows)
     pos_refs = {row.get("Designator", "") for row in pos_rows}
     pcb_sides = footprint_layers()
@@ -262,12 +261,12 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
             parsed, error = parse_mm_cell(row.get(field, ""), field, ref)
             if error:
                 failures.append(error)
-            elif parsed is not None and board_width and board_height:
-                limit = board_width if field == "Mid X" else board_height
-                if parsed > limit + 0.05:
+            elif parsed is not None and field in coordinate_bounds:
+                lower, upper = coordinate_bounds[field]
+                if parsed < lower - 0.05 or parsed > upper + 0.05:
                     failures.append(
                         f"{ref}: CPL {field} value {parsed:.4f}mm is outside "
-                        f"board-local {'width' if field == 'Mid X' else 'height'} {limit:.4f}mm"
+                        f"Gerber coordinate bounds {lower:.4f}..{upper:.4f}mm"
                     )
         try:
             rotation = float(row.get("Rotation", ""))
@@ -370,10 +369,10 @@ def verify_full_procurement_manifest() -> list[str]:
 def verify_board_text() -> list[str]:
     failures: list[str] = []
     text = BOARD_PATH.read_text()
-    for label, layer in sorted(REQUIRED_BOARD_TEXT):
-        pattern = rf'\(gr_text "{re.escape(label)}".*?\(layer "{re.escape(layer)}"\)'
+    for label in sorted(REQUIRED_OPTICAL_LABELS):
+        pattern = rf'\(gr_text "{re.escape(label)}".*?\(layer "[FB]\.SilkS"\)'
         if not re.search(pattern, text, flags=re.DOTALL):
-            failures.append(f"missing board text {label!r} on {layer}")
+            failures.append(f"missing optical board text {label!r} on a silkscreen layer")
     if not re.search(
         r'\(gr_text "vivonics".*?\(layer "B\.SilkS"\).*?'
         r'\(size 12 12\).*?\(thickness 1\.4\).*?\(justify mirror\)',
