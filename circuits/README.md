@@ -70,8 +70,8 @@ python3 gen_laser_controller.py
 | `laser_ir.kicad_sch`, `laser_red.kicad_sch`, `laser_green.kicad_sch`, `laser_blue.kicad_sch` | Four constant-current laser sink sheets with globally unique designators; each sheet has a direct through-hole TO-can footprint so `LD_K`, common `LD_A/PD_K/case`, and `PD_A -> MPD_RAW` are visible. |
 | `mcu.kicad_sch` | ESP32-S3-WROOM-1 + CP2102N USB-UART + two USB Mini-B connectors + discrete USB/VBUS ESD + reset/program/factory buttons. |
 | `power_io.kicad_sch` | 5V OR-ing, laser supply, on-board AD7606-4 signal ADC, and shared INA4180/LM4040 monitor-PD front end. |
-| `laser_controller_bom_jlcpcb.csv` | JLCPCB SMT assembly CSV (Comment, Designator, Footprint, LCSC); hand-add headers and direct laser cans are listed separately. |
-| `fab/laser_controller_pos.csv` | JLCPCB SMT CPL CSV converted to the five-column upload format (`Designator,Mid X,Mid Y,Layer,Rotation`); designators match the JLCPCB BOM. |
+| `laser_controller_bom_jlcpcb.csv` | JLCPCB assembly CSV (Comment, Designator, Footprint, LCSC) for SMT plus the J5/J6 through-hole connector assembly rows; direct laser cans are listed separately. |
+| `fab/laser_controller_pos.csv` | JLCPCB CPL CSV converted to the five-column upload format (`Designator,Mid X,Mid Y,Layer,Rotation`); designators match the JLCPCB BOM. |
 | `laser_controller_gerbers.zip` | Current PCB Gerber/drill zip for JLCPCB PCB fabrication upload. |
 | `laser_controller_jlcpcb_package.zip` | Flat review/transfer archive containing Gerber/drill files plus BOM and JLCPCB-format CPL. |
 | `laser_controller.kicad_pro` | KiCad 7 project file. |
@@ -146,10 +146,11 @@ GREEN/BLUE); the SFH2201 is broadband (300–1100 nm) so the same PD detects all
 
 ## BOM — verified LCSC numbers (2026-06-30)
 
-`laser_controller_bom_jlcpcb.csv` is the JLCPCB SMT assembly CSV generated from
-parts with populated LCSC fields. It intentionally excludes the hand-added
-through-hole barrel jack and direct laser-can footprints; those are separate
-procurement/assembly items listed below.
+`laser_controller_bom_jlcpcb.csv` is the JLCPCB assembly CSV generated from
+parts with populated LCSC fields. It includes SMT plus the J5 barrel jack and
+J6 RJ45 through-hole connector rows for JLCPCB THT/wave/manual connector
+assembly. It intentionally excludes the direct laser-can footprints; those are
+separate hand-installed optical items listed below.
 
 ### SMT (JLCPCB assembled)
 
@@ -187,9 +188,16 @@ procurement/assembly items listed below.
 | C (100nF) | 100nF 0402 16V X7R | **C83056** | — | decoupling and monitor-PD low-pass filters. |
 | C (10µF) | 10µF 0805 25V X5R | **C318691** | — | bulk decoupling. |
 | C64-C65/C67-C68 | 22µF 0805 25V X5R | **C45783** | Basic | AP63205/AP63200 buck output capacitor banks, 2x22µF per rail. |
-| J1-J2 | USB Mini-B receptacle | **C5120592** | (JLC assy) | Würth `65100516121` metadata on the matching KiCad Würth land pattern. |
+| J1-J2 | USB Mini-B receptacle | **C46391** | (JLC assy) | Access-controller `920-462A2021S10101` metadata on the copied Mini-B land pattern. |
 
-### Hand-add / not in SMT assembly
+### THT connector assembly (JLCPCB assembled if accepted)
+
+| Part | Value | Notes |
+|---|---|---|
+| J5 | 24 V DC barrel jack, `Open_Automation:BarrelJack_OD5.5_ID2.5` | Center-positive 24 V input, GANGYUAN `DC-470-2.1GP` / LCSC **C194407**, copied from the access-controller libraries. |
+| J6 | 24 V RJ45 power input, `Connector_RJ:RJ45_Amphenol_RJHSE538X` | RJ45 pins 4/5 to `VIN_24V`, pins 7/8/9/11 to GND, pins 10/12 through 10k LED/contact resistors to `VIN_24V` and `+3V3`, Ckmtw `R-RJ45R08P-C000` / LCSC **C386757**, copied from the access-controller Ethernet sheet and libraries. |
+
+### Hand-add / not in JLCPCB assembly
 
 | Part | Value | Notes |
 |---|---|---|
@@ -197,8 +205,6 @@ procurement/assembly items listed below.
 | LD2 | D6505I, `OptoDevice:LaserDiode_TO18-D5.6-3` | Direct red laser can. |
 | LD3 | PLT5 520EB_P, `OptoDevice:LaserDiode_TO56-3` | Direct green laser can. |
 | LD4 | PLT5 450GB, `OptoDevice:LaserDiode_TO56-3` | Direct blue laser can; case pad is intentionally no-connect and `MPD_RAW4` stays spare/open. |
-| J5 | 24 V DC barrel jack, `Open_Automation:BarrelJack_OD5.5_ID2.5` | Center-positive 24 V input, GANGYUAN `DC-470-2.1GP` / LCSC **C194407**, copied from the access-controller libraries. |
-| J6 | 24 V RJ45 power input, `Connector_RJ:RJ45_Amphenol_RJHSE538X` | RJ45 pins 4/5 to `VIN_24V`, pins 7/8/9/11 to GND, pins 10/12 through 10k LED/contact resistors to `VIN_24V` and `+3V3`, Ckmtw `R-RJ45R08P-C000` / LCSC **C386757**, copied from the access-controller Ethernet sheet and libraries. |
 
 ## ⚠ Before PCB layout — required pin-accuracy pass
 
@@ -224,7 +230,7 @@ pins 4/5/8, ESP32-S3 module pins 13/14, discrete ESD clamps, 1N5819HW VBUS
 isolation, D5 +5 V OR-ing, the CP2102N 22.1 k / 47.5 k VBUS divider, RST
 pull-up, UART, EN/BOOT auto-reset, and USB ID no-connects. Its
 `connector-source-match` policy passes only when the active metadata is
-Würth `65100516121` / **C5120592** on the matching Würth land pattern.
+access-controller `920-462A2021S10101` / **C46391** on the copied Mini-B land pattern.
 `check_esp32_reset_boot_controls.py` separately asserts the copied reset/boot
 support block: EN 10 k / 1 uF / RESET button, GPIO0 BOOT 10 k / 1 uF / PROG
 button, GPIO1 FACT button, CP2102N QFN28 DTR/RTS into the Q5/Q6 auto-reset
@@ -320,8 +326,8 @@ datasheet-check before routing:
    keep-out during layout.
 2. **SFH2201 polarity.** `OptoDevice:Osram_SFH2201` pad 1 = cathode, pad 2 = anode (matches
    the KiCad `D_Photo` symbol convention used here). Confirm the orientation mark in bring-up.
-3. **USB Mini-B land.** J1/J2 use Würth `65100516121` / **C5120592** metadata
-   on the KiCad Würth 65100516121 footprint; check connector pin-1, shield pad
+3. **USB Mini-B land.** J1/J2 use access-controller `920-462A2021S10101` /
+   **C46391** metadata on the KiCad Mini-B footprint; check connector pin-1, shield pad
    6 to GND, board-edge orientation, and final JLCPCB quote acceptance.
 
 ### Design review — folded into the generator

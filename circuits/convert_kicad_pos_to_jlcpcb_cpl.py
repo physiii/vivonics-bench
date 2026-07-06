@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Convert KiCad CSV position export to JLCPCB CPL format.
 
-KiCad exports `Ref,Val,Package,PosX,PosY,Rot,Side`, with coordinates in the
-same frame as the Gerbers. JLCPCB's current CPL parser expects the stricter
-`Designator,Mid X,Mid Y,Layer,Rotation` form shown in its sample file. Keep the
-KiCad X/Y values unchanged so the CPL origin and Y sign match the Gerber upload.
+KiCad exports `Ref,Val,Package,PosX,PosY,Rot,Side`. JLCPCB's current CPL parser
+expects the stricter `Designator,Mid X,Mid Y,Layer,Rotation` form shown in its
+sample file. Keep the KiCad X/Y/rotation values unchanged except for formatting:
+the Gerber upload and CPL then share the same origin, Y sign, and footprint
+orientations.
 """
 from __future__ import annotations
 
@@ -54,8 +55,24 @@ def convert_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
     return converted
 
 
+def bom_refs(path: Path) -> set[str]:
+    with path.open(newline="") as handle:
+        reader = csv.DictReader(handle)
+        if "Designator" not in (reader.fieldnames or ()):
+            raise SystemExit(f"{path}: expected a Designator column")
+        refs: set[str] = set()
+        for row in reader:
+            refs.update(ref.strip() for ref in row["Designator"].split(",") if ref.strip())
+    return refs
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--bom",
+        type=Path,
+        help="Optional JLCPCB BOM CSV; when set, only placement rows whose Ref is in the BOM are emitted.",
+    )
     parser.add_argument("input", type=Path, help="KiCad CSV position file")
     parser.add_argument("output", type=Path, help="JLCPCB CPL CSV output")
     args = parser.parse_args()
@@ -67,6 +84,16 @@ def main() -> int:
                 f"expected KiCad POS columns {KICAD_COLUMNS}, found {tuple(reader.fieldnames or ())}"
             )
         rows = list(reader)
+
+    if args.bom is not None:
+        allowed_refs = bom_refs(args.bom)
+        input_refs = {row["Ref"] for row in rows}
+        missing = sorted(allowed_refs - input_refs)
+        if missing:
+            raise SystemExit(
+                "BOM designators missing from KiCad position export: " + ", ".join(missing)
+            )
+        rows = [row for row in rows if row["Ref"] in allowed_refs]
 
     converted = convert_rows(rows)
     args.output.parent.mkdir(parents=True, exist_ok=True)

@@ -85,10 +85,9 @@ REQUIRED_ONLINE = [
         expect_pdf=True,
     ),
     OnlineEvidence(
-        "Wuerth 65100516121 Mini-B datasheet",
-        "https://www.we-online.com/catalog/datasheet/65100516121.pdf",
+        "Access-controller Mini-B C46391 assembly source",
+        "https://www.lcsc.com/product-detail/USB-Connectors_Jing-Extension-of-the-Electronic-Co-920-462A2021S10101_C46391.html",
         True,
-        expect_pdf=True,
     ),
     OnlineEvidence(
         "Espressif ESP-IDF ESP32-S3 ADC guide",
@@ -221,13 +220,7 @@ WARNING_ONLINE = [
         "Wuerth Mini/Micro USB family page",
         "https://www.we-online.com/en/components/products/INPUT_OUTPUT_WR_USB_MINI_MICRO",
         False,
-        note="Family/product page; exact 65100516121 drawing is required separately above.",
-    ),
-    OnlineEvidence(
-        "LCSC C5120592 Wuerth 65100516121 Mini-B order page",
-        "https://www.lcsc.com/product-detail/USB-Connectors_Wurth-Elektronik-65100516121_C5120592.html",
-        False,
-        note="Distributor/order source for the Wuerth Mini-B part used by the active J1/J2 BOM metadata.",
+        note="Family/product page for the KiCad footprint naming lineage; active JLC assembly metadata is C46391.",
     ),
     OnlineEvidence(
         "Farnell mirror of Wuerth 65100516121 drawing",

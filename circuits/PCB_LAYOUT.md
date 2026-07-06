@@ -103,15 +103,16 @@ been removed now that U14 is on-board.
 |-----|----------|------|------|
 | J1  | USB Mini-B to CP2102N USB-UART | 6 | SMD horizontal, JLCPCB assembly; shield pad 6 to GND |
 | J2  | USB Mini-B to ESP32-S3 native USB | 6 | SMD horizontal, JLCPCB assembly; shield pad 6 to GND |
-| J5  | 24 V center-positive barrel input (`VIN_24V` + GND) | 3 | TH right-angle barrel jack, hand-solder |
-| J6  | 24 V RJ45 power input (`VIN_24V` on pins 4/5, GND on pins 7/8/9/11) | 12 | TH right-angle shielded RJ45, hand-solder |
+| J5  | 24 V center-positive barrel input (`VIN_24V` + GND) | 3 | TH right-angle barrel jack, included in JLCPCB THT assembly |
+| J6  | 24 V RJ45 power input (`VIN_24V` on pins 4/5, GND on pins 7/8/9/11) | 12 | TH right-angle shielded RJ45, included in JLCPCB THT assembly |
 
 ## JLCPCB Order Target
 
 - Workmanship target: IPC/J-STD Class 2 bench prototype, not Class 3 or
   production/life-safety release.
-- Fabrication target: JLCPCB Economic PCBA, 4-layer rigid FR-4, 1.6 mm,
-  standard stackup, standard solder mask/silkscreen, top-side SMT assembly only.
+- Fabrication target: JLCPCB PCBA, 4-layer rigid FR-4, 1.6 mm, standard
+  stackup, standard solder mask/silkscreen, top-side SMT plus JLCPCB THT
+  connector assembly for J5/J6.
 - Upload files: `circuits/laser_controller_gerbers.zip` for PCB fabrication,
   `circuits/laser_controller_bom_jlcpcb.csv` as BOM, and
   `circuits/fab/laser_controller_pos.csv` as the JLCPCB-format CPL. The convenience archive
@@ -121,8 +122,8 @@ been removed now that U14 is on-board.
   repo root. It checks that the zip entries match the source Gerber/drill files,
   BOM/CPL designators match, J7 remains the C192300 2x4 SMD header, and the
   required PD/laser/backside board labels are present.
-- Hand-add exclusions: J5, J6, LD1-LD4, mounting holes, and any other
-  through-hole/mechanical-only items are not in the JLCPCB SMT BOM/POS flow.
+- Hand-add exclusions: LD1-LD4, mounting holes, and any other
+  through-hole/mechanical-only items not present in the JLCPCB BOM/CPL.
 - Quote review still wins: move to Standard PCBA or change order options if
   JLCPCB rejects the economic tier, extended parts, connector fit, stackup, or
   assembly constraints.
@@ -144,8 +145,8 @@ evidence remain open.
 
 - **ESP32-S3-WROOM-1**: real Espressif symbol; USB D− = GPIO19/module pin 13, USB D+ =
   GPIO20/module pin 14; GPIO0/BOOT is pulled up and has a local PROG button.
-- **USB Mini-B**: Würth `65100516121` / C5120592 metadata on the matching KiCad
-  Würth 65100516121 footprint, horizontal SMD, port faces board edge; review
+- **USB Mini-B**: access-controller `920-462A2021S10101` / C46391 metadata on
+  the copied Mini-B placement footprint, horizontal SMD, port faces board edge; review
   pin-1, shield pads, board-edge orientation, ESD placement, and final quote.
 - **SFH2201**: pad 1 = cathode, pad 2 = anode — check PD orientation.
 - **Direct laser pinout**: the 2026-07-04 direct-laser MPN/footprint signoff
@@ -241,4 +242,5 @@ See `laser_controller_bom_jlcpcb.csv`. Key notes:
 - **Power**: J5 24 V barrel and J6 RJ45 feed onboard AP63205/AP63200 bucks; USB VBUS remains an alternate OR-ed +5 V source.
 - **10k resistors**: C844918 (Vishay CRCW060310K0FKEA, live LCSC stock checked 2026-06-28).
 - **SFH2201**: C2900216 (Extended, one-time feeder fee).
-- **J5 barrel jack, J6 RJ45, and direct laser cans**: through-hole, hand-soldered.
+- **J5 barrel jack and J6 RJ45**: through-hole, included in JLCPCB THT assembly.
+- **Direct laser cans**: through-hole, hand-soldered after PCBA.

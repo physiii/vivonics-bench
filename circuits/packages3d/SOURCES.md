@@ -22,9 +22,9 @@ where the KiCad 7 system library did not provide a footprint-matched model.
 - `Connector_USB.3dshapes/USB_Mini-B_920-462A2021S10101.step`
   - Source package: `MICRO-USB-SMD_920-462A2021S10101`
   - LCSC part checked: `C46391`
-  - Status: visual placeholder only. Active J1/J2 procurement metadata is
-    Würth `65100516121` / LCSC `C5120592` on the KiCad Würth footprint; no
-    matching Würth STEP model is installed in this project.
+  - Status: active J1/J2 visual model and procurement family source. Active
+    metadata is access-controller `920-462A2021S10101` / LCSC `C46391` on the
+    KiCad Mini-B placement footprint.
   - PCB transform: rotate Z 270, offset Y 0.05 mm
 
 ## Generated project models

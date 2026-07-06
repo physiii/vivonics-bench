@@ -1,6 +1,4 @@
 Assembly,Comment,Designator,Qty,Footprint,MPN,LCSC,Notes
-Hand install mechanical,24V DC IN,J5,1,Open_Automation:BarrelJack_OD5.5_ID2.5,DC-470-2.1GP,C194407,Through-hole/mechanical connector; not in JLCPCB SMT assembly.
-Hand install mechanical,CONN_RJ45,J6,1,Connector_RJ:RJ45_Amphenol_RJHSE538X,R-RJ45R08P-C000,C386757,Through-hole/mechanical connector; not in JLCPCB SMT assembly.
 Hand install optical,D6505I 650nm TO18 STYLE-A LASER+MPD,LD2,1,OptoDevice:LaserDiode_TO18-D5.6-3,D6505I,,Direct laser can; install after PCB/PCBA and inspect pin orientation.
 Hand install optical,D7805I 780nm TO18 STYLE-A LASER+MPD,LD1,1,OptoDevice:LaserDiode_TO18-D5.6-3,D7805I,,Direct laser can; install after PCB/PCBA and inspect pin orientation.
 Hand install optical,PLT5 450GB TO56 LASER CASE,LD4,1,OptoDevice:LaserDiode_TO56-3,PLT5 450GB,,Direct laser can; install after PCB/PCBA and inspect pin orientation.
@@ -64,5 +62,7 @@ JLCPCB SMT,SFH2201,"D1,D2,D3,D4",4,OptoDevice:Osram_SFH2201,SFH2201,C2900216,Inc
 JLCPCB SMT,SS14,"D5,D6",2,Diode_SMD:D_SMA,SS14,C2480,Included in laser_controller_bom_jlcpcb.csv and CPL.
 JLCPCB SMT,SW_PUSH,"SW1,SW2,SW3",3,Button_Switch_SMD:SW_SPST_PTS645,K2-1102SP-C4SC-04,C127509,Included in laser_controller_bom_jlcpcb.csv and CPL.
 JLCPCB SMT,TLV9001,"U5,U6,U7,U8",4,Package_TO_SOT_SMD:SOT-23-5,TLV9001IDBVR,C398363,Included in laser_controller_bom_jlcpcb.csv and CPL.
-JLCPCB SMT,USB_MINI_B,"J2,J1",2,Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal,65100516121,C5120592,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB SMT,USB_MINI_B,"J2,J1",2,Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal,920-462A2021S10101,C46391,Included in laser_controller_bom_jlcpcb.csv and CPL.
 JLCPCB SMT,VBIAS 10k,"RV1,RV2,RV3,RV4",4,Potentiometer_SMD:Potentiometer_Bourns_3224W_Vertical,3224W-1-103E,C81348,Included in laser_controller_bom_jlcpcb.csv and CPL.
+JLCPCB THT,24V DC IN,J5,1,Open_Automation:BarrelJack_OD5.5_ID2.5,DC-470-2.1GP,C194407,Included in JLCPCB BOM/CPL for through-hole/wave/manual connector assembly.
+JLCPCB THT,CONN_RJ45,J6,1,Connector_RJ:RJ45_Amphenol_RJHSE538X,R-RJ45R08P-C000,C386757,Included in JLCPCB BOM/CPL for through-hole/wave/manual connector assembly.

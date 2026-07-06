@@ -3070,7 +3070,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C5120592"
+		(property "LCSC" "C46391"
 			(at -50.4 125.15 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -3082,7 +3082,7 @@
 				)
 			)
 		)
-		(property "Part Number" "65100516121"
+		(property "Part Number" "920-462A2021S10101"
 			(at -50.4 125.15 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -10852,7 +10852,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C5120592"
+		(property "LCSC" "C46391"
 			(at -64.175 138.975 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -10864,7 +10864,7 @@
 				)
 			)
 		)
-		(property "Part Number" "65100516121"
+		(property "Part Number" "920-462A2021S10101"
 			(at -64.175 138.975 0)
 			(layer "F.Fab")
 			(hide yes)

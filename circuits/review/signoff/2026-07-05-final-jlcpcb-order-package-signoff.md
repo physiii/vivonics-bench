@@ -1,9 +1,10 @@
 # Final JLCPCB Order Package Signoff
 
-Date: 2026-07-05
+Date: 2026-07-05; updated 2026-07-06 for J1/J2 USB and J5/J6 THT assembly inclusion
 
 Scope: Current laser-controller fabrication package for JLCPCB PCB plus top-side
-SMT assembly upload, with only the optical PD/LD devices on the backside.
+SMT assembly and J5/J6 THT connector assembly upload, with only the optical
+PD/LD devices on the backside.
 
 ## Package Status
 
@@ -23,7 +24,8 @@ for bench measurements, optical safety behavior, production, or field use.
 - `python3 circuits/check_jlcpcb_order_package.py`
   - PASS: 14 Gerber/drill files
   - PASS: package archive includes BOM/POS
-  - PASS: 173/173 BOM/POS designators match
+  - PASS: 175/175 BOM/POS designators match
+  - PASS: J5/J6 are included for THT connector assembly
   - PASS: J7 is `C192300` 2x4 SMD
   - PASS: only PD/LD footprints are bottom-side
   - PASS: PD/laser labels and backside `vivonics` mark are present
@@ -60,16 +62,19 @@ preferred PCBA BOM/CPL upload.
 
 ## PCBA Side Policy
 
-All ICs, passives, connectors, trimmers, switches, and buck parts are on the
-front/top side. The only backside SMT parts intended for JLCPCB placement are
-`D1`-`D4` (`SFH2201`) if two-sided SMT assembly is selected. `LD1`-`LD4` direct
-laser cans, `J5` barrel input, and `J6` RJ45 input are not part of the JLCPCB
-SMT BOM and remain hand-installed/mechanically inspected parts.
+All ICs, passives, trimmers, switches, buck parts, SMD connectors, and the J5/J6
+through-hole power connectors are on the front/top side. The only backside SMT
+parts intended for JLCPCB placement are `D1`-`D4` (`SFH2201`) if two-sided SMT
+assembly is selected. `LD1`-`LD4` direct laser cans remain
+hand-installed/mechanically inspected optical parts.
 
 After BOM/CPL upload, the JLCPCB quote should show:
 
 - no unmatched components,
 - no CPL processing failure,
+- `J1,J2` selected as `C46391` for top-side Mini-B USB assembly,
+- `J5` selected as `C194407` for THT/wave/manual connector assembly,
+- `J6` selected as `C386757` for THT/wave/manual connector assembly,
 - `J7` selected as `C192300`,
 - top-side assembly containing the normal SMT population,
 - bottom-side assembly, if enabled, containing only `D1`-`D4` `SFH2201`.
@@ -95,9 +100,9 @@ not-assembled and hand-place that part.
 ## SHA256
 
 ```text
-8fe1c7d1025a869350062c41dfec1af31d63f486b756a8b3a9c14dd784c92028  circuits/laser_controller_gerbers.zip
-fb79c81967d990a2f9e976e1df6ce2cd272b73eca1f9156596f3e8066f9a5226  circuits/laser_controller_jlcpcb_package.zip
-516f5eb10b5ff3ffc922ced47a639696911c27de949bab44d5e5d5ad19db8ee7  circuits/laser_controller_bom_jlcpcb.csv
-be0a1aacca2c03dd3875fa95a7aaee4b55620a9a7abc12bb8c5f4c571cf457c5  circuits/fab/laser_controller_pos.csv
-226ab7ad5e31b6de9c83ec9a00cf4b0b54bd082182fccf55c41c047927926b72  circuits/fab/laser_controller_full_procurement.csv
+7686d06fc087233d75ceb6e5df10a681df8bb4376b3fa8a400699503ef68d865  circuits/laser_controller_gerbers.zip
+565d42e167de9342ed7f30905e456e78ffa02d35b891b68d2c6a640688ea7f7e  circuits/laser_controller_jlcpcb_package.zip
+0d0de72c72e62a764d51373d87a15c74c038ac83cad23bf5caaeb77b6064c286  circuits/laser_controller_bom_jlcpcb.csv
+19074489721d55d725267c06364646e4b6c942721c1e41fd2378e416ac812b55  circuits/fab/laser_controller_pos.csv
+9e6e2266a2cebb7bb652c375bdf4190f4084cacffa63eb1634251269d71d228f  circuits/fab/laser_controller_full_procurement.csv
 ```

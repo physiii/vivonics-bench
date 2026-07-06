@@ -51,9 +51,12 @@ REQUIRED_TOP_TIA_REFS = {
     "RV5", "RV6", "RV7", "RV8",
     "C1", "C2", "C5", "C6", "C9", "C10", "C13", "C14",
 }
+JLCPCB_ASSEMBLY_TYPES = {"JLCPCB SMT", "JLCPCB THT"}
+REQUIRED_THT_ASSEMBLY = {
+    "J5": ("JLCPCB THT", "DC-470-2.1GP", "C194407"),
+    "J6": ("JLCPCB THT", "R-RJ45R08P-C000", "C386757"),
+}
 REQUIRED_HAND_PROCUREMENT = {
-    "J5": ("Hand install mechanical", "DC-470-2.1GP", "C194407"),
-    "J6": ("Hand install mechanical", "R-RJ45R08P-C000", "C386757"),
     "LD1": ("Hand install optical", "D7805I", ""),
     "LD2": ("Hand install optical", "D6505I", ""),
     "LD3": ("Hand install optical", "PLT5 520EB_P", ""),
@@ -308,6 +311,34 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
         if row.get("Layer") != "Top":
             failures.append(f"J7 POS layer is {row.get('Layer')}, expected Top")
 
+    required_connectors = {
+        "J1": ("C46391", "Top", "270"),
+        "J2": ("C46391", "Top", "270"),
+        "J5": ("C194407", "Top"),
+        "J6": ("C386757", "Top", "90"),
+        "J7": ("C192300", "Top"),
+    }
+    for ref, expected in required_connectors.items():
+        lcsc, expected_layer, *expected_rotation = expected
+        bom_matches = [
+            row
+            for row in bom_rows
+            if ref in {item.strip() for item in row["Designator"].split(",")}
+        ]
+        if len(bom_matches) != 1:
+            failures.append(f"expected exactly one {ref} BOM row, found {len(bom_matches)}")
+        elif bom_matches[0]["LCSC"] != lcsc:
+            failures.append(f"{ref} BOM LCSC is {bom_matches[0]['LCSC']}, expected {lcsc}")
+        pos_matches = [row for row in pos_rows if row.get("Designator") == ref]
+        if len(pos_matches) != 1:
+            failures.append(f"expected exactly one {ref} POS row, found {len(pos_matches)}")
+        elif pos_matches[0].get("Layer") != expected_layer:
+            failures.append(f"{ref} POS layer is {pos_matches[0].get('Layer')}, expected {expected_layer}")
+        elif expected_rotation and pos_matches[0].get("Rotation") != expected_rotation[0]:
+            failures.append(
+                f"{ref} POS rotation is {pos_matches[0].get('Rotation')}, expected {expected_rotation[0]}"
+            )
+
     return failures, len(bom_refs), len(pos_refs)
 
 
@@ -321,11 +352,14 @@ def verify_full_procurement_manifest() -> list[str]:
     bom_refs = bom_designators(read_csv(BOM_PATH))
     rows = read_csv(FULL_PROC_PATH)
     jlc_refs: set[str] = set()
+    jlc_rows: dict[str, dict[str, str]] = {}
     hand_rows: dict[str, dict[str, str]] = {}
     for row in rows:
         refs = [ref.strip() for ref in row["Designator"].split(",") if ref.strip()]
-        if row["Assembly"] == "JLCPCB SMT":
+        if row["Assembly"] in JLCPCB_ASSEMBLY_TYPES:
             jlc_refs.update(refs)
+            for ref in refs:
+                jlc_rows[ref] = row
         else:
             for ref in refs:
                 hand_rows[ref] = row
@@ -334,14 +368,28 @@ def verify_full_procurement_manifest() -> list[str]:
     extra_jlc = sorted(jlc_refs - bom_refs)
     if missing_jlc:
         failures.append(
-            "full procurement manifest is missing JLC SMT BOM refs: "
+            "full procurement manifest is missing JLCPCB assembly BOM refs: "
             + ", ".join(missing_jlc)
         )
     if extra_jlc:
         failures.append(
-            "full procurement manifest has extra JLC SMT refs outside BOM: "
+            "full procurement manifest has extra JLCPCB assembly refs outside BOM: "
             + ", ".join(extra_jlc)
         )
+
+    for ref, (assembly, mpn, lcsc) in REQUIRED_THT_ASSEMBLY.items():
+        row = jlc_rows.get(ref)
+        if row is None:
+            failures.append(f"full procurement manifest missing JLCPCB THT row for {ref}")
+            continue
+        if row["Assembly"] != assembly:
+            failures.append(
+                f"full procurement manifest {ref} assembly is {row['Assembly']}, expected {assembly}"
+            )
+        if row["MPN"] != mpn:
+            failures.append(f"full procurement manifest {ref} MPN is {row['MPN']}, expected {mpn}")
+        if row["LCSC"] != lcsc:
+            failures.append(f"full procurement manifest {ref} LCSC is {row['LCSC']}, expected {lcsc}")
 
     for ref, (assembly, mpn, lcsc) in REQUIRED_HAND_PROCUREMENT.items():
         row = hand_rows.get(ref)
@@ -479,8 +527,8 @@ def main() -> int:
         "PASS JLCPCB order package: "
         f"{len(files)} Gerber/drill files, package archive includes BOM/POS, "
         f"{bom_count}/{pos_count} BOM/CPL designators match, CPL is JLCPCB five-column mm format, "
-        "full procurement manifest separates JLC SMT from hand-installed optical/mechanical parts, "
-        "J7 is C192300 2x4 SMD, "
+        "full procurement manifest separates JLC SMT/THT from hand-installed optical parts, "
+        "J5/J6 are included for THT connector assembly, J7 is C192300 2x4 SMD, "
         "only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present"
     )
     return 0

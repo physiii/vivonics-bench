@@ -43,7 +43,7 @@ DOCUMENTATION_DESIGNATOR_GUARDS = [
         SOURCE_REGISTER,
         [
             "Silicon Labs `CP2102N-A02-GQFN28R` / `C964632`",
-            "Mini-B `65100516121` / `C5120592`",
+            "Mini-B `920-462A2021S10101` / `C46391`",
             "UMW `LESD5D5.0CT1G(UMW)` / `C5199850`",
             "| Diodes Inc. `AP2112K-3.3TRG1`, LCSC `C51118` | U11 |",
         ],
@@ -157,7 +157,7 @@ def main() -> int:
         "Alpha & Omega",
         "Bourns",
         "Mini-B connector metadata",
-        "connector-source-match` passes because the active metadata now matches the Würth footprint",
+        "connector-source-match` passes because the active metadata now matches the access-controller Mini-B placement source",
         "Commodity passive voltage ratings",
         "AP2112 3V3 rail thermal policy",
         "sustained Wi-Fi/BLE",

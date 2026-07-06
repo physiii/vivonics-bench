@@ -260,7 +260,7 @@ S("AP6320X_TSOT6",
 # PWR_FLAG — declares an external supply node as a power source (silences ERC "no power source")
 S("PWR_FLAG",{"1":(0,0,90,"~","power_out",0)},
   [[(0,0),(0,1.27)],[(0,1.27),(-1.016,1.905),(0,2.54),(1.016,1.905),(0,1.27)]],power=True)
-# USB Mini-B receptacle (LCSC C5120592): 1=VBUS 2=D− 3=D+ 4=ID 5=GND 6=shell
+# USB Mini-B receptacle (access-controller/JLCPCB C46391): 1=VBUS 2=D− 3=D+ 4=ID 5=GND 6=shell
 S("USB_MINIB",{"1":(-7.62,5.08,0,"VBUS","passive",2.54),"2":(-7.62,2.54,0,"D-","passive",2.54),
                "3":(-7.62,0,0,"D+","passive",2.54),"4":(-7.62,-2.54,0,"ID","passive",2.54),
                "5":(-7.62,-5.08,0,"GND","passive",2.54),"6":(-7.62,-8.89,0,"SHLD","passive",2.54)},
@@ -415,9 +415,10 @@ REFLET={"R_H":"R","R_H_RJ45":"R","R_V":"R","POT_H":"RV","POT_V":"RV","C_H":"C","
         "BARREL_JACK_SWITCH":"J","L_H":"L","AP6320X_TSOT6":"U","NMOS":"Q",
         "Espressif:ESP32-S3-WROOM-1":"U",
         "LDO5":"U","SCHOTTKY":"D","USB_MINIB":"J","ESD_USB":"U"}
-# Hand-add (excluded from SMT BOM): only the THT 2.54mm I/O headers. Everything else, including
-    # the SFH2201 signal PDs, ESP32-S3, AD7606, 3224W SMD pots, and USB Mini-B connector, is JLCPCB machine-placed.
-HAND={"CONN2","CONN3","CONN4","CONN5","CONN6","CONN8","CONN10","open_automation:CONN_RJ45","BARREL_JACK_SWITCH"}
+# Hand-add exclusions: only legacy/generic THT headers. J5/J6 are explicitly
+# kept in the JLCPCB BOM/CPL as THT connector assembly rows.
+HAND={"CONN2","CONN3","CONN4","CONN5","CONN6","CONN8","CONN10"}
+JLCPCB_THT_ASSEMBLY={"open_automation:CONN_RJ45","BARREL_JACK_SWITCH"}
 NON_SMT_ASSEMBLY={"LASER_CAN_MON_PD","LASER_CAN_DIODE_CASE"}
 PASSIVE_GLYPH_NUMS=("R_H","R_H_RJ45","R_V","POT_H","POT_V","C_H","C_V","PHOTODIODE","OPA_N","TLV9001_SOT23_5","NMOS","SCHOTTKY")
 
@@ -438,7 +439,7 @@ FP_TSOT236="Package_TO_SOT_SMD:TSOT-23-6"
 FP_SOT23="Package_TO_SOT_SMD:SOT-23"
 FP_SMA="Diode_SMD:D_SMA"
 FP_ESP32S3="RF_Module:ESP32-S3-WROOM-1"   # stock KiCad footprint available here; access-controller uses Espressif lib name for same module
-FP_USB="Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal"  # Würth 65100516121 horizontal SMD Mini-B (same as access-controller)
+FP_USB="Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal"  # access-controller Mini-B placement footprint
 FP_PD="OptoDevice:Osram_SFH2201"          # clear broadband Si PIN PD; in-tree KiCad footprint (pad1=K, pad2=A)
 FP_LASER_TO18="OptoDevice:LaserDiode_TO18-D5.6-3"
 FP_LASER_TO56="OptoDevice:LaserDiode_TO56-3"
@@ -475,7 +476,7 @@ LCSC_ESP="C2913199"  # ESP32-S3-WROOM-1 (exact C-number used on the access-contr
 LCSC_LDO="C51118"    # AP2112K-3.3 SOT-23-5, 250mV dropout (was AMS1117 C6186 — too much dropout off USB VBUS)
 LCSC_ESD="C7519"     # legacy inactive USBLC6-2SC6 local-MCU generator path
 LCSC_SCH="C2480"     # SS14 SMA Schottky 40V/1A (Basic)
-LCSC_USB="C5120592"     # Würth 65100516121 USB Mini-B horizontal SMD (same as access-controller)
+LCSC_USB="C46391"     # access-controller/JLCPCB USB Mini-B SMD 920-462A2021S10101 on the same placed footprint
 LCSC_PD="C2900216"   # Osram SFH2201 clear broadband Si PIN PD (Extended); 300–1100nm covers 450/520/650/780nm
 LCSC_AD7606="C51512" # Analog Devices AD7606BSTZ-4RL 4ch 16-bit simultaneous-sampling ADC, LQFP-64
 LCSC_BARREL="C194407" # GANGYUAN DC-470-2.1GP barrel jack, 2.1mm ID/6.3mm OD, 30V/500mA, same access-controller footprint
@@ -921,7 +922,7 @@ def build_mcu():
         "C41":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,lx+40,90),
         "C42":("C_V","10uF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,lx+55,90),
         # USB zone (mid-left)
-        "J6":("USB_MINIB","USB Mini-B",FP_USB,"65100516121",LCSC_USB,lx,160),
+        "J6":("USB_MINIB","USB Mini-B",FP_USB,"920-462A2021S10101",LCSC_USB,lx,160),
         "U12":("ESD_USB","USBLC6",FP_SOT236,"USBLC6-2SC6",LCSC_ESD,lx+60,160),
         "RUSBM":("R_H","22R USB",FP_R,"0603WAF220JT5E",LCSC_22R,lx+96,157.46),
         "RUSBP":("R_H","22R USB",FP_R,"0603WAF220JT5E",LCSC_22R,lx+96,162.54),
@@ -1575,9 +1576,12 @@ def build_procurement_manifest():
             if sym in NON_SMT_ASSEMBLY:
                 assembly = "Hand install optical"
                 note = "Direct laser can; install after PCB/PCBA and inspect pin orientation."
+            elif sym in JLCPCB_THT_ASSEMBLY:
+                assembly = "JLCPCB THT"
+                note = "Included in JLCPCB BOM/CPL for through-hole/wave/manual connector assembly."
             elif sym in HAND:
                 assembly = "Hand install mechanical"
-                note = "Through-hole/mechanical connector; not in JLCPCB SMT assembly."
+                note = "Mechanical connector/header not included in the JLCPCB assembly BOM/CPL."
             elif lcsc == "":
                 assembly = "Manual review"
                 note = "No JLCPCB/LCSC code in schematic fields."
