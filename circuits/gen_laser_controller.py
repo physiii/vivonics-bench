@@ -260,7 +260,7 @@ S("AP6320X_TSOT6",
 # PWR_FLAG — declares an external supply node as a power source (silences ERC "no power source")
 S("PWR_FLAG",{"1":(0,0,90,"~","power_out",0)},
   [[(0,0),(0,1.27)],[(0,1.27),(-1.016,1.905),(0,2.54),(1.016,1.905),(0,1.27)]],power=True)
-# USB Mini-B receptacle (JLCPCB C53207143): 1=VBUS 2=D− 3=D+ 4=ID 5=GND 6=shell
+# USB Mini-B receptacle (JLCPCB C91144): 1=VBUS 2=D− 3=D+ 4=ID 5=GND 6=shell
 S("USB_MINIB",{"1":(-7.62,5.08,0,"VBUS","passive",2.54),"2":(-7.62,2.54,0,"D-","passive",2.54),
                "3":(-7.62,0,0,"D+","passive",2.54),"4":(-7.62,-2.54,0,"ID","passive",2.54),
                "5":(-7.62,-5.08,0,"GND","passive",2.54),"6":(-7.62,-8.89,0,"SHLD","passive",2.54)},
@@ -476,7 +476,7 @@ LCSC_ESP="C2913199"  # ESP32-S3-WROOM-1 (exact C-number used on the access-contr
 LCSC_LDO="C51118"    # AP2112K-3.3 SOT-23-5, 250mV dropout (was AMS1117 C6186 — too much dropout off USB VBUS)
 LCSC_ESD="C7519"     # legacy inactive USBLC6-2SC6 local-MCU generator path
 LCSC_SCH="C2480"     # SS14 SMA Schottky 40V/1A (Basic)
-LCSC_USB="C53207143"  # JLCPCB USB Mini-B SMD MINI-USB-5P on the same placed footprint
+LCSC_USB="C91144"  # JLCPCB USB Mini-B SMD U-M-M5SS-W-2 on the same placed footprint
 LCSC_PD="C2900216"   # Osram SFH2201 clear broadband Si PIN PD (Extended); 300–1100nm covers 450/520/650/780nm
 LCSC_AD7606="C51512" # Analog Devices AD7606BSTZ-4RL 4ch 16-bit simultaneous-sampling ADC, LQFP-64
 LCSC_BARREL="C194407" # GANGYUAN DC-470-2.1GP barrel jack, 2.1mm ID/6.3mm OD, 30V/500mA, same access-controller footprint
@@ -922,7 +922,7 @@ def build_mcu():
         "C41":("C_V","100nF",FP_402,"0402B104K160CT",LCSC_100NF,lx+40,90),
         "C42":("C_V","10uF",FP_805,"CL21A106KAYNNNG",LCSC_10UF,lx+55,90),
         # USB zone (mid-left)
-        "J6":("USB_MINIB","USB Mini-B",FP_USB,"MINI-USB-5P",LCSC_USB,lx,160),
+        "J6":("USB_MINIB","USB Mini-B",FP_USB,"U-M-M5SS-W-2",LCSC_USB,lx,160),
         "U12":("ESD_USB","USBLC6",FP_SOT236,"USBLC6-2SC6",LCSC_ESD,lx+60,160),
         "RUSBM":("R_H","22R USB",FP_R,"0603WAF220JT5E",LCSC_22R,lx+96,157.46),
         "RUSBP":("R_H","22R USB",FP_R,"0603WAF220JT5E",LCSC_22R,lx+96,162.54),

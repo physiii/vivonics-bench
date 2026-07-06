@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/andy/projects/vivonics/vivonics/bench/circuits/laser_controller.kicad_sch")
-		(date "2026-07-06T11:23:19")
+		(date "2026-07-06T11:59:22")
 		(tool "Eeschema 10.0.4-10.0.4~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -6893,12 +6893,12 @@
 			(datasheet "https://www.molex.com/pdm_docs/sd/548190519_sd.pdf")
 			(fields
 				(field
-					(name "Part Number") "MINI-USB-5P")
+					(name "Part Number") "U-M-M5SS-W-2")
 				(field
 					(name "Website")
 				)
 				(field
-					(name "LCSC") "C53207143")
+					(name "LCSC") "C91144")
 				(field
 					(name "Footprint") "Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal")
 				(field
@@ -6914,7 +6914,7 @@
 			)
 			(property
 				(name "Part Number")
-				(value "MINI-USB-5P")
+				(value "U-M-M5SS-W-2")
 			)
 			(property
 				(name "Website")
@@ -6922,7 +6922,7 @@
 			)
 			(property
 				(name "LCSC")
-				(value "C53207143")
+				(value "C91144")
 			)
 			(property
 				(name "Sheetname")
@@ -6974,12 +6974,12 @@
 			(datasheet "https://www.molex.com/pdm_docs/sd/548190519_sd.pdf")
 			(fields
 				(field
-					(name "Part Number") "MINI-USB-5P")
+					(name "Part Number") "U-M-M5SS-W-2")
 				(field
 					(name "Website")
 				)
 				(field
-					(name "LCSC") "C53207143")
+					(name "LCSC") "C91144")
 				(field
 					(name "Footprint") "Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal")
 				(field
@@ -6995,7 +6995,7 @@
 			)
 			(property
 				(name "Part Number")
-				(value "MINI-USB-5P")
+				(value "U-M-M5SS-W-2")
 			)
 			(property
 				(name "Website")
@@ -7003,7 +7003,7 @@
 			)
 			(property
 				(name "LCSC")
-				(value "C53207143")
+				(value "C91144")
 			)
 			(property
 				(name "Sheetname")
@@ -13049,12 +13049,12 @@
 				(field
 					(name "Description") "1A USB 2.0 1 Surface Mount 5P Female Mini-B SMD USB Connectors ROHS")
 				(field
-					(name "Part Number") "MINI-USB-5P")
+					(name "Part Number") "U-M-M5SS-W-2")
 				(field
 					(name "Website")
 				)
 				(field
-					(name "LCSC") "C53207143")
+					(name "LCSC") "C91144")
 			)
 			(pins
 				(pin

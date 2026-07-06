@@ -188,7 +188,7 @@ separate hand-installed optical items listed below.
 | C (100nF) | 100nF 0402 16V X7R | **C83056** | — | decoupling and monitor-PD low-pass filters. |
 | C (10µF) | 10µF 0805 25V X5R | **C318691** | — | bulk decoupling. |
 | C64-C65/C67-C68 | 22µF 0805 25V X5R | **C45783** | Basic | AP63205/AP63200 buck output capacitor banks, 2x22µF per rail. |
-| J1-J2 | USB Mini-B receptacle | **C53207143** | (JLC assy) | BXCONN `MINI-USB-5P` metadata on the copied Mini-B land pattern. |
+| J1-J2 | USB Mini-B receptacle | **C91144** | (JLC assy) | Korean Hroparts Elec `U-M-M5SS-W-2` metadata on the copied Mini-B land pattern. |
 
 ### THT connector assembly (JLCPCB assembled if accepted)
 
@@ -230,7 +230,7 @@ pins 4/5/8, ESP32-S3 module pins 13/14, discrete ESD clamps, 1N5819HW VBUS
 isolation, D5 +5 V OR-ing, the CP2102N 22.1 k / 47.5 k VBUS divider, RST
 pull-up, UART, EN/BOOT auto-reset, and USB ID no-connects. Its
 `connector-source-match` policy passes only when the active metadata is
-BXCONN `MINI-USB-5P` / **C53207143** on the copied Mini-B land pattern.
+Korean Hroparts Elec `U-M-M5SS-W-2` / **C91144** on the copied Mini-B land pattern.
 `check_esp32_reset_boot_controls.py` separately asserts the copied reset/boot
 support block: EN 10 k / 1 uF / RESET button, GPIO0 BOOT 10 k / 1 uF / PROG
 button, GPIO1 FACT button, CP2102N QFN28 DTR/RTS into the Q5/Q6 auto-reset
@@ -326,8 +326,8 @@ datasheet-check before routing:
    keep-out during layout.
 2. **SFH2201 polarity.** `OptoDevice:Osram_SFH2201` pad 1 = cathode, pad 2 = anode (matches
    the KiCad `D_Photo` symbol convention used here). Confirm the orientation mark in bring-up.
-3. **USB Mini-B land.** J1/J2 use BXCONN `MINI-USB-5P` /
-   **C53207143** metadata on the KiCad Mini-B footprint; check connector pin-1, shield pad
+3. **USB Mini-B land.** J1/J2 use Korean Hroparts Elec `U-M-M5SS-W-2` /
+   **C91144** metadata on the KiCad Mini-B footprint; check connector pin-1, shield pad
    6 to GND, board-edge orientation, and final JLCPCB quote acceptance.
 
 ### Design review — folded into the generator

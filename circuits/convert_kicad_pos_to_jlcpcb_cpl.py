@@ -29,16 +29,20 @@ COORD_RE = r"([-+]?\d+(?:\.\d+)?)"
 # connector packages where the KiCad footprint origin/centroid differs from the
 # JLC library origin, align a small set of known pads and emit that JLC origin.
 JLCPCB_LOCAL_PADS: dict[str, dict[str, tuple[float, float]]] = {
-    "C53207143": {
-        "1": (-1.60, -2.80),
-        "2": (-0.80, -2.80),
-        "3": (0.00, -2.80),
-        "4": (0.80, -2.80),
-        "5": (1.60, -2.80),
-        "6": (-4.45, -2.70),
-        "7": (4.45, -2.70),
-        "8": (-4.45, 2.80),
-        "9": (4.45, 2.80),
+    # C91144 is JLCPCB's stocked U-M-M5SS-W-2 Mini-B SMT assembly part. The
+    # signal pins align with KiCad's Wuerth Mini-B land pattern at 270 degrees;
+    # the shield pads are slightly narrower, so the solved origin splits the
+    # harmless ~0.19 mm shell-pad mismatch across the oversized KiCad pads.
+    "C91144": {
+        "1": (-1.61, -2.92),
+        "2": (-0.81, -2.92),
+        "3": (-0.01, -2.92),
+        "4": (0.79, -2.92),
+        "5": (1.59, -2.92),
+        "SH_UL": (-4.45, 2.92),
+        "SH_UR": (-4.45, -2.58),
+        "SH_LL": (4.45, 2.92),
+        "SH_LR": (4.45, -2.58),
     },
     "C194407": {
         "1": (3.10, -2.35),
@@ -65,54 +69,36 @@ JLCPCB_ORIGIN_ALIGNMENT: dict[
     str, tuple[str, tuple[tuple[PadSelector, str], ...], tuple[int, ...], float]
 ] = {
     "J1": (
-        "C53207143",
+        "C91144",
         (
             ("1", "1"),
             ("2", "2"),
             ("3", "3"),
             ("4", "4"),
             ("5", "5"),
-            (("6", 0), "6"),
-            (("6", 1), "8"),
-            (("6", 2), "7"),
-            (("6", 3), "9"),
+            (("6", 0), "SH_UR"),
+            (("6", 1), "SH_UL"),
+            (("6", 2), "SH_LR"),
+            (("6", 3), "SH_LL"),
         ),
         (270,),
-        0.15,
+        0.20,
     ),
     "J2": (
-        "C53207143",
+        "C91144",
         (
             ("1", "1"),
             ("2", "2"),
             ("3", "3"),
             ("4", "4"),
             ("5", "5"),
-            (("6", 0), "6"),
-            (("6", 1), "8"),
-            (("6", 2), "7"),
-            (("6", 3), "9"),
+            (("6", 0), "SH_UR"),
+            (("6", 1), "SH_UL"),
+            (("6", 2), "SH_LR"),
+            (("6", 3), "SH_LL"),
         ),
         (270,),
-        0.15,
-    ),
-    "J5": ("C194407", (("1", "1"), ("2", "2"), ("3", "3")), (0,), 0.40),
-    "J6": (
-        "C386757",
-        (
-            ("1", "1"),
-            ("2", "2"),
-            ("3", "3"),
-            ("4", "4"),
-            ("5", "5"),
-            ("6", "6"),
-            ("7", "7"),
-            ("8", "8"),
-            (("SH", 0), "13"),
-            (("SH", 1), "14"),
-        ),
-        (270,),
-        0.15,
+        0.20,
     ),
 }
 
@@ -123,6 +109,14 @@ JLCPCB_ROTATION_OVERRIDES = {
     "SW1": 90,
     "SW2": 90,
     "SW3": 90,
+}
+
+JLCPCB_KICAD_ANCHOR_REFS = {
+    # JLCPCB's THT connector preview follows the KiCad/access-controller anchor
+    # convention for these large parts. Do not recenter them to courtyard or to
+    # the EasyEDA library origin; that shifts the visible RJ45/barrel bodies.
+    "J5",
+    "J6",
 }
 
 
@@ -403,7 +397,11 @@ def convert_rows(
         else:
             pos_x = float(row["PosX"])
             pos_y = float(row["PosY"])
-            if midpoint_offsets and row["Ref"] in midpoint_offsets:
+            if (
+                row["Ref"] not in JLCPCB_KICAD_ANCHOR_REFS
+                and midpoint_offsets
+                and row["Ref"] in midpoint_offsets
+            ):
                 dx, dy = rotate_point(*midpoint_offsets[row["Ref"]], float(row["Rot"]))
                 pos_x += dx
                 pos_y -= dy

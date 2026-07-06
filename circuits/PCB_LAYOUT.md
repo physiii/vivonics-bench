@@ -145,7 +145,7 @@ evidence remain open.
 
 - **ESP32-S3-WROOM-1**: real Espressif symbol; USB D− = GPIO19/module pin 13, USB D+ =
   GPIO20/module pin 14; GPIO0/BOOT is pulled up and has a local PROG button.
-- **USB Mini-B**: stocked JLC `MINI-USB-5P` / C53207143 metadata on the copied
+- **USB Mini-B**: stocked JLC `U-M-M5SS-W-2` / C91144 metadata on the copied
   Mini-B placement footprint, horizontal SMD, port faces board edge; review
   pin-1, shield pads, board-edge orientation, ESD placement, and final quote.
 - **SFH2201**: pad 1 = cathode, pad 2 = anode — check PD orientation.

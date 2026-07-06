@@ -16,6 +16,7 @@ import zipfile
 from pathlib import Path
 
 from convert_kicad_pos_to_jlcpcb_cpl import (
+    JLCPCB_KICAD_ANCHOR_REFS,
     JLCPCB_ROTATION_OVERRIDES,
     footprint_cpl_midpoints,
     jlcpcb_origin_overrides,
@@ -303,6 +304,24 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
                     f"{ref}: CPL Rotation is {row.get('Rotation')}, expected "
                     f"{expected_rotation} from JLCPCB library-pad alignment"
                 )
+        elif ref in JLCPCB_KICAD_ANCHOR_REFS and {"Mid X", "Mid Y"} <= parsed_coordinates.keys():
+            expected_anchor = {
+                "J5": (45.0, -133.9, "0"),
+                "J6": (39.125, -122.08, "90"),
+            }[ref]
+            actual_x = parsed_coordinates["Mid X"]
+            actual_y = parsed_coordinates["Mid Y"]
+            expected_x, expected_y, expected_rotation = expected_anchor
+            if abs(actual_x - expected_x) > 0.025 or abs(actual_y - expected_y) > 0.025:
+                failures.append(
+                    f"{ref}: CPL KiCad anchor is ({actual_x:.4f}, {actual_y:.4f})mm, "
+                    f"expected ({expected_x:.4f}, {expected_y:.4f})mm for JLCPCB THT preview"
+                )
+            if row.get("Rotation") != expected_rotation:
+                failures.append(
+                    f"{ref}: CPL Rotation is {row.get('Rotation')}, expected "
+                    f"{expected_rotation} for JLCPCB THT preview"
+                )
         elif ref in expected_midpoints and {"Mid X", "Mid Y"} <= parsed_coordinates.keys():
             expected_x, expected_y = expected_midpoints[ref]
             actual_x = parsed_coordinates["Mid X"]
@@ -359,10 +378,10 @@ def verify_bom_pos() -> tuple[list[str], int, int]:
             failures.append(f"J7 POS layer is {row.get('Layer')}, expected Top")
 
     required_connectors = {
-        "J1": ("C53207143", "Top", "270"),
-        "J2": ("C53207143", "Top", "270"),
+        "J1": ("C91144", "Top", "270"),
+        "J2": ("C91144", "Top", "270"),
         "J5": ("C194407", "Top"),
-        "J6": ("C386757", "Top", "270"),
+        "J6": ("C386757", "Top", "90"),
         "J7": ("C192300", "Top", "270"),
     }
     for ref, expected in required_connectors.items():
@@ -574,8 +593,8 @@ def main() -> int:
         "PASS JLCPCB order package: "
         f"{len(files)} Gerber/drill files, package archive includes BOM/POS, "
         f"{bom_count}/{pos_count} BOM/CPL designators match, CPL is JLCPCB five-column mm format, "
-        "CPL coordinates match PCB footprint midpoints except connector rows use JLCPCB library origins, "
-        "J1/J2 use stocked C53207143 Mini-B assembly, "
+        "CPL coordinates match PCB footprint midpoints except USB rows use JLCPCB library origins and THT connector rows use KiCad anchors, "
+        "J1/J2 use stocked C91144 Mini-B assembly, "
         "full procurement manifest separates JLC SMT/THT from hand-installed optical parts, "
         "J5/J6 are included for THT connector assembly, J7 is C192300 2x4 SMD, "
         "only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present"

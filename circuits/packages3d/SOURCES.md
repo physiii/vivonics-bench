@@ -22,9 +22,9 @@ where the KiCad 7 system library did not provide a footprint-matched model.
 - `Connector_USB.3dshapes/USB_Mini-B_920-462A2021S10101.step`
   - Source package: `MICRO-USB-SMD_920-462A2021S10101`
   - LCSC part checked: legacy/source `C46391`; active JLCPCB assembly metadata:
-    BXCONN `MINI-USB-5P` / `C53207143`
+    Korean Hroparts Elec `U-M-M5SS-W-2` / `C91144`
   - Status: active J1/J2 visual model and copied placement-footprint reference.
-    JLCPCB assembly uses the compatible stocked `C53207143` Mini-B row on the
+    JLCPCB assembly uses the compatible stocked `C91144` Mini-B row on the
     same KiCad Mini-B placement footprint.
   - PCB transform: rotate Z 270, offset Y 0.05 mm
 

@@ -100,8 +100,8 @@ def check_topology(netlist: Path) -> list[str]:
             ref,
             value="USB_MINI_B",
             footprint="Connector_USB:USB_Mini-B_Wuerth_65100516121_Horizontal",
-            mpn="MINI-USB-5P",
-            lcsc="C53207143",
+            mpn="U-M-M5SS-W-2",
+            lcsc="C91144",
         )
     require_comp(
         errors,
@@ -254,10 +254,10 @@ def check_connector_source_match(netlist: Path) -> list[str]:
         footprint = comp.get("footprint", "")
         mpn = comp.get("mpn", "")
         lcsc = comp.get("lcsc", "")
-        if "65100516121" in footprint and (mpn != "MINI-USB-5P" or lcsc != "C53207143"):
+        if "65100516121" in footprint and (mpn != "U-M-M5SS-W-2" or lcsc != "C91144"):
             errors.append(
                 f"{ref}: footprint is the Mini-B land pattern but BOM metadata is "
-                f"MPN={mpn!r}, LCSC={lcsc!r}; expected MPN='MINI-USB-5P', LCSC='C53207143'"
+                f"MPN={mpn!r}, LCSC={lcsc!r}; expected MPN='U-M-M5SS-W-2', LCSC='C91144'"
             )
     return errors
 

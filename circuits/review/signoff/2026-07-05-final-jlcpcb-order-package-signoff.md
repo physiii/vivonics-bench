@@ -72,7 +72,7 @@ After BOM/CPL upload, the JLCPCB quote should show:
 
 - no unmatched components,
 - no CPL processing failure,
-- `J1,J2` selected as `C53207143` for top-side Mini-B USB assembly,
+- `J1,J2` selected as `C91144` for top-side Mini-B USB assembly,
 - `J5` selected as `C194407` for THT/wave/manual connector assembly,
 - `J6` selected as `C386757` for THT/wave/manual connector assembly,
 - `J7` selected as `C192300`,

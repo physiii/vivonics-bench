@@ -3070,7 +3070,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C53207143"
+		(property "LCSC" "C91144"
 			(at -50.4 125.15 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -3082,7 +3082,7 @@
 				)
 			)
 		)
-		(property "Part Number" "MINI-USB-5P"
+		(property "Part Number" "U-M-M5SS-W-2"
 			(at -50.4 125.15 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -11204,7 +11204,7 @@
 				)
 			)
 		)
-		(property "LCSC" "C53207143"
+		(property "LCSC" "C91144"
 			(at -64.175 138.975 0)
 			(layer "F.Fab")
 			(hide yes)
@@ -11216,7 +11216,7 @@
 				)
 			)
 		)
-		(property "Part Number" "MINI-USB-5P"
+		(property "Part Number" "U-M-M5SS-W-2"
 			(at -64.175 138.975 0)
 			(layer "F.Fab")
 			(hide yes)
