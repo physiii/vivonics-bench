@@ -37,13 +37,14 @@ Native CAD/fab/assembly package evidence is no longer a remaining release
 blocker in `check_laser_controller_release_readiness.py`.
 
 - JLCPCB package gate: PASS.
-- Schematic/PCB parity: PASS.
-- KiCad 9 ERC: PASS.
-- KiCad 9 physical DRC report: PASS.
-- KiCad 9 DRC with schematic parity: PASS.
-- Headless Pcbnew DRC report: 0 unconnected pads and 0 footprint errors.
-- Four native courtyard warnings remain, all courtyard-only and explicitly
-  waived by `circuits/review/assembly_clearance_waivers.json`.
+- KiCad 10.0.4 hard DRC: PASS with 0 violations, 0 unconnected pads, and
+  0 schematic-parity errors at error severity.
+- KiCad 10.0.4 full DRC: 0 layout violations and 0 unconnected pads; remaining
+  schematic-parity warnings are footprint/symbol metadata field mismatches only.
+- Optical-side placement gate: PASS; B.Cu footprints are only `D1`-`D4` and
+  `LD1`-`LD4`, and B.Paste footprints are only `D1`-`D4`.
+- 3D model coverage, signal-PD footprint geometry, and laser-diode footprint
+  pinout gates: PASS.
 
 ## Ranked Failure Categories
 
