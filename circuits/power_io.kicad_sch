@@ -886,8 +886,8 @@
     (property "Value" "22uF 100V" (at 150.38 86.49 0) (effects (font (size 1.0 1.0)) (justify left)))
     (property "Footprint" "Capacitor_SMD:C_Elec_8x10.2" (at 144.78 85.09 0) (effects (font (size 1.0 1.0)) hide))
     (property "Datasheet" "" (at 144.78 85.09 0) (effects (font (size 1.0 1.0)) hide))
-    (property "Part Number" "100CE22FS+P" (at 144.78 85.09 0) (effects (font (size 1.0 1.0)) hide))
-    (property "LCSC" "C242011" (at 144.78 85.09 0) (effects (font (size 1.0 1.0)) hide))
+    (property "Part Number" "RVT2A220M0810 22UF 100V" (at 144.78 85.09 0) (effects (font (size 1.0 1.0)) hide))
+    (property "LCSC" "C970665" (at 144.78 85.09 0) (effects (font (size 1.0 1.0)) hide))
     (pin "1" (uuid c1d2e3f4-6000-4000-a000-000000000938))
     (pin "2" (uuid c1d2e3f4-6000-4000-a000-000000000939))
     (instances

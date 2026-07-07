@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-06T19:16:35+00:00
+Generated: 2026-07-07T19:04:41+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -11,7 +11,7 @@ First-article/production release status: BLOCKED
 
 | Status | Step | Return | Command |
 |---|---|---:|---|
-| PASS | Python compile | 0 | `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_courtyard_overlap_triage.py circuits/check_assembly_clearance_geometry.py circuits/check_3d_model_coverage.py circuits/check_signal_pd_footprint_geometry.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_power_bringup_template.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_firmware_validation_template.py circuits/check_optical_calibration_template.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_bringup_template.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/check_procurement_release_template.py circuits/check_first_article_release_evidence.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py circuits/check_jlcpcb_order_package.py circuits/convert_kicad_pos_to_jlcpcb_cpl.py` |
+| PASS | Python compile | 0 | `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_courtyard_overlap_triage.py circuits/check_assembly_clearance_geometry.py circuits/check_3d_model_coverage.py circuits/check_signal_pd_footprint_geometry.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_power_bringup_template.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_firmware_validation_template.py circuits/check_optical_calibration_template.py circuits/check_tia_readout_budget.py circuits/check_orientation_polarity_pcb.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_bringup_template.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/check_procurement_release_template.py circuits/check_first_article_release_evidence.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py circuits/check_jlcpcb_order_package.py circuits/convert_kicad_pos_to_jlcpcb_cpl.py` |
 | PASS | Generate schematic/BOM | 0 | `python3 circuits/gen_laser_controller.py` |
 | PASS | Export schematic netlist | 0 | `/usr/bin/kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Netlist assertions | 0 | `python3 circuits/check_laser_controller_netlist.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
@@ -33,6 +33,7 @@ First-article/production release status: BLOCKED
 | PASS | Firmware/readback validation template | 0 | `python3 circuits/check_firmware_validation_template.py` |
 | PASS | Optical/readout calibration template | 0 | `python3 circuits/check_optical_calibration_template.py` |
 | PASS | TIA readout budget | 0 | `python3 circuits/check_tia_readout_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | Orientation/polarity PCB pinout | 0 | `python3 circuits/check_orientation_polarity_pcb.py --board circuits/laser_controller.kicad_pcb` |
 | PASS | TIA first-article calibration signoff | 0 | `python3 circuits/check_tia_first_article_signoff.py` |
 | PASS | TIA bright-ambient expected fail | 1 | `python3 circuits/check_tia_readout_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy sfh2201-1000lx-example` |
 | PASS | AP6320x package/PCB pinout | 0 | `python3 circuits/check_ap6320x_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
@@ -89,7 +90,7 @@ First-article/production release status: BLOCKED
 
 ## PASS: Python compile
 
-Command: `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_courtyard_overlap_triage.py circuits/check_assembly_clearance_geometry.py circuits/check_3d_model_coverage.py circuits/check_signal_pd_footprint_geometry.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_power_bringup_template.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_firmware_validation_template.py circuits/check_optical_calibration_template.py circuits/check_tia_readout_budget.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_bringup_template.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/check_procurement_release_template.py circuits/check_first_article_release_evidence.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py circuits/check_jlcpcb_order_package.py circuits/convert_kicad_pos_to_jlcpcb_cpl.py`
+Command: `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_courtyard_overlap_triage.py circuits/check_assembly_clearance_geometry.py circuits/check_3d_model_coverage.py circuits/check_signal_pd_footprint_geometry.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_power_bringup_template.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_firmware_validation_template.py circuits/check_optical_calibration_template.py circuits/check_tia_readout_budget.py circuits/check_orientation_polarity_pcb.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_bringup_template.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/check_procurement_release_template.py circuits/check_first_article_release_evidence.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py circuits/check_jlcpcb_order_package.py circuits/convert_kicad_pos_to_jlcpcb_cpl.py`
 
 ## PASS: Generate schematic/BOM
 
@@ -104,7 +105,7 @@ wrote tia_ir.kicad_sch (37648 bytes, 579 lines)
   wrote laser_red.kicad_sch (36306 bytes, 547 lines)
   wrote laser_green.kicad_sch (36296 bytes, 547 lines)
   wrote laser_blue.kicad_sch (35993 bytes, 545 lines)
-  wrote power_io.kicad_sch (201960 bytes, 3142 lines)
+  wrote power_io.kicad_sch (201972 bytes, 3142 lines)
   wrote laser_controller.kicad_sch (36434 bytes, 346 lines)
   wrote lib/viv.kicad_sym
   wrote laser_controller_bom_jlcpcb.csv
@@ -152,7 +153,7 @@ PASS source-register coverage for 100 MPN/LCSC tokens across 181 components, int
 Command: `python3 circuits/check_part_notes_completeness.py`
 
 ```text
-PASS part-note completeness: 16 notes, 222 required phrases, 3 stale-phrase guards
+PASS part-note completeness: 16 notes, 226 required phrases, 3 stale-phrase guards
 ```
 
 ## PASS: Source-document evidence
@@ -173,7 +174,7 @@ WARN JLCPCB C22984 30k resistor page: reachable; Distributor/order source for pa
 WARN LCSC C844918 CRCW060310K0FKEA 10k resistor page: reachable; Distributor/order source for active 10k 0603 passive rating evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C103446 RTT032400FTP 240 ohm resistor page: reachable; Distributor/order source for active 240 ohm monitor-PD sense resistor evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C22908 0603WAF2491T5E 2.49k resistor page: reachable; Distributor/order source for active 2.49k monitor-PD bias resistor evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN JLCPCB C242011 100CE22FS+P electrolytic page: reachable; Distributor/order source for active 22uF 100V VIN_24V bulk electrolytic evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
+WARN JLCPCB C970665 RVT2A220M0810 22UF 100V electrolytic page: reachable; Distributor/order source for active 22uF 100V VIN_24V bulk electrolytic evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LRC L8050QLT1G transistor datasheet: reachable; Manufacturer datasheet for the Q5 NPN SOT-23 auto-reset transistor. [HEAD HTTP 200, type=application/pdf, length=543317]
 WARN LCSC C39282 L8550HQLT1G transistor page: reachable; Distributor/order source for the Q6 PNP SOT-23 auto-reset transistor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C127509 K2-1102SP-C4SC-04 switch page: reachable; Distributor/order source for the SW1-SW3 tactile reset/program/factory buttons. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
@@ -216,8 +217,7 @@ Command: `python3 circuits/check_first_article_release_evidence.py`
 First-article and production-release evidence rows are present, but one or more rows remain OPEN because physical measurement, firmware, procurement, or protection evidence has not been recorded.
 
 ```text
-DEFERRED first-article release evidence: 16 evidence row(s) still OPEN
-  - PASSIVE_PRODUCTION_AVL_AND_DERATING/quote_acceptance
+DEFERRED first-article release evidence: 15 evidence row(s) still OPEN
   - PASSIVE_PRODUCTION_AVL_AND_DERATING/passive_derating
   - VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT/first_power_limits
   - VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT/buck_rail_measurement
@@ -318,6 +318,14 @@ PASS TIA readout budget (bench-range)
   at VBIAS=1.50 V, RF=2 MOhm: +1.40/-0.70 uA one-sided headroom, +/-0.70 uA symmetric headroom
   SFH2201 reverse bias is 5.00 V versus 16.00 V maximum
   production caveat: optical signal range and calibration are still not proven by this first-order check
+```
+
+## PASS: Orientation/polarity PCB pinout
+
+Command: `python3 circuits/check_orientation_polarity_pcb.py --board circuits/laser_controller.kicad_pcb`
+
+```text
+PASS orientation/polarity PCB gate: U1-U4 OPA380AID SOIC-8 physical pad order and RV1-RV8 Bourns 3224W wiper geometry/nets match their datasheet footprint contracts.
 ```
 
 ## PASS: TIA first-article calibration signoff
@@ -886,7 +894,7 @@ Command: `python3 circuits/check_laser_controller_release_readiness.py`
 The release-readiness registry has unresolved calibration, firmware, thermal, protection, procurement, and measurement blockers. These block bench-use/production release, but they do not block uploading the current verified Gerber/BOM/POS package for first-article fabrication.
 
 ```text
-BLOCKED production release readiness: 7 open first-article/production blockers across 16 open evidence row(s)
+BLOCKED production release readiness: 7 open first-article/production blockers across 15 open evidence row(s)
   [1] [VIN24_INPUT_PROTECTION_AND_BUCK_LAYOUT] 24 V barrel/RJ45 input protection and buck layout are not released
     Open evidence: buck_rail_measurement, first_power_limits, production_protection
     Detail: J5 barrel and J6 RJ45 inputs plus the U15/U16 buck supplies are accepted for first-article bench use only under the 2026-07-05 external current-limit signoff: J5 barrel, 24.0 V, current limit no higher than 300 mA, no RJ45 power injection, no hot-plug, and verified center-positive polarity. The AP632 first-article signoff now requires rail verification, startup/ripple/load-step measurement, and buck component temperature measurement before trusting VIN24 buck rails. The VIN24 checker proves the current bench topology is direct J5/J6 to U15/U16 input wiring and intentionally fails production protection because there is no onboard fuse/PTC/TVS/reverse-protection/eFuse/hot-swap component. The AP632 checker passes the selected-diode 9.3 V max-current reference, the all-channel per-channel analog-limit case, and the local 2x22 uF output-capacitance guard.
@@ -912,7 +920,7 @@ BLOCKED production release readiness: 7 open first-article/production blockers a
     Detail: The exported netlist now proves the INA4180/LM4040 monitor topology is connected as intended, and the 240R/gain20 monitor scale covers the captured D7805I/D6505I/PLT5 520EB_P monitor-current range inside the local ADC-headroom guard. The first-article signoff requires external optical-meter calibration before MPD telemetry is used for APC, normalization, or safety behavior. PLT5 450GB has no monitor photodiode, so MPD4 is not blue-source telemetry. Measured optical calibration and firmware behavior are still unreleased.
     Required action: Calibrate each monitor-capable source against an external optical meter, record dark/off counts, response slope, saturation threshold, setpoint, and optical-power reading, and verify firmware fail-shutoff behavior before using MPD telemetry for production APC, normalization, or safety decisions.
   [7] [PASSIVE_PRODUCTION_AVL_AND_DERATING] Passive quote-time lifecycle, pulse/surge derating, and temperature evidence are open
-    Open evidence: passive_derating, quote_acceptance
+    Open evidence: passive_derating
     Detail: The first-article passive MPN/LCSC set is now locked against the exported netlist, and the steady-state voltage/power derating gate passes. This still does not prove current JLCPCB/LCSC stock/lifecycle state, field pulse/surge/current derating, substitute approval, or board-temperature measurement.
     Required action: At order time, verify every locked passive C-code in the JLCPCB quote, reject or explicitly review substitutions, then capture production pulse/surge/current derating and board-temperature evidence before field or production release.
 ```
@@ -942,7 +950,7 @@ Wrote JLCPCB CPL with 175 placements to /home/andy/projects/vivonics/vivonics/be
 Command: `python3 circuits/check_jlcpcb_order_package.py`
 
 ```text
-PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 175/175 BOM/CPL designators match, CPL is JLCPCB five-column mm format, CPL coordinates match PCB footprint midpoints except connector rows use solved JLCPCB library origins, J1/J2 use C46391 USB assembly, full procurement manifest separates JLC SMT/THT from hand-installed optical parts, J5/J6 are included for THT connector assembly, J7 is C192300 2x4 SMD, only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present
+PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/POS, 175/175 BOM/CPL designators match, CPL is JLCPCB five-column mm format, CPL coordinates match PCB footprint midpoints except connector rows use solved JLCPCB library origins, J1/J2 use C46391 USB assembly, full procurement manifest separates JLC SMT/THT from hand-installed optical parts, J5/J6 are included for THT connector assembly, J7 is C192300 2x4 SMD, only PD/LD footprints are bottom-side, OPA380/Bourns physical orientation gates pass, PD/laser labels and backside vivonics mark are present
 ```
 
 ## PASS: KiCad 9 ERC

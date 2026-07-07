@@ -12,7 +12,7 @@ Current passive families:
 - 100 nF 0402: `0402B104K160CT`, LCSC `C83056`
 - 1 uF 0402: `HGC0402R5105K250NTEJ`, LCSC `C7472946`
 - 10 uF 1206 50 V: `CL31B106KBHNNNE`, LCSC `C89632`
-- 22 uF 100 V SMD electrolytic: `100CE22FS+P`, LCSC/JLCPCB `C242011`
+- 22 uF 100 V SMD electrolytic: `RVT2A220M0810 22UF 100V`, LCSC/JLCPCB `C970665`
 - 10 uF 0805: `CL21A106KAYNNNG`, LCSC `C318691`
 - 1 k / 10 k / 30 k / 22 ohm / 10 M 0603 resistor families as encoded in
   the generated BOM and netlist checker.
@@ -47,6 +47,6 @@ First-article upload note:
 - The JLCPCB upload manifest is
   `circuits/fab/laser_controller_jlcpcb_upload_manifest.md`. For the current
   five-board first-article order, `R41` was moved from thin-stock `C103460` to
-  `C22908`. `C70` (`C242011`) remains the only passive row with known thin
-  quote-time stock margin. If JLCPCB flags it, use a same-footprint quote-page
+  `C22908`. `C70` was moved from short `C242011` to same-footprint JLCPCB SMT
+  part `C970665`. If JLCPCB flags it again, use a same-footprint quote-page
   substitute with a new checkpoint commit, or hand-place the affected part.

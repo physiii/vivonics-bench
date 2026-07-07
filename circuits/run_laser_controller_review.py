@@ -190,6 +190,7 @@ def main() -> int:
         "circuits/check_firmware_validation_template.py",
         "circuits/check_optical_calibration_template.py",
         "circuits/check_tia_readout_budget.py",
+        "circuits/check_orientation_polarity_pcb.py",
         "circuits/check_tia_first_article_signoff.py",
         "circuits/check_ap6320x_package_pcb.py",
         "circuits/check_buck_input_power_budget.py",
@@ -301,6 +302,11 @@ def main() -> int:
         (
             "TIA readout budget",
             ["python3", "circuits/check_tia_readout_budget.py", "--netlist", str(NETLIST_PATH)],
+            {},
+        ),
+        (
+            "Orientation/polarity PCB pinout",
+            ["python3", "circuits/check_orientation_polarity_pcb.py", "--board", "circuits/laser_controller.kicad_pcb"],
             {},
         ),
         ("TIA first-article calibration signoff", ["python3", "circuits/check_tia_first_article_signoff.py"], {}),

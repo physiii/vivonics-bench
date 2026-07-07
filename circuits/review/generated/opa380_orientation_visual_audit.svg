@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2250" height="1240" viewBox="0 0 2250 1240">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<style>
+  text{font-family:Arial,sans-serif;fill:#111827} .small{font-size:18px} .body{font-size:22px} .title{font-size:34px;font-weight:700} .h{font-size:25px;font-weight:700} .mono{font-family:monospace;font-size:15px} .ok{fill:#047857;font-weight:700} .box{fill:#f9fafb;stroke:#111827;stroke-width:3} .pkg{fill:#333;stroke:#111827;stroke-width:3} .pin{fill:#e5e7eb;stroke:#6b7280;stroke-width:2} .dot{fill:#d1d5db;stroke:#fff;stroke-width:2}
+</style>
+<text x="40" y="55" class="title">OPA380 U1-U4 Orientation Visual Audit</text>
+<text x="40" y="92" class="body">Source contract: TI OPA380 SOIC-8/MSOP-8 top view. Current board placement: 180 degree rotation, not mirror; physical pin 1/package dot is lower-right.</text>
+<text x="70" y="120" class="h">Datasheet Top View</text>
+<rect x="210" y="150" width="260" height="360" class="box"/>
+<circle cx="240" cy="182" r="13" fill="#fff" stroke="#111827" stroke-width="3"/>
+<text x="292" y="205" class="h">OPA380</text>
+<rect x="150" y="220" width="60" height="48" fill="#fff" stroke="#111827" stroke-width="3"/>
+<text x="175" y="253" class="h">1</text>
+<text x="70" y="253" class="body">NC</text>
+<rect x="150" y="290" width="60" height="48" fill="#fff" stroke="#111827" stroke-width="3"/>
+<text x="175" y="323" class="h">2</text>
+<text x="70" y="323" class="body">-IN</text>
+<rect x="150" y="360" width="60" height="48" fill="#fff" stroke="#111827" stroke-width="3"/>
+<text x="175" y="393" class="h">3</text>
+<text x="70" y="393" class="body">+IN</text>
+<rect x="150" y="430" width="60" height="48" fill="#fff" stroke="#111827" stroke-width="3"/>
+<text x="175" y="463" class="h">4</text>
+<text x="70" y="463" class="body">V-</text>
+<rect x="470" y="220" width="60" height="48" fill="#fff" stroke="#111827" stroke-width="3"/>
+<text x="493" y="253" class="h">8</text>
+<text x="555" y="253" class="body">NC</text>
+<rect x="470" y="290" width="60" height="48" fill="#fff" stroke="#111827" stroke-width="3"/>
+<text x="493" y="323" class="h">7</text>
+<text x="555" y="323" class="body">V+</text>
+<rect x="470" y="360" width="60" height="48" fill="#fff" stroke="#111827" stroke-width="3"/>
+<text x="493" y="393" class="h">6</text>
+<text x="555" y="393" class="body">OUT</text>
+<rect x="470" y="430" width="60" height="48" fill="#fff" stroke="#111827" stroke-width="3"/>
+<text x="493" y="463" class="h">5</text>
+<text x="555" y="463" class="body">NC</text>
+<text x="70" y="555" class="small">Datasheet pin 1 is top-left. Rotating the package 180 degrees moves pin 1 to lower-right on the PCB.</text>
+<text x="700" y="120" class="h">Current PCB Physical Top View</text>
+<text x="700" y="153" class="small">Physical order after 180 degree placement: left side top-to-bottom 5,6,7,8; right side top-to-bottom 4,3,2,1.</text>
+<text x="700" y="185" class="h">U1 at 146.800,103.085 rot 180</text>
+<rect x="850" y="240" width="160" height="250" rx="6" class="pkg"/>
+<circle cx="980" cy="460" r="9" class="dot"/>
+<rect x="810" y="258" width="40" height="26" class="pin"/>
+<text x="700" y="278" class="mono">5 NC</text>
+<rect x="810" y="316" width="40" height="26" class="pin"/>
+<text x="700" y="336" class="mono">6 VOUT1</text>
+<rect x="810" y="374" width="40" height="26" class="pin"/>
+<text x="700" y="394" class="mono">7 +5V</text>
+<rect x="810" y="432" width="40" height="26" class="pin"/>
+<text x="700" y="452" class="mono">8 NC</text>
+<rect x="1010" y="258" width="40" height="26" class="pin"/>
+<text x="1060" y="278" class="mono">4 GND</text>
+<rect x="1010" y="316" width="40" height="26" class="pin"/>
+<text x="1060" y="336" class="mono">3 /TIA_IR/VBIAS</text>
+<rect x="1010" y="374" width="40" height="26" class="pin"/>
+<text x="1060" y="394" class="mono">2 /TIA_IR/PD_ANODE</text>
+<rect x="1010" y="432" width="40" height="26" class="pin"/>
+<text x="1060" y="452" class="mono">1 NC</text>
+<text x="700" y="535" class="small ok">PASS: stock SOIC-8 local pads, correct nets, 180 degree rotation</text>
+<text x="1420" y="185" class="h">U2 at 130.800,103.060 rot 180</text>
+<rect x="1570" y="240" width="160" height="250" rx="6" class="pkg"/>
+<circle cx="1700" cy="460" r="9" class="dot"/>
+<rect x="1530" y="258" width="40" height="26" class="pin"/>
+<text x="1420" y="278" class="mono">5 NC</text>
+<rect x="1530" y="316" width="40" height="26" class="pin"/>
+<text x="1420" y="336" class="mono">6 VOUT2</text>
+<rect x="1530" y="374" width="40" height="26" class="pin"/>
+<text x="1420" y="394" class="mono">7 +5V</text>
+<rect x="1530" y="432" width="40" height="26" class="pin"/>
+<text x="1420" y="452" class="mono">8 NC</text>
+<rect x="1730" y="258" width="40" height="26" class="pin"/>
+<text x="1780" y="278" class="mono">4 GND</text>
+<rect x="1730" y="316" width="40" height="26" class="pin"/>
+<text x="1780" y="336" class="mono">3 /TIA_RED/VBIAS</text>
+<rect x="1730" y="374" width="40" height="26" class="pin"/>
+<text x="1780" y="394" class="mono">2 /TIA_RED/PD_ANODE</text>
+<rect x="1730" y="432" width="40" height="26" class="pin"/>
+<text x="1780" y="452" class="mono">1 NC</text>
+<text x="1420" y="535" class="small ok">PASS: stock SOIC-8 local pads, correct nets, 180 degree rotation</text>
+<text x="700" y="625" class="h">U3 at 146.800,119.085 rot 180</text>
+<rect x="850" y="680" width="160" height="250" rx="6" class="pkg"/>
+<circle cx="980" cy="900" r="9" class="dot"/>
+<rect x="810" y="698" width="40" height="26" class="pin"/>
+<text x="700" y="718" class="mono">5 NC</text>
+<rect x="810" y="756" width="40" height="26" class="pin"/>
+<text x="700" y="776" class="mono">6 VOUT3</text>
+<rect x="810" y="814" width="40" height="26" class="pin"/>
+<text x="700" y="834" class="mono">7 +5V</text>
+<rect x="810" y="872" width="40" height="26" class="pin"/>
+<text x="700" y="892" class="mono">8 NC</text>
+<rect x="1010" y="698" width="40" height="26" class="pin"/>
+<text x="1060" y="718" class="mono">4 GND</text>
+<rect x="1010" y="756" width="40" height="26" class="pin"/>
+<text x="1060" y="776" class="mono">3 /TIA_GREEN/VBIAS</text>
+<rect x="1010" y="814" width="40" height="26" class="pin"/>
+<text x="1060" y="834" class="mono">2 /TIA_GREEN/PD_ANODE</text>
+<rect x="1010" y="872" width="40" height="26" class="pin"/>
+<text x="1060" y="892" class="mono">1 NC</text>
+<text x="700" y="975" class="small ok">PASS: stock SOIC-8 local pads, correct nets, 180 degree rotation</text>
+<text x="1420" y="625" class="h">U4 at 130.800,119.085 rot 180</text>
+<rect x="1570" y="680" width="160" height="250" rx="6" class="pkg"/>
+<circle cx="1700" cy="900" r="9" class="dot"/>
+<rect x="1530" y="698" width="40" height="26" class="pin"/>
+<text x="1420" y="718" class="mono">5 NC</text>
+<rect x="1530" y="756" width="40" height="26" class="pin"/>
+<text x="1420" y="776" class="mono">6 VOUT4</text>
+<rect x="1530" y="814" width="40" height="26" class="pin"/>
+<text x="1420" y="834" class="mono">7 +5V</text>
+<rect x="1530" y="872" width="40" height="26" class="pin"/>
+<text x="1420" y="892" class="mono">8 NC</text>
+<rect x="1730" y="698" width="40" height="26" class="pin"/>
+<text x="1780" y="718" class="mono">4 GND</text>
+<rect x="1730" y="756" width="40" height="26" class="pin"/>
+<text x="1780" y="776" class="mono">3 /TIA_BLUE/VBIAS</text>
+<rect x="1730" y="814" width="40" height="26" class="pin"/>
+<text x="1780" y="834" class="mono">2 /TIA_BLUE/PD_ANODE</text>
+<rect x="1730" y="872" width="40" height="26" class="pin"/>
+<text x="1780" y="892" class="mono">1 NC</text>
+<text x="1420" y="975" class="small ok">PASS: stock SOIC-8 local pads, correct nets, 180 degree rotation</text>
+<text x="40" y="1180" class="body">Verification: circuits/check_orientation_polarity_pcb.py hard-fails wrong local pad coordinates, wrong U1-U4 rotation, or wrong pin nets. This visual was generated from the current .kicad_pcb.</text>
+</svg>

@@ -36,7 +36,7 @@ After re-uploading the BOM and CPL, the quote page should show:
 - `J6` selected as `C386757` for THT/wave/manual connector assembly,
 - `R41` selected as `C22908`,
 - `R42,R44,R46,R48` selected as `C103446`,
-- `C70` selected as `C242011`.
+- `C70` selected as `C970665`.
 
 The CPL is in JLCPCB's five-column sample format:
 
@@ -76,7 +76,7 @@ no-selection issues:
 | `J1,J2` | `920-462A2021S10101` | `C46391` | Keep; this is the access-controller USB assembly row and its JLC/EasyEDA pad geometry matches the existing 5-pin USB land pattern. |
 | `R42,R44,R46,R48` | `RTT032400FTP` | `C103446` | Keep; choose same-footprint 240 ohm 0603 1% only if JLC stock changes. |
 | `R41` | `0603WAF2491T5E` | `C22908` | Same-footprint 2.49 k 0603 1% replacement for short `C103460`; keep unless JLC stock changes. |
-| `C70` | `100CE22FS+P` | `C242011` | Stock was exactly enough for five boards; if short, hand-place a 22 uF 100 V SMD electrolytic with D8xL10.2 mm footprint compatibility. |
+| `C70` | `RVT2A220M0810 22UF 100V` | `C970665` | Same D8xL10.2 mm JLCPCB SMT substitute for short `C242011`; quote page lists 22 uF, 100 V, 8 mm diameter, 10.2 mm height, 90 mA ripple at 120 Hz. |
 
 Do not change the PCB just to resolve one quote-time stock row. For this
 first-article build, a quote-page substitute or hand-place decision is lower

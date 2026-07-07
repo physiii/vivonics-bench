@@ -38,7 +38,7 @@ This table reports the generated routed copper that exists in the current PCB ar
 | `Switching_Power` | 0.40mm x14 | - |
 | `Switcher_Control` | 0.20mm x11 | - |
 | `USB` | 0.25mm x49 | 0.60/0.30mm x2 |
-| `TIA_Sensitive` | 0.18mm x29, 0.20mm x106 | 0.60/0.30mm x26 |
+| `TIA_Sensitive` | 0.18mm x29, 0.20mm x108 | 0.60/0.30mm x26 |
 | `Monitor_ADC` | 0.20mm x302 | 0.60/0.30mm x37 |
 | `Laser_Control` | 0.20mm x147 | 0.60/0.30mm x22 |
 | `Digital_Control` | 0.20mm x255, 0.25mm x4 | 0.60/0.30mm x35 |
@@ -126,46 +126,46 @@ Rows marked `REVIEW` exceed generated ideal-placement targets; release gating is
 | ESP32 EN capacitor | 44.54 mm | 4.00 mm | REVIEW |
 | ESP32 EN pull-up | 44.61 mm | 5.00 mm | REVIEW |
 | ESP32 BOOT pull-up | 33.03 mm | 4.00 mm | REVIEW |
-| TIA_IR photodiode anode to OPA380 -IN | 2.36 mm | 5.50 mm | PASS |
-| TIA_IR feedback trimmer at OPA380 -IN | 6.61 mm | 3.50 mm | REVIEW |
-| TIA_IR feedback capacitor at OPA380 -IN | 3.52 mm | 2.50 mm | REVIEW |
-| TIA_IR feedback trimmer at OPA380 OUT | 10.95 mm | 4.50 mm | REVIEW |
-| TIA_IR feedback capacitor at OPA380 OUT | 5.35 mm | 2.50 mm | REVIEW |
-| TIA_IR OPA380 supply decoupling | 7.25 mm | 2.50 mm | REVIEW |
+| TIA_IR photodiode anode to OPA380 -IN | 2.68 mm | 5.50 mm | PASS |
+| TIA_IR feedback trimmer at OPA380 -IN | 10.74 mm | 3.50 mm | REVIEW |
+| TIA_IR feedback capacitor at OPA380 -IN | 4.77 mm | 2.50 mm | REVIEW |
+| TIA_IR feedback trimmer at OPA380 OUT | 6.96 mm | 4.50 mm | REVIEW |
+| TIA_IR feedback capacitor at OPA380 OUT | 4.27 mm | 2.50 mm | REVIEW |
+| TIA_IR OPA380 supply decoupling | 6.45 mm | 2.50 mm | REVIEW |
 | TIA_IR PD bias resistor at cathode | 23.13 mm | 4.50 mm | REVIEW |
 | TIA_IR PD cathode bypass at cathode | 23.20 mm | 3.00 mm | REVIEW |
-| TIA_IR VBIAS resistor at OPA380 +IN | 16.36 mm | 5.00 mm | REVIEW |
-| TIA_IR VBIAS capacitor at OPA380 +IN | 18.24 mm | 4.00 mm | REVIEW |
-| TIA_RED photodiode anode to OPA380 -IN | 2.36 mm | 5.50 mm | PASS |
-| TIA_RED feedback trimmer at OPA380 -IN | 6.59 mm | 3.50 mm | REVIEW |
-| TIA_RED feedback capacitor at OPA380 -IN | 3.50 mm | 2.50 mm | REVIEW |
-| TIA_RED feedback trimmer at OPA380 OUT | 10.93 mm | 4.50 mm | REVIEW |
-| TIA_RED feedback capacitor at OPA380 OUT | 5.33 mm | 2.50 mm | REVIEW |
-| TIA_RED OPA380 supply decoupling | 7.27 mm | 2.50 mm | REVIEW |
+| TIA_IR VBIAS resistor at OPA380 +IN | 15.35 mm | 5.00 mm | REVIEW |
+| TIA_IR VBIAS capacitor at OPA380 +IN | 17.18 mm | 4.00 mm | REVIEW |
+| TIA_RED photodiode anode to OPA380 -IN | 2.68 mm | 5.50 mm | PASS |
+| TIA_RED feedback trimmer at OPA380 -IN | 10.72 mm | 3.50 mm | REVIEW |
+| TIA_RED feedback capacitor at OPA380 -IN | 4.75 mm | 2.50 mm | REVIEW |
+| TIA_RED feedback trimmer at OPA380 OUT | 6.93 mm | 4.50 mm | REVIEW |
+| TIA_RED feedback capacitor at OPA380 OUT | 4.25 mm | 2.50 mm | REVIEW |
+| TIA_RED OPA380 supply decoupling | 6.47 mm | 2.50 mm | REVIEW |
 | TIA_RED PD bias resistor at cathode | 14.47 mm | 4.50 mm | REVIEW |
 | TIA_RED PD cathode bypass at cathode | 16.16 mm | 3.00 mm | REVIEW |
-| TIA_RED VBIAS resistor at OPA380 +IN | 12.10 mm | 5.00 mm | REVIEW |
-| TIA_RED VBIAS capacitor at OPA380 +IN | 10.03 mm | 4.00 mm | REVIEW |
-| TIA_GREEN photodiode anode to OPA380 -IN | 2.36 mm | 5.50 mm | PASS |
-| TIA_GREEN feedback trimmer at OPA380 -IN | 7.11 mm | 3.50 mm | REVIEW |
-| TIA_GREEN feedback capacitor at OPA380 -IN | 4.01 mm | 2.50 mm | REVIEW |
-| TIA_GREEN feedback trimmer at OPA380 OUT | 11.44 mm | 4.50 mm | REVIEW |
-| TIA_GREEN feedback capacitor at OPA380 OUT | 5.79 mm | 2.50 mm | REVIEW |
-| TIA_GREEN OPA380 supply decoupling | 6.65 mm | 2.50 mm | REVIEW |
+| TIA_RED VBIAS resistor at OPA380 +IN | 12.07 mm | 5.00 mm | REVIEW |
+| TIA_RED VBIAS capacitor at OPA380 +IN | 9.96 mm | 4.00 mm | REVIEW |
+| TIA_GREEN photodiode anode to OPA380 -IN | 2.68 mm | 5.50 mm | PASS |
+| TIA_GREEN feedback trimmer at OPA380 -IN | 11.24 mm | 3.50 mm | REVIEW |
+| TIA_GREEN feedback capacitor at OPA380 -IN | 5.27 mm | 2.50 mm | REVIEW |
+| TIA_GREEN feedback trimmer at OPA380 OUT | 7.42 mm | 4.50 mm | REVIEW |
+| TIA_GREEN feedback capacitor at OPA380 OUT | 4.68 mm | 2.50 mm | REVIEW |
+| TIA_GREEN OPA380 supply decoupling | 7.48 mm | 2.50 mm | REVIEW |
 | TIA_GREEN PD bias resistor at cathode | 15.75 mm | 4.50 mm | REVIEW |
 | TIA_GREEN PD cathode bypass at cathode | 15.55 mm | 3.00 mm | REVIEW |
-| TIA_GREEN VBIAS resistor at OPA380 +IN | 18.61 mm | 5.00 mm | REVIEW |
-| TIA_GREEN VBIAS capacitor at OPA380 +IN | 17.25 mm | 4.00 mm | REVIEW |
-| TIA_BLUE photodiode anode to OPA380 -IN | 2.36 mm | 5.50 mm | PASS |
-| TIA_BLUE feedback trimmer at OPA380 -IN | 7.11 mm | 3.50 mm | REVIEW |
-| TIA_BLUE feedback capacitor at OPA380 -IN | 4.01 mm | 2.50 mm | REVIEW |
-| TIA_BLUE feedback trimmer at OPA380 OUT | 11.44 mm | 4.50 mm | REVIEW |
-| TIA_BLUE feedback capacitor at OPA380 OUT | 5.79 mm | 2.50 mm | REVIEW |
-| TIA_BLUE OPA380 supply decoupling | 6.65 mm | 2.50 mm | REVIEW |
+| TIA_GREEN VBIAS resistor at OPA380 +IN | 19.60 mm | 5.00 mm | REVIEW |
+| TIA_GREEN VBIAS capacitor at OPA380 +IN | 18.31 mm | 4.00 mm | REVIEW |
+| TIA_BLUE photodiode anode to OPA380 -IN | 2.68 mm | 5.50 mm | PASS |
+| TIA_BLUE feedback trimmer at OPA380 -IN | 11.24 mm | 3.50 mm | REVIEW |
+| TIA_BLUE feedback capacitor at OPA380 -IN | 5.27 mm | 2.50 mm | REVIEW |
+| TIA_BLUE feedback trimmer at OPA380 OUT | 7.42 mm | 4.50 mm | REVIEW |
+| TIA_BLUE feedback capacitor at OPA380 OUT | 4.68 mm | 2.50 mm | REVIEW |
+| TIA_BLUE OPA380 supply decoupling | 7.48 mm | 2.50 mm | REVIEW |
 | TIA_BLUE PD bias resistor at cathode | 15.31 mm | 4.50 mm | REVIEW |
 | TIA_BLUE PD cathode bypass at cathode | 12.52 mm | 3.00 mm | REVIEW |
-| TIA_BLUE VBIAS resistor at OPA380 +IN | 15.24 mm | 5.00 mm | REVIEW |
-| TIA_BLUE VBIAS capacitor at OPA380 +IN | 13.23 mm | 4.00 mm | REVIEW |
+| TIA_BLUE VBIAS resistor at OPA380 +IN | 16.50 mm | 5.00 mm | REVIEW |
+| TIA_BLUE VBIAS capacitor at OPA380 +IN | 14.50 mm | 4.00 mm | REVIEW |
 | LASER_IR TLV9001 OUT to gate resistor | 2.70 mm | 3.50 mm | PASS |
 | LASER_IR gate resistor to AO3400A gate | 3.33 mm | 2.50 mm | REVIEW |
 | LASER_IR AO3400A source to sense resistor | 5.49 mm | 2.20 mm | REVIEW |
@@ -748,7 +748,7 @@ Total schematic components: **181**.
 | `C67` | `/POWER_IO/` | 22uF laser buck | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `C45783` | `CL21A226MAQNNNE` |
 | `C68` | `/POWER_IO/` | 22uF laser buck | `Capacitor_SMD:C_0805_2012Metric_Pad1.18x1.45mm_HandSolder` | `C45783` | `CL21A226MAQNNNE` |
 | `C69` | `/POWER_IO/` | 100pF FF | `Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder` | `C1546` | `0402CG101J500NT` |
-| `C70` | `/POWER_IO/` | 22uF 100V | `Capacitor_SMD:C_Elec_8x10.2` | `C242011` | `100CE22FS+P` |
+| `C70` | `/POWER_IO/` | 22uF 100V | `Capacitor_SMD:C_Elec_8x10.2` | `C970665` | `RVT2A220M0810 22UF 100V` |
 | `D5` | `/POWER_IO/` | SS14 | `Diode_SMD:D_SMA` | `C2480` | `SS14` |
 | `D6` | `/POWER_IO/` | SS14 | `Diode_SMD:D_SMA` | `C2480` | `SS14` |
 | `J5` | `/POWER_IO/` | 24V DC IN | `Open_Automation:BarrelJack_OD5.5_ID2.5` | `C194407` | `DC-470-2.1GP` |

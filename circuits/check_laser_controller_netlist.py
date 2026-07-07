@@ -394,7 +394,7 @@ def main() -> int:
         "RJR45LED": ("10K", "Resistor_SMD:R_0603_1608Metric_Pad0.98x0.95mm_HandSolder", "CRCW060310K0FKEA", "C844918"),
         "CIN24A": ("10uF 50V", "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder", "CL31B106KBHNNNE", "C89632"),
         "CIN24B": ("10uF 50V", "Capacitor_SMD:C_1206_3216Metric_Pad1.33x1.80mm_HandSolder", "CL31B106KBHNNNE", "C89632"),
-        "CIN24BULK": ("22uF 100V", "Capacitor_SMD:C_Elec_8x10.2", "100CE22FS+P", "C242011"),
+        "CIN24BULK": ("22uF 100V", "Capacitor_SMD:C_Elec_8x10.2", "RVT2A220M0810 22UF 100V", "C970665"),
         "U5V": ("AP63205WU-7 5V BUCK", "Package_TO_SOT_SMD:TSOT-23-6", "AP63205WU-7", "C2071056"),
         "L5V": ("4.7uH", "Open_Automation:L_5.4x5.3_H3", "MWSA0503S-4R7MT", "C408410"),
         "CBST5V": ("100nF BST", "Capacitor_SMD:C_0402_1005Metric_Pad0.74x0.62mm_HandSolder", "0402B104K160CT", "C83056"),
@@ -1229,7 +1229,7 @@ def main() -> int:
         "C318691": 12,
         "C45783": 4,
         "C89632": 2,  # 10uF 50V input caps (was C13832 1uF 100V)
-        "C242011": 1,
+        "C970665": 1,
         "C201677": 4,
         "C20917": 4,
         "C2907002": 16,

@@ -21,6 +21,12 @@ from convert_kicad_pos_to_jlcpcb_cpl import (
     footprint_cpl_midpoints,
     jlcpcb_origin_overrides,
 )
+from check_orientation_polarity_pcb import (
+    balanced_blocks as orientation_blocks,
+    check_bourns_3224w,
+    check_opa380,
+    ref_of as orientation_ref_of,
+)
 
 
 CIRCUITS_DIR = Path(__file__).resolve().parent
@@ -553,6 +559,16 @@ def verify_optical_side_placement() -> list[str]:
     return failures
 
 
+def verify_orientation_polarity() -> list[str]:
+    text = BOARD_PATH.read_text()
+    blocks_by_ref = {
+        ref: block
+        for block in orientation_blocks(text, "(footprint ")
+        if (ref := orientation_ref_of(block))
+    }
+    return check_opa380(blocks_by_ref) + check_bourns_3224w(blocks_by_ref)
+
+
 def main() -> int:
     failures: list[str] = []
     try:
@@ -582,6 +598,7 @@ def main() -> int:
     failures.extend(verify_full_procurement_manifest())
     failures.extend(verify_board_text())
     failures.extend(verify_optical_side_placement())
+    failures.extend(verify_orientation_polarity())
 
     if failures:
         print(f"FAIL JLCPCB order package: {len(failures)} issue(s)")
@@ -597,7 +614,8 @@ def main() -> int:
         "J1/J2 use C46391 USB assembly, "
         "full procurement manifest separates JLC SMT/THT from hand-installed optical parts, "
         "J5/J6 are included for THT connector assembly, J7 is C192300 2x4 SMD, "
-        "only PD/LD footprints are bottom-side, PD/laser labels and backside vivonics mark are present"
+        "only PD/LD footprints are bottom-side, OPA380/Bourns physical orientation gates pass, "
+        "PD/laser labels and backside vivonics mark are present"
     )
     return 0
 

@@ -22,6 +22,20 @@ Pin checklist:
 - Pin 6 is output.
 - Pin 7 is positive supply / board +5 V.
 
+PCB orientation signoff:
+- 2026-07-07 re-audit found the previous local PCB footprint was mirrored even
+  though the schematic pin numbers and pad nets looked correct. The JLCPCB
+  preview dot/arrow mismatch was therefore a real stop-ship issue, not a
+  harmless viewer artifact.
+- The repaired PCB uses stock SOIC-8 physical pad order:
+  pin 1 `(-2.475, -1.905)`, pin 2 `(-2.475, -0.635)`, pin 3
+  `(-2.475, 0.635)`, pin 4 `(-2.475, 1.905)`, pin 5 `(2.475, 1.905)`,
+  pin 6 `(2.475, 0.635)`, pin 7 `(2.475, -0.635)`, and pin 8
+  `(2.475, -1.905)` in local footprint coordinates.
+- U1-U4 are intentionally rotated 180 degrees on the board. With TI's SOIC-8
+  top-view pinout, that puts physical pin 1/package dot at the lower-right
+  board corner. This is a rotation, not a mirror.
+
 Current design:
 - Each SFH2201 anode goes to the local OPA380 pin 2 summing node.
 - Feedback is a Bourns 3224W 2 M trimmer in parallel with 10 pF, with the
@@ -44,6 +58,9 @@ Layout notes:
 Checker evidence:
 - Netlist checker asserts OPA380 pin functions, no-connect pins, TIA summing
   node contents, output node contents, and +5 V/GND rail membership.
+- `check_orientation_polarity_pcb.py` asserts the physical SOIC-8 pad order,
+  package rotation, and U1-U4 pin nets against the TI OPA380 datasheet top-view
+  pinout before the JLCPCB package can be trusted.
 - PCB checker enforces photodiode/input/feedback/decoupling/bias proximity.
 - `check_tia_readout_budget.py` asserts TIA topology, VBIAS range against
   OPA380 common-mode range, OPA380 output headroom against AD7606 +/-5 V input

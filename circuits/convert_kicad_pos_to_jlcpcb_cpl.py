@@ -141,13 +141,16 @@ JLCPCB_ORIGIN_ALIGNMENT: dict[
 }
 
 JLCPCB_ROTATION_OVERRIDES = {
-    # JLC's SOIC-8_L4.9-W3.9-P1.27-LS6.0-BL orientation is 90 degrees from
-    # KiCad's SOIC-8_3.9x4.9mm footprint. 270 degrees is the pad-number match
-    # that puts OPA380 pin 1 on the KiCad pad-1 side.
-    "U1": 270,
-    "U2": 270,
-    "U3": 270,
-    "U4": 270,
+    # OPA380AID is intentionally placed as a 180-degree SOIC rotation on the
+    # PCB so TI top-view pin 1 lands at the bottom-right corner.  JLC's SOIC-8
+    # visual library is 90 degrees offset from KiCad; 90 degrees aligns the JLC
+    # package dot with the repaired KiCad pin-1 marker.  The old 270-degree
+    # override put JLC's dot on the opposite corner and exposed the mirrored
+    # footprint error.
+    "U1": 90,
+    "U2": 90,
+    "U3": 90,
+    "U4": 90,
     # C127509's JLC footprint has the switch legs on the north/south sides.
     # The KiCad SPST footprint is electrically equivalent with duplicated
     # pads, but JLC's model/package orientation needs a 90-degree CPL rotation.

@@ -99,12 +99,12 @@ CAP_RATINGS = {
         package="1206",
         source="JLCPCB/LCSC C89632 / Samsung CL31B106KBHNNNE page: 10uF +/-10%, X7R, 50Vdc.",
     ),
-    "100CE22FS+P": CapacitorRating(
+    "RVT2A220M0810 22UF 100V": CapacitorRating(
         value="22uF",
         voltage_v=100.0,
         dielectric="aluminum electrolytic",
         package="8x10.2mm SMD can",
-        source="JLCPCB C242011 / SUNCON 100CE22FS+P page: 22uF, 100Vdc aluminum electrolytic.",
+        source="JLCPCB C970665 / DMBJ RVT2A220M0810 22UF 100V page: 22uF, 100Vdc aluminum electrolytic.",
     ),
     "CC0603JRNPO9BN100": CapacitorRating(
         value="10pF",

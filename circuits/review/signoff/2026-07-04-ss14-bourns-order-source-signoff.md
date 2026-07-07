@@ -5,6 +5,14 @@ Date: 2026-07-04 CDT
 Scope: D5-D6 SS14 OR-ing diodes and RV1-RV8 Bourns 3224W trimmers on
 `circuits/laser_controller.kicad_pcb`.
 
+Supersession note: the 2026-07-07 JLCPCB-preview re-audit found this signoff
+was insufficient for RV5-RV8 because it checked numeric pad nets but not local
+physical footprint geometry. RV5-RV8 were repaired and re-signed in
+`circuits/review/signoff/2026-07-07-opa380-bourns-orientation-repair-signoff.md`.
+This document remains evidence for D5/D6 SS14 polarity and for the intended
+Bourns pin-net roles, but the 2026-07-07 signoff is the controlling physical
+Bourns 3224W orientation evidence.
+
 ## Source Evidence
 
 - JLCPCB part detail page for C2480 identifies the orderable SMT assembly part
@@ -59,6 +67,7 @@ Relevant result:
 - RV1-RV4 use pin 2 as the VBIAS wiper; RV5-RV8 tie Bourns pin 2 wiper to the
   OPA380 output side, with pin 3 also tied to the same output net, so the
   feedback parts are rheostats as intended.
-- This closes the SS14 exact-order-source/polarity and Bourns 3224W
-  wiper-orientation blockers for the current generated PCB and JLCPCB package.
-  Recheck the JLCPCB quote/cart if C2480, C81348, or C116323 are substituted.
+- This closes the SS14 exact-order-source/polarity blocker and records the
+  intended Bourns 3224W wiper net roles. The controlling physical Bourns 3224W
+  footprint-orientation closure is the 2026-07-07 repair signoff. Recheck the
+  JLCPCB quote/cart if C2480, C81348, or C116323 are substituted.

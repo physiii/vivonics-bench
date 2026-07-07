@@ -260,8 +260,8 @@ WARNING_ONLINE = [
         note="Distributor/order source for active 2.49k monitor-PD bias resistor evidence.",
     ),
     OnlineEvidence(
-        "JLCPCB C242011 100CE22FS+P electrolytic page",
-        "https://jlcpcb.com/partdetail/240857-100CE22FSP/C242011",
+        "JLCPCB C970665 RVT2A220M0810 22UF 100V electrolytic page",
+        "https://jlcpcb.com/partdetail/DMBJ-RVT2A220M0810_22UF100V/C970665",
         False,
         note="Distributor/order source for active 22uF 100V VIN_24V bulk electrolytic evidence.",
     ),

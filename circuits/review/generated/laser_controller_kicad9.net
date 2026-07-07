@@ -2,7 +2,7 @@
 	(version "E")
 	(design
 		(source "/home/andy/projects/vivonics/vivonics/bench/circuits/laser_controller.kicad_sch")
-		(date "2026-07-06T14:14:19")
+		(date "2026-07-07T14:02:06")
 		(tool "Eeschema 10.0.4-10.0.4~ubuntu24.04.1")
 		(sheet
 			(number "1")
@@ -10130,9 +10130,9 @@
 			(footprint "Capacitor_SMD:C_Elec_8x10.2")
 			(fields
 				(field
-					(name "Part Number") "100CE22FS+P")
+					(name "Part Number") "RVT2A220M0810 22UF 100V")
 				(field
-					(name "LCSC") "C242011")
+					(name "LCSC") "C970665")
 				(field
 					(name "Footprint") "Capacitor_SMD:C_Elec_8x10.2")
 				(field
@@ -10149,11 +10149,11 @@
 			)
 			(property
 				(name "Part Number")
-				(value "100CE22FS+P")
+				(value "RVT2A220M0810 22UF 100V")
 			)
 			(property
 				(name "LCSC")
-				(value "C242011")
+				(value "C970665")
 			)
 			(property
 				(name "Sheetname")

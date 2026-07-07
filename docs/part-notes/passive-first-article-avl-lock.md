@@ -33,7 +33,7 @@ derating for field use, or board-temperature measurement after assembly.
 | `CL21A226MAQNNNE` | `C45783` | 4 | 22 uF 0805 X5R AP632 output banks |
 | `CL31B106KBHNNNE` | `C89632` | 2 | 10 uF 1206 50 V VIN_24V ceramic input capacitors |
 | `HGC0402R5105K250NTEJ` | `C7472946` | 14 | 1 uF 0402 X5R local decoupling and ADC REGCAP capacitors |
-| `100CE22FS+P` | `C242011` | 1 | 22 uF 100 V SMD electrolytic VIN_24V bulk capacitor |
+| `RVT2A220M0810 22UF 100V` | `C970665` | 1 | 22 uF 100 V SMD electrolytic VIN_24V bulk capacitor |
 
 ## Locked Resistors And Trimmers
 
@@ -60,9 +60,11 @@ derating for field use, or board-temperature measurement after assembly.
 
 During the July 6 JLCPCB upload triage, `C103460` was short because JLCPCB
 required 20 pieces for the single `R41` assembly row and had only 7 available.
-`R41` is now locked to higher-stock `C22908` / `0603WAF2491T5E`. `C242011` had
-enough live stock for a five-board first-article order but little margin. If
-`C242011` is short when the order is placed, the acceptable first-article actions are:
+`R41` is now locked to higher-stock `C22908` / `0603WAF2491T5E`. During the
+July 7 quote refresh, `C242011` / `100CE22FS+P` was short for `C70`, so `C70`
+is now locked to same-footprint JLCPCB SMT part `C970665` /
+`RVT2A220M0810 22UF 100V`. If `C970665` is short when the order is placed, the
+acceptable first-article actions are:
 
 - select a same-footprint, same-value, equal-or-better-voltage/power JLCPCB
   substitute and checkpoint the replacement C-code, or

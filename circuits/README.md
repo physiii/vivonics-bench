@@ -46,13 +46,15 @@ python3 gen_laser_controller.py
 | `check_laser_controller_release_gate.py` | Generated-copper fabrication gate: fails on split signal/control nets, unacceptable laser cathode/anode current routes, or missing laser sense-return GND vias; poured rail/zone connectivity is checked by KiCad refill/DRC. |
 | `check_layout_review_geometry.py` | Focused layout-geometry gate for buck local loops, USB ESD placement, OPA380 summing-node loops, monitor-PD raw paths, and laser-current sense loops. |
 | `check_laser_controller_release_readiness.py` | Open first-article/production blocker gate: keeps calibration, firmware, thermal, protection, procurement, and measured bring-up blockers visible in the review wrapper. |
-| `check_jlcpcb_order_package.py` | JLCPCB prototype order-package gate: verifies Gerber/drill zip contents, BOM/POS designator match, J7 C192300 2x4 SMD header metadata, required board labels, and the flat transfer archive. |
+| `check_jlcpcb_order_package.py` | JLCPCB prototype order-package gate: verifies Gerber/drill zip contents, BOM/POS designator match, J7 C192300 2x4 SMD header metadata, required board labels, the flat transfer archive, and the U1-U4/RV1-RV8 physical orientation gate. |
 | `check_power_thermal_budget.py` | AP2112 `+3V3` thermal guardrail for bench/no-RF versus sustained RF policies. |
 | `check_power_bringup_template.py` | First-article power/input bring-up measurement-template guardrail for J5/VIN24, AP632 rails, post-OR +5V, LASER_V+, and AP2112 +3V3 rows. |
 | `check_vin24_input_protection.py` | VIN_24V bench-topology and production input-protection guardrail for J5/J6, adapter/harness limit, fuse/TVS/reverse-protection decisions. |
 | `check_laser_driver_control_loop.py` | Laser-driver control-loop guardrail for PWM divider topology, TLV9001 input/output range, AO3400A gate drive, and the hardware-clamp gate-margin expected fail. |
 | `check_laser_driver_package_pcb.py` | Laser-driver package/PCB guardrail: verifies U5-U8 TLV9001 and Q1-Q4 AO3400A schematic pin nets, local sense/command/gate/compensation component identities, current PCB pad nets, and KiCad SOT-23-5/SOT-23/2512/0603/0402/0603-cap geometry. |
 | `check_laser_diode_footprints.py` | Direct LD1-LD4 TO-can guardrail: verifies selected diode MPN/footprint identities, schematic pin nets, current PCB pad nets, LD4 case no-connect, `MPD_RAW4` spare/open, and installed KiCad TO18/TO56 pad geometry. |
+| `check_orientation_polarity_pcb.py` | Physical orientation/polarity guardrail for the mirror-risk parts found in the JLCPCB preview: U1-U4 OPA380 SOIC-8 pad order/rotation/pin nets and RV1-RV8 Bourns 3224W wiper geometry/nets. |
+| `repair_orientation_sensitive_footprints.py` | Narrow, idempotent repair script for the confirmed mirrored U1-U4 OPA380 and RV5-RV8 Bourns 3224W embedded PCB footprints and directly attached local escape routing. |
 | `check_monitor_pd_package_pcb.py` | Monitor-PD package/PCB guardrail: verifies U12 INA4180/U13 LM4040 pin nets, local 240 ohm sense, 1 k / 100 nF ADC filters, R41/C35/C36 support parts, current PCB pad nets, LD4 case no-connect, and KiCad TSSOP-14/SOT-23/0603/0402 geometry. |
 | `check_laser_current_budget.py` | Laser current-loop guardrail for the PWM clamp, selected laser-diode current limits, sense resistor, AO3400A heat, and `LASER_V+` headroom. |
 | `check_laser_bringup_template.py` | First-article laser bring-up measurement-template guardrail for LD1-LD4 current-limit, safety-fixture, optical-output, temperature, and firmware-shutoff rows. |
@@ -185,7 +187,7 @@ separate hand-installed optical items listed below.
 | C (10pF) | 10pF C0G 0603 | **C106245** | Extended | Cf / loop-comp. |
 | C (1µF) | 1µF 0402 25V X5R | **C7472946** | — | PWM filter / PD-bias bypass / LDO input. |
 | C61-C62 | 10µF 1206 50V X7R | **C89632** | Extended | high-voltage `VIN_24V` ceramic input capacitors for AP632 local bypass. |
-| C70 | 22µF 100V SMD electrolytic | **C242011** | Extended | `VIN_24V` input bulk capacitor, SUNCON `100CE22FS+P`. |
+| C70 | 22µF 100V SMD electrolytic | **C970665** | Extended | `VIN_24V` input bulk capacitor, DMBJ `RVT2A220M0810 22UF 100V`; same D8xL10.2 mm package as the short-stock previous C70 part. |
 | C (100nF) | 100nF 0402 16V X7R | **C83056** | — | decoupling and monitor-PD low-pass filters. |
 | C (10µF) | 10µF 0805 25V X5R | **C318691** | — | bulk decoupling. |
 | C64-C65/C67-C68 | 22µF 0805 25V X5R | **C45783** | Basic | AP63205/AP63200 buck output capacitor banks, 2x22µF per rail. |
