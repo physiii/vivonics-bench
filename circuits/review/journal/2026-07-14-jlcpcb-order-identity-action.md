@@ -8,16 +8,26 @@
 
 The 5-board first-article order was **paid on 2026-07-06 15:04** against a package
 whose OPA380 `U1–U4` and Bourns `RV5–RV8` **copper footprints were mirrored**. The
-mirror was found **the next day (2026-07-07)**. Because the order was placed with
-**"Confirm production file: no"**, JLCPCB had no gate that would automatically pause
-on the defect. A mirrored *footprint* is wrong copper on the **bare board**, so both
-the bare PCBs and the assembled parts are suspect — this is not merely a placement
-issue.
+mirror was found **the next day (2026-07-07)** by the operator directly from
+JLCPCB's assembly preview.
 
-**No portal/DFM/re-upload artifact in this repository proves the corrected package
-replaced the paid submission.** Until JLCPCB confirms which files it built, assume
-the boards carry the mirrored front-end and **do not power any returned board**
-before physical pin-1 / pad-net inspection.
+**UPDATE 2026-07-14 (from the 2026-07-07 bench Codex transcript):** the operator
+**did re-upload corrected files to the JLCPCB order on 2026-07-07** — this is not
+just a design fix. Evidence: (1) the operator directed rebuilding the board
+files/BOM/CPL/zip specifically "to send to jlcpcb" (11:29) and again "repackage and
+get ready to send to jlcpcb" (13:19); (2) a pasted view of the JLCPCB order page
+shows **`laser_controller_gerbers — Automatically saved, last updated on 7 July,
+13:54`**, i.e. the files *on the order itself* were updated on 07-07; (3) the
+operator was still working in the JLCPCB portal at 18:55 resolving a parts
+shortage. So the corrected package almost certainly reached the order.
+
+**The one residual check:** the portal edits spanned the afternoon (13:54 save)
+while the fix kept iterating — the final orientation repair committed at 16:15
+(`99bc498`) and a further parts fix at 18:55. So confirm the **last** thing saved to
+the order was the *final* corrected package (U1–U4 dot at lower-right, `C70` =
+`C970665`), not an intermediate. This is now a *verification*, not a likely defect.
+Still **do not power any returned board** before a quick physical pin-1 / pad-net
+inspection — cheap insurance, not an expectation of failure.
 
 ## Timeline
 
