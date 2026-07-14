@@ -24,8 +24,9 @@ REQUIRED_COLUMNS = (
 
 REQUIRED_ROWS = {
     ("ad7606_timing", "U14_CONTROL", "RESET/CONVST/BUSY/CS/SCLK", "SCLK <=10 MHz, sample <=100 kSPS", "AD7606_SYSTEM_INTERFACE"),
-    ("ad7606_readback", "ADC_MISO_A", "DOUTA", "32 SCLK edges per sample", "AD7606_SYSTEM_INTERFACE"),
-    ("ad7606_readback", "ADC_MISO_B", "DOUTB", "32 SCLK edges per sample", "AD7606_SYSTEM_INTERFACE"),
+    ("ad7606_stage_a_readback", "ADC_MISO_A", "DOUTA", "64 SCLK edges per sample", "AD7606_SYSTEM_INTERFACE"),
+    ("ad7606_stage_b_readback", "ADC_MISO_A", "DOUTA", "32 SCLK edges per sample", "AD7606_SYSTEM_INTERFACE"),
+    ("ad7606_stage_b_readback", "ADC_MISO_B", "DOUTB", "32 SCLK edges per sample", "AD7606_SYSTEM_INTERFACE"),
     ("ad7606_scaling", "RANGE_OS", "+/-5 V, no oversampling", "152.59 uV/LSB", "AD7606_SYSTEM_INTERFACE"),
     ("ad7606_channel_order", "VOUT1..4", "AD7606 V1/V2/V3/V4", "known channel ordering", "AD7606_SYSTEM_INTERFACE"),
     ("ad7606_known_input", "VOUT1..4", "known voltage or TIA input", "counts match expected value", "AD7606_SYSTEM_INTERFACE"),
@@ -33,8 +34,9 @@ REQUIRED_ROWS = {
 
 REQUIRED_TEXT = {
     ("ad7606_timing", "U14_CONTROL"): ("scope capture", "BUSY fall before CS", "read-after-conversion"),
-    ("ad7606_readback", "ADC_MISO_A"): ("DOUTA", "32 SCLK", "firmware sample log"),
-    ("ad7606_readback", "ADC_MISO_B"): ("DOUTB", "32 SCLK", "firmware sample log"),
+    ("ad7606_stage_a_readback", "ADC_MISO_A"): ("DOUTA", "64 SCLK", "V1 V2 V3 V4", "raw bytes"),
+    ("ad7606_stage_b_readback", "ADC_MISO_A"): ("DOUTA", "32 SCLK", "firmware sample log"),
+    ("ad7606_stage_b_readback", "ADC_MISO_B"): ("DOUTB", "32 SCLK", "firmware sample log"),
     ("ad7606_scaling", "RANGE_OS"): ("RANGE=0", "OS[2:0]=000", "152.59 uV/LSB"),
     ("ad7606_channel_order", "VOUT1..4"): ("VOUT1", "VOUT2", "VOUT3", "VOUT4"),
     ("ad7606_known_input", "VOUT1..4"): ("known-input counts", "expected value", "error limit"),

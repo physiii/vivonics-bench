@@ -432,8 +432,8 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
     ReleaseBlocker(
         "AD7606_SYSTEM_INTERFACE",
         "On-board AD7606 firmware and bench-readout validation are still open",
-        "The bench board routes VOUT1..4 into the on-board AD7606 and the hardware straps now have a checked 10 MHz / 100 kSPS default interface budget. The first-article signoff requires read-after-conversion firmware, RESET/CONVST/BUSY/CS/SCLK timing validation, two-DOUT readback, +/-5 V scaling, and known-input readback before bench ADC data is trusted. Firmware implementation, scoped timing, analog accuracy, and bench ADC readback data remain open.",
-        "Implement and scope the ESP32 AD7606 driver, verify RESET/CONVST/BUSY/CS/SCLK timing, confirm +/-5 V range scaling and no-oversampling assumptions in firmware, verify both DOUT lines and channel ordering, and compare readings against known optical/electrical inputs before relying on bench data.",
+        "The bench board routes VOUT1..4 into the on-board AD7606 and the hardware straps now have a checked 10 MHz / 100 kSPS default interface budget. A measurement-only Stage-A DOUTA driver now exists in the main Vivonics repository and passes host and reproducible target-build checks at a conservative 1 kSPS. That is not board evidence. The first-article signoff still requires RESET/CONVST/BUSY/CS/SCLK timing validation, two-DOUT readback, +/-5 V scaling, known-input readback, and physical fail-safe proof before bench ADC data is trusted.",
+        "Flash the recorded Stage-A artifact and scope RESET/CONVST/BUSY/CS/SCLK timing; confirm +/-5 V range scaling, no-oversampling assumptions, DOUTA byte/channel order, and known-input accuracy. Then implement and prove the two-DOUT path, verify both DOUT lines and channel ordering, and compare readings against known optical/electrical inputs before relying on bench data.",
         (
             Evidence(
                 "circuits/review/signoff/2026-07-05-ad7606-first-article-readback-signoff.md",
@@ -465,8 +465,9 @@ BLOCKERS: tuple[ReleaseBlocker, ...] = (
                 "circuits/review/calibration/first_article_firmware_validation_template.csv",
                 (
                     "ad7606_timing,U14_CONTROL,RESET/CONVST/BUSY/CS/SCLK,\"SCLK <=10 MHz, sample <=100 kSPS\"",
-                    "ad7606_readback,ADC_MISO_A,DOUTA,32 SCLK edges per sample",
-                    "ad7606_readback,ADC_MISO_B,DOUTB,32 SCLK edges per sample",
+                    "ad7606_stage_a_readback,ADC_MISO_A,DOUTA,64 SCLK edges per sample",
+                    "ad7606_stage_b_readback,ADC_MISO_A,DOUTA,32 SCLK edges per sample",
+                    "ad7606_stage_b_readback,ADC_MISO_B,DOUTB,32 SCLK edges per sample",
                     "ad7606_scaling,RANGE_OS,\"+/-5 V, no oversampling\",152.59 uV/LSB",
                     "ad7606_channel_order,VOUT1..4,AD7606 V1/V2/V3/V4,known channel ordering",
                     "ad7606_known_input,VOUT1..4,known voltage or TIA input,counts match expected value",

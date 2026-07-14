@@ -21,7 +21,8 @@ Replacement gates for the ignored classes:
 
 - `check_laser_controller_netlist.py` verifies pad-level connectivity and expected component metadata.
 - `check_schematic_pcb_parity.py` verifies PCB pad nets match the exported schematic netlist.
-- Native KiCad PCB DRC with schematic parity verifies 0 unconnected items and 0 schematic parity issues.
+- Native KiCad PCB DRC with schematic parity verifies 0 unconnected items. See
+  the dated parity-field waiver below for the current metadata-only findings.
 - `check_jlcpcb_order_package.py` verifies the JLC Gerber/BOM/POS package, J7 C192300 footprint/package mapping, PD/laser labels, and backside `vivonics` mark.
 
 Current evidence:
@@ -31,3 +32,28 @@ kicad-cli sch erc --severity-all:
 Found 0 violations
 ERC messages: 0  Errors 0  Warnings 0
 ```
+
+## 2026-07-12 native parity-field waiver
+
+The current KiCad CLI parity report contains `36`
+`footprint_symbol_field_mismatch` findings, all marked `Local override; warning`:
+
+| Field mismatch class | References | Count |
+| --- | --- | ---: |
+| missing footprint `Part Number` | `H1,H2` | 2 |
+| footprint `Datasheet` empty while schematic field is populated | `C41–C47,D7–D14,R50–R60,SW1–SW3,U9,U10` | 31 |
+| missing footprint `Website` | `J1,J2` | 2 |
+| missing footprint `Manufacturer` | `J7` | 1 |
+
+This waiver is limited to those 36 field-copy differences for the first-article
+review. It does not waive any copper, clearance, unconnected-pad, footprint
+orientation, BOM/CPL, source-register, or custom pad-net parity failure. The
+physical DRC reports zero violations and zero unconnected pads; the custom
+schematic/PCB parity check passes `181/181` footprints. The BOM, procurement
+register, and source checks remain the fabrication metadata authority for this
+first article.
+
+Before the next fabrication or any production release, either synchronize these
+fields into the PCB footprints or make the review wrapper parse and accept only
+this exact enumerated warning set. Any new reference, field class, count, or
+non-warning severity invalidates this waiver.

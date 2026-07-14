@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-07T19:04:41+00:00
+Generated: 2026-07-14T09:12:51+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -909,8 +909,8 @@ BLOCKED production release readiness: 7 open first-article/production blockers a
     Required action: Measure AP2112 package temperature and +3V3 current during bring-up; keep RF disabled for this bench board, or replace/prove the rail before sustained Wi-Fi/BLE.
   [4] [AD7606_SYSTEM_INTERFACE] On-board AD7606 firmware and bench-readout validation are still open
     Open evidence: digital_timing, dout_readback, scaling_channel_order_known_input
-    Detail: The bench board routes VOUT1..4 into the on-board AD7606 and the hardware straps now have a checked 10 MHz / 100 kSPS default interface budget. The first-article signoff requires read-after-conversion firmware, RESET/CONVST/BUSY/CS/SCLK timing validation, two-DOUT readback, +/-5 V scaling, and known-input readback before bench ADC data is trusted. Firmware implementation, scoped timing, analog accuracy, and bench ADC readback data remain open.
-    Required action: Implement and scope the ESP32 AD7606 driver, verify RESET/CONVST/BUSY/CS/SCLK timing, confirm +/-5 V range scaling and no-oversampling assumptions in firmware, verify both DOUT lines and channel ordering, and compare readings against known optical/electrical inputs before relying on bench data.
+    Detail: The bench board routes VOUT1..4 into the on-board AD7606 and the hardware straps now have a checked 10 MHz / 100 kSPS default interface budget. A measurement-only Stage-A DOUTA driver now exists in the main Vivonics repository and passes host and reproducible target-build checks at a conservative 1 kSPS. That is not board evidence. The first-article signoff still requires RESET/CONVST/BUSY/CS/SCLK timing validation, two-DOUT readback, +/-5 V scaling, known-input readback, and physical fail-safe proof before bench ADC data is trusted.
+    Required action: Flash the recorded Stage-A artifact and scope RESET/CONVST/BUSY/CS/SCLK timing; confirm +/-5 V range scaling, no-oversampling assumptions, DOUTA byte/channel order, and known-input accuracy. Then implement and prove the two-DOUT path, verify both DOUT lines and channel ordering, and compare readings against known optical/electrical inputs before relying on bench data.
   [5] [TIA_READOUT_RANGE_CALIBRATION] Signal-PD TIA readout range and optical calibration are not released
     Open evidence: ambient_saturation_policy, signal_pd_calibration
     Detail: The exported netlist now proves the four SFH2201/OPA380 signal-PD channels feed VOUT1..4 into the AD7606 as intended, and the first-order TIA checker shows the present 2 MOhm feedback trim is a high-sensitivity, low-current bench range. At VBIAS = 1.5 V it has about +1.40 uA / -0.70 uA one-sided OPA380 headroom before the guarded output window clips; the SFH2201 1000 lx datasheet short-circuit-current example would need about 152 V of TIA swing at 2 MOhm and is intentionally an expected-fail case. The first-article signoff now requires dark-offset capture, ambient shielding, known-input calibration, RF/VBIAS recording, and AD7606 scaling checks.

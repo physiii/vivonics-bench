@@ -1,5 +1,12 @@
 # Final JLCPCB Order Package Signoff
 
+> **Superseded / critical hold (2026-07-12):** the hashes in this signoff bind to
+> the pre-repair package. The 2026-07-07 OPA380/Bourns signoff found real mirrored
+> U1–U4 and RV5–RV8 footprints and says this old package should not be approved.
+> No archived JLCPCB production-file confirmation proves that the corrected
+> package replaced the paid submission. See the order journal before accepting
+> or powering any returned board.
+
 Date: 2026-07-05; updated 2026-07-06 for J1/J2 USB and J5/J6 THT assembly inclusion
 
 Scope: Current laser-controller fabrication package for JLCPCB PCB plus top-side

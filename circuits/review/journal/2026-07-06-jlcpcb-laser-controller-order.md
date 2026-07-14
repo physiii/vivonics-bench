@@ -19,6 +19,31 @@ Scope: JLCPCB first-article PCB plus PCBA order for the laser controller.
 - Paid: 2026-07-06 15:04 per JLCPCB order page
 - Status at capture: reviewing
 
+### Critical post-order production-file hold — 2026-07-12
+
+The hashes archived below identify the package at commit `52c519...`. The
+2026-07-07
+[`OPA380/Bourns orientation repair signoff`](../signoff/2026-07-07-opa380-bourns-orientation-repair-signoff.md)
+subsequently determined that this package had real mirrored OPA380 `U1–U4` and
+Bourns `RV5–RV8` footprints and explicitly says the old package should not be
+approved. The regenerated current package has different hashes.
+
+No immutable JLCPCB portal/DFM artifact in this repository proves that the
+corrected package replaced the paid submission for `W2026070704037950`.
+Therefore the order is on an evidence hold even if the portal later advanced:
+
+1. contact JLCPCB immediately and obtain the exact production Gerber/BOM/CPL or
+   their hashes plus the final assembly preview;
+2. confirm OPA380 `U1–U4` package dots at the lower-right board corner and verify
+   RV5–RV8 physical pad geometry;
+3. resolve the `71.12 mm` versus `61.125 mm` outline discrepancy and whether
+   bottom-side `D1–D4` assembly was included;
+4. if the old files entered production, stop/rework/scrap as appropriate; and
+5. do not power returned boards before physical pin-1/pad-net inspection.
+
+This repository cannot claim that the corrected design was fabricated until
+that supplier evidence is archived.
+
 Shipping/billing contact details, card details, phone number, email address,
 street address, and tax/VAT value are intentionally not copied into git. Refer
 to the JLCPCB invoice/order page for those fields.

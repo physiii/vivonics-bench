@@ -1,7 +1,8 @@
 category,target,interface_or_signal,accepted_limit,required_evidence,release_blocker
 ad7606_timing,U14_CONTROL,RESET/CONVST/BUSY/CS/SCLK,"SCLK <=10 MHz, sample <=100 kSPS",read-after-conversion firmware; scope capture proving RESET/CONVST/BUSY/CS/SCLK timing and BUSY fall before CS,AD7606_SYSTEM_INTERFACE
-ad7606_readback,ADC_MISO_A,DOUTA,32 SCLK edges per sample,DOUTA readback with 32 SCLK edges and firmware sample log,AD7606_SYSTEM_INTERFACE
-ad7606_readback,ADC_MISO_B,DOUTB,32 SCLK edges per sample,DOUTB readback with 32 SCLK edges and firmware sample log,AD7606_SYSTEM_INTERFACE
+ad7606_stage_a_readback,ADC_MISO_A,DOUTA,64 SCLK edges per sample,DOUTA one-lane readback with 64 SCLK edges raw bytes and decoded V1 V2 V3 V4,AD7606_SYSTEM_INTERFACE
+ad7606_stage_b_readback,ADC_MISO_A,DOUTA,32 SCLK edges per sample,DOUTA dual-lane readback with 32 SCLK edges and firmware sample log,AD7606_SYSTEM_INTERFACE
+ad7606_stage_b_readback,ADC_MISO_B,DOUTB,32 SCLK edges per sample,DOUTB dual-lane readback with 32 SCLK edges and firmware sample log,AD7606_SYSTEM_INTERFACE
 ad7606_scaling,RANGE_OS,"+/-5 V, no oversampling",152.59 uV/LSB,RANGE=0 and OS[2:0]=000 firmware metadata; 152.59 uV/LSB conversion,AD7606_SYSTEM_INTERFACE
 ad7606_channel_order,VOUT1..4,AD7606 V1/V2/V3/V4,known channel ordering,known channel ordering for VOUT1 VOUT2 VOUT3 VOUT4 using channel-specific stimulus,AD7606_SYSTEM_INTERFACE
 ad7606_known_input,VOUT1..4,known voltage or TIA input,counts match expected value,known-input counts compared with expected value and recorded error limit,AD7606_SYSTEM_INTERFACE
