@@ -21,6 +21,7 @@ from pathlib import Path
 
 
 REPO_DIR = Path(__file__).resolve().parent.parent
+BENCH_DIR = REPO_DIR.parent
 CIRCUITS_DIR = REPO_DIR / "circuits"
 REPORT_DIR = CIRCUITS_DIR / "review" / "generated"
 REPORT_PATH = REPORT_DIR / "laser_controller_review_gate.md"
@@ -780,7 +781,7 @@ def main() -> int:
                 "-n",
                 r"[ \t]+$",
                 "circuits",
-                "docs",
+                str(BENCH_DIR / "docs"),
                 "-g",
                 "*.md",
                 "-g",

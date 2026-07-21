@@ -1,6 +1,6 @@
 # Laser Controller Review Gate
 
-Generated: 2026-07-14T09:12:51+00:00
+Generated: 2026-07-21T20:29:34+00:00
 
 This is a generated local audit artifact. It proves only the checks listed below.
 JLCPCB fabrication/order remains blocked if any row is `FAIL` or `BLOCKED`.
@@ -13,47 +13,47 @@ First-article/production release status: BLOCKED
 |---|---|---:|---|
 | PASS | Python compile | 0 | `python3 -m py_compile circuits/run_laser_controller_review.py circuits/gen_laser_controller.py circuits/adapt_mcu.py circuits/gen_pcb.py circuits/pcb_critical_routes.py circuits/check_laser_controller_netlist.py circuits/check_laser_controller_pcb.py circuits/check_pcb_staging.py circuits/check_schematic_pcb_parity.py circuits/check_laser_controller_release_gate.py circuits/check_layout_review_geometry.py circuits/check_kicad_pcbnew_drc_report.py circuits/check_courtyard_overlap_triage.py circuits/check_assembly_clearance_geometry.py circuits/check_3d_model_coverage.py circuits/check_signal_pd_footprint_geometry.py circuits/check_laser_controller_release_readiness.py circuits/check_schematic_hierarchy_labels.py circuits/check_schematic_presentation.py circuits/check_power_thermal_budget.py circuits/check_power_bringup_template.py circuits/check_ap2112_first_article_signoff.py circuits/check_ad7606_package_pcb.py circuits/check_ad7606_interface_budget.py circuits/check_ad7606_first_article_signoff.py circuits/check_firmware_validation_template.py circuits/check_optical_calibration_template.py circuits/check_tia_readout_budget.py circuits/check_orientation_polarity_pcb.py circuits/check_tia_first_article_signoff.py circuits/check_ap6320x_package_pcb.py circuits/check_buck_input_power_budget.py circuits/check_ap632_first_article_signoff.py circuits/check_vin24_input_protection.py circuits/check_usb_vbus_interface.py circuits/check_esp32_reset_boot_controls.py circuits/check_laser_driver_control_loop.py circuits/check_laser_driver_package_pcb.py circuits/check_laser_diode_footprints.py circuits/check_monitor_pd_package_pcb.py circuits/check_monitor_pd_first_article_signoff.py circuits/check_laser_first_article_signoff.py circuits/check_laser_bringup_template.py circuits/check_laser_current_budget.py circuits/check_laser_monitor_pd_budget.py circuits/check_passive_derating.py circuits/check_passive_avl_lock.py circuits/check_procurement_release_template.py circuits/check_first_article_release_evidence.py circuits/generate_laser_controller_audit_tables.py circuits/circuit_designators.py circuits/check_laser_controller_sources.py circuits/check_part_notes_completeness.py circuits/check_source_documents.py circuits/check_jlcpcb_order_package.py circuits/convert_kicad_pos_to_jlcpcb_cpl.py` |
 | PASS | Generate schematic/BOM | 0 | `python3 circuits/gen_laser_controller.py` |
-| PASS | Export schematic netlist | 0 | `/usr/bin/kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
-| PASS | Netlist assertions | 0 | `python3 circuits/check_laser_controller_netlist.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | Export schematic netlist | 0 | `/usr/bin/kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | Netlist assertions | 0 | `python3 circuits/check_laser_controller_netlist.py /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Schematic hierarchy/label assertions | 0 | `python3 circuits/check_schematic_hierarchy_labels.py circuits/laser_controller.kicad_sch` |
 | PASS | Schematic presentation assertions | 0 | `python3 circuits/check_schematic_presentation.py circuits/laser_controller.kicad_sch` |
-| PASS | Source-register assertions | 0 | `python3 circuits/check_laser_controller_sources.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | Source-register assertions | 0 | `python3 circuits/check_laser_controller_sources.py /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Part-note completeness assertions | 0 | `python3 circuits/check_part_notes_completeness.py` |
 | PASS | Source-document evidence | 0 | `python3 circuits/check_source_documents.py` |
-| PASS | Passive derating assertions | 0 | `python3 circuits/check_passive_derating.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
-| PASS | Passive first-article AVL lock | 0 | `python3 circuits/check_passive_avl_lock.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | Passive derating assertions | 0 | `python3 circuits/check_passive_derating.py /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | Passive first-article AVL lock | 0 | `python3 circuits/check_passive_avl_lock.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Procurement/derating release template | 0 | `python3 circuits/check_procurement_release_template.py` |
 | DEFERRED | First-article release evidence ledger | 2 | `python3 circuits/check_first_article_release_evidence.py` |
-| PASS | USB/VBUS topology | 0 | `python3 circuits/check_usb_vbus_interface.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
-| PASS | ESP32 reset/boot controls | 0 | `python3 circuits/check_esp32_reset_boot_controls.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
-| PASS | USB connector footprint/source match | 0 | `python3 circuits/check_usb_vbus_interface.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy connector-source-match` |
-| PASS | AD7606 package/PCB pinout | 0 | `python3 circuits/check_ad7606_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
-| PASS | AD7606 interface budget | 0 | `python3 circuits/check_ad7606_interface_budget.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | USB/VBUS topology | 0 | `python3 circuits/check_usb_vbus_interface.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | ESP32 reset/boot controls | 0 | `python3 circuits/check_esp32_reset_boot_controls.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | USB connector footprint/source match | 0 | `python3 circuits/check_usb_vbus_interface.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy connector-source-match` |
+| PASS | AD7606 package/PCB pinout | 0 | `python3 circuits/check_ad7606_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
+| PASS | AD7606 interface budget | 0 | `python3 circuits/check_ad7606_interface_budget.py /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | AD7606 first-article firmware/readback signoff | 0 | `python3 circuits/check_ad7606_first_article_signoff.py` |
 | PASS | Firmware/readback validation template | 0 | `python3 circuits/check_firmware_validation_template.py` |
 | PASS | Optical/readout calibration template | 0 | `python3 circuits/check_optical_calibration_template.py` |
-| PASS | TIA readout budget | 0 | `python3 circuits/check_tia_readout_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | TIA readout budget | 0 | `python3 circuits/check_tia_readout_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Orientation/polarity PCB pinout | 0 | `python3 circuits/check_orientation_polarity_pcb.py --board circuits/laser_controller.kicad_pcb` |
 | PASS | TIA first-article calibration signoff | 0 | `python3 circuits/check_tia_first_article_signoff.py` |
-| PASS | TIA bright-ambient expected fail | 1 | `python3 circuits/check_tia_readout_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy sfh2201-1000lx-example` |
-| PASS | AP6320x package/PCB pinout | 0 | `python3 circuits/check_ap6320x_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
-| PASS | Buck/input selected-diode max-current reference | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy bench-selected-max-9v3` |
-| PASS | Buck/input all-channel analog-limit budget | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy hardware-clamp-9v3` |
-| PASS | Buck datasheet capacitor recommendation | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy datasheet-recommended-components` |
+| PASS | TIA bright-ambient expected fail | 1 | `python3 circuits/check_tia_readout_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy sfh2201-1000lx-example` |
+| PASS | AP6320x package/PCB pinout | 0 | `python3 circuits/check_ap6320x_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
+| PASS | Buck/input selected-diode max-current reference | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy bench-selected-max-9v3` |
+| PASS | Buck/input all-channel analog-limit budget | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy hardware-clamp-9v3` |
+| PASS | Buck datasheet capacitor recommendation | 0 | `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy datasheet-recommended-components` |
 | PASS | AP632 first-article buck validation signoff | 0 | `python3 circuits/check_ap632_first_article_signoff.py` |
 | PASS | Power/input bring-up measurement template | 0 | `python3 circuits/check_power_bringup_template.py` |
-| PASS | VIN24 bench input topology | 0 | `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
-| PASS | VIN24 bench external-protection signoff | 0 | `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy bench-external-protection` |
-| PASS | VIN24 production input-protection expected fail | 1 | `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy production-protection` |
-| PASS | Laser-driver selected-current control-loop budget | 0 | `python3 circuits/check_laser_driver_control_loop.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
-| PASS | Laser-driver package/PCB pinout | 0 | `python3 circuits/check_laser_driver_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
-| PASS | Laser-driver per-channel limiter gate-margin | 0 | `python3 circuits/check_laser_driver_control_loop.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy hardware-clamp-gate-margin` |
-| PASS | Direct laser-can footprint pinout | 0 | `python3 circuits/check_laser_diode_footprints.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
-| PASS | Monitor-PD package/PCB pinout | 0 | `python3 circuits/check_monitor_pd_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
-| PASS | Generate staging PCB to temp file | 0 | `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 LC_NETLIST=/home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb` |
-| PASS | PCB staging assertions | 0 | `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
-| PASS | Schematic/PCB parity | 0 | `python3 circuits/check_schematic_pcb_parity.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
-| PASS | Generated-copper release gate | 0 | `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | VIN24 bench input topology | 0 | `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | VIN24 bench external-protection signoff | 0 | `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy bench-external-protection` |
+| PASS | VIN24 production input-protection expected fail | 1 | `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy production-protection` |
+| PASS | Laser-driver selected-current control-loop budget | 0 | `python3 circuits/check_laser_driver_control_loop.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | Laser-driver package/PCB pinout | 0 | `python3 circuits/check_laser_driver_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
+| PASS | Laser-driver per-channel limiter gate-margin | 0 | `python3 circuits/check_laser_driver_control_loop.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy hardware-clamp-gate-margin` |
+| PASS | Direct laser-can footprint pinout | 0 | `python3 circuits/check_laser_diode_footprints.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
+| PASS | Monitor-PD package/PCB pinout | 0 | `python3 circuits/check_monitor_pd_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
+| PASS | Generate staging PCB to temp file | 0 | `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 LC_NETLIST=/home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb` |
+| PASS | PCB staging assertions | 0 | `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net` |
+| PASS | Schematic/PCB parity | 0 | `python3 circuits/check_schematic_pcb_parity.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb` |
+| PASS | Generated-copper release gate | 0 | `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net` |
 | PASS | Focused layout-geometry review | 0 | `python3 circuits/check_layout_review_geometry.py circuits/laser_controller.kicad_pcb` |
 | PASS | Headless Pcbnew DRC report | 0 | `/usr/bin/python3 circuits/check_kicad_pcbnew_drc_report.py` |
 | PASS | Native courtyard-overlap triage | 0 | `/usr/bin/python3 circuits/check_courtyard_overlap_triage.py` |
@@ -66,10 +66,10 @@ First-article/production release status: BLOCKED
 | PASS | AP2112 BLE TX expected fail | 1 | `python3 circuits/check_power_thermal_budget.py --policy ble-tx-20dbm` |
 | PASS | Green high-Vf laser-current thermal reference | 0 | `python3 circuits/check_laser_current_budget.py --policy green-high-vf-10v5` |
 | PASS | Selected-diode max-current 9.3V laser-current reference | 0 | `python3 circuits/check_laser_current_budget.py --policy selected-diodes-max-9v3` |
-| PASS | PLT5 520EB_P monitor-PD high-side bias policy | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy plt5-520ebp-green-10v5` |
-| PASS | MPD ADC-scale-only policy | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy adc-scale-only-10v5` |
-| PASS | Selected-laser monitor-PD typical | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy selected-monitor-typ-9v3` |
-| PASS | Selected-laser monitor-PD high-end | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy selected-monitor-worst-9v3` |
+| PASS | PLT5 520EB_P monitor-PD high-side bias policy | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy plt5-520ebp-green-10v5` |
+| PASS | MPD ADC-scale-only policy | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy adc-scale-only-10v5` |
+| PASS | Selected-laser monitor-PD typical | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy selected-monitor-typ-9v3` |
+| PASS | Selected-laser monitor-PD high-end | 0 | `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy selected-monitor-worst-9v3` |
 | PASS | Monitor-PD first-article calibration signoff | 0 | `python3 circuits/check_monitor_pd_first_article_signoff.py` |
 | PASS | Green high-Vf 12V laser-current expected fail | 1 | `python3 circuits/check_laser_current_budget.py --policy green-high-vf-12v` |
 | PASS | Selected-diode 9.3V typical (production gate, must PASS) | 0 | `python3 circuits/check_laser_current_budget.py --policy selected-diodes-typ-9v3` |
@@ -78,15 +78,15 @@ First-article/production release status: BLOCKED
 | PASS | Laser first-article bring-up signoff | 0 | `python3 circuits/check_laser_first_article_signoff.py` |
 | PASS | Low-Vf diode on green rail expected fail | 1 | `python3 circuits/check_laser_current_budget.py --policy low-vf-diode-on-10v5` |
 | DEFERRED | Open first-article/production blockers | 2 | `python3 circuits/check_laser_controller_release_readiness.py` |
-| PASS | Regenerate audit inventory | 0 | `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md` |
+| PASS | Regenerate audit inventory | 0 | `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md` |
 | PASS | Export KiCad placement | 0 | `/usr/bin/kicad-cli pcb export pos --format csv --units mm circuits/laser_controller.kicad_pcb -o /tmp/lc_pos_kicad.csv` |
-| PASS | Convert JLCPCB CPL | 0 | `python3 circuits/convert_kicad_pos_to_jlcpcb_cpl.py --pcb circuits/laser_controller.kicad_pcb --bom circuits/laser_controller_bom_jlcpcb.csv /tmp/lc_pos_kicad.csv /home/andy/projects/vivonics/vivonics/bench/circuits/fab/laser_controller_pos.csv` |
+| PASS | Convert JLCPCB CPL | 0 | `python3 circuits/convert_kicad_pos_to_jlcpcb_cpl.py --pcb circuits/laser_controller.kicad_pcb --bom circuits/laser_controller_bom_jlcpcb.csv /tmp/lc_pos_kicad.csv /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/fab/laser_controller_pos.csv` |
 | PASS | JLCPCB order package | 0 | `python3 circuits/check_jlcpcb_order_package.py` |
-| PASS | KiCad 9 ERC | 0 | `/usr/bin/kicad-cli sch erc --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_erc.rpt circuits/laser_controller.kicad_sch` |
-| PASS | KiCad 9 physical DRC report | 0 | `/usr/bin/kicad-cli pcb drc --all-track-errors --refill-zones --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb` |
-| PASS | KiCad 9 DRC with schematic parity | 0 | `/usr/bin/kicad-cli pcb drc --all-track-errors --schematic-parity --refill-zones --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb` |
+| PASS | KiCad 9 ERC | 0 | `/usr/bin/kicad-cli sch erc --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9_erc.rpt circuits/laser_controller.kicad_sch` |
+| PASS | KiCad 9 physical DRC report | 0 | `/usr/bin/kicad-cli pcb drc --all-track-errors --refill-zones --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb` |
+| PASS | KiCad 9 DRC with schematic parity | 0 | `/usr/bin/kicad-cli pcb drc --all-track-errors --schematic-parity --refill-zones --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb` |
 | PASS | Git diff whitespace | 0 | `git diff --check` |
-| PASS | Trailing whitespace scan | 1 | `rg -n [ \t]+$ circuits docs -g *.md -g *.py -g *.kicad_sch -g *.kicad_pcb` |
+| PASS | Trailing whitespace scan | 1 | `rg -n [ \t]+$ circuits /home/andy/projects/vivonics/vivonics/bench/docs -g *.md -g *.py -g *.kicad_sch -g *.kicad_pcb` |
 
 ## PASS: Python compile
 
@@ -114,11 +114,11 @@ wrote tia_ir.kicad_sch (37648 bytes, 579 lines)
 
 ## PASS: Export schematic netlist
 
-Command: `/usr/bin/kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
+Command: `/usr/bin/kicad-cli sch export netlist circuits/laser_controller.kicad_sch -o /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net`
 
 ## PASS: Netlist assertions
 
-Command: `python3 circuits/check_laser_controller_netlist.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
+Command: `python3 circuits/check_laser_controller_netlist.py /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS 603 netlist assertions across 156 nets
@@ -142,7 +142,7 @@ PASS schematic presentation guardrails: no generated wire segments enter symbol 
 
 ## PASS: Source-register assertions
 
-Command: `python3 circuits/check_laser_controller_sources.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
+Command: `python3 circuits/check_laser_controller_sources.py /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS source-register coverage for 100 MPN/LCSC tokens across 181 components, intent coverage for 156 exported nets, 591 component-pin intent roles, and 3 documentation designator guard files
@@ -175,7 +175,7 @@ WARN LCSC C844918 CRCW060310K0FKEA 10k resistor page: reachable; Distributor/ord
 WARN JLCPCB C103446 RTT032400FTP 240 ohm resistor page: reachable; Distributor/order source for active 240 ohm monitor-PD sense resistor evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C22908 0603WAF2491T5E 2.49k resistor page: reachable; Distributor/order source for active 2.49k monitor-PD bias resistor evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN JLCPCB C970665 RVT2A220M0810 22UF 100V electrolytic page: reachable; Distributor/order source for active 22uF 100V VIN_24V bulk electrolytic evidence. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
-WARN LRC L8050QLT1G transistor datasheet: reachable; Manufacturer datasheet for the Q5 NPN SOT-23 auto-reset transistor. [HEAD HTTP 200, type=application/pdf, length=543317]
+WARN LRC L8050QLT1G transistor datasheet: not reachable; Manufacturer datasheet for the Q5 NPN SOT-23 auto-reset transistor. [GET HTTP 206, type=text/html; charset=utf-8, first_bytes=2382; expected PDF header; HEAD HTTP 200, type=text/html; charset=utf-8, length=2382]
 WARN LCSC C39282 L8550HQLT1G transistor page: reachable; Distributor/order source for the Q6 PNP SOT-23 auto-reset transistor; final AVL should retain a manufacturer datasheet copy. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C127509 K2-1102SP-C4SC-04 switch page: reachable; Distributor/order source for the SW1-SW3 tactile reset/program/factory buttons. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
 WARN LCSC C192300 2x4 SMT pin header page: reachable; Distributor/order source for J7; page identifies BOOMELE 2.54-2*4P as SMD, 2 rows, 8 pins, surface-mount vertical. [HEAD HTTP 200, type=text/html; charset=utf-8, length=unknown]
@@ -185,7 +185,7 @@ PASS source-document evidence: 21 required online sources, 0 rate-limited requir
 
 ## PASS: Passive derating assertions
 
-Command: `python3 circuits/check_passive_derating.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
+Command: `python3 circuits/check_passive_derating.py /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS passive derating: checked 65 capacitors and 64 resistors/trimmers
@@ -196,7 +196,7 @@ PASS passive derating: checked 65 capacitors and 64 resistors/trimmers
 
 ## PASS: Passive first-article AVL lock
 
-Command: `python3 circuits/check_passive_avl_lock.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
+Command: `python3 circuits/check_passive_avl_lock.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS passive AVL lock: 24 passive MPN/LCSC pairs and 129 placements match /home/andy/projects/vivonics/vivonics/bench/docs/part-notes/passive-first-article-avl-lock.md; quote-time lifecycle/stock and board-temperature evidence remain required.
@@ -237,7 +237,7 @@ DEFERRED first-article release evidence: 15 evidence row(s) still OPEN
 
 ## PASS: USB/VBUS topology
 
-Command: `python3 circuits/check_usb_vbus_interface.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
+Command: `python3 circuits/check_usb_vbus_interface.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS USB/VBUS topology: J1 USB-UART, J2 native USB, ESD clamps, 1N5819 VBUS isolation, D5 +5V OR-ing, CP2102N VBUS divider, UART, EN/BOOT, and ID/shield nets match the exported schematic
@@ -245,7 +245,7 @@ PASS USB/VBUS topology: J1 USB-UART, J2 native USB, ESD clamps, 1N5819 VBUS isol
 
 ## PASS: ESP32 reset/boot controls
 
-Command: `python3 circuits/check_esp32_reset_boot_controls.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
+Command: `python3 circuits/check_esp32_reset_boot_controls.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS ESP32 reset/boot controls: EN 10k/1uF/reset, GPIO0 BOOT 10k/1uF/PROG, GPIO1 FACT, CP2102N DTR/RTS auto-reset transistors, RST/SUSPEND pulls, and IO13/IO14 pulls match the exported schematic
@@ -253,7 +253,7 @@ PASS ESP32 reset/boot controls: EN 10k/1uF/reset, GPIO0 BOOT 10k/1uF/PROG, GPIO1
 
 ## PASS: USB connector footprint/source match
 
-Command: `python3 circuits/check_usb_vbus_interface.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy connector-source-match`
+Command: `python3 circuits/check_usb_vbus_interface.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy connector-source-match`
 
 ```text
 PASS USB connector source/footprint match
@@ -261,7 +261,7 @@ PASS USB connector source/footprint match
 
 ## PASS: AD7606 package/PCB pinout
 
-Command: `python3 circuits/check_ad7606_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
+Command: `python3 circuits/check_ad7606_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
 
 ```text
 PASS AD7606 package/PCB pinout: U14 AD7606BSTZ-4RL schematic pin nets, C51-C60 decoupling/reference support, current PCB pad nets, FRSTDATA no-connect, and KiCad LQFP-64 pad geometry agree
@@ -269,7 +269,7 @@ PASS AD7606 package/PCB pinout: U14 AD7606BSTZ-4RL schematic pin nets, C51-C60 d
 
 ## PASS: AD7606 interface budget
 
-Command: `python3 circuits/check_ad7606_interface_budget.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
+Command: `python3 circuits/check_ad7606_interface_budget.py /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS AD7606 interface budget
@@ -308,7 +308,7 @@ PASS optical calibration template: 12 first-article monitor-PD, signal-PD, and A
 
 ## PASS: TIA readout budget
 
-Command: `python3 circuits/check_tia_readout_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
+Command: `python3 circuits/check_tia_readout_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS TIA readout budget (bench-range)
@@ -338,7 +338,7 @@ PASS TIA first-article calibration signoff: VOUT1..4 require dark offset, known-
 
 ## PASS: TIA bright-ambient expected fail
 
-Command: `python3 circuits/check_tia_readout_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy sfh2201-1000lx-example`
+Command: `python3 circuits/check_tia_readout_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy sfh2201-1000lx-example`
 
 ```text
 FAIL TIA readout budget (sfh2201-1000lx-example): 1 issue(s)
@@ -351,7 +351,7 @@ FAIL TIA readout budget (sfh2201-1000lx-example): 1 issue(s)
 
 ## PASS: AP6320x package/PCB pinout
 
-Command: `python3 circuits/check_ap6320x_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
+Command: `python3 circuits/check_ap6320x_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
 
 ```text
 PASS AP6320x package/PCB guard: U15/U16 schematic pin nets, current PCB pad nets, TSOT-23-6 geometry, and L1/L2 local inductor footprints match the datasheet-derived contract.
@@ -359,7 +359,7 @@ PASS AP6320x package/PCB guard: U15/U16 schematic pin nets, current PCB pad nets
 
 ## PASS: Buck/input selected-diode max-current reference
 
-Command: `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy bench-selected-max-9v3`
+Command: `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy bench-selected-max-9v3`
 
 ```text
 24V/buck current policy: bench-selected-max-9v3
@@ -375,7 +375,7 @@ PASS 24V/buck policy for the checked assumptions.
 
 ## PASS: Buck/input all-channel analog-limit budget
 
-Command: `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy hardware-clamp-9v3`
+Command: `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy hardware-clamp-9v3`
 
 ```text
 24V/buck current policy: hardware-clamp-9v3
@@ -391,7 +391,7 @@ PASS 24V/buck policy for the checked assumptions.
 
 ## PASS: Buck datasheet capacitor recommendation
 
-Command: `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy datasheet-recommended-components`
+Command: `python3 circuits/check_buck_input_power_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy datasheet-recommended-components`
 
 ```text
 24V/buck production component recommendation policy: datasheet-recommended-components
@@ -419,7 +419,7 @@ PASS power bring-up template: VIN24, AP632, +5V, LASER_V+, and AP2112 first-arti
 
 ## PASS: VIN24 bench input topology
 
-Command: `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
+Command: `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 VIN_24V input policy: bench-topology
@@ -432,7 +432,7 @@ PASS VIN_24V input policy for the checked assumptions.
 
 ## PASS: VIN24 bench external-protection signoff
 
-Command: `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy bench-external-protection`
+Command: `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy bench-external-protection`
 
 ```text
 VIN_24V input policy: bench-external-protection
@@ -445,7 +445,7 @@ PASS VIN_24V input policy for the checked assumptions.
 
 ## PASS: VIN24 production input-protection expected fail
 
-Command: `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy production-protection`
+Command: `python3 circuits/check_vin24_input_protection.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy production-protection`
 
 ```text
 VIN_24V input policy: production-protection
@@ -462,7 +462,7 @@ FAIL VIN_24V input policy
 
 ## PASS: Laser-driver selected-current control-loop budget
 
-Command: `python3 circuits/check_laser_driver_control_loop.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
+Command: `python3 circuits/check_laser_driver_control_loop.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS laser-driver control-loop budget (selected-max-current)
@@ -481,7 +481,7 @@ PASS laser-driver control-loop budget (selected-max-current)
 
 ## PASS: Laser-driver package/PCB pinout
 
-Command: `python3 circuits/check_laser_driver_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
+Command: `python3 circuits/check_laser_driver_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
 
 ```text
 PASS laser-driver package/PCB guard: TLV9001/AO3400A schematic pin nets, local driver sense/command/gate/compensation component identities, current PCB pad nets, and KiCad SOT-23-5/SOT-23/2512/0603/0402/0603-cap geometry agree.
@@ -489,7 +489,7 @@ PASS laser-driver package/PCB guard: TLV9001/AO3400A schematic pin nets, local d
 
 ## PASS: Laser-driver per-channel limiter gate-margin
 
-Command: `python3 circuits/check_laser_driver_control_loop.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy hardware-clamp-gate-margin`
+Command: `python3 circuits/check_laser_driver_control_loop.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy hardware-clamp-gate-margin`
 
 ```text
 PASS laser-driver control-loop budget (hardware-clamp-gate-margin)
@@ -508,7 +508,7 @@ PASS laser-driver control-loop budget (hardware-clamp-gate-margin)
 
 ## PASS: Direct laser-can footprint pinout
 
-Command: `python3 circuits/check_laser_diode_footprints.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
+Command: `python3 circuits/check_laser_diode_footprints.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
 
 ```text
 PASS laser diode footprint pinout: LD1/LD2 Style-A TO18, LD3 PLT5 520EB_P TO56, LD4 PLT5 450GB case NC; schematic nets, current PCB pad nets, and KiCad TO18/TO56 pad geometry agree
@@ -516,7 +516,7 @@ PASS laser diode footprint pinout: LD1/LD2 Style-A TO18, LD3 PLT5 520EB_P TO56, 
 
 ## PASS: Monitor-PD package/PCB pinout
 
-Command: `python3 circuits/check_monitor_pd_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
+Command: `python3 circuits/check_monitor_pd_package_pcb.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
 
 ```text
 PASS monitor-PD package/PCB guard: U12/U13 schematic pin nets, local MPD sense/filter/bias component identities, current PCB pad nets, LD4 case no-connect, and KiCad package geometry agree.
@@ -524,7 +524,7 @@ PASS monitor-PD package/PCB guard: U12/U13 schematic pin nets, local MPD sense/f
 
 ## PASS: Generate staging PCB to temp file
 
-Command: `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 LC_NETLIST=/home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb`
+Command: `env LC_STRICT_ROUTE_CLEARANCE=1 LC_MAX_ROUTE_SEARCH_CELLS=2500 LC_NETLIST=/home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net python3 circuits/gen_pcb.py --output /tmp/lc_generated_staging.kicad_pcb`
 
 ```text
 wrote /tmp/lc_generated_staging.kicad_pcb  (192 blocks, 6 ref instances)
@@ -533,7 +533,7 @@ wrote /tmp/lc_generated_staging.kicad_pcb  (192 blocks, 6 ref instances)
 
 ## PASS: PCB staging assertions
 
-Command: `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
+Command: `python3 circuits/check_pcb_staging.py /tmp/lc_generated_staging.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS PCB staging: 181 physical footprints loaded, 2 board-only mechanical footprints, 0 empty-footprint symbols skipped, 0 board-level segments/vias/zones, 1 footprint-internal zone/keepout block(s), 179 non-overlapping electrical staged bboxes outside the 173.025 x 61.125 mm outline; sections TIA_IR:11, TIA_RED:11, TIA_GREEN:11, TIA_BLUE:11, LASER_IR:11, LASER_RED:11, LASER_GREEN:11, LASER_BLUE:11, MCU_ESP32-S3:36, POWER_IO:55
@@ -541,7 +541,7 @@ PASS PCB staging: 181 physical footprints loaded, 2 board-only mechanical footpr
 
 ## PASS: Schematic/PCB parity
 
-Command: `python3 circuits/check_schematic_pcb_parity.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
+Command: `python3 circuits/check_schematic_pcb_parity.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --board circuits/laser_controller.kicad_pcb`
 
 ```text
 PASS schematic/PCB parity: 181 schematic footprints match 181 PCB footprints; 110 real PCB nets match exported schematic pad nets, with unconnected pins left unnetted.
@@ -549,7 +549,7 @@ PASS schematic/PCB parity: 181 schematic footprints match 181 PCB footprints; 11
 
 ## PASS: Generated-copper release gate
 
-Command: `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net`
+Command: `python3 circuits/check_laser_controller_release_gate.py circuits/laser_controller.kicad_pcb /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net`
 
 ```text
 PASS fabrication release gate: 108/110 multi-pad nets explicitly routed, no split signal/control nets, laser cathode/anode routes meet generated width targets, and laser sense returns have distinct high-current GND vias. Rail/zone connectivity is delegated to KiCad refill/DRC.
@@ -571,10 +571,10 @@ PASS layout geometry review: 15 high-risk layout distances within targets
 Command: `/usr/bin/python3 circuits/check_kicad_pcbnew_drc_report.py`
 
 ```text
-PASS headless KiCad DRC report: zones refilled, DRC violations=0, unconnected pads=0, footprint errors=0, allowed warning findings: none; report=/home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_pcbnew_drc_report.rpt
+PASS headless KiCad DRC report: zones refilled, DRC violations=0, unconnected pads=0, footprint errors=0, allowed warning findings: none; report=/home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_pcbnew_drc_report.rpt
 Found 0 violations
 Found 0 unconnected items
-Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_pcbnew_drc_report.rpt
+Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_pcbnew_drc_report.rpt
 ```
 
 ## PASS: Native courtyard-overlap triage
@@ -585,7 +585,7 @@ Command: `/usr/bin/python3 circuits/check_courtyard_overlap_triage.py`
 ./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
 ./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
 ./kicad/include/properties/property.h(607): assert "m_choices.GetCount() > 0" failed in PROPERTY_ENUM(): No enum choices defined
-PASS courtyard-overlap triage: no native courtyard-overlap warnings; report=/home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_courtyard_overlap_triage.md
+PASS courtyard-overlap triage: no native courtyard-overlap warnings; report=/home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_courtyard_overlap_triage.md
 ```
 
 ## PASS: Assembly clearance geometry
@@ -709,13 +709,13 @@ PASS selected laser current-loop policy for the checked current/rail assumptions
 
 ## PASS: PLT5 520EB_P monitor-PD high-side bias policy
 
-Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy plt5-520ebp-green-10v5`
+Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy plt5-520ebp-green-10v5`
 
 ```text
 Monitor-PD policy: plt5-520ebp-green-10v5
   PLT5 520EB_P monitor-current reference case. The datasheet monitor current is specified at VRPD=5V and is not guaranteed as an accurate absolute power measurement. The bench circuit uses a high-side INA4180 sense path and LM4040-derived MPD_BIAS node. PLT5 450GB has no monitor photodiode, so MPD_RAW4 is only a spare/open front-end input.
   front end: MPD_RAWx -> 240 ohm sense -> MPD_BIAS; INA4180 gain=20; 1k/100nF ADC-side RC
-  schematic connectivity checked against /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net
+  schematic connectivity checked against /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net
   PLT5-style CH1: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
   PLT5-style CH2: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
   PLT5-style CH3: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
@@ -727,13 +727,13 @@ PASS monitor-PD policy for this scope. This does not replace per-laser datasheet
 
 ## PASS: MPD ADC-scale-only policy
 
-Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy adc-scale-only-10v5`
+Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy adc-scale-only-10v5`
 
 ```text
 Monitor-PD policy: adc-scale-only-10v5
   ADC headroom check only for the high-side monitor front end. This does not approve any real laser MPN without its own pinout and reverse-bias review.
   front end: MPD_RAWx -> 240 ohm sense -> MPD_BIAS; INA4180 gain=20; 1k/100nF ADC-side RC
-  schematic connectivity checked against /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net
+  schematic connectivity checked against /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net
   PLT5-style CH1: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
   PLT5-style CH2: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
   PLT5-style CH3: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
@@ -745,13 +745,13 @@ PASS monitor-PD policy for this scope. This does not replace per-laser datasheet
 
 ## PASS: Selected-laser monitor-PD typical
 
-Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy selected-monitor-typ-9v3`
+Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy selected-monitor-typ-9v3`
 
 ```text
 Monitor-PD policy: selected-monitor-typ-9v3
   Selected Digikey-cart monitor-current typical case. LD1 D7805I is 200uA typ, LD2 D6505I is 150uA typ, LD3 PLT5 520EB_P is 150uA typ, and LD4 PLT5 450GB has no monitor photodiode. This case should fit the local production ADC-headroom guard after the sense resistor was reduced to 240R.
   front end: MPD_RAWx -> 240 ohm sense -> MPD_BIAS; INA4180 gain=20; 1k/100nF ADC-side RC
-  schematic connectivity checked against /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net
+  schematic connectivity checked against /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net
   LD1 D7805I: typ monitor current=200uA -> sense=0.048V, ADC=0.96V, VRPD=4.95V
   LD2 D6505I: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
   LD3 PLT5 520EB_P: typ monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
@@ -763,13 +763,13 @@ PASS monitor-PD policy for this scope. This does not replace per-laser datasheet
 
 ## PASS: Selected-laser monitor-PD high-end
 
-Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net --policy selected-monitor-worst-9v3`
+Command: `python3 circuits/check_laser_monitor_pd_budget.py --netlist /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net --policy selected-monitor-worst-9v3`
 
 ```text
 Monitor-PD policy: selected-monitor-worst-9v3
   Selected Digikey-cart monitor-current high-end case. D7805I max monitor current is 600uA and D6505I max monitor current is 300uA; PLT5 520EB_P has only a typical 150uA monitor-current value in the captured table and PLT5 450GB has no monitor PD. This high-end case should fit the local production ADC-headroom guard with the 240R/gain20 front end. It still needs optical calibration before MPD can be used as production feedback.
   front end: MPD_RAWx -> 240 ohm sense -> MPD_BIAS; INA4180 gain=20; 1k/100nF ADC-side RC
-  schematic connectivity checked against /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net
+  schematic connectivity checked against /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net
   LD1 D7805I: max monitor current=600uA -> sense=0.144V, ADC=2.88V, VRPD=4.86V
   LD2 D6505I: max monitor current=300uA -> sense=0.072V, ADC=1.44V, VRPD=4.93V
   LD3 PLT5 520EB_P: max monitor current=150uA -> sense=0.036V, ADC=0.72V, VRPD=4.96V
@@ -927,7 +927,7 @@ BLOCKED production release readiness: 7 open first-article/production blockers a
 
 ## PASS: Regenerate audit inventory
 
-Command: `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md`
+Command: `python3 circuits/generate_laser_controller_audit_tables.py /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9.net circuits/laser_controller.kicad_pcb circuits/review/2026-06-25_full_net_pin_inventory.md`
 
 ## PASS: Export KiCad placement
 
@@ -939,10 +939,10 @@ Wrote position data to '/tmp/lc_pos_kicad.csv'.
 
 ## PASS: Convert JLCPCB CPL
 
-Command: `python3 circuits/convert_kicad_pos_to_jlcpcb_cpl.py --pcb circuits/laser_controller.kicad_pcb --bom circuits/laser_controller_bom_jlcpcb.csv /tmp/lc_pos_kicad.csv /home/andy/projects/vivonics/vivonics/bench/circuits/fab/laser_controller_pos.csv`
+Command: `python3 circuits/convert_kicad_pos_to_jlcpcb_cpl.py --pcb circuits/laser_controller.kicad_pcb --bom circuits/laser_controller_bom_jlcpcb.csv /tmp/lc_pos_kicad.csv /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/fab/laser_controller_pos.csv`
 
 ```text
-Wrote JLCPCB CPL with 175 placements to /home/andy/projects/vivonics/vivonics/bench/circuits/fab/laser_controller_pos.csv
+Wrote JLCPCB CPL with 175 placements to /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/fab/laser_controller_pos.csv
 ```
 
 ## PASS: JLCPCB order package
@@ -955,32 +955,32 @@ PASS JLCPCB order package: 14 Gerber/drill files, package archive includes BOM/P
 
 ## PASS: KiCad 9 ERC
 
-Command: `/usr/bin/kicad-cli sch erc --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_erc.rpt circuits/laser_controller.kicad_sch`
+Command: `/usr/bin/kicad-cli sch erc --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9_erc.rpt circuits/laser_controller.kicad_sch`
 
 ```text
 Found 0 violations
-Saved ERC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_erc.rpt
+Saved ERC Report to /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9_erc.rpt
 ```
 
 ## PASS: KiCad 9 physical DRC report
 
-Command: `/usr/bin/kicad-cli pcb drc --all-track-errors --refill-zones --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb`
+Command: `/usr/bin/kicad-cli pcb drc --all-track-errors --refill-zones --severity-all --exit-code-violations --format report --output /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
 Found 0 violations
 Found 0 unconnected items
-Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt
+Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9_physical_drc.rpt
 ```
 
 ## PASS: KiCad 9 DRC with schematic parity
 
-Command: `/usr/bin/kicad-cli pcb drc --all-track-errors --schematic-parity --refill-zones --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb`
+Command: `/usr/bin/kicad-cli pcb drc --all-track-errors --schematic-parity --refill-zones --severity-all --format report --output /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9_drc.rpt circuits/laser_controller.kicad_pcb`
 
 ```text
 Found 0 violations
 Found 0 unconnected items
 Found 36 schematic parity issues
-Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/circuits/review/generated/laser_controller_kicad9_drc.rpt
+Saved DRC Report to /home/andy/projects/vivonics/vivonics/bench/laser_controller/circuits/review/generated/laser_controller_kicad9_drc.rpt
 ```
 
 ## PASS: Git diff whitespace
@@ -989,4 +989,4 @@ Command: `git diff --check`
 
 ## PASS: Trailing whitespace scan
 
-Command: `rg -n [ \t]+$ circuits docs -g *.md -g *.py -g *.kicad_sch -g *.kicad_pcb`
+Command: `rg -n [ \t]+$ circuits /home/andy/projects/vivonics/vivonics/bench/docs -g *.md -g *.py -g *.kicad_sch -g *.kicad_pcb`

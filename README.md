@@ -1,8 +1,9 @@
-# Vivonics Pi Bench
+# Vivonics Bench
 
-Standalone Raspberry Pi bench runner for Vivonics C1/X1 work. The parent
-Vivonics repo consumes this repo as the `pi/` git submodule, matching the
-radio-mapper buoy pattern.
+Standalone hardware-bench repository for Vivonics C1/X1 work. The parent
+Vivonics repo consumes this repository as its `bench/` Git submodule. It owns
+both the Raspberry Pi measurement service and the ESP32-S3 laser-controller
+firmware/circuit package.
 
 The Pi owns the tight first-loop instrumentation:
 
@@ -21,11 +22,13 @@ The Pi owns the tight first-loop instrumentation:
 - `photocycle.py`: C1/X1 red-linearity and green-write/red-read protocols.
 - `install.sh`: user systemd service installer for `vivonics-bench`.
 - `scripts/deploy_remote.sh`: workstation-to-Pi deploy helper.
+- `laser_controller/`: authoritative ESP32-S3 firmware, KiCad design, review
+  gates, and first-article support files for the fabricated laser controller.
 
 ## Install on the Pi
 
 ```bash
-cd /home/andy/vivonics/pi
+cd /home/andy/vivonics/pi  # standalone deployment path on the Pi
 ./install.sh
 sudo raspi-config nonint do_i2c 0
 ```

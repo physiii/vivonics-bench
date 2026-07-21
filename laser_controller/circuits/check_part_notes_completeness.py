@@ -13,8 +13,8 @@ from pathlib import Path
 import re
 
 
-REPO_DIR = Path(__file__).resolve().parent.parent
-PART_NOTES_DIR = REPO_DIR / "docs" / "part-notes"
+BENCH_DIR = Path(__file__).resolve().parent.parent.parent
+PART_NOTES_DIR = BENCH_DIR / "docs" / "part-notes"
 
 
 @dataclass(frozen=True)

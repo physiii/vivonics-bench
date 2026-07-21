@@ -1,0 +1,16 @@
+/code/build/
+/code/build-validation/
+/code/build-laser-test/
+/code/sdkconfig
+/code/sdkconfig.old
+/code/sdkconfig.validation
+/code/sdkconfig.validation.old
+/code/sdkconfig.laser-test
+/code/sdkconfig.laser-test.old
+
+# Local KiCad state and automatic backups. Previously tracked backup snapshots
+# remain in history; new editor state must not enter commits after this move.
+/circuits/.history/
+/circuits/fp-info-cache
+/circuits/~*.lck
+/circuits/laser_controller-backups/

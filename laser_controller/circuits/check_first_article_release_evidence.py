@@ -13,7 +13,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-REPO_DIR = Path(__file__).resolve().parent.parent
+PACKAGE_DIR = Path(__file__).resolve().parent.parent
+BENCH_DIR = PACKAGE_DIR.parent
 LEDGER = (
     Path(__file__).resolve().parent
     / "review"
@@ -76,7 +77,12 @@ def validate_closed_row(row: dict[str, str]) -> list[str]:
     evidence_path = row["evidence_path"].strip()
     if evidence_path.upper() in PLACEHOLDERS:
         return [f"{key[0]}/{key[1]}: CLOSED row must name an evidence file"]
-    path = REPO_DIR / evidence_path
+    relative_path = Path(evidence_path)
+    path = (
+        PACKAGE_DIR / relative_path
+        if relative_path.parts and relative_path.parts[0] == "circuits"
+        else BENCH_DIR / relative_path
+    )
     if not path.exists():
         return [f"{key[0]}/{key[1]}: evidence file does not exist: {evidence_path}"]
     text = path.read_text(errors="replace").casefold()

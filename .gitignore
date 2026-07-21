@@ -13,12 +13,12 @@ vivonics_sensor_check.json
 # KiCad local editor state.
 *_autosave-*.kicad_pcb
 ~*.lck
-circuits/.history/
+laser_controller/circuits/.history/
 
 fp-info-cache
 
 # KiCad backup archives
-circuits/laser_controller-backups/
+laser_controller/circuits/laser_controller-backups/
 
 # DeepSeek runtime state
 .deepseek/state/

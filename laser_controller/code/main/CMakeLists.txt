@@ -1,0 +1,22 @@
+idf_component_register(
+    SRCS
+        "ad7606_decode.c"
+        "laser_safety.c"
+        "laser_test_protocol.c"
+        "main.c"
+    INCLUDE_DIRS "."
+    REQUIRES
+        esp_app_format
+        esp_common
+        esp_driver_gpio
+        esp_adc
+        esp_driver_ledc
+        esp_driver_spi
+        esp_driver_uart
+        esp_driver_usb_serial_jtag
+        esp_rom
+        esp_system
+        esp_timer
+        freertos
+        log
+)

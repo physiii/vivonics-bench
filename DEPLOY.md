@@ -1,7 +1,9 @@
 # Vivonics Pi Bench Deployment
 
-The Pi bench repo is designed to run as the `pi/` submodule inside the parent
-Vivonics checkout, and also as a standalone repo while developing on the Pi.
+The bench repo is checked out as the `bench/` submodule inside the parent
+Vivonics checkout. The Raspberry Pi service can also be deployed as a
+standalone working tree on the Pi; the existing deployment target remains
+`/home/andy/vivonics/pi`.
 
 ## Current bench target
 

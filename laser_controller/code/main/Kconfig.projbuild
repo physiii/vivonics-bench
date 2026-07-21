@@ -1,0 +1,45 @@
+menu "Vivonics laser-controller bring-up"
+
+config LC_AD7606_SCLK_HZ
+    int "AD7606 serial clock (Hz)"
+    range 1000000 10000000
+    default 10000000
+    help
+        Conservative first-article limit. Do not exceed 10 MHz without new
+        timing and rail-margin evidence.
+
+config LC_AD7606_SAMPLE_RATE_HZ
+    int "Bring-up sample rate (samples/s)"
+    range 1 1000
+    default 1000
+    help
+        The initial firmware deliberately caps the task-driven sampling loop at
+        1 kSPS. The selected rate must divide the 1000 Hz FreeRTOS tick exactly.
+        Higher rates require a timer/DMA design and measured integrity.
+
+config LC_AD7606_BUSY_TIMEOUT_US
+    int "BUSY edge timeout (microseconds)"
+    range 10 10000
+    default 100
+
+config LC_AD7606_LOG_EVERY_N
+    int "Log every Nth conversion (0 disables sample logging)"
+    range 0 1000000
+    default 0
+    help
+        UART logging is synchronous and counts against the sampling deadline.
+        Leave disabled at 1 kSPS. Lower the sample rate before enabling logs for
+        known-input bring-up work.
+
+config LC_ENABLE_LASER_PULSE_TEST
+    bool "Enable local laser output test commands"
+    default n
+    help
+        Keep disabled in normal and measurement-validation builds. The separate
+        laser-test profile accepts local native-USB commands without a FACT
+        hold and permits one channel or the explicit IR-plus-green test target.
+        PULSE commands are bounded to 900 ms. ON commands remain active until
+        OFF, reset, overcurrent, or an ADC/telemetry fault while continuous
+        monitoring remains active.
+
+endmenu

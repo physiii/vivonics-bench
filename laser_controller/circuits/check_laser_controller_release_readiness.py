@@ -22,7 +22,8 @@ from check_first_article_release_evidence import (
 )
 
 
-REPO_DIR = Path(__file__).resolve().parent.parent
+PACKAGE_DIR = Path(__file__).resolve().parent.parent
+BENCH_DIR = PACKAGE_DIR.parent
 
 
 @dataclass(frozen=True)
@@ -518,7 +519,12 @@ def validate_evidence() -> list[str]:
     failures: list[str] = []
     for blocker in BLOCKERS:
         for evidence in blocker.evidence:
-            path = REPO_DIR / evidence.path
+            relative_path = Path(evidence.path)
+            path = (
+                PACKAGE_DIR / relative_path
+                if relative_path.parts and relative_path.parts[0] == "circuits"
+                else BENCH_DIR / relative_path
+            )
             if not path.exists():
                 failures.append(f"{blocker.blocker_id}: missing evidence file {evidence.path}")
                 continue

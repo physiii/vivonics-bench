@@ -12,7 +12,7 @@ from check_passive_derating import is_capacitor, is_resistor_or_trimmer
 
 
 DEFAULT_NETLIST = Path("/tmp/lc.net")
-DEFAULT_LOCK = Path(__file__).resolve().parent.parent / "docs" / "part-notes" / "passive-first-article-avl-lock.md"
+DEFAULT_LOCK = Path(__file__).resolve().parent.parent.parent / "docs" / "part-notes" / "passive-first-article-avl-lock.md"
 
 
 def passive_counts(netlist_path: Path) -> Counter[tuple[str, str]]:

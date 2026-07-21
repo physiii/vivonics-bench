@@ -14,9 +14,9 @@ from generate_laser_controller_audit_tables import intent_for_net, pin_intent_fo
 
 
 PROJECT_DIR = Path(__file__).resolve().parent
-REPO_DIR = PROJECT_DIR.parent
-SOURCE_REGISTER = REPO_DIR / "docs" / "source-register.md"
-PART_NOTES_DIR = REPO_DIR / "docs" / "part-notes"
+BENCH_DIR = PROJECT_DIR.parent.parent
+SOURCE_REGISTER = BENCH_DIR / "docs" / "source-register.md"
+PART_NOTES_DIR = BENCH_DIR / "docs" / "part-notes"
 
 
 CRITICAL_PART_NOTES = [

@@ -22,7 +22,8 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-REPO_DIR = Path(__file__).resolve().parent.parent
+PACKAGE_DIR = Path(__file__).resolve().parent.parent
+BENCH_DIR = PACKAGE_DIR.parent
 TIMEOUT_S = 12
 READ_BYTES = 4096
 USER_AGENT = (
@@ -381,7 +382,9 @@ def local_path(path_text: str) -> Path:
     expanded = Path(path_text).expanduser()
     if expanded.is_absolute():
         return expanded
-    return REPO_DIR / expanded
+    if expanded.parts and expanded.parts[0] == "circuits":
+        return PACKAGE_DIR / expanded
+    return BENCH_DIR / expanded
 
 
 def check_local(evidence: LocalEvidence) -> ProbeResult:

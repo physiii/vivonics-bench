@@ -1,5 +1,9 @@
 # Laser Controller — 1ch × 4λ: on-board SFH2201 PD → 4ch TIA + monitor-PD feedback + ESP32-S3 + 4× laser drivers
 
+This is the authoritative circuit tree at
+`laser_controller/circuits/` in the `vivonics-bench` repository. Firmware for
+this exact board is maintained alongside it under `laser_controller/code/`.
+
 Bench controller for the bR index/phase read. **One optical channel, four wavelengths**
 (IR / RED / GREEN / BLUE). Each wavelength has a precision **constant-current laser sink**
 (with current-sense feedback) and one **on-board Osram SFH2201 clear Si PIN photodiode**
@@ -14,10 +18,11 @@ and powered over **native USB (Mini-B)**, and talks to the Raspberry Pi over **U
 Gpixel line sensor doing a *per-pixel intensity* read, and the bench's dual-pinhole
 interferometer is also a single-PD intensity read — so one broadband PD per beam is the
 faithful, JLCPCB-assemblable proxy. Beam-deflection/centroid sensing (the quad-PD's only
-unique capability) is a fallback the production engine deliberately engineers out. Rationale:
-`../../docs/program/DUAL_PINHOLE_PHASE_READ_EXPERIMENT_DESIGN_2026-06-22.md`,
-`SZEGED_BR_SWITCHING_LINEAGE_AND_INDEX_READ_FINDINGS_2026-06-22.md`,
-`INDEX_READ_PRODUCTION_ARCHITECTURE_2026-06-02.md` (parent repo).
+unique capability) is a fallback the production engine deliberately engineers out. The
+program rationale lives in the parent Vivonics repository:
+[`DUAL_PINHOLE_PHASE_READ_EXPERIMENT_DESIGN_2026-06-22.md`](https://github.com/physiii/vivonics/blob/main/docs/program/DUAL_PINHOLE_PHASE_READ_EXPERIMENT_DESIGN_2026-06-22.md),
+`SZEGED_BR_SWITCHING_LINEAGE_AND_INDEX_READ_FINDINGS_2026-06-22.md`, and
+`INDEX_READ_PRODUCTION_ARCHITECTURE_2026-06-02.md`.
 
 ## Files
 
@@ -82,8 +87,8 @@ python3 gen_laser_controller.py
 | `LASER_CURRENT_THERMAL_BUDGET.md` | Laser current-loop thermal budget and common-rail bench limitation. |
 | `POWER_TREE.md` | Rail/source/load review and release gates for 24 V barrel/RJ45 input, USB VBUS, BUCK_5V, +5V, +3V3, LASER_V+, and GND. |
 | `POWER_THERMAL_BUDGET.md` | AP2112/ESP32-S3 thermal budget and bench-vs-production regulator decision. |
-| `../docs/source-register.md` | Datasheet/source register for active components, passives, manufacturing capability, and open source gaps. |
-| `../docs/part-notes/` | Compact datasheet notes for package-sensitive and behavior-sensitive parts. |
+| `../../docs/source-register.md` | Datasheet/source register for active components, passives, manufacturing capability, and open source gaps. |
+| `../../docs/part-notes/` | Compact datasheet notes for package-sensitive and behavior-sensitive parts. |
 
 Every SMT component carries a **hidden `LCSC` field + `Part Number` (MPN) field** — exactly
 the access-controller convention, so clicking a part in Eeschema shows its LCSC number and
