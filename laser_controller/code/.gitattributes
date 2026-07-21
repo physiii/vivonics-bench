@@ -1,0 +1,3 @@
+# Preserve the deployed access-controller assets byte-for-byte as provenance.
+# Their upstream whitespace is intentional and must not be normalized.
+reference/access-controller/deployed-ui/* -text -whitespace

@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Access Controller</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script>
+    (function ensureTrailingSlash() {
+      var path = window.location.pathname || '';
+      if (path && !path.endsWith('/')) {
+        var redirect = path + '/' + (window.location.search || '') + (window.location.hash || '');
+        window.location.replace(redirect);
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css?v=36">
+</head>
+<body>
+  <header class="app-bar">
+    <div class="app-brand">
+      <span class="app-title">Access Controller</span>
+      <span class="app-subtitle">Device Manager</span>
+    </div>
+    <div class="header-status">
+      <span class="header-chip" id="headerClockChip" title="Device local time"><strong id="headerClock">—</strong></span>
+      <span class="header-chip">AP <strong id="headerApIp">—</strong></span>
+      <span class="header-chip">STA <strong id="headerStaIp">—</strong></span>
+      <span class="header-chip">Server <strong id="headerServerUrl">https://open-automation.org/devices</strong></span>
+    </div>
+  </header>
+
+  <nav class="nav-tabs" aria-label="Primary navigation">
+    <button class="nav-item active" data-target="device" type="button">Device</button>
+    <button class="nav-item" data-target="settings" type="button">Settings</button>
+    <button class="nav-item" data-target="system" type="button">System</button>
+  </nav>
+
+  <main class="page-container">
+    <section id="page-device" class="page active" aria-labelledby="device-heading">
+      <div class="card device-controls-card">
+        <div class="card-header">
+          <div>
+            <h2 id="device-heading">Device Controls</h2>
+            <p class="subtitle">Locks, exit inputs, and Wiegand readers.</p>
+          </div>
+        </div>
+        <div class="device-control-stack">
+          <section class="device-control-section" aria-labelledby="locks-heading">
+            <div class="card-section-header">
+              <h3 id="locks-heading">Locks</h3>
+            </div>
+            <div class="device-lock-grid">
+              <div class="control-section">
+                <h4>Lock 1</h4>
+                <div class="lock-status-grid">
+                  <div class="access-status-row">
+                    <span class="access-status-label">Contact</span>
+                    <span id="lockContact_1" class="status-dot" title="Contact state" aria-label="Contact state"></span>
+                  </div>
+                  <div class="access-status-row">
+                    <span class="access-status-label">Signal</span>
+                    <span id="lockSense_1" class="status-dot" title="Lock signal state" aria-label="Lock signal state"></span>
+                  </div>
+                </div>
+                <label class="form-switch">
+                  <input type="checkbox" id="enableLock_1">
+                  <span>Enable lock</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="enableContactAlert_1">
+                  <span>Contact alert</span>
+                </label>
+                <div class="lock-toggle-row">
+                  <label class="form-switch lock-toggle-pill">
+                    <input type="checkbox" id="arm_1">
+                    <span>Arm lock</span>
+                  </label>
+                  <label class="form-switch lock-toggle-pill" title="Checked = fail-secure (locked when power is lost). Unchecked = fail-safe (unlocked when power is lost).">
+                    <input type="checkbox" id="failSecure_1">
+                    <span>Fail-secure</span>
+                  </label>
+                </div>
+              </div>
+              <div class="control-section">
+                <h4>Lock 2</h4>
+                <div class="lock-status-grid">
+                  <div class="access-status-row">
+                    <span class="access-status-label">Contact</span>
+                    <span id="lockContact_2" class="status-dot" title="Contact state" aria-label="Contact state"></span>
+                  </div>
+                  <div class="access-status-row">
+                    <span class="access-status-label">Signal</span>
+                    <span id="lockSense_2" class="status-dot" title="Lock signal state" aria-label="Lock signal state"></span>
+                  </div>
+                </div>
+                <label class="form-switch">
+                  <input type="checkbox" id="enableLock_2">
+                  <span>Enable lock</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="enableContactAlert_2">
+                  <span>Contact alert</span>
+                </label>
+                <div class="lock-toggle-row">
+                  <label class="form-switch lock-toggle-pill">
+                    <input type="checkbox" id="arm_2">
+                    <span>Arm lock</span>
+                  </label>
+                  <label class="form-switch lock-toggle-pill" title="Checked = fail-secure (locked when power is lost). Unchecked = fail-safe (unlocked when power is lost).">
+                    <input type="checkbox" id="failSecure_2">
+                    <span>Fail-secure</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="device-control-section" aria-labelledby="exits-heading">
+            <div class="card-section-header">
+              <h3 id="exits-heading">Exits</h3>
+            </div>
+            <div class="device-exit-grid">
+              <div class="control-section">
+                <h4>Exit 1</h4>
+                <div class="access-status-row">
+                  <span class="access-status-label">Signal</span>
+                  <span id="exitSignal_1" class="status-dot" title="Exit signal state" aria-label="Exit signal state"></span>
+                </div>
+                <label class="form-switch">
+                  <input type="checkbox" id="enableExit_1">
+                  <span>Enable</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="alertExit_1">
+                  <span>Alert</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="latchExit_1">
+                  <span>Latch</span>
+                </label>
+                <div class="input-row">
+                  <label for="armDelay_1">Re-arm delay (seconds)</label>
+                  <div class="input-group">
+                    <input type="number" id="armDelay_1" min="0" step="1" value="5">
+                    <button id="relock" type="button" class="secondary">Save</button>
+                  </div>
+                </div>
+              </div>
+              <div class="control-section">
+                <h4>Exit 2</h4>
+                <div class="access-status-row">
+                  <span class="access-status-label">Signal</span>
+                  <span id="keypadSignal_1" class="status-dot" title="Exit signal state" aria-label="Exit signal state"></span>
+                </div>
+                <label class="form-switch">
+                  <input type="checkbox" id="enableKeypad_1">
+                  <span>Enable</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="alertKeypad_1">
+                  <span>Alert</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="latchKeypad_1">
+                  <span>Latch</span>
+                </label>
+                <div class="input-row">
+                  <label for="keypadDelay_1">Re-arm delay (seconds)</label>
+                  <div class="input-group">
+                    <input type="number" id="keypadDelay_1" min="0" step="1" value="5">
+                    <button id="keypadSave_1" type="button" class="secondary">Save</button>
+                  </div>
+                </div>
+              </div>
+              <div class="control-section">
+                <h4>Exit 3</h4>
+                <div class="access-status-row">
+                  <span class="access-status-label">Signal</span>
+                  <span id="fobSignal_1" class="status-dot" title="Exit signal state" aria-label="Exit signal state"></span>
+                </div>
+                <label class="form-switch">
+                  <input type="checkbox" id="enableFob_1">
+                  <span>Enable</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="alertFob_1">
+                  <span>Alert</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="latchFob_1">
+                  <span>Latch</span>
+                </label>
+                <div class="input-row">
+                  <label for="fobDelay_1">Re-arm delay (seconds)</label>
+                  <div class="input-group">
+                    <input type="number" id="fobDelay_1" min="0" step="1" value="4">
+                    <button id="fobSave_1" type="button" class="secondary">Save</button>
+                  </div>
+                </div>
+              </div>
+              <div class="control-section">
+                <h4>Exit 4</h4>
+                <div class="access-status-row">
+                  <span class="access-status-label">Signal</span>
+                  <span id="motionSignal_1" class="status-dot" title="Exit signal state" aria-label="Exit signal state"></span>
+                </div>
+                <label class="form-switch">
+                  <input type="checkbox" id="enableMotion_1">
+                  <span>Enable</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="alertMotion_1">
+                  <span>Alert</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="latchMotion_1">
+                  <span>Latch</span>
+                </label>
+                <div class="input-row">
+                  <label for="motionDelay_1">Re-arm delay (seconds)</label>
+                  <div class="input-group">
+                    <input type="number" id="motionDelay_1" min="0" step="1" value="4">
+                    <button id="motionSave_1" type="button" class="secondary">Save</button>
+                  </div>
+                </div>
+              </div>
+              <div class="control-section">
+                <h4>Exit 5</h4>
+                <div class="access-status-row">
+                  <span class="access-status-label">Signal</span>
+                  <span id="exitSignal_2" class="status-dot" title="Exit signal state" aria-label="Exit signal state"></span>
+                </div>
+                <label class="form-switch">
+                  <input type="checkbox" id="enableExit_2">
+                  <span>Enable</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="alertExit_2">
+                  <span>Alert</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="latchExit_2">
+                  <span>Latch</span>
+                </label>
+                <div class="input-row">
+                  <label for="armDelay_2">Re-arm delay (seconds)</label>
+                  <div class="input-group">
+                    <input type="number" id="armDelay_2" min="0" step="1" value="5">
+                    <button id="relock_2" type="button" class="secondary">Save</button>
+                  </div>
+                </div>
+              </div>
+              <div class="control-section">
+                <h4>Exit 6</h4>
+                <div class="access-status-row">
+                  <span class="access-status-label">Signal</span>
+                  <span id="keypadSignal_2" class="status-dot" title="Exit signal state" aria-label="Exit signal state"></span>
+                </div>
+                <label class="form-switch">
+                  <input type="checkbox" id="enableKeypad_2">
+                  <span>Enable</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="alertKeypad_2">
+                  <span>Alert</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="latchKeypad_2">
+                  <span>Latch</span>
+                </label>
+                <div class="input-row">
+                  <label for="keypadDelay_2">Re-arm delay (seconds)</label>
+                  <div class="input-group">
+                    <input type="number" id="keypadDelay_2" min="0" step="1" value="5">
+                    <button id="keypadSave_2" type="button" class="secondary">Save</button>
+                  </div>
+                </div>
+              </div>
+              <div class="control-section">
+                <h4>Exit 7</h4>
+                <div class="access-status-row">
+                  <span class="access-status-label">Signal</span>
+                  <span id="fobSignal_2" class="status-dot" title="Exit signal state" aria-label="Exit signal state"></span>
+                </div>
+                <label class="form-switch">
+                  <input type="checkbox" id="enableFob_2">
+                  <span>Enable</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="alertFob_2">
+                  <span>Alert</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="latchFob_2">
+                  <span>Latch</span>
+                </label>
+                <div class="input-row">
+                  <label for="fobDelay_2">Re-arm delay (seconds)</label>
+                  <div class="input-group">
+                    <input type="number" id="fobDelay_2" min="0" step="1" value="4">
+                    <button id="fobSave_2" type="button" class="secondary">Save</button>
+                  </div>
+                </div>
+              </div>
+              <div class="control-section">
+                <h4>Exit 8</h4>
+                <div class="access-status-row">
+                  <span class="access-status-label">Signal</span>
+                  <span id="motionSignal_2" class="status-dot" title="Exit signal state" aria-label="Exit signal state"></span>
+                </div>
+                <label class="form-switch">
+                  <input type="checkbox" id="enableMotion_2">
+                  <span>Enable</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="alertMotion_2">
+                  <span>Alert</span>
+                </label>
+                <label class="form-switch">
+                  <input type="checkbox" id="latchMotion_2">
+                  <span>Latch</span>
+                </label>
+                <div class="input-row">
+                  <label for="motionDelay_2">Re-arm delay (seconds)</label>
+                  <div class="input-group">
+                    <input type="number" id="motionDelay_2" min="0" step="1" value="4">
+                    <button id="motionSave_2" type="button" class="secondary">Save</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="device-control-section" aria-labelledby="wiegand-devices-heading">
+            <div class="card-section-header">
+              <h3 id="wiegand-devices-heading">Wiegand Devices</h3>
+            </div>
+            <div class="wiegand-device-grid">
+              <div class="wiegand-device-card">
+                <div class="wiegand-device-title">
+                  <h4>Wiegand 1</h4>
+                  <span id="wiegandDeviceSignal_1" class="status-dot" title="Wiegand 1 PIN activity" aria-label="Wiegand 1 PIN activity"></span>
+                </div>
+                <div class="wiegand-device-metrics">
+                  <div class="wifi-detail">
+                    <span>PIN buffer</span>
+                    <strong id="wiegandDeviceCode_1">—</strong>
+                  </div>
+                  <div class="wifi-detail">
+                    <span>Digits</span>
+                    <strong id="wiegandDeviceLength_1">0</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="wiegand-device-card">
+                <div class="wiegand-device-title">
+                  <h4>Wiegand 2</h4>
+                  <span id="wiegandDeviceSignal_2" class="status-dot" title="Wiegand 2 PIN activity" aria-label="Wiegand 2 PIN activity"></span>
+                </div>
+                <div class="wiegand-device-metrics">
+                  <div class="wifi-detail">
+                    <span>PIN buffer</span>
+                    <strong id="wiegandDeviceCode_2">—</strong>
+                  </div>
+                  <div class="wifi-detail">
+                    <span>Digits</span>
+                    <strong id="wiegandDeviceLength_2">0</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div class="card" id="credential-users-card">
+        <div class="card-header">
+          <div>
+            <h2>Users</h2>
+            <p class="subtitle">Credentials grouped by user.</p>
+          </div>
+        </div>
+        <div class="enrollment-layout">
+          <div class="enrollment-controls">
+            <div class="enrollment-fields">
+              <select id="enrollUserSelect" aria-label="Enrollment user"></select>
+              <input type="text" id="enrollNewUserName" placeholder="New user name (optional)" aria-label="New user name">
+            </div>
+            <div class="form-actions enrollment-actions">
+              <button type="button" id="enrollStartBtn">Add Credential</button>
+              <button type="button" class="secondary enrollment-stop-active" id="enrollStopBtn" hidden>Stop</button>
+            </div>
+          </div>
+        </div>
+        <div id="credentialUserList" class="credential-user-list"></div>
+      </div>
+
+      <div class="card" id="schedule-profiles-card">
+        <div class="card-header">
+          <div>
+            <h2>Schedule</h2>
+            <p class="subtitle">Time-based access profiles. Assign one to a user to restrict when their credentials work.</p>
+          </div>
+        </div>
+        <div class="schedule-profile-strip" id="scheduleProfileStrip"></div>
+        <div class="schedule-profile-editor" id="scheduleProfileEditor" hidden></div>
+      </div>
+    </section>
+
+    <section id="page-system" class="page" aria-labelledby="system-heading">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 id="system-heading">System Overview</h2>
+            <p class="subtitle">Hardware identity and diagnostics.</p>
+          </div>
+        </div>
+        <div class="info-list">
+          <div class="info-row info-row-wide">
+            <span class="label">UUID</span>
+            <span class="value" id="uuid">—</span>
+          </div>
+          <div class="info-row info-row-wide">
+            <span class="label">Server URL</span>
+            <span class="value" id="systemServerUrl">https://open-automation.org/devices</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Uptime since reboot</span>
+            <span class="value" id="systemUptime">—</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Build Branch</span>
+            <span class="value" id="firmwareBranch">—</span>
+          </div>
+          <div class="info-row info-row-wide">
+            <span class="label">Build Commit</span>
+            <span class="value" id="firmwareCommit">—</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Build Version</span>
+            <span class="value" id="firmwareVersion">—</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Running Slot</span>
+            <span class="value" id="firmwareSlot">—</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Next OTA Slot</span>
+            <span class="value" id="firmwareNextSlot">—</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Rollback</span>
+            <span class="value" id="firmwareRollback">—</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Wi-Fi STA IP</span>
+            <span class="value" id="wifiStaIp">—</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Wi-Fi AP IP</span>
+            <span class="value" id="wifiApIp">—</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Ethernet IP</span>
+            <span class="value" id="ethIp">—</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Wi-Fi STA MAC</span>
+            <span class="value" id="wifiStaMac">—</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Wi-Fi AP MAC</span>
+            <span class="value" id="wifiApMac">—</span>
+          </div>
+          <div class="info-row">
+            <span class="label">Ethernet MAC</span>
+            <span class="value" id="ethMac">—</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>OTA Update</h2>
+            <p class="subtitle">Upload a controller app binary and reboot into it.</p>
+          </div>
+        </div>
+        <form id="otaForm" class="form ota-form">
+          <div class="ota-dropzone" id="otaDropzone" role="button" tabindex="0" aria-label="Select firmware binary">
+            <input type="file" id="otaFile" class="sr-only" accept=".bin,application/octet-stream">
+            <div class="ota-drop-icon" aria-hidden="true">
+              <span></span>
+            </div>
+            <div class="ota-drop-copy">
+              <span class="ota-drop-title">Drop firmware binary</span>
+              <span class="ota-drop-subtitle">or choose a controller .bin file</span>
+            </div>
+            <button type="button" class="secondary ota-browse-btn" id="otaBrowseBtn">Choose File</button>
+          </div>
+          <div class="ota-file-meta">
+            <span id="otaFileName">No file selected</span>
+            <span id="otaFileSize">—</span>
+          </div>
+          <div class="ota-progress" aria-hidden="true">
+            <span id="otaProgressBar"></span>
+          </div>
+          <div class="ota-status" id="otaStatus">Idle</div>
+          <div class="form-actions">
+            <button type="submit" id="otaUploadBtn" disabled>Upload and Reboot</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Recent Activity</h2>
+            <p class="subtitle">Latest controller events (most recent first).</p>
+          </div>
+        </div>
+        <div id="systemLogs" class="log-list">
+          <p class="muted" id="logEmptyState">No activity recorded yet.</p>
+          <ul id="logItems" class="log-items" hidden></ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="page-settings" class="page" aria-labelledby="settings-heading">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 id="settings-heading">Wi-Fi Settings</h2>
+            <p class="subtitle">Update network credentials for station mode.</p>
+          </div>
+        </div>
+        <form id="wifiForm" class="form">
+          <div class="wifi-credentials-row">
+            <label class="form-field">
+              <span>Wi-Fi name (SSID)</span>
+              <input type="text" id="wifiName" placeholder="Network name">
+            </label>
+            <label class="form-field">
+              <span>Password</span>
+              <input type="password" id="wifiPassword" placeholder="Password">
+            </label>
+            <button type="submit" class="wifi-credentials-save">Save Wi-Fi</button>
+          </div>
+        </form>
+        <div class="wifi-scan-panel">
+          <div class="list-heading">
+            <div>
+              <span class="label">Available networks</span>
+              <span class="muted">Click a network to fill the SSID.</span>
+            </div>
+            <button type="button" class="secondary" id="wifiScanBtn">Scan</button>
+          </div>
+          <div id="wifiAvailableNetworks" class="wifi-network-grid">
+            <p class="empty-state muted">Open Settings or click Scan to refresh nearby networks.</p>
+          </div>
+        </div>
+        <div class="wifi-status-layout" id="wifiSaved">
+          <section class="wifi-active-card" aria-labelledby="wifi-active-heading">
+            <span class="label" id="wifi-active-heading">Active network</span>
+            <div id="wifiActive">—</div>
+          </section>
+          <section class="wifi-saved-panel" aria-labelledby="wifi-saved-heading">
+            <div class="list-heading">
+              <span class="label" id="wifi-saved-heading">Saved networks</span>
+            </div>
+            <div id="wifiNetworks" class="wifi-saved-list"></div>
+          </section>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Server Settings</h2>
+            <p class="subtitle">Define the upstream controller URL.</p>
+          </div>
+        </div>
+        <form id="serverForm" class="form form-narrow">
+          <label class="form-field">
+            <span>Server URL</span>
+            <input type="text" id="serverUrl" placeholder="https://open-automation.org/devices" value="https://open-automation.org/devices">
+          </label>
+          <label class="form-switch server-policy-toggle">
+            <input type="checkbox" id="serverRequireReachable" checked>
+            <span>Require server before station mode</span>
+          </label>
+          <div class="form-actions">
+            <button type="submit">Save Server</button>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="script.js?v=36"></script>
+</body>
+</html>
