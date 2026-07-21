@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#05070b">
+  <title>Vivonics Laser Controller</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <header class="app-bar">
+    <div class="app-brand">
+      <span class="app-title"><span class="brand-mark" aria-hidden="true"></span>Vivonics Laser Controller</span>
+      <span class="app-subtitle">Four-channel optical source and detector instrument</span>
+    </div>
+    <div class="header-status" aria-label="Device connectivity">
+      <span class="header-chip"><span id="liveDot" class="live-dot"></span><strong id="headerLive">Connecting</strong></span>
+      <span class="header-chip">AP <strong id="headerApIp">—</strong></span>
+      <span class="header-chip">STA <strong id="headerStaIp">—</strong></span>
+      <span class="header-chip">ADC <strong id="headerSampleRate">—</strong></span>
+    </div>
+  </header>
+
+  <nav class="nav-tabs" aria-label="Primary navigation">
+    <button class="nav-item active" data-target="dashboard" type="button">Dashboard</button>
+    <button class="nav-item" data-target="network" type="button">Network</button>
+    <button class="nav-item" data-target="system" type="button">System</button>
+  </nav>
+
+  <main class="page-container">
+    <section id="page-dashboard" class="page active" aria-labelledby="dashboardHeading">
+      <article class="card instrument-status-card">
+        <div class="card-header instrument-status-header">
+          <div>
+            <p class="eyebrow">Instrument status</p>
+            <h1 id="dashboardHeading">Optical bench live view</h1>
+            <p class="subtitle">AD7606 signal inputs and laser-driver telemetry update directly from the controller.</p>
+          </div>
+          <button id="allOffButton" class="danger off-button" type="button">
+            <span class="stop-icon" aria-hidden="true"></span>All outputs off
+          </button>
+        </div>
+        <div class="instrument-status-grid">
+          <div class="status-tile">
+            <span class="metric-label">Safety state</span>
+            <strong id="safetyState" class="state-value">Waiting</strong>
+            <span id="faultDetail" class="metric-note">No snapshot yet</span>
+          </div>
+          <div class="status-tile">
+            <span class="metric-label">Active output</span>
+            <strong id="activeOutput" class="state-value">OFF</strong>
+            <span id="activeDuty" class="metric-note">0.0% duty</span>
+          </div>
+          <div class="status-tile">
+            <span class="metric-label">ADC sample</span>
+            <strong id="sampleIndex" class="state-value tabular">—</strong>
+            <span id="sampleAge" class="metric-note">Waiting for data</span>
+          </div>
+          <div class="status-tile">
+            <span class="metric-label">Timing overruns</span>
+            <strong id="timingOverruns" class="state-value tabular">—</strong>
+            <span class="metric-note">Reported, not safety-latched</span>
+          </div>
+        </div>
+        <div id="faultBanner" class="fault-banner" hidden>
+          <strong>Outputs inhibited</strong>
+          <span id="faultBannerText">A controller safety fault is latched.</span>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-header">
+          <div>
+            <p class="eyebrow">Optical sources</p>
+            <h2>Laser diode control</h2>
+            <p class="subtitle">Set a duty level, then explicitly activate one source. Only IR + Green may run as a pair.</p>
+          </div>
+          <div class="control-legend"><span class="legend-dot"></span>10 kHz PWM · 100% uses steady high</div>
+        </div>
+
+        <div class="laser-grid">
+          <section class="laser-card laser-ir" data-laser-card="IR" aria-labelledby="laserIrTitle">
+            <div class="laser-card-head">
+              <div class="laser-identity">
+                <span class="wavelength-swatch"></span>
+                <div><h3 id="laserIrTitle">Infrared</h3><span>780 nm · GPIO 10</span></div>
+              </div>
+              <span class="status-chip laser-state" data-laser-state="IR">OFF</span>
+            </div>
+            <div class="laser-primary-metric">
+              <span>Approx. diode current</span>
+              <strong><span data-current-ma="IR">—</span><small> mA</small></strong>
+              <em>Uncalibrated estimate from 10 Ω sense resistor</em>
+            </div>
+            <div class="laser-sense-grid">
+              <div><span>Current sense</span><strong><span data-current-mv="IR">—</span> mV</strong><small>raw <span data-current-raw="IR">—</span></small></div>
+              <div><span>Source monitor</span><strong><span data-monitor-mv="IR">—</span> mV</strong><small>raw <span data-monitor-raw="IR">—</span></small></div>
+            </div>
+            <div class="duty-control">
+              <div><label for="dutyIr">Output duty</label><output id="dutyIrValue" for="dutyIr">100.0%</output></div>
+              <input id="dutyIr" class="duty-slider" data-target="IR" type="range" min="1" max="1000" value="1000" step="1">
+            </div>
+            <button class="laser-activate" data-target="IR" type="button">Activate IR</button>
+          </section>
+
+          <section class="laser-card laser-red" data-laser-card="RED" aria-labelledby="laserRedTitle">
+            <div class="laser-card-head">
+              <div class="laser-identity">
+                <span class="wavelength-swatch"></span>
+                <div><h3 id="laserRedTitle">Red</h3><span>650 nm · GPIO 11</span></div>
+              </div>
+              <span class="status-chip laser-state" data-laser-state="RED">OFF</span>
+            </div>
+            <div class="laser-primary-metric">
+              <span>Approx. diode current</span>
+              <strong><span data-current-ma="RED">—</span><small> mA</small></strong>
+              <em>Uncalibrated estimate from 10 Ω sense resistor</em>
+            </div>
+            <div class="laser-sense-grid">
+              <div><span>Current sense</span><strong><span data-current-mv="RED">—</span> mV</strong><small>raw <span data-current-raw="RED">—</span></small></div>
+              <div><span>Source monitor</span><strong><span data-monitor-mv="RED">—</span> mV</strong><small>raw <span data-monitor-raw="RED">—</span></small></div>
+            </div>
+            <div class="duty-control">
+              <div><label for="dutyRed">Output duty</label><output id="dutyRedValue" for="dutyRed">100.0%</output></div>
+              <input id="dutyRed" class="duty-slider" data-target="RED" type="range" min="1" max="1000" value="1000" step="1">
+            </div>
+            <button class="laser-activate" data-target="RED" type="button">Activate Red</button>
+          </section>
+
+          <section class="laser-card laser-green" data-laser-card="GREEN" aria-labelledby="laserGreenTitle">
+            <div class="laser-card-head">
+              <div class="laser-identity">
+                <span class="wavelength-swatch"></span>
+                <div><h3 id="laserGreenTitle">Green</h3><span>520 nm · GPIO 12</span></div>
+              </div>
+              <span class="status-chip laser-state" data-laser-state="GREEN">OFF</span>
+            </div>
+            <div class="laser-primary-metric">
+              <span>Approx. diode current</span>
+              <strong><span data-current-ma="GREEN">—</span><small> mA</small></strong>
+              <em>Uncalibrated estimate from 10 Ω sense resistor</em>
+            </div>
+            <div class="laser-sense-grid">
+              <div><span>Current sense</span><strong><span data-current-mv="GREEN">—</span> mV</strong><small>raw <span data-current-raw="GREEN">—</span></small></div>
+              <div><span>Source monitor</span><strong><span data-monitor-mv="GREEN">—</span> mV</strong><small>raw <span data-monitor-raw="GREEN">—</span></small></div>
+            </div>
+            <div class="duty-control">
+              <div><label for="dutyGreen">Output duty</label><output id="dutyGreenValue" for="dutyGreen">100.0%</output></div>
+              <input id="dutyGreen" class="duty-slider" data-target="GREEN" type="range" min="1" max="1000" value="1000" step="1">
+            </div>
+            <button class="laser-activate" data-target="GREEN" type="button">Activate Green</button>
+          </section>
+
+          <section class="laser-card laser-blue" data-laser-card="BLUE" aria-labelledby="laserBlueTitle">
+            <div class="laser-card-head">
+              <div class="laser-identity">
+                <span class="wavelength-swatch"></span>
+                <div><h3 id="laserBlueTitle">Blue</h3><span>450 nm · GPIO 16</span></div>
+              </div>
+              <span class="status-chip laser-state" data-laser-state="BLUE">OFF</span>
+            </div>
+            <div class="laser-primary-metric">
+              <span>Approx. diode current</span>
+              <strong><span data-current-ma="BLUE">—</span><small> mA</small></strong>
+              <em>Uncalibrated estimate from 10 Ω sense resistor</em>
+            </div>
+            <div class="laser-sense-grid">
+              <div><span>Current sense</span><strong><span data-current-mv="BLUE">—</span> mV</strong><small>raw <span data-current-raw="BLUE">—</span></small></div>
+              <div><span>Source monitor</span><strong><span data-monitor-mv="BLUE">—</span> mV</strong><small>raw <span data-monitor-raw="BLUE">—</span></small></div>
+            </div>
+            <div class="duty-control">
+              <div><label for="dutyBlue">Output duty</label><output id="dutyBlueValue" for="dutyBlue">100.0%</output></div>
+              <input id="dutyBlue" class="duty-slider" data-target="BLUE" type="range" min="1" max="1000" value="1000" step="1">
+            </div>
+            <button class="laser-activate" data-target="BLUE" type="button">Activate Blue</button>
+          </section>
+        </div>
+
+        <div class="paired-control">
+          <div>
+            <strong>IR + Green paired source</strong>
+            <span>Runs the two installed experiment sources at one shared duty.</span>
+          </div>
+          <label for="pairedDuty" class="sr-only">IR plus Green duty</label>
+          <input id="pairedDuty" class="duty-slider compact" type="range" min="1" max="1000" value="1000" step="1">
+          <output id="pairedDutyValue" for="pairedDuty">100.0%</output>
+          <button id="pairedActivate" type="button">Activate IR + Green</button>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-header">
+          <div>
+            <p class="eyebrow">AD7606 · ±5 V range</p>
+            <h2>Signal photodiodes</h2>
+            <p class="subtitle">Four simultaneous 16-bit samples. Rolling statistics cover the latest 120 dashboard readings.</p>
+          </div>
+          <div class="sample-key"><span></span>Live at <strong id="pdSampleRate">—</strong></div>
+        </div>
+        <div class="pd-grid">
+          <section class="pd-card" data-pd-card="1">
+            <div class="pd-head"><div><span>PD channel</span><strong>01</strong></div><span class="channel-badge">V1</span></div>
+            <div class="pd-reading"><strong data-pd-volts="1">—</strong><span>V</span></div>
+            <div class="pd-counts"><span>ADC counts</span><strong data-pd-counts="1">—</strong></div>
+            <svg class="sparkline" data-sparkline="1" viewBox="0 0 300 74" preserveAspectRatio="none" role="img" aria-label="Photodiode 1 recent signal"><path class="spark-area"></path><polyline class="spark-line"></polyline></svg>
+            <div class="pd-stats"><div><span>Min</span><strong data-pd-min="1">—</strong></div><div><span>Mean</span><strong data-pd-mean="1">—</strong></div><div><span>Max</span><strong data-pd-max="1">—</strong></div></div>
+          </section>
+          <section class="pd-card" data-pd-card="2">
+            <div class="pd-head"><div><span>PD channel</span><strong>02</strong></div><span class="channel-badge">V2</span></div>
+            <div class="pd-reading"><strong data-pd-volts="2">—</strong><span>V</span></div>
+            <div class="pd-counts"><span>ADC counts</span><strong data-pd-counts="2">—</strong></div>
+            <svg class="sparkline" data-sparkline="2" viewBox="0 0 300 74" preserveAspectRatio="none" role="img" aria-label="Photodiode 2 recent signal"><path class="spark-area"></path><polyline class="spark-line"></polyline></svg>
+            <div class="pd-stats"><div><span>Min</span><strong data-pd-min="2">—</strong></div><div><span>Mean</span><strong data-pd-mean="2">—</strong></div><div><span>Max</span><strong data-pd-max="2">—</strong></div></div>
+          </section>
+          <section class="pd-card pd-populated" data-pd-card="3">
+            <div class="pd-head"><div><span>PD channel</span><strong>03</strong></div><span class="channel-badge installed">Installed · V3</span></div>
+            <div class="pd-reading"><strong data-pd-volts="3">—</strong><span>V</span></div>
+            <div class="pd-counts"><span>ADC counts</span><strong data-pd-counts="3">—</strong></div>
+            <svg class="sparkline" data-sparkline="3" viewBox="0 0 300 74" preserveAspectRatio="none" role="img" aria-label="Photodiode 3 recent signal"><path class="spark-area"></path><polyline class="spark-line"></polyline></svg>
+            <div class="pd-stats"><div><span>Min</span><strong data-pd-min="3">—</strong></div><div><span>Mean</span><strong data-pd-mean="3">—</strong></div><div><span>Max</span><strong data-pd-max="3">—</strong></div></div>
+          </section>
+          <section class="pd-card" data-pd-card="4">
+            <div class="pd-head"><div><span>PD channel</span><strong>04</strong></div><span class="channel-badge">V4</span></div>
+            <div class="pd-reading"><strong data-pd-volts="4">—</strong><span>V</span></div>
+            <div class="pd-counts"><span>ADC counts</span><strong data-pd-counts="4">—</strong></div>
+            <svg class="sparkline" data-sparkline="4" viewBox="0 0 300 74" preserveAspectRatio="none" role="img" aria-label="Photodiode 4 recent signal"><path class="spark-area"></path><polyline class="spark-line"></polyline></svg>
+            <div class="pd-stats"><div><span>Min</span><strong data-pd-min="4">—</strong></div><div><span>Mean</span><strong data-pd-mean="4">—</strong></div><div><span>Max</span><strong data-pd-max="4">—</strong></div></div>
+          </section>
+        </div>
+      </article>
+
+      <article class="card telemetry-card">
+        <div class="card-header">
+          <div><p class="eyebrow">ESP32-S3 internal ADC</p><h2>Driver telemetry matrix</h2><p class="subtitle">Calibrated millivolts plus raw converter readings for every source channel.</p></div>
+        </div>
+        <div class="table-wrap">
+          <table class="telemetry-table">
+            <thead><tr><th>Source</th><th>Output</th><th>Current raw</th><th>Current sense</th><th>Approx. current</th><th>Monitor raw</th><th>Source monitor</th></tr></thead>
+            <tbody id="telemetryTableBody">
+              <tr><td colspan="7" class="empty-cell">Waiting for controller telemetry…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </article>
+    </section>
+
+    <section id="page-network" class="page" aria-labelledby="networkHeading">
+      <article class="card">
+        <div class="card-header"><div><p class="eyebrow">Connectivity</p><h2 id="networkHeading">Network</h2><p class="subtitle">The provisioning access point remains available while the controller joins your bench network.</p></div><button id="wifiScanButton" class="secondary" type="button">Scan networks</button></div>
+        <div class="network-overview-grid">
+          <div class="network-summary"><span class="network-icon">STA</span><div><span>Station connection</span><strong id="stationSummary">Not connected</strong><small id="stationDetail">No station address</small></div></div>
+          <div class="network-summary"><span class="network-icon">AP</span><div><span>Provisioning access point</span><strong id="apSsid">—</strong><small>Open <span id="apIp">192.168.4.1</span> · password: vivonics</small></div></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card-header"><div><h2>Join a Wi-Fi network</h2><p class="subtitle">Credentials are stored in device NVS. Passwords are never returned by the API.</p></div></div>
+        <form id="wifiForm" class="wifi-credentials-row">
+          <label class="form-field"><span>Network name (SSID)</span><input id="wifiSsid" name="ssid" type="text" maxlength="32" autocomplete="username" required></label>
+          <label class="form-field"><span>Password</span><input id="wifiPassword" name="password" type="password" maxlength="64" autocomplete="current-password" required></label>
+          <button class="wifi-credentials-save" type="submit">Save &amp; connect</button>
+        </form>
+      </article>
+
+      <article class="card">
+        <div class="card-header"><div><h2>Available networks</h2><p id="scanSubtitle" class="subtitle">Run a scan to discover nearby access points.</p></div></div>
+        <div id="wifiNetworkGrid" class="wifi-network-grid"><div class="empty-panel">No scan results yet.</div></div>
+      </article>
+    </section>
+
+    <section id="page-system" class="page" aria-labelledby="systemHeading">
+      <article class="card">
+        <div class="card-header"><div><p class="eyebrow">Controller</p><h2 id="systemHeading">System overview</h2><p class="subtitle">Build identity, runtime health, memory, and rollback state reported by the ESP32-S3.</p></div></div>
+        <div class="system-grid">
+          <div class="system-panel"><span>Device</span><strong id="systemDeviceName">Vivonics Laser Controller</strong><small id="systemDeviceId">—</small></div>
+          <div class="system-panel"><span>Firmware</span><strong id="firmwareVersion">—</strong><small id="firmwareBuild">—</small></div>
+          <div class="system-panel"><span>Running partition</span><strong id="runningPartition">—</strong><small id="otaState">OTA state —</small></div>
+          <div class="system-panel"><span>Next OTA partition</span><strong id="nextPartition">—</strong><small id="otaCapacity">—</small></div>
+          <div class="system-panel"><span>Uptime</span><strong id="uptime">—</strong><small id="resetReason">Reset —</small></div>
+          <div class="system-panel"><span>Free heap</span><strong id="freeHeap">—</strong><small id="minFreeHeap">Minimum —</small></div>
+        </div>
+      </article>
+
+      <article class="card ota-card">
+        <div class="card-header"><div><p class="eyebrow">Dual-partition update</p><h2>Browser OTA</h2><p class="subtitle">Uploading firmware immediately inhibits every laser output. The new image must pass ADC and dashboard startup validation or the bootloader rolls back.</p></div><span class="status-chip active">Rollback enabled</span></div>
+        <form id="otaForm" class="ota-form">
+          <label class="ota-dropzone" for="otaFile"><span class="upload-icon">↑</span><strong id="otaFileLabel">Choose ESP32 firmware binary</strong><small>Use the dashboard profile <code>laser-controller.bin</code></small><input id="otaFile" class="sr-only" type="file" accept=".bin,application/octet-stream" required></label>
+          <button id="otaUploadButton" type="submit" disabled>Install firmware</button>
+        </form>
+        <div id="otaProgressPanel" class="ota-progress-panel" hidden><div><span id="otaProgressLabel">Uploading…</span><strong id="otaProgressValue">0%</strong></div><div class="ota-progress-track"><span id="otaProgressBar"></span></div></div>
+      </article>
+
+      <article class="card">
+        <div class="card-header"><div><h2>Device event log</h2><p class="subtitle">Most recent boot, network, laser-control, and OTA events kept in RAM.</p></div><button id="refreshLogsButton" class="secondary" type="button">Refresh</button></div>
+        <ol id="eventLog" class="event-log"><li class="empty-panel">No events loaded.</li></ol>
+      </article>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

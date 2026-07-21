@@ -23,6 +23,7 @@ typedef enum {
     LASER_FAULT_TELEMETRY_ADC = 1U << 6,
     LASER_FAULT_OVERCURRENT = 1U << 7,
     LASER_FAULT_PWM_OUTPUT = 1U << 8,
+    LASER_FAULT_WEB_INIT = 1U << 9,
 } laser_fault_t;
 
 typedef struct {

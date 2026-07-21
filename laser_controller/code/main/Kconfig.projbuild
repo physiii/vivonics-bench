@@ -31,6 +31,14 @@ config LC_AD7606_LOG_EVERY_N
         Leave disabled at 1 kSPS. Lower the sample rate before enabling logs for
         known-input bring-up work.
 
+config LC_STRICT_SAMPLE_DEADLINE
+    bool "Latch a safety fault when a sample deadline is missed"
+    default y
+    help
+        Keep enabled for measurement-only and validation profiles. The
+        network dashboard profile reports overruns as diagnostics instead of
+        latching because Wi-Fi and HTTP tasks are intentionally nondeterministic.
+
 config LC_ENABLE_LASER_PULSE_TEST
     bool "Enable local laser output test commands"
     default n
@@ -41,5 +49,14 @@ config LC_ENABLE_LASER_PULSE_TEST
         PULSE commands are bounded to 900 ms. ON commands remain active until
         OFF, reset, overcurrent, or an ADC/telemetry fault while continuous
         monitoring remains active.
+
+config LC_ENABLE_WEB_DASHBOARD
+    bool "Enable the Wi-Fi dashboard and browser OTA surface"
+    depends on LC_ENABLE_LASER_PULSE_TEST
+    default n
+    help
+        Adds the access-controller-derived embedded dashboard, Wi-Fi AP/STA
+        provisioning, live ADC APIs, remote first-article laser commands, and
+        dual-partition browser OTA. Keep disabled in measurement-only builds.
 
 endmenu

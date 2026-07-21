@@ -1,8 +1,8 @@
 # Laser-Controller Firmware Build Verification
 
-**Originally verified 2026-07-12; repeated for all three profiles on
-2026-07-20 and twice from the relocated bench package on 2026-07-21. This is
-software/build evidence, not assembled-board evidence.**
+**Originally verified 2026-07-12; repeated for the original three profiles on
+2026-07-20 and from the relocated bench package on 2026-07-21. The dashboard
+profile was built and verified on the assembled board on 2026-07-21.**
 
 ## Outcome
 
@@ -10,13 +10,16 @@ software/build evidence, not assembled-board evidence.**
   plus AddressSanitizer and UndefinedBehaviorSanitizer.
 - ESP32-S3 clean container builds: **PASS** twice consecutively for the normal,
   board-validation, and finite-pulse laser-test profiles.
+- Post-dashboard regression builds: **PASS** for normal, board-validation,
+  laser-test, and dashboard profiles using the same pinned container.
 - Reproducibility: bootloader, partition table, application binary, and
   application ELF were byte-identical across the two clean builds.
-- Normal-profile application size: `0x2ce90` bytes (`183,952` bytes); `82%` of
-  the 1 MiB app partition remains free.
+- Current application sizes: normal `0x324f0`, validation `0x32590`, laser-test
+  `0x41070`, and dashboard `0xe6060` bytes. The dashboard image leaves 55% of
+  each 2 MiB OTA slot free.
 - Build-log scan: no compiler `warning:`, `error:`, or dubious-ownership message.
-- Component closure excludes Wi-Fi, Bluetooth, networking, OTA, and web-server
-  components.
+- The dashboard profile intentionally includes Wi-Fi, NVS, HTTP server, JSON,
+  and application-update components. Bluetooth remains disabled.
 
 ## Pinned toolchain
 
@@ -109,10 +112,50 @@ Build it with:
 laser_controller/code/build-laser-test-container.sh
 ```
 
+## Dashboard, live-device, and OTA verification
+
+The `0.2.1-dashboard` profile is selected by
+`sdkconfig.dashboard.defaults` and built with:
+
+```bash
+laser_controller/code/build-dashboard-container.sh
+```
+
+The verified application artifact is:
+
+```text
+091b742601eabf471ff972ca9e916edf376a51f18bb198b355b57e589f31adb2  vivonics_laser_controller.bin
+```
+
+Assembled-board verification on ESP32-S3 `ac:27:6e:ca:0c:e4`:
+
+- full initial flash over built-in USB-JTAG with no `FACT` hold;
+- boot from `ota_0`, ADC ready, fault mask zero, outputs OFF;
+- WPA2 provisioning AP `VIVONICS-LASER-CA0CE4` and station join to the bench
+  LAN;
+- live `50 Hz` AD7606 telemetry and responsive desktop/mobile UI with no
+  browser console or layout failures;
+- bounded Green `1000` permille UI command followed by verified All-Off;
+- IR `1000` permille current telemetry of `362 mV`, approximately `36.2 mA`,
+  followed by verified All-Off;
+- raw HTTP OTA upload of the hash above to `ota_1`, reboot into
+  `0.2.1-dashboard`, and final OTA state `valid` after the rollback gate.
+
+The live smoke exposed and then verified the fix for a request-lifetime defect
+that corrupted the logged target name after a laser command. The reusable
+checks are `tests/dashboard-ui-smoke.js` and
+`tests/dashboard-live-smoke.js`.
+
+Green current sense and all source-monitor readings remained zero during the
+live output sample. That is recorded as an unresolved board sensing/calibration
+issue rather than treated as successful current/monitor validation.
+
 ## Claim boundary
 
 These results prove source compilation, host decoder/safety behavior, pinned
-configuration, artifact generation, and byte reproducibility. They do **not**
-prove GPIO electrical state, reset-window behavior, SPI phase/byte order, BUSY
-timing, ADC accuracy, sustained acquisition, brownout behavior, or laser
-fail-shutoff on the fabricated board. Those remain return-board evidence gates.
+configuration, artifact generation, initial USB-JTAG deployment, live web/ADC
+operation, a brief IR/Green control path, and one complete OTA slot transition.
+They do **not** prove absolute ADC accuracy or channel order, calibrated optical
+power, Green current/monitor sensing, sustained wireless/regulator thermal
+behavior, brownout behavior, or physical laser fail-shutoff. Those remain
+first-article evidence gates.

@@ -24,6 +24,7 @@ laser_controller/code/run-host-tests.sh
 laser_controller/code/build-container.sh
 laser_controller/code/build-validation-container.sh
 laser_controller/code/build-laser-test-container.sh
+laser_controller/code/build-dashboard-container.sh
 python3 laser_controller/circuits/run_laser_controller_review.py
 ```
 

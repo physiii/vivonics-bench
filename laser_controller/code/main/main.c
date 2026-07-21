@@ -26,6 +26,9 @@
 #include "ad7606_decode.h"
 #include "laser_safety.h"
 #include "laser_test_protocol.h"
+#if CONFIG_LC_ENABLE_WEB_DASHBOARD
+#include "laser_web.h"
+#endif
 
 enum {
     GPIO_PWM_IR = 10,
@@ -62,7 +65,7 @@ static void IRAM_ATTR adc_busy_rise_isr(void *argument)
 #if CONFIG_LC_ENABLE_LASER_PULSE_TEST
 enum {
     TELEMETRY_CHANNEL_COUNT = 8,
-    UART_LINE_CAPACITY = 96,
+    UART_LINE_CAPACITY = 128,
     LASER_PWM_FREQUENCY_HZ = 10000,
     LASER_PWM_MAX_DUTY = 1023,
 };
@@ -485,23 +488,16 @@ static void log_test_status(void)
     );
 }
 
-static void handle_test_command(const char *line)
+static void apply_test_command(const laser_test_command_t *command)
 {
-    laser_test_command_t command = {0};
-    if (!laser_test_parse_command(line, &command)) {
-        ESP_LOGE(
-            TAG,
-            "COMMAND_REJECTED syntax; use STATUS, OFF, "
-            "ON <IR|RED|GREEN|BLUE|IR_GREEN> <1..1000>, or "
-            "PULSE <IR|RED|GREEN|BLUE|IR_GREEN> <1..1000> <20..900>"
-        );
+    if (command == NULL) {
         return;
     }
-    if (command.type == LASER_TEST_COMMAND_STATUS) {
+    if (command->type == LASER_TEST_COMMAND_STATUS) {
         log_test_status();
         return;
     }
-    if (command.type == LASER_TEST_COMMAND_OFF) {
+    if (command->type == LASER_TEST_COMMAND_OFF) {
         stop_output("command");
         return;
     }
@@ -525,14 +521,14 @@ static void handle_test_command(const char *line)
         return;
     }
 
-    pulse.channel_mask = command.channel_mask;
-    pulse.duty_permille = command.duty_permille;
-    pulse.latched = command.type == LASER_TEST_COMMAND_ON;
+    pulse.channel_mask = command->channel_mask;
+    pulse.duty_permille = command->duty_permille;
+    pulse.latched = command->type == LASER_TEST_COMMAND_ON;
     pulse.deadline_us = pulse.latched ? 0 :
-        esp_timer_get_time() + (int64_t)command.duration_ms * 1000;
+        esp_timer_get_time() + (int64_t)command->duration_ms * 1000;
     const esp_err_t pwm_error = set_laser_targets(
-        command.channel_mask,
-        command.duty_permille
+        command->channel_mask,
+        command->duty_permille
     );
     if (pwm_error != ESP_OK) {
         force_all_lasers_off();
@@ -552,19 +548,56 @@ static void handle_test_command(const char *line)
         ESP_LOGW(
             TAG,
             "OUTPUT_ON mode=latched target=%s duty_permille=%u",
-            laser_test_target_name(command.channel_mask),
-            command.duty_permille
+            laser_test_target_name(command->channel_mask),
+            command->duty_permille
         );
     } else {
         ESP_LOGW(
             TAG,
             "OUTPUT_ON mode=pulse target=%s duty_permille=%u duration_ms=%u",
-            laser_test_target_name(command.channel_mask),
-            command.duty_permille,
-            command.duration_ms
+            laser_test_target_name(command->channel_mask),
+            command->duty_permille,
+            command->duration_ms
         );
     }
 }
+
+static void handle_test_command(const char *line)
+{
+    laser_test_command_t command = {0};
+    if (!laser_test_parse_command(line, &command)) {
+        ESP_LOGE(
+            TAG,
+            "COMMAND_REJECTED syntax; use STATUS, OFF, "
+            "ON <IR|RED|GREEN|BLUE|IR_GREEN> <1..1000>, or "
+            "PULSE <IR|RED|GREEN|BLUE|IR_GREEN> <1..1000> <20..900>"
+        );
+        return;
+    }
+    apply_test_command(&command);
+}
+
+#if CONFIG_LC_ENABLE_WEB_DASHBOARD
+static bool handle_wifi_provision_command(const char *line)
+{
+    if (line == NULL || strncmp(line, "WIFI ", 5U) != 0) {
+        return false;
+    }
+    char ssid[33] = {0};
+    char password[65] = {0};
+    if (sscanf(line, "WIFI %32s %64[^\r\n]", ssid, password) != 2) {
+        ESP_LOGE(TAG, "WIFI_REJECTED use WIFI <ssid> <password>");
+        return true;
+    }
+    const esp_err_t error = laser_web_save_wifi_credentials(ssid, password);
+    if (error == ESP_OK) {
+        ESP_LOGI(TAG, "WIFI_ACCEPTED ssid=%s password=********", ssid);
+    } else {
+        ESP_LOGE(TAG, "WIFI_REJECTED error=%s", esp_err_to_name(error));
+    }
+    return true;
+}
+#endif
 
 static bool service_test_commands(void)
 {
@@ -579,7 +612,13 @@ static bool service_test_commands(void)
         if (character == '\n') {
             uart_line[uart_line_length] = '\0';
             if (uart_line_length > 0) {
+#if CONFIG_LC_ENABLE_WEB_DASHBOARD
+                if (!handle_wifi_provision_command(uart_line)) {
+                    handle_test_command(uart_line);
+                }
+#else
                 handle_test_command(uart_line);
+#endif
                 command_processed = true;
             }
             uart_line_length = 0;
@@ -766,6 +805,10 @@ static void latch_fault(laser_fault_t fault)
     force_all_lasers_off();
     laser_safety_latch_fault(&safety, fault);
     ESP_LOGE(TAG, "FAULT_LATCHED fault_mask=0x%08" PRIx32, safety.fault_mask);
+#if CONFIG_LC_ENABLE_WEB_DASHBOARD
+    laser_web_publish_fault(safety.fault_mask);
+    laser_web_rollback_if_pending("laser-controller safety fault during OTA validation");
+#endif
 }
 
 static void log_boot_metadata(void)
@@ -804,7 +847,41 @@ static void log_boot_metadata(void)
 #else
     ESP_LOGW(TAG, "laser outputs are inhibited; this bring-up firmware has no arm path");
 #endif
+#if CONFIG_LC_ENABLE_WEB_DASHBOARD
+    ESP_LOGW(
+        TAG,
+        "dashboard profile enabled: AP/STA web control, live telemetry, and OTA"
+    );
+#endif
 }
+
+#if CONFIG_LC_ENABLE_WEB_DASHBOARD
+static void publish_web_snapshot(
+    const ad7606_sample_t *sample,
+    const laser_telemetry_t *telemetry
+)
+{
+    laser_web_snapshot_t snapshot = {
+        .sample_index = conversion_count,
+        .timing_overruns = timing_overrun_count,
+        .sampled_at_us = esp_timer_get_time(),
+        .safety_state = safety.state,
+        .fault_mask = safety.fault_mask,
+        .active_mask = pulse.active ? pulse.channel_mask : 0U,
+        .duty_permille = pulse.active ? pulse.duty_permille : 0U,
+        .output_active = pulse.active,
+        .output_latched = pulse.latched,
+    };
+    for (size_t channel = 0; channel < AD7606_CHANNEL_COUNT; ++channel) {
+        snapshot.photodiode_counts[channel] = sample->counts[channel];
+    }
+    for (size_t channel = 0; channel < TELEMETRY_CHANNEL_COUNT; ++channel) {
+        snapshot.telemetry_raw[channel] = telemetry->raw[channel];
+        snapshot.telemetry_mv[channel] = telemetry->millivolts[channel];
+    }
+    laser_web_publish_snapshot(&snapshot);
+}
+#endif
 
 static void remain_fault_latched(void)
 {
@@ -882,6 +959,16 @@ void app_main(void)
     ESP_LOGI(TAG, "laser-test ready; use a bounded local PULSE command");
 #endif
 
+#if CONFIG_LC_ENABLE_WEB_DASHBOARD
+    error = laser_web_start();
+    if (error != ESP_OK) {
+        ESP_LOGE(TAG, "dashboard initialization failed: %s", esp_err_to_name(error));
+        latch_fault(LASER_FAULT_WEB_INIT);
+        remain_fault_latched();
+    }
+    publish_web_snapshot(&sample, &telemetry);
+#endif
+
     const TickType_t sample_period = pdMS_TO_TICKS(
         1000U / CONFIG_LC_AD7606_SAMPLE_RATE_HZ
     );
@@ -893,9 +980,19 @@ void app_main(void)
 #endif
         if (xTaskDelayUntil(&last_wake, sample_period) != pdTRUE) {
             ++timing_overrun_count;
+#if CONFIG_LC_STRICT_SAMPLE_DEADLINE
             latch_fault(LASER_FAULT_ADC_TIMING_OVERRUN);
             remain_fault_latched();
+#else
+            last_wake = xTaskGetTickCount();
+#endif
         }
+
+#if CONFIG_LC_ENABLE_WEB_DASHBOARD
+        if (laser_web_ota_in_progress() && pulse.active) {
+            stop_output("ota");
+        }
+#endif
 
         const int64_t started_us = esp_timer_get_time();
         fault = acquire_sample(&sample);
@@ -915,9 +1012,19 @@ void app_main(void)
             remain_fault_latched();
         }
         command_processed = service_test_commands();
+#if CONFIG_LC_ENABLE_WEB_DASHBOARD
+        laser_test_command_t web_command = {0};
+        while (laser_web_receive_command(&web_command)) {
+            apply_test_command(&web_command);
+            command_processed = true;
+        }
+#endif
 #endif
 
         ++conversion_count;
+#if CONFIG_LC_ENABLE_WEB_DASHBOARD
+        publish_web_snapshot(&sample, &telemetry);
+#endif
 #if CONFIG_LC_AD7606_LOG_EVERY_N > 0
         if ((conversion_count % CONFIG_LC_AD7606_LOG_EVERY_N) == 0U) {
             ESP_LOGI(
@@ -982,8 +1089,10 @@ void app_main(void)
         const int64_t period_us = 1000000LL / CONFIG_LC_AD7606_SAMPLE_RATE_HZ;
         if (elapsed_us >= period_us) {
             ++timing_overrun_count;
+#if CONFIG_LC_STRICT_SAMPLE_DEADLINE
             latch_fault(LASER_FAULT_ADC_TIMING_OVERRUN);
             remain_fault_latched();
+#endif
         }
     }
 }

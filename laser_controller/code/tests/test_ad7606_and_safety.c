@@ -112,6 +112,7 @@ static void test_every_fault_is_latched(void)
         LASER_FAULT_TELEMETRY_ADC,
         LASER_FAULT_OVERCURRENT,
         LASER_FAULT_PWM_OUTPUT,
+        LASER_FAULT_WEB_INIT,
     };
     for (size_t index = 0; index < sizeof(faults) / sizeof(faults[0]); ++index) {
         laser_safety_t safety;
