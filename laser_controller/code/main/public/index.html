@@ -235,6 +235,7 @@
       <article class="card telemetry-card">
         <div class="card-header">
           <div><p class="eyebrow">ESP32-S3 internal ADC</p><h2>Driver telemetry matrix</h2><p class="subtitle">Calibrated millivolts plus raw converter readings for every source channel.</p></div>
+          <button id="sensingTestButton" class="secondary" type="button">Test sensing inputs</button>
         </div>
         <div class="table-wrap">
           <table class="telemetry-table">
@@ -243,6 +244,18 @@
               <tr><td colspan="7" class="empty-cell">Waiting for controller telemetry…</td></tr>
             </tbody>
           </table>
+        </div>
+        <div class="sensing-test-panel" aria-live="polite">
+          <div>
+            <strong id="sensingTestStatus">Safe electrical self-test ready</strong>
+            <span id="sensingTestDetail">Available only while fault-free with every laser off. Weak internal pulls test all eight ESP32 sensing inputs without energizing a source.</span>
+          </div>
+          <div id="sensingTestResults" class="table-wrap" hidden>
+            <table class="telemetry-table sensing-test-table">
+              <thead><tr><th>Signal</th><th>GPIO</th><th>Floating</th><th>Weak pull-up</th><th>Weak pull-down</th><th>Result</th></tr></thead>
+              <tbody id="sensingTestTableBody"></tbody>
+            </table>
+          </div>
         </div>
       </article>
     </section>

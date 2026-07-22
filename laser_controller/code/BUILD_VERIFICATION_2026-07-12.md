@@ -15,7 +15,7 @@ profile was built and verified on the assembled board on 2026-07-21.**
 - Reproducibility: bootloader, partition table, application binary, and
   application ELF were byte-identical across the two clean builds.
 - Current application sizes: normal `0x324f0`, validation `0x32590`, laser-test
-  `0x41650`, and dashboard `0xe81e0` bytes. The dashboard image leaves 55% of
+  `0x41650`, and dashboard `0xe9a40` bytes. The dashboard image leaves 54% of
   each 2 MiB OTA slot free.
 - Build-log scan: no compiler `warning:`, `error:`, or dubious-ownership message.
 - The dashboard profile intentionally includes Wi-Fi, NVS, HTTP server, JSON,
@@ -121,7 +121,7 @@ laser_controller/code/build-laser-test-container.sh
 
 ## Dashboard, live-device, and OTA verification
 
-The `0.3.1-dashboard` profile is selected by
+The `0.3.2-dashboard` profile is selected by
 `sdkconfig.dashboard.defaults` and built with:
 
 ```bash
@@ -131,7 +131,7 @@ laser_controller/code/build-dashboard-container.sh
 The verified application artifact deployed on 2026-07-21 is:
 
 ```text
-ce7eb01f82eba53ccbd10598fbae077c93d33b08a74f4452d418cba0e4421909  vivonics_laser_controller.bin
+0e0edd67d4961220d849c8dee8125f5994994548b7d4fa74d63004ccc15c7979  vivonics_laser_controller.bin
 ```
 
 Assembled-board verification on ESP32-S3 `ac:27:6e:ca:0c:e4`:
@@ -150,12 +150,15 @@ Assembled-board verification on ESP32-S3 `ac:27:6e:ca:0c:e4`:
   `246 mV`/approximately `24.6 mA` at 70% command;
 - live four-channel AD7606 readings near `0.96`, `1.10`, `1.13`, and `1.12 V`;
 - raw HTTP OTA upload of the hash above to `ota_1`, reboot into
-  `0.3.1-dashboard`, and final OTA state `valid` after the rollback gate;
-- three outputs-off sensing-pin self-tests through
+  `0.3.2-dashboard`, and final OTA state `valid` after the rollback gate;
+- five outputs-off sensing-pin self-tests through
   `POST /api/diagnostics/sensing-pins`; every ISENSE1–4 and MPD1–4 ADC input
-  moved repeatably from raw zero to raw `51..54` (`45..48 mV`) under its weak
+  moved repeatably from raw zero to raw `51..55` (`45..50 mV`) under its weak
   internal pull-up and returned to zero under pull-down, with fault mask zero
   and all outputs remaining off.
+- live desktop/mobile browser smoke on `0.3.2-dashboard`, including the new
+  Dashboard sensing-test control, eight rendered input rows, no browser errors
+  or viewport overflow, final All-Off, and fault mask zero.
 
 The live smoke exposed and then verified the fix for a request-lifetime defect
 that corrupted the logged target name after a laser command. The reusable

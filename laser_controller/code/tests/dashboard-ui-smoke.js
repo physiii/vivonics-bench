@@ -12,6 +12,11 @@ fs.mkdirSync(outputDir, { recursive: true });
 let sampleIndex = 41000;
 let output = { active: false, latched: false, channelMask: 0, target: 'OFF', dutyPermille: 0, sharedDuty: false, channels: [] };
 const commandLog = [];
+let eventLog = [
+  { timestamp: 92500, message: 'Embedded laser dashboard started' },
+  { timestamp: 91400, message: 'Wi-Fi connected at 192.168.1.142' },
+  { timestamp: 100, message: 'Boot complete; laser outputs default off' },
+];
 
 const targetMasks = { IR: 1, RED: 2, GREEN: 4, BLUE: 8, IR_GREEN: 5 };
 const targetOrder = ['IR', 'RED', 'GREEN', 'BLUE'];
@@ -138,11 +143,7 @@ const server = http.createServer(async (request, response) => {
     const url = new URL(request.url, 'http://127.0.0.1');
     if (request.method === 'GET' && url.pathname === '/api/state') return sendJson(response, state());
     if (request.method === 'GET' && url.pathname === '/api/telemetry') return sendJson(response, telemetry());
-    if (request.method === 'GET' && url.pathname === '/api/logs') return sendJson(response, [
-      { timestamp: 92500, message: 'Embedded laser dashboard started' },
-      { timestamp: 91400, message: 'Wi-Fi connected at 192.168.1.142' },
-      { timestamp: 100, message: 'Boot complete; laser outputs default off' },
-    ]);
+    if (request.method === 'GET' && url.pathname === '/api/logs') return sendJson(response, eventLog);
     if (request.method === 'GET' && url.pathname === '/api/wifi/scan') return sendJson(response, [
       { ssid: 'HelloWorld', rssi: -48, channel: 6, auth: 'WPA2', secure: true },
       { ssid: 'Vivonics Lab', rssi: -67, channel: 11, auth: 'WPA3', secure: true },
@@ -172,6 +173,26 @@ const server = http.createServer(async (request, response) => {
       };
       commandLog.push({ kind: 'on', ...command });
       return sendJson(response, { ok: true, queued: true, target, channelMask, channels });
+    }
+    if (request.method === 'POST' && url.pathname === '/api/diagnostics/sensing-pins') {
+      const signals = [
+        ['ISENSE1', 4, 53, 47], ['ISENSE2', 5, 52, 46],
+        ['ISENSE3', 6, 52, 46], ['ISENSE4', 7, 51, 45],
+        ['MPD1', 2, 54, 48], ['MPD2', 3, 54, 48],
+        ['MPD3', 8, 51, 45], ['MPD4_SPARE', 9, 52, 46],
+      ];
+      const records = signals.map(([signal, gpio, pullupRaw, pullupMv], index) => ({
+        timestamp: 93020 + index,
+        message: `SENSE_PIN ${signal} G${gpio} F0/0mV U${pullupRaw}/${pullupMv}mV D0/0mV`,
+      }));
+      eventLog = [
+        { timestamp: 93040, message: 'SENSETEST_END outputs=OFF' },
+        ...records.reverse(),
+        { timestamp: 93010, message: 'SENSETEST_BEGIN outputs=OFF weak_internal_pulls_only' },
+        ...eventLog,
+      ];
+      commandLog.push({ kind: 'sensetest' });
+      return sendJson(response, { ok: true, queued: true, outputsOff: true, results: '/api/logs' });
     }
     if (request.method === 'POST' && url.pathname === '/api/wifi') {
       const credentials = await bodyJson(request);
@@ -219,6 +240,10 @@ async function verifyPage(browser, baseUrl, viewport, name) {
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'Page has horizontal viewport overflow');
 
   if (name === 'desktop') {
+    await page.locator('#sensingTestButton').click();
+    await page.waitForFunction(() => document.querySelector('#sensingTestStatus').textContent.startsWith('PASS'));
+    assert(await page.locator('#sensingTestTableBody tr').count() === 8, 'Expected eight sensing-input results');
+    assert(await page.locator('#sensingTestTableBody .test-pass').count() === 8, 'All sensing inputs did not pass');
     await page.locator('.laser-activate[data-target="IR"]').click();
     await page.waitForFunction(() => document.querySelector('#activeOutput').textContent === 'IR');
     await page.locator('.laser-activate[data-target="GREEN"]').click();
@@ -265,6 +290,7 @@ async function verifyPage(browser, baseUrl, viewport, name) {
     await verifyPage(browser, baseUrl, { width: 390, height: 844 }, 'mobile');
     assert(commandLog.some((entry) => entry.kind === 'on' && Array.isArray(entry.channels) && entry.channels.length === 2), 'Multi-laser activation command was not issued');
     assert(commandLog.some((entry) => entry.kind === 'off'), 'All-off command was not issued');
+    assert(commandLog.some((entry) => entry.kind === 'sensetest'), 'Sensing-input self-test was not issued');
     process.stdout.write(JSON.stringify({ ok: true, baseUrl, screenshots: outputDir, commands: commandLog }, null, 2) + '\n');
   } finally {
     await browser.close();

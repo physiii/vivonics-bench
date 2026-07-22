@@ -3496,6 +3496,27 @@ button.danger:hover,
 .telemetry-table tbody tr:last-child td { border-bottom: 0; }
 .telemetry-table tbody tr.is-active td { background: rgba(53, 240, 194, 0.045); }
 
+.sensing-test-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(53, 240, 194, 0.2);
+  border-radius: 7px;
+  background: rgba(53, 240, 194, 0.035);
+}
+
+.sensing-test-panel > div:first-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sensing-test-panel strong { color: var(--color-text); font-size: 0.84rem; }
+.sensing-test-panel span { color: var(--color-muted); font-size: 0.75rem; line-height: 1.45; }
+.sensing-test-table .test-pass { color: var(--color-primary); font-weight: 800; }
+.sensing-test-table .test-check { color: var(--color-warning); font-weight: 800; }
+
 .output-pill {
   display: inline-flex;
   padding: 3px 7px;

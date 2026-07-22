@@ -1,6 +1,7 @@
 'use strict';
 
 const LASER_ORDER = ['IR', 'RED', 'GREEN', 'BLUE'];
+const SENSING_SIGNAL_ORDER = ['ISENSE1', 'ISENSE2', 'ISENSE3', 'ISENSE4', 'MPD1', 'MPD2', 'MPD3', 'MPD4_SPARE'];
 const HISTORY_LENGTH = 120;
 const TELEMETRY_INTERVAL_MS = 200;
 const STATE_INTERVAL_MS = 3000;
@@ -16,6 +17,7 @@ let currentOutput = { active: false, target: 'OFF', channelMask: 0, dutyPermille
 let controllerReady = false;
 let otaInProgress = false;
 let commandPending = false;
+let sensingTestPending = false;
 
 const byId = (id) => document.getElementById(id);
 const all = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -101,6 +103,11 @@ function updateConnectionState() {
     button.disabled = !live || !controllerReady || otaInProgress || commandPending;
   });
   byId('allOffButton').disabled = !live || otaInProgress;
+  const sensingTestButton = byId('sensingTestButton');
+  if (sensingTestButton) {
+    sensingTestButton.disabled = !live || !controllerReady || currentOutput.active ||
+      otaInProgress || commandPending || sensingTestPending;
+  }
 }
 
 function initializeTabs() {
@@ -260,6 +267,105 @@ function renderTelemetryTable(lasers) {
     });
     body.appendChild(row);
   });
+}
+
+function parseSensingPinRecord(message) {
+  const match = /^SENSE_PIN ([A-Z0-9_]+) G(\d+) F(\d+)\/(\d+)mV U(\d+)\/(\d+)mV D(\d+)\/(\d+)mV$/.exec(message || '');
+  if (!match) return null;
+  return {
+    signal: match[1],
+    gpio: Number(match[2]),
+    floatingRaw: Number(match[3]),
+    floatingMv: Number(match[4]),
+    pullupRaw: Number(match[5]),
+    pullupMv: Number(match[6]),
+    pulldownRaw: Number(match[7]),
+    pulldownMv: Number(match[8]),
+  };
+}
+
+function renderSensingPinResults(records) {
+  const body = byId('sensingTestTableBody');
+  body.replaceChildren();
+  const bySignal = new Map(records.map((record) => [record.signal, record]));
+  let responsiveCount = 0;
+  SENSING_SIGNAL_ORDER.forEach((signal) => {
+    const record = bySignal.get(signal);
+    if (!record) return;
+    const responsive = record.pullupRaw > record.floatingRaw && record.pullupRaw > record.pulldownRaw;
+    if (responsive) responsiveCount += 1;
+    const row = document.createElement('tr');
+    const values = [
+      record.signal,
+      `GPIO ${record.gpio}`,
+      `${record.floatingRaw} · ${record.floatingMv} mV`,
+      `${record.pullupRaw} · ${record.pullupMv} mV`,
+      `${record.pulldownRaw} · ${record.pulldownMv} mV`,
+      responsive ? 'RESPONDS' : 'CHECK',
+    ];
+    values.forEach((value, index) => {
+      const cell = document.createElement('td');
+      cell.textContent = value;
+      if (index === values.length - 1) cell.className = responsive ? 'test-pass' : 'test-check';
+      row.appendChild(cell);
+    });
+    body.appendChild(row);
+  });
+  byId('sensingTestResults').hidden = false;
+  const complete = records.length === SENSING_SIGNAL_ORDER.length;
+  const passed = complete && responsiveCount === SENSING_SIGNAL_ORDER.length;
+  setText('sensingTestStatus', passed ? 'PASS · all 8 sensing inputs respond' : `CHECK · ${responsiveCount}/${SENSING_SIGNAL_ORDER.length} inputs respond`);
+  setText(
+    'sensingTestDetail',
+    passed
+      ? 'ESP32 ADC/GPIO inputs responded and every laser remained off. This validates the digital input side, not the upstream analog current/monitor circuitry.'
+      : 'One or more expected SENSE_PIN records were missing or did not move under the weak pull-up. Inspect the event log and board path.'
+  );
+  return passed;
+}
+
+async function runSensingPinSelfTest() {
+  if (currentOutput.active) {
+    showToast('Switch all laser outputs off before testing sensing inputs', true);
+    return;
+  }
+  sensingTestPending = true;
+  updateConnectionState();
+  const button = byId('sensingTestButton');
+  button.textContent = 'Testing…';
+  setText('sensingTestStatus', 'Testing eight inputs · outputs remain off');
+  setText('sensingTestDetail', 'Applying only the ESP32 weak internal pulls and collecting raw ADC readings.');
+  try {
+    const baseline = await fetchJson('/api/logs');
+    const baselineTimestamp = Array.isArray(baseline)
+      ? baseline.reduce((latest, entry) => Math.max(latest, Number(entry.timestamp) || 0), 0)
+      : 0;
+    await fetchJson('/api/diagnostics/sensing-pins', { method: 'POST', body: '{}' });
+    let records = [];
+    let ended = false;
+    for (let attempt = 0; attempt < 25 && !ended; attempt += 1) {
+      await new Promise((resolve) => window.setTimeout(resolve, 160));
+      const entries = await fetchJson('/api/logs');
+      const currentEntries = Array.isArray(entries)
+        ? entries.filter((entry) => (Number(entry.timestamp) || 0) > baselineTimestamp)
+        : [];
+      records = currentEntries.map((entry) => parseSensingPinRecord(entry.message)).filter(Boolean);
+      ended = currentEntries.some((entry) => entry.message === 'SENSETEST_END outputs=OFF');
+    }
+    if (!ended) throw new Error('controller did not report SENSETEST_END');
+    const passed = renderSensingPinResults(records);
+    showToast('Sensing-input self-test finished with all outputs off', !passed);
+    await refreshLogs();
+  } catch (error) {
+    setText('sensingTestStatus', 'Self-test did not complete');
+    setText('sensingTestDetail', error.message);
+    showToast(`Sensing-input test failed: ${error.message}`, true);
+  } finally {
+    sensingTestPending = false;
+    button.textContent = 'Test sensing inputs';
+    updateConnectionState();
+    window.setTimeout(pollTelemetry, 50);
+  }
 }
 
 function applyTelemetry(telemetry, recordHistory = true) {
@@ -582,7 +688,7 @@ function initializeOta() {
     if (!file) return;
     otaInProgress = true;
     uploadButton.disabled = true;
-    all('.laser-activate, #allOffButton').forEach((button) => { button.disabled = true; });
+    all('.laser-activate, #allOffButton, #sensingTestButton').forEach((button) => { button.disabled = true; });
     setOtaProgress(0, 'Inhibiting outputs and starting upload…');
     try {
       const result = await uploadFirmware(file);
@@ -605,6 +711,7 @@ function initialize() {
   initializeLaserControls();
   initializeNetworkControls();
   initializeOta();
+  byId('sensingTestButton').addEventListener('click', runSensingPinSelfTest);
   byId('refreshLogsButton').addEventListener('click', refreshLogs);
   updateConnectionState();
   pollState();

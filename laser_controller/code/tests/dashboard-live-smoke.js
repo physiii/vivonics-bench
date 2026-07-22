@@ -64,6 +64,16 @@ async function verifyPage(browser, viewport, name) {
   );
 
   let activeSample = null;
+  if (name === 'desktop') {
+    await page.locator('#sensingTestButton').click();
+    await page.waitForFunction(
+      () => document.querySelector('#sensingTestStatus')?.textContent.startsWith('PASS'),
+      null,
+      { timeout: 6000 }
+    );
+    assert(await page.locator('#sensingTestTableBody tr').count() === 8, 'Expected eight live sensing-input results');
+    assert(await page.locator('#sensingTestTableBody .test-pass').count() === 8, 'All live sensing inputs did not respond');
+  }
   if (name === 'desktop' && exerciseOutput) {
     if (exerciseMulti) {
       await page.locator('.laser-activate[data-target="IR"]').click();

@@ -40,7 +40,7 @@ in reset or is still in ROM/bootloader execution.
   and initial IR/green emission/current telemetry under the laser-test profile.
   See the parent repo's
   [first-article record](https://github.com/physiii/vivonics/blob/main/bench-output/laser-controller-first-article-2026-07-20.json).
-- Dashboard/OTA observed on 2026-07-21: version `0.3.1-dashboard` running valid
+- Dashboard/OTA observed on 2026-07-21: version `0.3.2-dashboard` running valid
   from `ota_1`, zero firmware faults, advancing 50 Hz AD7606 samples, responsive
   desktop/mobile layouts with no browser errors, simultaneous IR + Green
   control followed by verified All-Off, and unequal IR/Green duties of 70%/40%
@@ -49,8 +49,8 @@ in reset or is still in ROM/bootloader execution.
   at 70%. Green emitted under command but its current-sense and all equipped
   source-monitor ADC readings were `0`; those hardware sensing paths remain
   unresolved and are shown as degraded rather than hidden or simulated.
-  The outputs-off `SENSETEST` subsequently produced a repeatable `45..48 mV`
-  weak-pull response on all eight ESP32 sensing inputs across three runs. This
+  The outputs-off `SENSETEST` subsequently produced a repeatable `45..50 mV`
+  weak-pull response on all eight ESP32 sensing inputs across five runs. This
   proves the ADC inputs respond and rules out an obvious floating MCU-side path;
   the Green-current and common source-monitor faults are upstream analog issues.
 - Not yet verified: absolute ADC accuracy and channel order against known
@@ -165,7 +165,9 @@ The main HTTP surface is:
   `/api/logs`
 - `POST /api/lasers` and `/api/lasers/off`
 - `POST /api/diagnostics/sensing-pins` while fault-free and All-Off; results
-  appear as `SENSE_PIN` entries in `GET /api/logs`
+  appear as `SENSE_PIN` entries in `GET /api/logs`. The Dashboard's driver
+  telemetry card runs this electrical-only test and renders all eight raw
+  floating/pull-up/pull-down results without energizing a laser.
 - `GET /api/wifi/list` and `/api/wifi/scan`; `POST /api/wifi`
 - `POST /api/ota/upload` with a raw ESP-IDF application binary
 
