@@ -61,6 +61,38 @@ static const unsigned LASER_PWM_GPIOS[LASER_TEST_CHANNEL_COUNT] = {
     16,
 };
 
+static int laser_channel_index(const char *target)
+{
+    if (target == NULL) {
+        return -1;
+    }
+    for (int channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
+        if (strcmp(target, laser_test_channel_name((uint8_t)channel)) == 0) {
+            return channel;
+        }
+    }
+    return -1;
+}
+
+static bool snapshot_sensing_degraded(const laser_web_snapshot_t *snapshot)
+{
+    if (snapshot == NULL || !snapshot->output_active) {
+        return false;
+    }
+    for (size_t channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
+        if ((snapshot->active_mask & (1U << channel)) == 0U) {
+            continue;
+        }
+        const bool current_missing = snapshot->telemetry_raw[channel] <= 4;
+        const bool monitor_missing = channel < 3U &&
+            snapshot->telemetry_raw[channel + 4U] <= 4;
+        if (current_missing || monitor_missing) {
+            return true;
+        }
+    }
+    return false;
+}
+
 static QueueHandle_t s_command_queue;
 static SemaphoreHandle_t s_snapshot_mutex;
 static SemaphoreHandle_t s_log_mutex;
@@ -619,6 +651,23 @@ static cJSON *build_telemetry_object(void)
         snapshot.output_active ? laser_test_target_name(snapshot.active_mask) : "OFF"
     );
     cJSON_AddNumberToObject(output, "dutyPermille", snapshot.duty_permille);
+    cJSON_AddBoolToObject(output, "sharedDuty", snapshot.duty_permille != 0U);
+    cJSON *output_channels = cJSON_CreateArray();
+    for (size_t channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
+        if (!snapshot.output_active ||
+            (snapshot.active_mask & (1U << channel)) == 0U) {
+            continue;
+        }
+        cJSON *entry = cJSON_CreateObject();
+        cJSON_AddStringToObject(entry, "target", laser_test_channel_name(channel));
+        cJSON_AddNumberToObject(
+            entry,
+            "dutyPermille",
+            snapshot.channel_duty_permille[channel]
+        );
+        cJSON_AddItemToArray(output_channels, entry);
+    }
+    cJSON_AddItemToObject(output, "channels", output_channels);
     cJSON_AddItemToObject(root, "output", output);
 
     cJSON *photodiodes = cJSON_CreateArray();
@@ -637,17 +686,24 @@ static cJSON *build_telemetry_object(void)
     cJSON_AddItemToObject(root, "photodiodes", photodiodes);
 
     cJSON *lasers = cJSON_CreateArray();
+    unsigned sensing_warning_count = 0U;
     for (size_t channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
         cJSON *item = cJSON_CreateObject();
+        const bool active = snapshot.output_active &&
+            (snapshot.active_mask & (1U << channel)) != 0U;
+        const bool current_signal = snapshot.telemetry_raw[channel] > 4;
+        const bool monitor_equipped = channel < 3U;
+        const bool monitor_signal = snapshot.telemetry_raw[channel + 4U] > 4;
         cJSON_AddNumberToObject(item, "channel", channel + 1U);
         cJSON_AddStringToObject(item, "target", laser_test_channel_name(channel));
         cJSON_AddStringToObject(item, "name", LASER_NAMES[channel]);
         cJSON_AddNumberToObject(item, "wavelengthNm", LASER_WAVELENGTHS_NM[channel]);
         cJSON_AddNumberToObject(item, "pwmGpio", LASER_PWM_GPIOS[channel]);
-        cJSON_AddBoolToObject(
+        cJSON_AddBoolToObject(item, "active", active);
+        cJSON_AddNumberToObject(
             item,
-            "active",
-            snapshot.output_active && (snapshot.active_mask & (1U << channel)) != 0U
+            "dutyPermille",
+            active ? snapshot.channel_duty_permille[channel] : 0U
         );
 
         cJSON *current = cJSON_CreateObject();
@@ -658,15 +714,40 @@ static cJSON *build_telemetry_object(void)
             "milliampsApprox",
             (double)snapshot.telemetry_mv[channel] / 10.0
         );
+        cJSON_AddBoolToObject(current, "expectedWhenActive", true);
+        cJSON_AddStringToObject(
+            current,
+            "status",
+            !active ? "idle" : (current_signal ? "signal" : "no-response")
+        );
+        cJSON_AddBoolToObject(current, "healthy", !active || current_signal);
         cJSON_AddItemToObject(item, "currentSense", current);
 
         cJSON *monitor = cJSON_CreateObject();
         cJSON_AddNumberToObject(monitor, "raw", snapshot.telemetry_raw[channel + 4U]);
         cJSON_AddNumberToObject(monitor, "millivolts", snapshot.telemetry_mv[channel + 4U]);
+        cJSON_AddBoolToObject(monitor, "equipped", monitor_equipped);
+        cJSON_AddBoolToObject(monitor, "expectedWhenActive", monitor_equipped);
+        cJSON_AddStringToObject(
+            monitor,
+            "status",
+            !monitor_equipped ? "not-equipped" :
+                (!active ? "idle" : (monitor_signal ? "signal" : "no-response"))
+        );
+        cJSON_AddBoolToObject(
+            monitor,
+            "healthy",
+            !monitor_equipped || !active || monitor_signal
+        );
         cJSON_AddItemToObject(item, "sourceMonitor", monitor);
+        if (active && (!current_signal || (monitor_equipped && !monitor_signal))) {
+            ++sensing_warning_count;
+        }
         cJSON_AddItemToArray(lasers, item);
     }
     cJSON_AddItemToObject(root, "lasers", lasers);
+    cJSON_AddBoolToObject(root, "sensingDegraded", sensing_warning_count != 0U);
+    cJSON_AddNumberToObject(root, "sensingWarningCount", sensing_warning_count);
     return root;
 }
 
@@ -846,9 +927,15 @@ static esp_err_t health_handler(httpd_req_t *request)
     laser_web_snapshot_t snapshot = {0};
     cJSON *root = cJSON_CreateObject();
     const bool valid = read_snapshot(&snapshot);
-    cJSON_AddBoolToObject(root, "ok", valid && snapshot.fault_mask == 0U);
+    const bool sensing_degraded = valid && snapshot_sensing_degraded(&snapshot);
+    cJSON_AddBoolToObject(
+        root,
+        "ok",
+        valid && snapshot.fault_mask == 0U && !sensing_degraded
+    );
     cJSON_AddBoolToObject(root, "adcReady", valid);
     cJSON_AddNumberToObject(root, "faultMask", valid ? snapshot.fault_mask : -1);
+    cJSON_AddBoolToObject(root, "sensingDegraded", sensing_degraded);
     cJSON_AddBoolToObject(root, "otaInProgress", s_ota_in_progress);
     return send_json(request, root);
 }
@@ -876,6 +963,7 @@ static esp_err_t discovery_handler(httpd_req_t *request)
         "photodiode-telemetry",
         "current-sense",
         "source-monitor",
+        "multi-laser-independent-duty",
         "ota-upload",
         "rollback",
         "wifi-config",
@@ -936,6 +1024,58 @@ static esp_err_t enqueue_command(const laser_test_command_t *command)
         ESP_OK : ESP_ERR_TIMEOUT;
 }
 
+static bool parse_web_laser_command(
+    const cJSON *payload,
+    laser_test_command_t *command
+)
+{
+    if (payload == NULL || command == NULL) {
+        return false;
+    }
+    *command = (laser_test_command_t){
+        .type = LASER_TEST_COMMAND_ON,
+    };
+
+    const cJSON *channels = cJSON_GetObjectItemCaseSensitive(payload, "channels");
+    if (cJSON_IsArray(channels)) {
+        const int count = cJSON_GetArraySize(channels);
+        if (count < 1 || count > LASER_TEST_CHANNEL_COUNT) {
+            return false;
+        }
+        uint16_t shared_duty = 0U;
+        for (int index = 0; index < count; ++index) {
+            const cJSON *entry = cJSON_GetArrayItem(channels, index);
+            const cJSON *target_item = cJSON_GetObjectItemCaseSensitive(entry, "target");
+            const cJSON *duty_item = cJSON_GetObjectItemCaseSensitive(entry, "dutyPermille");
+            const int channel = cJSON_IsString(target_item) ?
+                laser_channel_index(target_item->valuestring) : -1;
+            const int duty = cJSON_IsNumber(duty_item) ? duty_item->valueint : 0;
+            if (channel < 0 || duty < 1 ||
+                duty > LASER_TEST_MAX_DUTY_PERMILLE ||
+                (command->channel_mask & (1U << channel)) != 0U) {
+                return false;
+            }
+            command->channel_mask |= (uint8_t)(1U << channel);
+            command->channel_duty_permille[channel] = (uint16_t)duty;
+            if (index == 0) {
+                shared_duty = (uint16_t)duty;
+            } else if (shared_duty != (uint16_t)duty) {
+                shared_duty = 0U;
+            }
+        }
+        command->duty_permille = shared_duty;
+        return command->channel_mask != 0U;
+    }
+
+    const cJSON *target_item = cJSON_GetObjectItemCaseSensitive(payload, "target");
+    const cJSON *duty_item = cJSON_GetObjectItemCaseSensitive(payload, "dutyPermille");
+    const char *target = cJSON_IsString(target_item) ? target_item->valuestring : NULL;
+    const int duty = cJSON_IsNumber(duty_item) ? duty_item->valueint : 0;
+    char line[64];
+    snprintf(line, sizeof(line), "ON %s %d", target ? target : "", duty);
+    return laser_test_parse_command(line, command);
+}
+
 static esp_err_t laser_control_handler(httpd_req_t *request)
 {
     if (s_ota_in_progress) {
@@ -945,25 +1085,14 @@ static esp_err_t laser_control_handler(httpd_req_t *request)
     if (read_json_body(request, &payload) != ESP_OK) {
         return httpd_resp_send_err(request, HTTPD_400_BAD_REQUEST, "Invalid JSON payload");
     }
-    const cJSON *target_item = cJSON_GetObjectItemCaseSensitive(payload, "target");
-    const cJSON *duty_item = cJSON_GetObjectItemCaseSensitive(payload, "dutyPermille");
-    const char *target = cJSON_IsString(target_item) ? target_item->valuestring : NULL;
-    const int duty = cJSON_IsNumber(duty_item) ? duty_item->valueint : 0;
-
-    char line[64];
-    snprintf(line, sizeof(line), "ON %s %d", target ? target : "", duty);
     laser_test_command_t command = {0};
-    const bool valid = laser_test_parse_command(line, &command);
-    char target_copy[16] = {0};
-    if (valid) {
-        strlcpy(target_copy, target, sizeof(target_copy));
-    }
+    const bool valid = parse_web_laser_command(payload, &command);
     cJSON_Delete(payload);
     if (!valid) {
         return httpd_resp_send_err(
             request,
             HTTPD_400_BAD_REQUEST,
-            "Target must be IR, RED, GREEN, BLUE, or IR_GREEN; duty must be 1..1000"
+            "Use target+dutyPermille or 1..4 unique channels with duties 1..1000"
         );
     }
     if (enqueue_command(&command) != ESP_OK) {
@@ -971,13 +1100,48 @@ static esp_err_t laser_control_handler(httpd_req_t *request)
     }
 
     char event[96];
-    snprintf(event, sizeof(event), "Laser command queued: %s at %.1f%%", target_copy, duty / 10.0);
+    if (command.duty_permille != 0U) {
+        snprintf(
+            event,
+            sizeof(event),
+            "Laser command queued: %s at %.1f%%",
+            laser_test_target_name(command.channel_mask),
+            command.duty_permille / 10.0
+        );
+    } else {
+        snprintf(
+            event,
+            sizeof(event),
+            "Laser command queued: %s with independent duties",
+            laser_test_target_name(command.channel_mask)
+        );
+    }
     laser_web_record_event(event);
     cJSON *response = cJSON_CreateObject();
     cJSON_AddBoolToObject(response, "ok", true);
     cJSON_AddBoolToObject(response, "queued", true);
-    cJSON_AddStringToObject(response, "target", target_copy);
-    cJSON_AddNumberToObject(response, "dutyPermille", duty);
+    cJSON_AddStringToObject(
+        response,
+        "target",
+        laser_test_target_name(command.channel_mask)
+    );
+    cJSON_AddNumberToObject(response, "channelMask", command.channel_mask);
+    cJSON_AddNumberToObject(response, "dutyPermille", command.duty_permille);
+    cJSON *channels = cJSON_CreateArray();
+    for (size_t channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
+        if ((command.channel_mask & (1U << channel)) == 0U) {
+            continue;
+        }
+        cJSON *entry = cJSON_CreateObject();
+        cJSON_AddStringToObject(entry, "target", laser_test_channel_name(channel));
+        cJSON_AddNumberToObject(
+            entry,
+            "dutyPermille",
+            command.channel_duty_permille[channel]
+        );
+        cJSON_AddItemToArray(channels, entry);
+    }
+    cJSON_AddItemToObject(response, "channels", channels);
     return send_json(request, response);
 }
 

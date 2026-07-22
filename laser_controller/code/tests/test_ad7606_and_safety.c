@@ -142,12 +142,30 @@ static void test_laser_test_protocol(void)
     assert(command.type == LASER_TEST_COMMAND_ON);
     assert(command.channel_mask == (1U << 2));
     assert(command.duty_permille == 1000);
+    assert(laser_test_command_channel_duty(&command, 2) == 1000);
+    assert(laser_test_command_channel_duty(&command, 0) == 0);
     assert(command.duration_ms == 0);
 
     assert(laser_test_parse_command("ON IR_GREEN 1000", &command));
     assert(command.type == LASER_TEST_COMMAND_ON);
     assert(command.channel_mask == ((1U << 0) | (1U << 2)));
     assert(strcmp(laser_test_target_name(command.channel_mask), "IR_GREEN") == 0);
+
+    assert(laser_test_parse_command("ON IR_RED_GREEN_BLUE 750", &command));
+    assert(command.channel_mask == 0x0fU);
+    for (uint8_t channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
+        assert(laser_test_command_channel_duty(&command, channel) == 750);
+    }
+    assert(strcmp(laser_test_target_name(command.channel_mask), "IR_RED_GREEN_BLUE") == 0);
+
+    assert(laser_test_parse_command("ON RED_BLUE 321", &command));
+    assert(command.channel_mask == ((1U << 1) | (1U << 3)));
+    assert(laser_test_command_channel_duty(&command, 1) == 321);
+    assert(laser_test_command_channel_duty(&command, 3) == 321);
+    assert(laser_test_command_channel_duty(&command, 0) == 0);
+
+    assert(laser_test_parse_command("ON ALL 250", &command));
+    assert(command.channel_mask == 0x0fU);
 
     assert(laser_test_parse_command("PULSE IR 1 20", &command));
     assert(command.type == LASER_TEST_COMMAND_PULSE);
@@ -175,6 +193,7 @@ static void test_laser_test_protocol(void)
     assert(!laser_test_parse_command("ON RED 0", &command));
     assert(!laser_test_parse_command("ON RED 1001", &command));
     assert(!laser_test_parse_command("ON UV 100", &command));
+    assert(!laser_test_parse_command("ON GREEN_IR 100", &command));
     assert(!laser_test_parse_command("ON RED 100 500", &command));
     assert(!laser_test_parse_command("ARM RED", &command));
 }

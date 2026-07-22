@@ -12,9 +12,10 @@ let lastStateAt = 0;
 let telemetryRequestPending = false;
 let stateRequestPending = false;
 let toastTimer = null;
-let currentOutput = { active: false, target: 'OFF', dutyPermille: 0 };
+let currentOutput = { active: false, target: 'OFF', channelMask: 0, dutyPermille: 0 };
 let controllerReady = false;
 let otaInProgress = false;
+let commandPending = false;
 
 const byId = (id) => document.getElementById(id);
 const all = (selector, root = document) => Array.from(root.querySelectorAll(selector));
@@ -96,9 +97,8 @@ function updateConnectionState() {
   dot.classList.toggle('is-live', live);
   dot.classList.toggle('is-offline', !live && freshest > 0);
   setText('headerLive', live ? 'Live' : (freshest ? 'Offline' : 'Connecting'));
-  all('.laser-activate, #pairedActivate').forEach((button) => {
-    const ownActive = currentOutput.active && button.dataset.target === currentOutput.target;
-    button.disabled = !live || !controllerReady || otaInProgress || ownActive;
+  all('.laser-activate').forEach((button) => {
+    button.disabled = !live || !controllerReady || otaInProgress || commandPending;
   });
   byId('allOffButton').disabled = !live || otaInProgress;
 }
@@ -121,11 +121,15 @@ function updateRange(slider, output) {
 
 function initializeDutyControls() {
   all('.duty-slider').forEach((slider) => {
-    const output = slider.id === 'pairedDuty'
-      ? byId('pairedDutyValue')
-      : byId(`${slider.id}Value`);
+    const output = byId(`${slider.id}Value`);
     const update = () => updateRange(slider, output);
     slider.addEventListener('input', update);
+    slider.addEventListener('change', () => {
+      const channel = LASER_ORDER.indexOf(slider.dataset.target);
+      if (channel >= 0 && (currentOutput.channelMask & (1 << channel)) !== 0) {
+        applyChannelMask(currentOutput.channelMask, `Updated ${slider.dataset.target} duty`);
+      }
+    });
     update();
   });
 }
@@ -184,11 +188,45 @@ function updateLaser(item) {
   setText(document.querySelector(`[data-current-raw="${target}"]`), formatInteger(current.raw));
   setText(document.querySelector(`[data-monitor-mv="${target}"]`), formatInteger(monitor.millivolts));
   setText(document.querySelector(`[data-monitor-raw="${target}"]`), formatInteger(monitor.raw));
+  const statusLabels = {
+    idle: 'Idle',
+    signal: 'Signal',
+    'no-response': 'No response',
+    'not-equipped': 'Not equipped',
+  };
+  const currentStatus = document.querySelector(`[data-current-status="${target}"]`);
+  const monitorStatus = document.querySelector(`[data-monitor-status="${target}"]`);
+  if (currentStatus) {
+    currentStatus.textContent = statusLabels[current.status] || 'Unknown';
+    currentStatus.classList.toggle('is-signal', current.status === 'signal');
+    currentStatus.classList.toggle('is-warning', current.status === 'no-response');
+  }
+  if (monitorStatus) {
+    monitorStatus.textContent = statusLabels[monitor.status] || 'Unknown';
+    monitorStatus.classList.toggle('is-signal', monitor.status === 'signal');
+    monitorStatus.classList.toggle('is-warning', monitor.status === 'no-response');
+  }
   const state = document.querySelector(`[data-laser-state="${target}"]`);
   const card = document.querySelector(`[data-laser-card="${target}"]`);
+  const button = document.querySelector(`.laser-activate[data-target="${target}"]`);
   state.textContent = item.active ? 'ACTIVE' : 'OFF';
   state.classList.toggle('active', Boolean(item.active));
   card.classList.toggle('is-active', Boolean(item.active));
+  card.classList.toggle(
+    'sensing-degraded',
+    Boolean(item.active) && (current.status === 'no-response' || monitor.status === 'no-response')
+  );
+  if (button) {
+    button.textContent = item.active ? `Remove ${item.name || target}` : `Add ${item.name || target}`;
+    button.classList.toggle('is-remove', Boolean(item.active));
+  }
+  if (item.active && Number(item.dutyPermille) > 0) {
+    const slider = document.querySelector(`.duty-slider[data-target="${target}"]`);
+    if (slider && document.activeElement !== slider) {
+      slider.value = String(item.dutyPermille);
+      updateRange(slider, byId(`${slider.id}Value`));
+    }
+  }
 }
 
 function renderTelemetryTable(lasers) {
@@ -203,10 +241,10 @@ function renderTelemetryTable(lasers) {
       `${laser.name || laser.target} · ${formatInteger(laser.wavelengthNm)} nm`,
       laser.active ? 'ACTIVE' : 'OFF',
       formatInteger(current.raw),
-      `${formatInteger(current.millivolts)} mV`,
+      `${formatInteger(current.millivolts)} mV · ${current.status || 'unknown'}`,
       `${Number.isFinite(Number(current.milliampsApprox)) ? Number(current.milliampsApprox).toFixed(1) : '—'} mA`,
       formatInteger(monitor.raw),
-      `${formatInteger(monitor.millivolts)} mV`,
+      `${formatInteger(monitor.millivolts)} mV · ${monitor.status || 'unknown'}`,
     ];
     values.forEach((value, index) => {
       const cell = document.createElement('td');
@@ -231,14 +269,21 @@ function applyTelemetry(telemetry, recordHistory = true) {
   currentOutput = {
     active: Boolean(output.active),
     target: output.target || 'OFF',
+    channelMask: Number(output.channelMask) || 0,
     dutyPermille: Number(output.dutyPermille) || 0,
   };
   const faultMask = Number(telemetry.faultMask) || 0;
   controllerReady = faultMask === 0 && ['ready-lasers-off', 'armed', 'running'].includes(telemetry.safetyState);
   setText('safetyState', (telemetry.safetyState || 'unknown').replaceAll('-', ' '));
   setText('faultDetail', faultMask ? `Fault mask 0x${faultMask.toString(16).padStart(8, '0')}` : 'No latched faults');
-  setText('activeOutput', currentOutput.active ? currentOutput.target.replace('_', ' + ') : 'OFF');
-  setText('activeDuty', `${(currentOutput.dutyPermille / 10).toFixed(1)}% duty${output.latched ? ' · steady ON' : ''}`);
+  setText('activeOutput', currentOutput.active ? currentOutput.target.replaceAll('_', ' + ') : 'OFF');
+  const outputChannels = Array.isArray(output.channels) ? output.channels : [];
+  const dutySummary = output.sharedDuty
+    ? `${(currentOutput.dutyPermille / 10).toFixed(1)}% shared duty`
+    : outputChannels.map((item) => `${item.target} ${(Number(item.dutyPermille) / 10).toFixed(1)}%`).join(' · ');
+  setText('activeDuty', currentOutput.active ? `${dutySummary}${output.latched ? ' · steady ON' : ''}` : '0.0% duty');
+  const activeCount = LASER_ORDER.reduce((count, _, index) => count + ((currentOutput.channelMask & (1 << index)) ? 1 : 0), 0);
+  setText('activeChannelCount', `${activeCount} active channel${activeCount === 1 ? '' : 's'}`);
   setText('sampleIndex', formatInteger(telemetry.sampleIndex));
   setText('sampleAge', `Updated now · ${formatInteger(telemetry.sampleRateHz)} samples/s`);
   setText('timingOverruns', formatInteger(telemetry.timingOverruns));
@@ -257,6 +302,21 @@ function applyTelemetry(telemetry, recordHistory = true) {
   const lasers = telemetry.lasers || [];
   lasers.forEach(updateLaser);
   if (lasers.length) renderTelemetryTable(lasers);
+  const sensingBanner = byId('sensingBanner');
+  const degradedTargets = lasers.filter((laser) => laser.active && (
+    (laser.currentSense || {}).status === 'no-response' ||
+    (laser.sourceMonitor || {}).status === 'no-response'
+  ));
+  sensingBanner.hidden = degradedTargets.length === 0;
+  if (degradedTargets.length) {
+    const details = degradedTargets.map((laser) => {
+      const missing = [];
+      if ((laser.currentSense || {}).status === 'no-response') missing.push('current');
+      if ((laser.sourceMonitor || {}).status === 'no-response') missing.push('monitor');
+      return `${laser.target}: ${missing.join(' + ')}`;
+    });
+    setText('sensingBannerText', `${details.join('; ')}. Values are live raw ADC zeros, not hidden or simulated data.`);
+  }
   updateConnectionState();
 }
 
@@ -330,23 +390,38 @@ async function sendAllOff(showConfirmation = true) {
   return response;
 }
 
-async function activateTarget(target, dutyPermille) {
+function channelConfiguration(mask) {
+  return LASER_ORDER.flatMap((target, index) => {
+    if ((mask & (1 << index)) === 0) return [];
+    const slider = document.querySelector(`.duty-slider[data-target="${target}"]`);
+    return [{ target, dutyPermille: Number(slider.value) }];
+  });
+}
+
+async function applyChannelMask(mask, message) {
   if (!controllerReady || otaInProgress) {
     showToast('Controller is not ready to activate an output', true);
     return;
   }
-  all('.laser-activate, #pairedActivate').forEach((button) => { button.disabled = true; });
+  commandPending = true;
+  updateConnectionState();
   try {
-    if (currentOutput.active && currentOutput.target !== target) await sendAllOff(false);
+    if (mask === 0) {
+      await sendAllOff(false);
+      showToast(message || 'All laser outputs switched off');
+      return;
+    }
+    const channels = channelConfiguration(mask);
     const result = await fetchJson('/api/lasers', {
       method: 'POST',
-      body: JSON.stringify({ target, dutyPermille }),
+      body: JSON.stringify({ channels }),
     });
-    if (result && result.ok) showToast(`${target.replace('_', ' + ')} queued at ${(dutyPermille / 10).toFixed(1)}%`);
+    if (result && result.ok) showToast(message || `${result.target.replaceAll('_', ' + ')} queued`);
     window.setTimeout(pollTelemetry, 60);
   } catch (error) {
     showToast(`Output command failed: ${error.message}`, true);
   } finally {
+    commandPending = false;
     window.setTimeout(updateConnectionState, 180);
   }
 }
@@ -355,12 +430,13 @@ function initializeLaserControls() {
   all('.laser-activate').forEach((button) => {
     button.addEventListener('click', () => {
       const target = button.dataset.target;
-      const slider = document.querySelector(`.duty-slider[data-target="${target}"]`);
-      activateTarget(target, Number(slider.value));
+      const channel = LASER_ORDER.indexOf(target);
+      if (channel < 0) return;
+      const wasActive = (currentOutput.channelMask & (1 << channel)) !== 0;
+      const nextMask = currentOutput.channelMask ^ (1 << channel);
+      applyChannelMask(nextMask, `${wasActive ? 'Removed' : 'Added'} ${target}`);
     });
   });
-  byId('pairedActivate').dataset.target = 'IR_GREEN';
-  byId('pairedActivate').addEventListener('click', () => activateTarget('IR_GREEN', Number(byId('pairedDuty').value)));
   byId('allOffButton').addEventListener('click', async () => {
     try { await sendAllOff(true); } catch (error) { showToast(`Unable to switch outputs off: ${error.message}`, true); }
   });
@@ -506,7 +582,7 @@ function initializeOta() {
     if (!file) return;
     otaInProgress = true;
     uploadButton.disabled = true;
-    all('.laser-activate, #pairedActivate, #allOffButton').forEach((button) => { button.disabled = true; });
+    all('.laser-activate, #allOffButton').forEach((button) => { button.disabled = true; });
     setOtaProgress(0, 'Inhibiting outputs and starting upload…');
     try {
       const result = await uploadFirmware(file);

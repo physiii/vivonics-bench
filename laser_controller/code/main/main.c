@@ -79,6 +79,7 @@ typedef struct {
     bool active;
     bool latched;
     uint8_t channel_mask;
+    uint16_t channel_duty_permille[LASER_TEST_CHANNEL_COUNT];
     uint16_t duty_permille;
     int64_t deadline_us;
 } laser_pulse_t;
@@ -442,16 +443,24 @@ static esp_err_t set_laser_duty(uint8_t channel, uint16_t duty_permille)
     return ESP_OK;
 }
 
-static esp_err_t set_laser_targets(uint8_t channel_mask, uint16_t duty_permille)
+static esp_err_t set_laser_targets(const laser_test_command_t *command)
 {
     const uint8_t valid_mask = (1U << LASER_TEST_CHANNEL_COUNT) - 1U;
-    if (channel_mask == 0U || (channel_mask & (uint8_t)~valid_mask) != 0U) {
+    if (command == NULL || command->channel_mask == 0U ||
+        (command->channel_mask & (uint8_t)~valid_mask) != 0U) {
         return ESP_ERR_INVALID_ARG;
     }
     force_all_lasers_off();
     for (uint8_t channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
-        if ((channel_mask & (1U << channel)) == 0U) {
+        if ((command->channel_mask & (1U << channel)) == 0U) {
             continue;
+        }
+        const uint16_t duty_permille =
+            laser_test_command_channel_duty(command, channel);
+        if (duty_permille == 0U ||
+            duty_permille > LASER_TEST_MAX_DUTY_PERMILLE) {
+            force_all_lasers_off();
+            return ESP_ERR_INVALID_ARG;
         }
         const esp_err_t error = set_laser_duty(channel, duty_permille);
         if (error != ESP_OK) {
@@ -468,6 +477,7 @@ static void stop_output(const char *reason)
     pulse.active = false;
     pulse.latched = false;
     pulse.duty_permille = 0;
+    memset(pulse.channel_duty_permille, 0, sizeof(pulse.channel_duty_permille));
     laser_safety_disarm(&safety);
     ESP_LOGW(TAG, "OUTPUT_OFF reason=%s state=%d faults=0x%08" PRIx32,
              reason, (int)safety.state, safety.fault_mask);
@@ -478,13 +488,17 @@ static void log_test_status(void)
     ESP_LOGI(
         TAG,
         "TEST_STATUS state=%d faults=0x%08" PRIx32 " active=%d mode=%s "
-        "target=%s duty_permille=%u",
+        "target=%s duty_permille=%u duties=%u,%u,%u,%u",
         (int)safety.state,
         safety.fault_mask,
         pulse.active,
         !pulse.active ? "off" : (pulse.latched ? "latched" : "pulse"),
         laser_test_target_name(pulse.channel_mask),
-        pulse.duty_permille
+        pulse.duty_permille,
+        pulse.channel_duty_permille[0],
+        pulse.channel_duty_permille[1],
+        pulse.channel_duty_permille[2],
+        pulse.channel_duty_permille[3]
     );
 }
 
@@ -500,6 +514,9 @@ static void apply_test_command(const laser_test_command_t *command)
     if (command->type == LASER_TEST_COMMAND_OFF) {
         stop_output("command");
         return;
+    }
+    if (pulse.active && command->type == LASER_TEST_COMMAND_ON) {
+        stop_output("reconfigure");
     }
     if (pulse.active || safety.state != LASER_STATE_ADC_READY_LASERS_INHIBITED ||
         safety.fault_mask != 0U) {
@@ -523,18 +540,20 @@ static void apply_test_command(const laser_test_command_t *command)
 
     pulse.channel_mask = command->channel_mask;
     pulse.duty_permille = command->duty_permille;
+    for (uint8_t channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
+        pulse.channel_duty_permille[channel] =
+            laser_test_command_channel_duty(command, channel);
+    }
     pulse.latched = command->type == LASER_TEST_COMMAND_ON;
     pulse.deadline_us = pulse.latched ? 0 :
         esp_timer_get_time() + (int64_t)command->duration_ms * 1000;
-    const esp_err_t pwm_error = set_laser_targets(
-        command->channel_mask,
-        command->duty_permille
-    );
+    const esp_err_t pwm_error = set_laser_targets(command);
     if (pwm_error != ESP_OK) {
         force_all_lasers_off();
         pulse.active = false;
         pulse.latched = false;
         pulse.duty_permille = 0;
+        memset(pulse.channel_duty_permille, 0, sizeof(pulse.channel_duty_permille));
         laser_safety_latch_fault(&safety, LASER_FAULT_PWM_OUTPUT);
         ESP_LOGE(
             TAG,
@@ -547,16 +566,26 @@ static void apply_test_command(const laser_test_command_t *command)
     if (pulse.latched) {
         ESP_LOGW(
             TAG,
-            "OUTPUT_ON mode=latched target=%s duty_permille=%u",
+            "OUTPUT_ON mode=latched target=%s duty_permille=%u "
+            "duties=%u,%u,%u,%u",
             laser_test_target_name(command->channel_mask),
-            command->duty_permille
+            command->duty_permille,
+            pulse.channel_duty_permille[0],
+            pulse.channel_duty_permille[1],
+            pulse.channel_duty_permille[2],
+            pulse.channel_duty_permille[3]
         );
     } else {
         ESP_LOGW(
             TAG,
-            "OUTPUT_ON mode=pulse target=%s duty_permille=%u duration_ms=%u",
+            "OUTPUT_ON mode=pulse target=%s duty_permille=%u "
+            "duties=%u,%u,%u,%u duration_ms=%u",
             laser_test_target_name(command->channel_mask),
             command->duty_permille,
+            pulse.channel_duty_permille[0],
+            pulse.channel_duty_permille[1],
+            pulse.channel_duty_permille[2],
+            pulse.channel_duty_permille[3],
             command->duration_ms
         );
     }
@@ -569,8 +598,8 @@ static void handle_test_command(const char *line)
         ESP_LOGE(
             TAG,
             "COMMAND_REJECTED syntax; use STATUS, OFF, "
-            "ON <IR|RED|GREEN|BLUE|IR_GREEN> <1..1000>, or "
-            "PULSE <IR|RED|GREEN|BLUE|IR_GREEN> <1..1000> <20..900>"
+            "ON <canonical channel combination|ALL> <1..1000>, or "
+            "PULSE <canonical channel combination|ALL> <1..1000> <20..900>"
         );
         return;
     }
@@ -652,6 +681,7 @@ static bool update_pulse(const laser_telemetry_t *telemetry)
         pulse.active = false;
         pulse.latched = false;
         pulse.duty_permille = 0;
+        memset(pulse.channel_duty_permille, 0, sizeof(pulse.channel_duty_permille));
         laser_safety_latch_fault(&safety, LASER_FAULT_OVERCURRENT);
         ESP_LOGE(
             TAG,
@@ -878,6 +908,10 @@ static void publish_web_snapshot(
     for (size_t channel = 0; channel < TELEMETRY_CHANNEL_COUNT; ++channel) {
         snapshot.telemetry_raw[channel] = telemetry->raw[channel];
         snapshot.telemetry_mv[channel] = telemetry->millivolts[channel];
+    }
+    for (size_t channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
+        snapshot.channel_duty_permille[channel] = pulse.active ?
+            pulse.channel_duty_permille[channel] : 0U;
     }
     laser_web_publish_snapshot(&snapshot);
 }

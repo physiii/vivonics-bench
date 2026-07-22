@@ -5,7 +5,9 @@ const path = require('path');
 const { chromium } = require('playwright');
 
 const baseUrl = new URL(process.argv[2] || 'http://192.168.4.1/');
-const exerciseOutput = process.argv.includes('--exercise-green');
+const exerciseGreen = process.argv.includes('--exercise-green');
+const exerciseMulti = process.argv.includes('--exercise-multi');
+const exerciseOutput = exerciseGreen || exerciseMulti;
 const outputDir = path.resolve(
   process.env.LASER_DASHBOARD_SMOKE_OUTPUT || '/tmp/vivonics-laser-dashboard-live'
 );
@@ -63,11 +65,30 @@ async function verifyPage(browser, viewport, name) {
 
   let activeSample = null;
   if (name === 'desktop' && exerciseOutput) {
+    if (exerciseMulti) {
+      await page.locator('.laser-activate[data-target="IR"]').click();
+      await page.waitForFunction(() => document.querySelector('#activeOutput')?.textContent === 'IR');
+    }
     await page.locator('.laser-activate[data-target="GREEN"]').click();
-    await page.waitForFunction(() => document.querySelector('#activeOutput')?.textContent === 'GREEN');
+    await page.waitForFunction(
+      (multi) => document.querySelector('#activeOutput')?.textContent === (multi ? 'IR + GREEN' : 'GREEN'),
+      exerciseMulti
+    );
     await page.waitForTimeout(600);
     activeSample = await api('/api/telemetry');
-    assert(activeSample.output.active && activeSample.output.target === 'GREEN', 'Green output did not become active');
+    const expectedMask = exerciseMulti ? 5 : 4;
+    assert(activeSample.output.active && activeSample.output.channelMask === expectedMask, 'Requested output mask did not become active');
+    if (exerciseMulti) {
+      assert(activeSample.lasers[0].active && activeSample.lasers[2].active, 'IR and Green were not active together');
+      assert(activeSample.lasers[0].currentSense.status === 'signal', 'IR current-sense status did not report signal');
+    }
+    await page.screenshot({ path: path.join(outputDir, exerciseMulti ? 'active-multi.png' : 'active-green.png'), fullPage: true });
+    if (exerciseMulti) {
+      await page.locator('.laser-activate[data-target="IR"]').click();
+      await page.waitForFunction(() => document.querySelector('#activeOutput')?.textContent === 'GREEN');
+      const greenOnly = await api('/api/telemetry');
+      assert(greenOnly.output.channelMask === 4 && greenOnly.lasers[2].active, 'Removing IR did not preserve Green');
+    }
     await page.locator('#allOffButton').click();
     await page.waitForFunction(() => document.querySelector('#activeOutput')?.textContent === 'OFF');
   }
@@ -99,7 +120,7 @@ async function verifyPage(browser, viewport, name) {
     activeTelemetry = await verifyPage(browser, { width: 1440, height: 1000 }, 'desktop');
     if (exerciseOutput) {
       const logs = await api('/api/logs');
-      assert(logs.some((entry) => entry.message.includes('GREEN')), 'Green command was not logged');
+      assert(logs.some((entry) => entry.message.includes(exerciseMulti ? 'IR_GREEN' : 'GREEN')), 'Output command was not logged');
     }
     await verifyPage(browser, { width: 390, height: 844 }, 'mobile');
     const state = await api('/api/state');
@@ -108,11 +129,13 @@ async function verifyPage(browser, viewport, name) {
       ok: true,
       baseUrl: baseUrl.href,
       exercisedGreen: exerciseOutput,
-      greenTelemetry: activeTelemetry ? {
+      exercisedMulti: exerciseMulti,
+      activeTelemetry: activeTelemetry ? {
         output: activeTelemetry.output,
-        currentSense: activeTelemetry.lasers[2].currentSense,
-        sourceMonitor: activeTelemetry.lasers[2].sourceMonitor,
+        ir: activeTelemetry.lasers[0],
+        green: activeTelemetry.lasers[2],
         pd3: activeTelemetry.photodiodes[2],
+        sensingDegraded: activeTelemetry.sensingDegraded,
       } : null,
       pd3: finalTelemetry.photodiodes[2],
       sampleIndex: finalTelemetry.sampleIndex,

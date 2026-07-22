@@ -68,6 +68,10 @@
           <strong>Outputs inhibited</strong>
           <span id="faultBannerText">A controller safety fault is latched.</span>
         </div>
+        <div id="sensingBanner" class="sensing-banner" hidden>
+          <strong>Telemetry response missing</strong>
+          <span id="sensingBannerText">An active source is not producing the expected current or monitor signal.</span>
+        </div>
       </article>
 
       <article class="card">
@@ -75,7 +79,7 @@
           <div>
             <p class="eyebrow">Optical sources</p>
             <h2>Laser diode control</h2>
-            <p class="subtitle">Set a duty level, then explicitly activate one source. Only IR + Green may run as a pair.</p>
+            <p class="subtitle">Each channel is independent. Add or remove sources while preserving the others, with a separate duty for every active laser.</p>
           </div>
           <div class="control-legend"><span class="legend-dot"></span>10 kHz PWM · 100% uses steady high</div>
         </div>
@@ -95,14 +99,14 @@
               <em>Uncalibrated estimate from 10 Ω sense resistor</em>
             </div>
             <div class="laser-sense-grid">
-              <div><span>Current sense</span><strong><span data-current-mv="IR">—</span> mV</strong><small>raw <span data-current-raw="IR">—</span></small></div>
-              <div><span>Source monitor</span><strong><span data-monitor-mv="IR">—</span> mV</strong><small>raw <span data-monitor-raw="IR">—</span></small></div>
+              <div><span>Current sense</span><strong><span data-current-mv="IR">—</span> mV</strong><small><span class="sense-status" data-current-status="IR">Waiting</span> · raw <span data-current-raw="IR">—</span></small></div>
+              <div><span>Source monitor</span><strong><span data-monitor-mv="IR">—</span> mV</strong><small><span class="sense-status" data-monitor-status="IR">Waiting</span> · raw <span data-monitor-raw="IR">—</span></small></div>
             </div>
             <div class="duty-control">
               <div><label for="dutyIr">Output duty</label><output id="dutyIrValue" for="dutyIr">100.0%</output></div>
               <input id="dutyIr" class="duty-slider" data-target="IR" type="range" min="1" max="1000" value="1000" step="1">
             </div>
-            <button class="laser-activate" data-target="IR" type="button">Activate IR</button>
+            <button class="laser-activate" data-target="IR" type="button">Add IR</button>
           </section>
 
           <section class="laser-card laser-red" data-laser-card="RED" aria-labelledby="laserRedTitle">
@@ -119,14 +123,14 @@
               <em>Uncalibrated estimate from 10 Ω sense resistor</em>
             </div>
             <div class="laser-sense-grid">
-              <div><span>Current sense</span><strong><span data-current-mv="RED">—</span> mV</strong><small>raw <span data-current-raw="RED">—</span></small></div>
-              <div><span>Source monitor</span><strong><span data-monitor-mv="RED">—</span> mV</strong><small>raw <span data-monitor-raw="RED">—</span></small></div>
+              <div><span>Current sense</span><strong><span data-current-mv="RED">—</span> mV</strong><small><span class="sense-status" data-current-status="RED">Waiting</span> · raw <span data-current-raw="RED">—</span></small></div>
+              <div><span>Source monitor</span><strong><span data-monitor-mv="RED">—</span> mV</strong><small><span class="sense-status" data-monitor-status="RED">Waiting</span> · raw <span data-monitor-raw="RED">—</span></small></div>
             </div>
             <div class="duty-control">
               <div><label for="dutyRed">Output duty</label><output id="dutyRedValue" for="dutyRed">100.0%</output></div>
               <input id="dutyRed" class="duty-slider" data-target="RED" type="range" min="1" max="1000" value="1000" step="1">
             </div>
-            <button class="laser-activate" data-target="RED" type="button">Activate Red</button>
+            <button class="laser-activate" data-target="RED" type="button">Add Red</button>
           </section>
 
           <section class="laser-card laser-green" data-laser-card="GREEN" aria-labelledby="laserGreenTitle">
@@ -143,14 +147,14 @@
               <em>Uncalibrated estimate from 10 Ω sense resistor</em>
             </div>
             <div class="laser-sense-grid">
-              <div><span>Current sense</span><strong><span data-current-mv="GREEN">—</span> mV</strong><small>raw <span data-current-raw="GREEN">—</span></small></div>
-              <div><span>Source monitor</span><strong><span data-monitor-mv="GREEN">—</span> mV</strong><small>raw <span data-monitor-raw="GREEN">—</span></small></div>
+              <div><span>Current sense</span><strong><span data-current-mv="GREEN">—</span> mV</strong><small><span class="sense-status" data-current-status="GREEN">Waiting</span> · raw <span data-current-raw="GREEN">—</span></small></div>
+              <div><span>Source monitor</span><strong><span data-monitor-mv="GREEN">—</span> mV</strong><small><span class="sense-status" data-monitor-status="GREEN">Waiting</span> · raw <span data-monitor-raw="GREEN">—</span></small></div>
             </div>
             <div class="duty-control">
               <div><label for="dutyGreen">Output duty</label><output id="dutyGreenValue" for="dutyGreen">100.0%</output></div>
               <input id="dutyGreen" class="duty-slider" data-target="GREEN" type="range" min="1" max="1000" value="1000" step="1">
             </div>
-            <button class="laser-activate" data-target="GREEN" type="button">Activate Green</button>
+            <button class="laser-activate" data-target="GREEN" type="button">Add Green</button>
           </section>
 
           <section class="laser-card laser-blue" data-laser-card="BLUE" aria-labelledby="laserBlueTitle">
@@ -167,26 +171,23 @@
               <em>Uncalibrated estimate from 10 Ω sense resistor</em>
             </div>
             <div class="laser-sense-grid">
-              <div><span>Current sense</span><strong><span data-current-mv="BLUE">—</span> mV</strong><small>raw <span data-current-raw="BLUE">—</span></small></div>
-              <div><span>Source monitor</span><strong><span data-monitor-mv="BLUE">—</span> mV</strong><small>raw <span data-monitor-raw="BLUE">—</span></small></div>
+              <div><span>Current sense</span><strong><span data-current-mv="BLUE">—</span> mV</strong><small><span class="sense-status" data-current-status="BLUE">Waiting</span> · raw <span data-current-raw="BLUE">—</span></small></div>
+              <div><span>Source monitor</span><strong><span data-monitor-mv="BLUE">—</span> mV</strong><small><span class="sense-status" data-monitor-status="BLUE">Not equipped</span> · raw <span data-monitor-raw="BLUE">—</span></small></div>
             </div>
             <div class="duty-control">
               <div><label for="dutyBlue">Output duty</label><output id="dutyBlueValue" for="dutyBlue">100.0%</output></div>
               <input id="dutyBlue" class="duty-slider" data-target="BLUE" type="range" min="1" max="1000" value="1000" step="1">
             </div>
-            <button class="laser-activate" data-target="BLUE" type="button">Activate Blue</button>
+            <button class="laser-activate" data-target="BLUE" type="button">Add Blue</button>
           </section>
         </div>
 
         <div class="paired-control">
           <div>
-            <strong>IR + Green paired source</strong>
-            <span>Runs the two installed experiment sources at one shared duty.</span>
+            <strong>Independent multi-source control</strong>
+            <span>Adding a source keeps the others active. Move an active source's slider to update its duty; removing the last source switches everything off.</span>
           </div>
-          <label for="pairedDuty" class="sr-only">IR plus Green duty</label>
-          <input id="pairedDuty" class="duty-slider compact" type="range" min="1" max="1000" value="1000" step="1">
-          <output id="pairedDutyValue" for="pairedDuty">100.0%</output>
-          <button id="pairedActivate" type="button">Activate IR + Green</button>
+          <span id="activeChannelCount" class="multi-count">0 active channels</span>
         </div>
       </article>
 

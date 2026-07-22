@@ -45,7 +45,8 @@ config LC_ENABLE_LASER_PULSE_TEST
     help
         Keep disabled in normal and measurement-validation builds. The separate
         laser-test profile accepts local native-USB commands without a FACT
-        hold and permits one channel or the explicit IR-plus-green test target.
+        hold and permits any validated combination of the four channels.
+        Dashboard commands can assign an independent duty to each active source.
         PULSE commands are bounded to 900 ms. ON commands remain active until
         OFF, reset, overcurrent, or an ADC/telemetry fault while continuous
         monitoring remains active.

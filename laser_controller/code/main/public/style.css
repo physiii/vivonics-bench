@@ -3104,6 +3104,19 @@ button.danger:hover,
 
 .fault-banner:not([hidden]) { display: flex; }
 
+.sensing-banner {
+  align-items: center;
+  gap: 12px;
+  padding: 11px 14px;
+  border: 1px solid rgba(255, 186, 73, 0.4);
+  border-radius: 7px;
+  background: rgba(255, 186, 73, 0.09);
+  color: #ffd488;
+  font-size: 0.82rem;
+}
+
+.sensing-banner:not([hidden]) { display: flex; }
+
 .control-legend,
 .sample-key {
   display: flex;
@@ -3160,6 +3173,11 @@ button.danger:hover,
 .laser-card.is-active {
   border-color: color-mix(in srgb, var(--laser-color) 52%, transparent);
   box-shadow: inset 0 0 30px color-mix(in srgb, var(--laser-color) 8%, transparent), 0 0 22px color-mix(in srgb, var(--laser-color) 10%, transparent);
+}
+
+.laser-card.sensing-degraded {
+  border-color: rgba(255, 186, 73, 0.68);
+  box-shadow: inset 0 0 30px rgba(255, 186, 73, 0.08);
 }
 
 .laser-ir { --laser-color: #b67cff; }
@@ -3260,6 +3278,9 @@ button.danger:hover,
 
 .laser-sense-grid strong { font-size: 0.82rem; }
 .laser-sense-grid small { color: var(--color-muted); font-size: 0.65rem; }
+.sense-status { color: var(--color-muted) !important; }
+.sense-status.is-signal { color: var(--color-primary) !important; }
+.sense-status.is-warning { color: var(--color-warning) !important; }
 
 .duty-control {
   display: flex;
@@ -3318,6 +3339,12 @@ button.danger:hover,
   background: color-mix(in srgb, var(--laser-color) 17%, transparent);
 }
 
+.laser-card button.is-remove {
+  border-color: rgba(255, 107, 107, 0.45);
+  background: rgba(255, 107, 107, 0.1);
+  color: #ff9c9c;
+}
+
 .paired-control {
   padding: 13px 14px;
   border: 1px solid rgba(53, 240, 194, 0.22);
@@ -3337,6 +3364,17 @@ button.danger:hover,
 .paired-control .compact { max-width: 260px; }
 .paired-control output { min-width: 46px; color: var(--color-primary); }
 .paired-control button { flex: 0 0 auto; }
+
+.multi-count {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 999px;
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
 
 .pd-grid {
   display: grid;

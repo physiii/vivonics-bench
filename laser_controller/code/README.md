@@ -9,7 +9,10 @@ telemetry, remote first-article controls, and rollback-protected OTA. At
 application entry every profile
 configures GPIO10/11/12/16 low before ADC initialization, reads all four
 AD7606-4 channels through DOUTA, and latches BUSY/SPI/timing or telemetry
-failures into a laser-off state. The PCB's analog command-limit pulldowns—not
+failures into a laser-off state. The dashboard profile reports scheduling
+deadline overruns instead of latching them because Wi-Fi and HTTP execution is
+nondeterministic; BUSY/SPI and telemetry-read failures still latch All-Off. The
+PCB's analog command-limit pulldowns—not
 application firmware—provide the safe command state while the ESP32-S3 is held
 in reset or is still in ROM/bootloader execution.
 
@@ -19,9 +22,9 @@ in reset or is still in ROM/bootloader execution.
   BUSY rising edge, bounded BUSY fall timeout, mode-1 one-lane SPI, 64-clock
   V1–V4 decode, signed scaling, metadata/counters, and latched safety state.
 - Laser-test profile implemented: local `STATUS`, `OFF`, bounded `PULSE`, and
-  latched `ON` commands; individual wavelengths or the explicit `IR_GREEN`
-  target; 10 kHz PWM below full command and a probeable steady GPIO high at
-  `1000` permille; current-sense and monitor-PD telemetry.
+  latched `ON` commands; every validated combination of the four wavelengths;
+  10 kHz PWM below full command and a probeable steady GPIO high at `1000`
+  permille; current-sense and monitor-PD telemetry.
 - Dashboard profile implemented: professional responsive UI, 50 Hz telemetry,
   discovery/health/log/network APIs, the same safety-gated output state machine,
   WPA2 provisioning AP, saved station credentials, dual 2 MiB OTA slots, output
@@ -37,12 +40,15 @@ in reset or is still in ROM/bootloader execution.
   and initial IR/green emission/current telemetry under the laser-test profile.
   See the parent repo's
   [first-article record](https://github.com/physiii/vivonics/blob/main/bench-output/laser-controller-first-article-2026-07-20.json).
-- Dashboard/OTA observed on 2026-07-21: version `0.2.1-dashboard` running valid
-  from `ota_1`, zero firmware faults, advancing 50 Hz AD7606 samples, responsive
-  desktop/mobile layouts with no browser errors, remote Green control followed
-  by verified All-Off, and IR current sense at `362 mV` or approximately
-  `36.2 mA`. Green emitted under command but its current-sense and all source-
-  monitor ADC readings were `0`; those hardware sensing paths remain open.
+- Dashboard/OTA observed on 2026-07-21: version `0.3.0-dashboard` running valid
+  from `ota_0`, zero firmware faults, advancing 50 Hz AD7606 samples, responsive
+  desktop/mobile layouts with no browser errors, simultaneous IR + Green
+  control followed by verified All-Off, and unequal IR/Green duties of 70%/40%
+  accepted and reported independently. IR current sense tracked the command at
+  `365 mV`/approximately `36.5 mA` at 100% and `246 mV`/approximately `24.6 mA`
+  at 70%. Green emitted under command but its current-sense and all equipped
+  source-monitor ADC readings were `0`; those hardware sensing paths remain
+  unresolved and are shown as degraded rather than hidden or simulated.
 - Not yet verified: absolute ADC accuracy and channel order against known
   external inputs, calibrated optical power or source-monitor slope, board
   temperature at sustained duty, or fail-shutoff behavior under real
@@ -98,17 +104,17 @@ bring-up:
 laser_controller/code/build-laser-test-container.sh
 ```
 
-The artifacts are written under `build-laser-test/`. The profile accepts `STATUS`, `OFF`,
-`ON <IR|RED|GREEN|BLUE|IR_GREEN> <duty_permille>`, and
-`PULSE <IR|RED|GREEN|BLUE|IR_GREEN> <duty_permille> <duration_ms>`. `ON` keeps
-the selected target active until `OFF`, reset, overcurrent, or an ADC/telemetry
-fault; `IR_GREEN` explicitly enables those two channels together. `PULSE`
-applies the selected target for `20..900 ms`. Both accept `1..1000` permille
+The artifacts are written under `build-laser-test/`. The profile accepts
+`STATUS`, `OFF`, `ON <target> <duty_permille>`, and
+`PULSE <target> <duty_permille> <duration_ms>`. A target is any canonical
+underscore-separated combination in IR, RED, GREEN, BLUE order, or `ALL`;
+examples are `IR_GREEN`, `RED_BLUE`, and `IR_RED_GREEN_BLUE`. `ON` keeps the
+selected channels active until `OFF`, reset, overcurrent, or an ADC/telemetry
+fault. `PULSE` applies them for `20..900 ms`. Both accept `1..1000` permille
 only when the AD7606 is ready and no fault is latched. A valid command received
 on native USB-Serial/JTAG is the test-profile arm request; the `FACT` button is
-not required. Except for the explicit IR-plus-green bring-up target, this
-profile is for controlled first-article work; it is not a production
-authorization or control interface.
+not required. This profile is for controlled first-article work; it is not a
+production authorization or control interface.
 At `1000` permille the selected command pin is driven as a steady 3.3 V GPIO
 level so it can be checked with a DC probe. Settings below `1000` use the
 10 kHz LEDC PWM path and appear as a waveform at the corresponding duty cycle.
@@ -151,10 +157,35 @@ The main HTTP surface is:
 
 Run the deterministic local UI test with `tests/dashboard-ui-smoke.js`. Run the
 live-device test with `tests/dashboard-live-smoke.js <base-url>`; add
-`--exercise-green` only at a controlled optical bench. The live test forces
-All-Off before and after exercising an output, checks desktop/mobile rendering,
+`--exercise-multi` only at a controlled optical bench. The multi-output test
+uses the UI to add IR and Green concurrently, removes IR without disturbing
+Green, and then forces All-Off. Every live test checks desktop/mobile rendering
 and fails on browser console errors, missing telemetry, faults, or viewport
 overflow.
+
+`POST /api/lasers` remains compatible with a shared-duty command such as
+`{"target":"IR_GREEN","dutyPermille":1000}`. Independent per-source duty uses
+`{"channels":[{"target":"IR","dutyPermille":700},{"target":"GREEN","dutyPermille":400}]}`.
+The state and telemetry responses return the active channel mask and the duty
+assigned to each channel.
+
+## Safety behavior and sensing limits
+
+Firmware-enforced output inhibition includes safe-low boot GPIOs, a valid ADC
+startup sample, fault-free arm/run transitions, input validation, PWM register
+or GPIO-pad readback, AD7606 BUSY/SPI checks, telemetry-ADC read checks, and
+per-channel hard current ceilings. The current-sense ceilings are IR `450 mV`
+(approximately `45 mA`), Red `300 mV` (`30 mA`), Green `850 mV` (`85 mA`), and
+Blue `1150 mV` (`115 mA`). Exceeding one forces all channels off and latches a
+reset-required fault. OTA start also commands All-Off.
+
+An active channel with zero current-sense or equipped source-monitor response
+sets `sensingDegraded`, makes `/api/health` unhealthy, and produces an explicit
+dashboard warning. It does **not** currently latch a shutdown fault. Therefore
+the Green overcurrent gate cannot be credited while its current-sense path is
+reading zero, and the source monitors cannot be credited while their paths are
+reading zero. There is no physical door/key/E-stop interlock and no network
+command-heartbeat timeout in this bench profile.
 
 This is a first-article operator surface, not a production safety controller.
 LAN requests are currently unauthenticated, OTA images are not signed, and the

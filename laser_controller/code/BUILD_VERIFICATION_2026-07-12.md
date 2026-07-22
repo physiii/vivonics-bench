@@ -15,7 +15,7 @@ profile was built and verified on the assembled board on 2026-07-21.**
 - Reproducibility: bootloader, partition table, application binary, and
   application ELF were byte-identical across the two clean builds.
 - Current application sizes: normal `0x324f0`, validation `0x32590`, laser-test
-  `0x41070`, and dashboard `0xe6060` bytes. The dashboard image leaves 55% of
+  `0x41230`, and dashboard `0xe7ae0` bytes. The dashboard image leaves 55% of
   each 2 MiB OTA slot free.
 - Build-log scan: no compiler `warning:`, `error:`, or dubious-ownership message.
 - The dashboard profile intentionally includes Wi-Fi, NVS, HTTP server, JSON,
@@ -94,10 +94,17 @@ gate and adds local `STATUS`, `OFF`, `ON`, and bounded `PULSE` commands for
 controlled first-article measurements. A valid local USB-serial command is the
 test-profile arm request; the physical `FACT` input is not required. `PULSE` is
 limited to `20..900 ms`; `ON` remains active until `OFF`, reset, an ADC/telemetry
-fault, or overcurrent. Individual wavelengths and the explicit `IR_GREEN`
-target are supported. Normal and board-validation builds keep this option
-disabled. The application size is `0x3c050` bytes (`245,840` bytes), leaving
-`77%` of the 1 MiB app partition free. Two consecutive clean builds matched:
+fault, or overcurrent. Every canonical combination of IR, Red, Green, and Blue
+is supported, with `ALL` as an alias for all four. Normal and board-validation
+builds keep this option disabled. The current application size is `0x41230`
+bytes (`266,800` bytes), leaving `75%` of the 1 MiB app partition free. The
+current regression artifact is:
+
+```text
+1fbe26e0370b5414e4d6da0af676d9eb87782d7636b233a46087ebb5152e303d  vivonics_laser_controller.bin
+```
+
+The earlier two-build reproducibility evidence was:
 
 ```text
 dc2676e87a93b03d1c243e6477de0d3bbec30c135eb593b4a1062bae33f54404  bootloader/bootloader.bin
@@ -114,17 +121,17 @@ laser_controller/code/build-laser-test-container.sh
 
 ## Dashboard, live-device, and OTA verification
 
-The `0.2.1-dashboard` profile is selected by
+The `0.3.0-dashboard` profile is selected by
 `sdkconfig.dashboard.defaults` and built with:
 
 ```bash
 laser_controller/code/build-dashboard-container.sh
 ```
 
-The verified application artifact is:
+The verified application artifact deployed on 2026-07-21 is:
 
 ```text
-091b742601eabf471ff972ca9e916edf376a51f18bb198b355b57e589f31adb2  vivonics_laser_controller.bin
+0d6daf440fb2b0f848b2c5f77768accc1036e2a744734e99db231c8fcf4e8fda  vivonics_laser_controller.bin
 ```
 
 Assembled-board verification on ESP32-S3 `ac:27:6e:ca:0c:e4`:
@@ -135,20 +142,29 @@ Assembled-board verification on ESP32-S3 `ac:27:6e:ca:0c:e4`:
   LAN;
 - live `50 Hz` AD7606 telemetry and responsive desktop/mobile UI with no
   browser console or layout failures;
-- bounded Green `1000` permille UI command followed by verified All-Off;
-- IR `1000` permille current telemetry of `362 mV`, approximately `36.2 mA`,
-  followed by verified All-Off;
-- raw HTTP OTA upload of the hash above to `ota_1`, reboot into
-  `0.2.1-dashboard`, and final OTA state `valid` after the rollback gate.
+- simultaneous IR + Green `1000` permille UI control, removal of IR while Green
+  remained active, and final verified All-Off;
+- independent API duties of IR `700` permille and Green `400` permille, reported
+  with channel mask `5` and `sharedDuty: false`;
+- IR current telemetry of `365 mV`/approximately `36.5 mA` at full command and
+  `246 mV`/approximately `24.6 mA` at 70% command;
+- live four-channel AD7606 readings near `0.96`, `1.10`, `1.13`, and `1.12 V`;
+- raw HTTP OTA upload of the hash above to `ota_0`, reboot into
+  `0.3.0-dashboard`, and final OTA state `valid` after the rollback gate.
 
 The live smoke exposed and then verified the fix for a request-lifetime defect
 that corrupted the logged target name after a laser command. The reusable
 checks are `tests/dashboard-ui-smoke.js` and
 `tests/dashboard-live-smoke.js`.
 
-Green current sense and all source-monitor readings remained zero during the
-live output sample. That is recorded as an unresolved board sensing/calibration
-issue rather than treated as successful current/monitor validation.
+Green current sense and all equipped source-monitor readings remained raw zero
+during the live output samples. The API and UI now label those active paths
+`no-response`, set `sensingDegraded: true`, make `/api/health` unhealthy, and
+state that the values are not hidden or simulated. This is recorded as an
+unresolved physical sensing-path issue rather than treated as successful
+current/monitor validation. The warning is diagnostic only; it is not a
+fail-shutoff latch. Consequently Green overcurrent protection cannot be
+credited until the current-sense path is repaired.
 
 ## Claim boundary
 

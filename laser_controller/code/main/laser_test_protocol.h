@@ -23,11 +23,16 @@ typedef struct {
     laser_test_command_type_t type;
     uint8_t channel_mask;
     uint16_t duty_permille;
+    uint16_t channel_duty_permille[LASER_TEST_CHANNEL_COUNT];
     uint16_t duration_ms;
 } laser_test_command_t;
 
 bool laser_test_parse_command(const char *line, laser_test_command_t *command);
 const char *laser_test_channel_name(uint8_t channel);
 const char *laser_test_target_name(uint8_t channel_mask);
+uint16_t laser_test_command_channel_duty(
+    const laser_test_command_t *command,
+    uint8_t channel
+);
 
 #endif

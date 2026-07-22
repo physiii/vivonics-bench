@@ -10,10 +10,11 @@ const outputDir = path.resolve(process.argv[3] || '/tmp/vivonics-laser-dashboard
 fs.mkdirSync(outputDir, { recursive: true });
 
 let sampleIndex = 41000;
-let output = { active: false, latched: false, channelMask: 0, target: 'OFF', dutyPermille: 0 };
+let output = { active: false, latched: false, channelMask: 0, target: 'OFF', dutyPermille: 0, sharedDuty: false, channels: [] };
 const commandLog = [];
 
 const targetMasks = { IR: 1, RED: 2, GREEN: 4, BLUE: 8, IR_GREEN: 5 };
+const targetOrder = ['IR', 'RED', 'GREEN', 'BLUE'];
 const contentTypes = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
@@ -41,8 +42,23 @@ function telemetry() {
       wavelengthNm,
       pwmGpio,
       active,
-      currentSense: { raw: millivolts * 4, millivolts, milliampsApprox: millivolts / 10 },
-      sourceMonitor: { raw: monitor * 4, millivolts: monitor },
+      dutyPermille: active ? output.channels.find((entry) => entry.target === target)?.dutyPermille || 0 : 0,
+      currentSense: {
+        raw: millivolts * 4,
+        millivolts,
+        milliampsApprox: millivolts / 10,
+        expectedWhenActive: true,
+        status: active ? (millivolts ? 'signal' : 'no-response') : 'idle',
+        healthy: !active || Boolean(millivolts),
+      },
+      sourceMonitor: {
+        raw: monitor * 4,
+        millivolts: monitor,
+        equipped: index < 3,
+        expectedWhenActive: index < 3,
+        status: index === 3 ? 'not-equipped' : (active ? (monitor ? 'signal' : 'no-response') : 'idle'),
+        healthy: index === 3 || !active || Boolean(monitor),
+      },
     };
   });
   return {
@@ -56,6 +72,7 @@ function telemetry() {
     output,
     photodiodes: counts.map((value, index) => ({ channel: index + 1, name: 'Signal photodiode', counts: value, volts: value * 5 / 32768 })),
     lasers,
+    sensingDegraded: lasers.some((laser) => laser.active && (!laser.currentSense.healthy || !laser.sourceMonitor.healthy)),
   };
 }
 
@@ -132,15 +149,29 @@ const server = http.createServer(async (request, response) => {
       { ssid: 'Instrumentation', rssi: -75, channel: 1, auth: 'WPA2', secure: true },
     ]);
     if (request.method === 'POST' && url.pathname === '/api/lasers/off') {
-      output = { active: false, latched: false, channelMask: 0, target: 'OFF', dutyPermille: 0 };
+      output = { active: false, latched: false, channelMask: 0, target: 'OFF', dutyPermille: 0, sharedDuty: false, channels: [] };
       commandLog.push({ kind: 'off' });
       return sendJson(response, { ok: true, queued: true });
     }
     if (request.method === 'POST' && url.pathname === '/api/lasers') {
       const command = await bodyJson(request);
-      output = { active: true, latched: true, channelMask: targetMasks[command.target], target: command.target, dutyPermille: command.dutyPermille };
+      const channels = Array.isArray(command.channels)
+        ? command.channels
+        : [{ target: command.target, dutyPermille: command.dutyPermille }];
+      const channelMask = channels.reduce((mask, channel) => mask | targetMasks[channel.target], 0);
+      const target = targetOrder.filter((_, index) => channelMask & (1 << index)).join('_');
+      const sharedDuty = channels.every((entry) => entry.dutyPermille === channels[0].dutyPermille);
+      output = {
+        active: true,
+        latched: true,
+        channelMask,
+        target,
+        dutyPermille: sharedDuty ? channels[0].dutyPermille : 0,
+        sharedDuty,
+        channels,
+      };
       commandLog.push({ kind: 'on', ...command });
-      return sendJson(response, { ok: true, queued: true, ...command });
+      return sendJson(response, { ok: true, queued: true, target, channelMask, channels });
     }
     if (request.method === 'POST' && url.pathname === '/api/wifi') {
       const credentials = await bodyJson(request);
@@ -188,8 +219,16 @@ async function verifyPage(browser, baseUrl, viewport, name) {
   assert(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth), 'Page has horizontal viewport overflow');
 
   if (name === 'desktop') {
+    await page.locator('.laser-activate[data-target="IR"]').click();
+    await page.waitForFunction(() => document.querySelector('#activeOutput').textContent === 'IR');
     await page.locator('.laser-activate[data-target="GREEN"]').click();
+    await page.waitForFunction(() => document.querySelector('#activeOutput').textContent === 'IR + GREEN');
+    assert(await page.locator('[data-laser-card].is-active').count() === 2, 'Two laser cards were not active together');
+    assert((await page.locator('#activeChannelCount').textContent()) === '2 active channels', 'Active channel count did not update');
+    assert((await page.locator('.laser-activate[data-target="IR"]').textContent()).startsWith('Remove'), 'IR did not become removable while Green stayed active');
+    await page.locator('.laser-activate[data-target="IR"]').click();
     await page.waitForFunction(() => document.querySelector('#activeOutput').textContent === 'GREEN');
+    assert(await page.locator('[data-laser-card="GREEN"].is-active').count() === 1, 'Removing IR did not preserve Green');
     await page.locator('#allOffButton').click();
     await page.waitForFunction(() => document.querySelector('#activeOutput').textContent === 'OFF');
     await page.locator('.nav-item[data-target="network"]').click();
@@ -224,7 +263,7 @@ async function verifyPage(browser, baseUrl, viewport, name) {
   try {
     await verifyPage(browser, baseUrl, { width: 1440, height: 1000 }, 'desktop');
     await verifyPage(browser, baseUrl, { width: 390, height: 844 }, 'mobile');
-    assert(commandLog.some((entry) => entry.kind === 'on' && entry.target === 'GREEN' && entry.dutyPermille === 1000), 'Green activation command was not issued');
+    assert(commandLog.some((entry) => entry.kind === 'on' && Array.isArray(entry.channels) && entry.channels.length === 2), 'Multi-laser activation command was not issued');
     assert(commandLog.some((entry) => entry.kind === 'off'), 'All-off command was not issued');
     process.stdout.write(JSON.stringify({ ok: true, baseUrl, screenshots: outputDir, commands: commandLog }, null, 2) + '\n');
   } finally {

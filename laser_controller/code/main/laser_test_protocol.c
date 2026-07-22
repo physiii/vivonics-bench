@@ -26,36 +26,67 @@ const char *laser_test_channel_name(uint8_t channel)
     return channel < LASER_TEST_CHANNEL_COUNT ? names[channel] : "INVALID";
 }
 
-static int channel_index(const char *name)
-{
-    for (int channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
-        if (strcmp(name, laser_test_channel_name((uint8_t)channel)) == 0) {
-            return channel;
-        }
-    }
-    return -1;
-}
-
 static uint8_t target_mask(const char *name)
 {
-    if (strcmp(name, "IR_GREEN") == 0) {
-        return (1U << 0) | (1U << 2);
+    const uint8_t valid_mask = (1U << LASER_TEST_CHANNEL_COUNT) - 1U;
+    for (uint8_t mask = 1U; mask <= valid_mask; ++mask) {
+        if (strcmp(name, laser_test_target_name(mask)) == 0) {
+            return mask;
+        }
     }
-    const int channel = channel_index(name);
-    return channel < 0 ? 0U : (uint8_t)(1U << channel);
+    return strcmp(name, "ALL") == 0 ? valid_mask : 0U;
 }
 
 const char *laser_test_target_name(uint8_t channel_mask)
 {
-    if (channel_mask == ((1U << 0) | (1U << 2))) {
-        return "IR_GREEN";
+    static const char *const names[1U << LASER_TEST_CHANNEL_COUNT] = {
+        "OFF",
+        "IR",
+        "RED",
+        "IR_RED",
+        "GREEN",
+        "IR_GREEN",
+        "RED_GREEN",
+        "IR_RED_GREEN",
+        "BLUE",
+        "IR_BLUE",
+        "RED_BLUE",
+        "IR_RED_BLUE",
+        "GREEN_BLUE",
+        "IR_GREEN_BLUE",
+        "RED_GREEN_BLUE",
+        "IR_RED_GREEN_BLUE",
+    };
+    return channel_mask < (1U << LASER_TEST_CHANNEL_COUNT) ?
+        names[channel_mask] : "INVALID";
+}
+
+uint16_t laser_test_command_channel_duty(
+    const laser_test_command_t *command,
+    uint8_t channel
+)
+{
+    if (command == NULL || channel >= LASER_TEST_CHANNEL_COUNT ||
+        (command->channel_mask & (1U << channel)) == 0U) {
+        return 0U;
     }
+    return command->channel_duty_permille[channel] != 0U ?
+        command->channel_duty_permille[channel] : command->duty_permille;
+}
+
+static void set_shared_duty(
+    laser_test_command_t *command,
+    uint8_t channel_mask,
+    uint16_t duty_permille
+)
+{
+    command->channel_mask = channel_mask;
+    command->duty_permille = duty_permille;
     for (uint8_t channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
-        if (channel_mask == (uint8_t)(1U << channel)) {
-            return laser_test_channel_name(channel);
+        if ((channel_mask & (1U << channel)) != 0U) {
+            command->channel_duty_permille[channel] = duty_permille;
         }
     }
-    return "INVALID";
 }
 
 bool laser_test_parse_command(const char *line, laser_test_command_t *command)
@@ -78,12 +109,12 @@ bool laser_test_parse_command(const char *line, laser_test_command_t *command)
         return true;
     }
 
-    char channel_name[9] = {0};
+    char channel_name[24] = {0};
     unsigned int duty_permille = 0;
     consumed = 0;
     if (sscanf(
             line,
-            " ON %8s %u %n",
+            " ON %23s %u %n",
             channel_name,
             &duty_permille,
             &consumed
@@ -94,8 +125,7 @@ bool laser_test_parse_command(const char *line, laser_test_command_t *command)
             return false;
         }
         command->type = LASER_TEST_COMMAND_ON;
-        command->channel_mask = channel_mask;
-        command->duty_permille = (uint16_t)duty_permille;
+        set_shared_duty(command, channel_mask, (uint16_t)duty_permille);
         return true;
     }
 
@@ -105,7 +135,7 @@ bool laser_test_parse_command(const char *line, laser_test_command_t *command)
     consumed = 0;
     if (sscanf(
             line,
-            " PULSE %8s %u %u %n",
+            " PULSE %23s %u %u %n",
             channel_name,
             &duty_permille,
             &duration_ms,
@@ -124,8 +154,7 @@ bool laser_test_parse_command(const char *line, laser_test_command_t *command)
     }
 
     command->type = LASER_TEST_COMMAND_PULSE;
-    command->channel_mask = channel_mask;
-    command->duty_permille = (uint16_t)duty_permille;
+    set_shared_duty(command, channel_mask, (uint16_t)duty_permille);
     command->duration_ms = (uint16_t)duration_ms;
     return true;
 }

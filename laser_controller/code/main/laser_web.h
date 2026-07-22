@@ -25,6 +25,7 @@ typedef struct {
     uint32_t fault_mask;
     uint8_t active_mask;
     uint16_t duty_permille;
+    uint16_t channel_duty_permille[LASER_TEST_CHANNEL_COUNT];
     bool output_active;
     bool output_latched;
 } laser_web_snapshot_t;
