@@ -40,8 +40,8 @@ in reset or is still in ROM/bootloader execution.
   and initial IR/green emission/current telemetry under the laser-test profile.
   See the parent repo's
   [first-article record](https://github.com/physiii/vivonics/blob/main/bench-output/laser-controller-first-article-2026-07-20.json).
-- Dashboard/OTA observed on 2026-07-21: version `0.3.0-dashboard` running valid
-  from `ota_0`, zero firmware faults, advancing 50 Hz AD7606 samples, responsive
+- Dashboard/OTA observed on 2026-07-21: version `0.3.1-dashboard` running valid
+  from `ota_1`, zero firmware faults, advancing 50 Hz AD7606 samples, responsive
   desktop/mobile layouts with no browser errors, simultaneous IR + Green
   control followed by verified All-Off, and unequal IR/Green duties of 70%/40%
   accepted and reported independently. IR current sense tracked the command at
@@ -49,6 +49,10 @@ in reset or is still in ROM/bootloader execution.
   at 70%. Green emitted under command but its current-sense and all equipped
   source-monitor ADC readings were `0`; those hardware sensing paths remain
   unresolved and are shown as degraded rather than hidden or simulated.
+  The outputs-off `SENSETEST` subsequently produced a repeatable `45..48 mV`
+  weak-pull response on all eight ESP32 sensing inputs across three runs. This
+  proves the ADC inputs respond and rules out an obvious floating MCU-side path;
+  the Green-current and common source-monitor faults are upstream analog issues.
 - Not yet verified: absolute ADC accuracy and channel order against known
   external inputs, calibrated optical power or source-monitor slope, board
   temperature at sustained duty, or fail-shutoff behavior under real
@@ -105,7 +109,7 @@ laser_controller/code/build-laser-test-container.sh
 ```
 
 The artifacts are written under `build-laser-test/`. The profile accepts
-`STATUS`, `OFF`, `ON <target> <duty_permille>`, and
+`STATUS`, `OFF`, `SENSETEST`, `ON <target> <duty_permille>`, and
 `PULSE <target> <duty_permille> <duration_ms>`. A target is any canonical
 underscore-separated combination in IR, RED, GREEN, BLUE order, or `ALL`;
 examples are `IR_GREEN`, `RED_BLUE`, and `IR_RED_GREEN_BLUE`. `ON` keeps the
@@ -121,6 +125,14 @@ level so it can be checked with a DC probe. Settings below `1000` use the
 Each sample log includes calibrated `I`/`M` millivolts and the corresponding
 uncalibrated `IRAW`/`MRAW` ADC counts so a zero-millivolt observation can be
 distinguished from a disconnected input or a calibration-floor effect.
+
+`SENSETEST` is accepted only while every output is off and the controller is
+fault-free. It sequentially samples ISENSE1–4 and MPD1–4 while each ESP32 input
+is floating, weakly pulled up, and weakly pulled down, then restores the input
+to floating. A floating board path follows both weak pulls; a connected,
+low-impedance zero-volt source remains near zero. The command never enables a
+laser and logs `SENSE_PIN` records over native USB-Serial/JTAG for first-article
+fault isolation.
 
 ## Laser dashboard and OTA profile
 
@@ -152,6 +164,8 @@ The main HTTP surface is:
 - `GET /api/health`, `/api/state`, `/api/telemetry`, `/api/discovery`, and
   `/api/logs`
 - `POST /api/lasers` and `/api/lasers/off`
+- `POST /api/diagnostics/sensing-pins` while fault-free and All-Off; results
+  appear as `SENSE_PIN` entries in `GET /api/logs`
 - `GET /api/wifi/list` and `/api/wifi/scan`; `POST /api/wifi`
 - `POST /api/ota/upload` with a raw ESP-IDF application binary
 

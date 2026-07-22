@@ -137,6 +137,8 @@ static void test_laser_test_protocol(void)
     assert(command.type == LASER_TEST_COMMAND_STATUS);
     assert(laser_test_parse_command(" OFF \r\n", &command));
     assert(command.type == LASER_TEST_COMMAND_OFF);
+    assert(laser_test_parse_command("SENSETEST", &command));
+    assert(command.type == LASER_TEST_COMMAND_SENSETEST);
 
     assert(laser_test_parse_command("ON GREEN 1000", &command));
     assert(command.type == LASER_TEST_COMMAND_ON);
@@ -196,6 +198,7 @@ static void test_laser_test_protocol(void)
     assert(!laser_test_parse_command("ON GREEN_IR 100", &command));
     assert(!laser_test_parse_command("ON RED 100 500", &command));
     assert(!laser_test_parse_command("ARM RED", &command));
+    assert(!laser_test_parse_command("SENSETEST NOW", &command));
 }
 
 int main(void)

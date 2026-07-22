@@ -106,6 +106,26 @@ static const adc_channel_t TELEMETRY_CHANNELS[TELEMETRY_CHANNEL_COUNT] = {
     ADC_CHANNEL_7, /* GPIO8: MPD3 */
     ADC_CHANNEL_8, /* GPIO9: MPD4/spare */
 };
+static const gpio_num_t TELEMETRY_GPIOS[TELEMETRY_CHANNEL_COUNT] = {
+    GPIO_NUM_4, /* ISENSE1 */
+    GPIO_NUM_5, /* ISENSE2 */
+    GPIO_NUM_6, /* ISENSE3 */
+    GPIO_NUM_7, /* ISENSE4 */
+    GPIO_NUM_2, /* MPD1 */
+    GPIO_NUM_3, /* MPD2 */
+    GPIO_NUM_8, /* MPD3 */
+    GPIO_NUM_9, /* MPD4/spare */
+};
+static const char *const TELEMETRY_SIGNAL_NAMES[TELEMETRY_CHANNEL_COUNT] = {
+    "ISENSE1",
+    "ISENSE2",
+    "ISENSE3",
+    "ISENSE4",
+    "MPD1",
+    "MPD2",
+    "MPD3",
+    "MPD4_SPARE",
+};
 static const int ISENSE_HARD_CEILING_MV[LASER_TEST_CHANNEL_COUNT] = {
     450,
     300,
@@ -333,6 +353,171 @@ static esp_err_t read_telemetry(laser_telemetry_t *telemetry)
     return ESP_OK;
 }
 
+static esp_err_t read_telemetry_channel_average(
+    size_t index,
+    int *raw_average,
+    int *millivolts
+)
+{
+    enum { SAMPLE_COUNT = 16 };
+    if (!telemetry_initialized || index >= TELEMETRY_CHANNEL_COUNT ||
+        raw_average == NULL || millivolts == NULL) {
+        return ESP_ERR_INVALID_ARG;
+    }
+    int64_t raw_sum = 0;
+    for (unsigned sample = 0; sample < SAMPLE_COUNT; ++sample) {
+        int raw = 0;
+        const esp_err_t error = adc_oneshot_read(
+            telemetry_adc,
+            TELEMETRY_CHANNELS[index],
+            &raw
+        );
+        if (error != ESP_OK) {
+            return error;
+        }
+        raw_sum += raw;
+    }
+    *raw_average = (int)(raw_sum / SAMPLE_COUNT);
+    return adc_cali_raw_to_voltage(
+        telemetry_cali[index],
+        *raw_average,
+        millivolts
+    );
+}
+
+static esp_err_t run_sensing_pin_self_test(void)
+{
+    if (pulse.active || safety.state != LASER_STATE_ADC_READY_LASERS_INHIBITED ||
+        safety.fault_mask != 0U) {
+        ESP_LOGE(
+            TAG,
+            "SENSETEST_REJECTED active=%d state=%d faults=0x%08" PRIx32,
+            pulse.active,
+            (int)safety.state,
+            safety.fault_mask
+        );
+        return ESP_ERR_INVALID_STATE;
+    }
+
+    force_all_lasers_off();
+    ESP_LOGW(TAG, "SENSETEST_BEGIN outputs=OFF weak_internal_pulls_only");
+#if CONFIG_LC_ENABLE_WEB_DASHBOARD
+    laser_web_record_event("SENSETEST_BEGIN outputs=OFF weak_internal_pulls_only");
+#endif
+    for (size_t index = 0; index < TELEMETRY_CHANNEL_COUNT; ++index) {
+        int floating_raw = 0;
+        int floating_mv = 0;
+        int pullup_raw = 0;
+        int pullup_mv = 0;
+        int pulldown_raw = 0;
+        int pulldown_mv = 0;
+
+        esp_err_t error = gpio_set_pull_mode(
+            TELEMETRY_GPIOS[index],
+            GPIO_FLOATING
+        );
+        if (error == ESP_OK) {
+            vTaskDelay(pdMS_TO_TICKS(2));
+            error = read_telemetry_channel_average(
+                index,
+                &floating_raw,
+                &floating_mv
+            );
+        }
+        if (error == ESP_OK) {
+            error = gpio_set_pull_mode(
+                TELEMETRY_GPIOS[index],
+                GPIO_PULLUP_ONLY
+            );
+        }
+        if (error == ESP_OK) {
+            vTaskDelay(pdMS_TO_TICKS(5));
+            error = read_telemetry_channel_average(index, &pullup_raw, &pullup_mv);
+        }
+        if (error == ESP_OK) {
+            error = gpio_set_pull_mode(
+                TELEMETRY_GPIOS[index],
+                GPIO_PULLDOWN_ONLY
+            );
+        }
+        if (error == ESP_OK) {
+            vTaskDelay(pdMS_TO_TICKS(5));
+            error = read_telemetry_channel_average(
+                index,
+                &pulldown_raw,
+                &pulldown_mv
+            );
+        }
+
+        const esp_err_t restore_error = gpio_set_pull_mode(
+            TELEMETRY_GPIOS[index],
+            GPIO_FLOATING
+        );
+        if (error == ESP_OK) {
+            error = restore_error;
+        }
+        if (error != ESP_OK) {
+            force_all_lasers_off();
+            ESP_LOGE(
+                TAG,
+                "SENSETEST_FAILED signal=%s gpio=%d error=%s",
+                TELEMETRY_SIGNAL_NAMES[index],
+                (int)TELEMETRY_GPIOS[index],
+                esp_err_to_name(error)
+            );
+#if CONFIG_LC_ENABLE_WEB_DASHBOARD
+            char event[96];
+            snprintf(
+                event,
+                sizeof(event),
+                "SENSETEST_FAILED %s G%d %s",
+                TELEMETRY_SIGNAL_NAMES[index],
+                (int)TELEMETRY_GPIOS[index],
+                esp_err_to_name(error)
+            );
+            laser_web_record_event(event);
+#endif
+            return error;
+        }
+
+        ESP_LOGW(
+            TAG,
+            "SENSE_PIN signal=%s gpio=%d floating=%d/%dmV "
+            "pullup=%d/%dmV pulldown=%d/%dmV",
+            TELEMETRY_SIGNAL_NAMES[index],
+            (int)TELEMETRY_GPIOS[index],
+            floating_raw,
+            floating_mv,
+            pullup_raw,
+            pullup_mv,
+            pulldown_raw,
+            pulldown_mv
+        );
+#if CONFIG_LC_ENABLE_WEB_DASHBOARD
+        char event[112];
+        snprintf(
+            event,
+            sizeof(event),
+            "SENSE_PIN %s G%d F%d/%dmV U%d/%dmV D%d/%dmV",
+            TELEMETRY_SIGNAL_NAMES[index],
+            (int)TELEMETRY_GPIOS[index],
+            floating_raw,
+            floating_mv,
+            pullup_raw,
+            pullup_mv,
+            pulldown_raw,
+            pulldown_mv
+        );
+        laser_web_record_event(event);
+#endif
+    }
+    ESP_LOGW(TAG, "SENSETEST_END outputs=OFF");
+#if CONFIG_LC_ENABLE_WEB_DASHBOARD
+    laser_web_record_event("SENSETEST_END outputs=OFF");
+#endif
+    return ESP_OK;
+}
+
 static esp_err_t configure_test_command_transport(void)
 {
     usb_serial_jtag_driver_config_t transport_config =
@@ -507,6 +692,10 @@ static void apply_test_command(const laser_test_command_t *command)
     if (command == NULL) {
         return;
     }
+    if (command->type == LASER_TEST_COMMAND_SENSETEST) {
+        (void)run_sensing_pin_self_test();
+        return;
+    }
     if (command->type == LASER_TEST_COMMAND_STATUS) {
         log_test_status();
         return;
@@ -597,7 +786,7 @@ static void handle_test_command(const char *line)
     if (!laser_test_parse_command(line, &command)) {
         ESP_LOGE(
             TAG,
-            "COMMAND_REJECTED syntax; use STATUS, OFF, "
+            "COMMAND_REJECTED syntax; use STATUS, OFF, SENSETEST, "
             "ON <canonical channel combination|ALL> <1..1000>, or "
             "PULSE <canonical channel combination|ALL> <1..1000> <20..900>"
         );

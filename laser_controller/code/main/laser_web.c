@@ -963,6 +963,7 @@ static esp_err_t discovery_handler(httpd_req_t *request)
         "photodiode-telemetry",
         "current-sense",
         "source-monitor",
+        "sensing-pin-self-test",
         "multi-laser-independent-duty",
         "ota-upload",
         "rollback",
@@ -980,6 +981,11 @@ static esp_err_t discovery_handler(httpd_req_t *request)
     cJSON_AddStringToObject(api, "telemetry", "/api/telemetry");
     cJSON_AddStringToObject(api, "laserControl", "/api/lasers");
     cJSON_AddStringToObject(api, "allOff", "/api/lasers/off");
+    cJSON_AddStringToObject(
+        api,
+        "sensingPinSelfTest",
+        "/api/diagnostics/sensing-pins"
+    );
     cJSON_AddStringToObject(api, "otaUpload", "/api/ota/upload");
     cJSON_AddStringToObject(api, "logs", "/api/logs");
     cJSON_AddStringToObject(api, "wifi", "/api/wifi");
@@ -1160,6 +1166,36 @@ static esp_err_t all_off_handler(httpd_req_t *request)
     cJSON *response = cJSON_CreateObject();
     cJSON_AddBoolToObject(response, "ok", true);
     cJSON_AddBoolToObject(response, "queued", true);
+    return send_json(request, response);
+}
+
+static esp_err_t sensing_pin_self_test_handler(httpd_req_t *request)
+{
+    if (s_ota_in_progress) {
+        return send_status_text(request, "409 Conflict", "OTA update in progress");
+    }
+    laser_web_snapshot_t snapshot = {0};
+    if (!read_snapshot(&snapshot) || snapshot.output_active ||
+        snapshot.fault_mask != 0U ||
+        snapshot.safety_state != LASER_STATE_ADC_READY_LASERS_INHIBITED) {
+        return send_status_text(
+            request,
+            "409 Conflict",
+            "Sensing self-test requires fault-free All-Off state"
+        );
+    }
+    const laser_test_command_t command = {
+        .type = LASER_TEST_COMMAND_SENSETEST,
+    };
+    if (enqueue_command(&command) != ESP_OK) {
+        return send_status_text(request, "503 Service Unavailable", "Control queue is busy");
+    }
+    laser_web_record_event("SENSETEST queued from dashboard; outputs verified OFF");
+    cJSON *response = cJSON_CreateObject();
+    cJSON_AddBoolToObject(response, "ok", true);
+    cJSON_AddBoolToObject(response, "queued", true);
+    cJSON_AddBoolToObject(response, "outputsOff", true);
+    cJSON_AddStringToObject(response, "results", "/api/logs");
     return send_json(request, response);
 }
 
@@ -1434,6 +1470,7 @@ static esp_err_t start_http_server(void)
         {"/api/logs", HTTP_GET, logs_handler},
         {"/api/lasers", HTTP_POST, laser_control_handler},
         {"/api/lasers/off", HTTP_POST, all_off_handler},
+        {"/api/diagnostics/sensing-pins", HTTP_POST, sensing_pin_self_test_handler},
         {"/api/wifi", HTTP_POST, wifi_config_handler},
         {"/api/wifi/list", HTTP_GET, wifi_list_handler},
         {"/api/wifi/scan", HTTP_GET, wifi_scan_handler},

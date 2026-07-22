@@ -108,6 +108,12 @@ bool laser_test_parse_command(const char *line, laser_test_command_t *command)
         command->type = LASER_TEST_COMMAND_OFF;
         return true;
     }
+    consumed = 0;
+    if (sscanf(line, " SENSETEST %n", &consumed) == 0 && consumed > 0 &&
+        only_trailing_space(line, consumed)) {
+        command->type = LASER_TEST_COMMAND_SENSETEST;
+        return true;
+    }
 
     char channel_name[24] = {0};
     unsigned int duty_permille = 0;
