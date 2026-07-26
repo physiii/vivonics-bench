@@ -1,5 +1,6 @@
 set(laser_controller_sources
     "ad7606_decode.c"
+    "laser_control_watchdog.c"
     "laser_safety.c"
     "laser_test_protocol.c"
     "main.c"

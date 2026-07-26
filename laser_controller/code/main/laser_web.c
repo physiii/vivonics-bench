@@ -1,5 +1,7 @@
 #include "laser_web.h"
 
+#include "laser_control_watchdog.h"
+
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,6 +36,8 @@ enum {
     WEB_OTA_BUFFER_BYTES = 4096,
     WEB_OTA_REBOOT_DELAY_MS = 1500,
     WEB_OTA_VALIDATION_DELAY_MS = 10000,
+    WEB_ACTIVE_OUTPUT_WATCHDOG_POLL_MS = 50,
+    WEB_ACTIVE_OUTPUT_MAX_SAMPLE_AGE_US = 500000,
 };
 
 typedef struct {
@@ -270,6 +274,38 @@ static bool read_snapshot(laser_web_snapshot_t *snapshot)
         xSemaphoreGive(s_snapshot_mutex);
     }
     return valid;
+}
+
+static void active_output_watchdog_task(void *argument)
+{
+    (void)argument;
+    for (;;) {
+        vTaskDelay(pdMS_TO_TICKS(WEB_ACTIVE_OUTPUT_WATCHDOG_POLL_MS));
+        laser_web_snapshot_t snapshot = {0};
+        if (!read_snapshot(&snapshot)) {
+            continue;
+        }
+        const int64_t now_us = esp_timer_get_time();
+        if (!laser_control_watchdog_expired(
+                snapshot.output_active,
+                snapshot.sampled_at_us,
+                now_us,
+                WEB_ACTIVE_OUTPUT_MAX_SAMPLE_AGE_US
+            )) {
+            continue;
+        }
+        ESP_LOGE(
+            TAG,
+            "ACTIVE_OUTPUT_WATCHDOG sample_age_us=%" PRId64
+            " mask=0x%02x; forcing safe reboot",
+            now_us - snapshot.sampled_at_us,
+            snapshot.active_mask
+        );
+        laser_web_record_event(
+            "ACTIVE_OUTPUT_WATCHDOG stale control loop; forcing safe reboot"
+        );
+        esp_restart();
+    }
 }
 
 bool laser_web_receive_command(laser_test_command_t *command)
@@ -1519,6 +1555,16 @@ esp_err_t laser_web_start(void)
             3072,
             NULL,
             5,
+            NULL
+        ) != pdPASS) {
+        return ESP_ERR_NO_MEM;
+    }
+    if (xTaskCreate(
+            active_output_watchdog_task,
+            "output_watchdog",
+            3072,
+            NULL,
+            8,
             NULL
         ) != pdPASS) {
         return ESP_ERR_NO_MEM;

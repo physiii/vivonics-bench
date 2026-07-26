@@ -53,6 +53,14 @@ in reset or is still in ROM/bootloader execution.
   weak-pull response on all eight ESP32 sensing inputs across five runs. This
   proves the ADC inputs respond and rules out an obvious floating MCU-side path;
   the Green-current and common source-monitor faults are upstream analog issues.
+- Dashboard safety follow-up observed on 2026-07-26: an acquisition/control-loop
+  stall left the last active snapshot visible and prevented queued All-Off
+  commands from being consumed. Version `0.3.3-dashboard` adds an independent,
+  higher-priority output watchdog that reboots into safe-low GPIO state whenever
+  an active snapshot is more than `500 ms` stale. The host boundary tests,
+  pinned ESP-IDF build, rollback-protected OTA, advancing live samples, and
+  outputs-off desktop/mobile smoke passed. The expired-watchdog reboot branch
+  has not yet been deliberately fault-injected on the assembled board.
 - Not yet verified: absolute ADC accuracy and channel order against known
   external inputs, calibrated optical power or source-monitor slope, board
   temperature at sustained duty, or fail-shutoff behavior under real
@@ -190,7 +198,11 @@ assigned to each channel.
 Firmware-enforced output inhibition includes safe-low boot GPIOs, a valid ADC
 startup sample, fault-free arm/run transitions, input validation, PWM register
 or GPIO-pad readback, AD7606 BUSY/SPI checks, telemetry-ADC read checks, and
-per-channel hard current ceilings. The current-sense ceilings are IR `450 mV`
+per-channel hard current ceilings. The dashboard profile also runs an
+independent output watchdog: while any channel is active, a control snapshot
+older than `500 ms` forces a software reboot so boot-safe GPIO initialization
+removes the output even if the acquisition task can no longer consume its
+command queue. The current-sense ceilings are IR `450 mV`
 (approximately `45 mA`), Red `300 mV` (`30 mA`), Green `850 mV` (`85 mA`), and
 Blue `1150 mV` (`115 mA`). Exceeding one forces all channels off and latches a
 reset-required fault. OTA start also commands All-Off.

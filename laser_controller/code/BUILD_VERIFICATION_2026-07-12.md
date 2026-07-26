@@ -174,6 +174,43 @@ current/monitor validation. The warning is diagnostic only; it is not a
 fail-shutoff latch. Consequently Green overcurrent protection cannot be
 credited until the current-sense path is repaired.
 
+### 2026-07-26 active-output watchdog follow-up
+
+During a simultaneous IR + Green physical probe, the last sample snapshot
+stopped advancing while the HTTP task remained responsive. Repeated
+`POST /api/lasers/off` requests were acknowledged and queued but could not be
+consumed by the stalled acquisition/control task. The board was recovered by a
+same-image OTA reboot, which restored the safe-low boot state.
+
+`0.3.3-dashboard` adds a separate priority-8 output watchdog. It reads the
+published snapshot every `50 ms` and calls `esp_restart()` if any output is
+active and the control sample age exceeds `500 ms`. The timeout predicate is a
+host-tested pure function, including inactive, exact-boundary, expired,
+backwards-clock, and invalid-threshold cases.
+
+The verified application artifact is:
+
+```text
+bff1fcaccee2aa41d4a81704914ab84b48448b4959f6b8b487c28dbfc0eaad07  vivonics_laser_controller.bin
+```
+
+Verification passed:
+
+- sanitizer-enabled host tests;
+- pinned ESP-IDF `v5.5.4` target build, `957,440` application bytes;
+- HTTP OTA to `ota_1`, rollback state `valid`, version
+  `0.3.3-dashboard`, and fault mask zero;
+- live sample index `2039` to `2100` in one second with outputs OFF;
+- desktop/mobile live dashboard smoke, no output exercise, final sample index
+  `5711`, fault mask zero, and all outputs OFF.
+
+The assembled-board expired-watchdog branch has not been deliberately
+fault-injected. The Green-driver and source-monitor analog faults remain open:
+with IR and Green commanded at full duty, U7 pin 3 measured `1.2 V`, U7 pin 4
+measured `0 V`, and U12 outputs on pins 1 and 8 both measured `0 V`. U13 held
+the intended `5.0 V` bias difference (`9.8 V` on pin 1 and `4.8 V` on pins 2
+and 3), so the shared source-monitor bias generator is operating.
+
 ## Claim boundary
 
 These results prove source compilation, host decoder/safety behavior, pinned

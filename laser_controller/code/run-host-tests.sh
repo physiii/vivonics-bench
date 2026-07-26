@@ -14,6 +14,7 @@ cc \
   -fsanitize=address,undefined \
   -I"$project_dir/main" \
   "$project_dir/main/ad7606_decode.c" \
+  "$project_dir/main/laser_control_watchdog.c" \
   "$project_dir/main/laser_safety.c" \
   "$project_dir/main/laser_test_protocol.c" \
   "$project_dir/tests/test_ad7606_and_safety.c" \

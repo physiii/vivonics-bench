@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "ad7606_decode.h"
+#include "laser_control_watchdog.h"
 #include "laser_safety.h"
 #include "laser_test_protocol.h"
 
@@ -98,6 +99,17 @@ static void test_safety_state_machine(void)
     laser_safety_disarm(&safety);
     assert(safety.state == LASER_STATE_ADC_READY_LASERS_INHIBITED);
     assert(!laser_safety_outputs_permitted(&safety));
+}
+
+static void test_active_output_watchdog(void)
+{
+    const int64_t maximum_age_us = 500000;
+    assert(!laser_control_watchdog_expired(false, 100, 1000000, maximum_age_us));
+    assert(!laser_control_watchdog_expired(true, 100, 500100, maximum_age_us));
+    assert(laser_control_watchdog_expired(true, 100, 500101, maximum_age_us));
+    assert(!laser_control_watchdog_expired(true, -1, 1000000, maximum_age_us));
+    assert(!laser_control_watchdog_expired(true, 1000, 999, maximum_age_us));
+    assert(!laser_control_watchdog_expired(true, 100, 1000000, 0));
 }
 
 static void test_every_fault_is_latched(void)
@@ -207,6 +219,7 @@ int main(void)
     test_decode_boundaries();
     test_decode_round_trip_property();
     test_safety_state_machine();
+    test_active_output_watchdog();
     test_every_fault_is_latched();
     test_laser_test_protocol();
     puts("PASS laser-controller host tests");
