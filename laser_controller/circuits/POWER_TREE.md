@@ -6,6 +6,30 @@ This is the rail and power-path review for `laser_controller.kicad_sch` and
 `laser_controller.kicad_pcb`. It complements the netlist/PCB checkers; it does
 not replace GUI ERC, schematic parity, native KiCad PCB DRC, or bench
 measurements.
+
+## First-Article Finding — 2026-07-26
+
+The 24 V input is intended to be the only external power source needed for the
+board: U15 generates `/POWER_IO/BUCK_5V`, D6 feeds the board `+5V` rail, U11
+then generates `+3V3`, and U16 independently generates `LASER_V+`. USB VBUS is
+only an alternate diode-OR source through D5; it is not a required second rail.
+
+The assembled first article measured only `4.3 V` and later `4.6 V` at U14
+AD7606 pin 1 before an external post-OR `+5V` injection raised that point to
+`5.2 V`. The AD7606 AVCC operating range is `4.75 V` to `5.25 V`. A fixed
+`5.0 V` U15 output followed by D6's forward drop therefore has insufficient
+guaranteed margin and explains the under-voltage observation. The same topology
+exists on the USB path through D5, so connecting USB must not be treated as the
+corrective action for AD7606 AVCC.
+
+This is an open first-article power-design defect, not a missing-user-supply
+requirement. Before relying on the ADC, measure D6 anode (`BUCK_5V`) and cathode
+(`+5V`) simultaneously under load. Rework the source/OR topology so the
+post-OR rail remains inside every downstream load's limits and the AD7606 sees
+at least `4.75 V`; candidate fixes require an electrical review and include a
+higher regulated pre-OR voltage, an ideal-diode path, or an approved bypass of
+the unnecessary drop. Do not connect an uncontrolled second 5 V source or
+assume two diode-OR inputs will raise the rail.
 The PCB's copper planes follow the `~/projects/access-controller` reference
 pattern: a single full-board `GND` flood on `In1.Cu` (no outer-layer `GND`
 fill -- `F.Cu`/`B.Cu` are pure signal layers), and `In2.Cu` split into
@@ -33,8 +57,8 @@ requirements.
 |---|---|---|---|---|---|
 | `VIN_24V` | J5 center-positive barrel jack and J6 RJ45 pins 4/5 | U15 AP63205 input, U16 AP63200 input, C61-C62 10 uF/50 V ceramic input caps, C70 22 uF/100 V bulk input cap | The copied barrel jack is rated 30 V / 500 mA. The copied RJ45 footprint follows the access-controller convention: pins 4/5 are power and pins 7/8/9/11 are return. AP63205/AP63200 are 32 V-max input parts, so 24 V nominal leaves limited transient margin: 80 percent of the J5 voltage rating and 75 percent of the AP632 input maximum before transients. `check_vin24_input_protection.py --policy bench-topology` and `bench-external-protection` pass for first-article bench use with J5 barrel only, 24.0 V, current limit no higher than 300 mA, RJ45 power disabled, no hot-plug, and verified polarity. `production-protection` intentionally fails because J5/J6 and U15/U16 IN pins share one `VIN_24V` net with no fuse/PTC/TVS/reverse-protection/eFuse stage onboard. `check_buck_input_power_budget.py --policy bench-selected-max-9v3`, `hardware-clamp-9v3`, and `datasheet-recommended-components` now pass the selected current, all-channel analog-limit, and local AP632 capacitor-count guards. | Schematic/netlist path is correct and current PCB copper is routed for the custom checks; input protection, KiCad DRC, and visual power-entry review remain open. | Select the adapter/RJ45 harness current limit, add protection/fusing/TVS if needed for production, review protected 24 V copper to both buck input loops, then refill zones and run DRC. |
 | `VBUS_5V` | J1/J2 Mini-B VBUS through copied MCU-sheet isolation diodes | D5 anode, CP2102N VBUS-sense divider, VBUS ESD clamps | USB input current limit depends on host/source and firmware power behavior. D5 must carry board +5 V load when USB powered. | Schematic/netlist path is correct through the copied 1N5819HW isolation diodes and current PCB copper is routed for the custom checks. | Verify USB entry current limit, D5 current/temperature, connector shield return, and ESD return during final DRC/visual review. |
-| `/POWER_IO/BUCK_5V` | U15 AP63205 buck output through L1/C64/C65 | D6 anode | This is the onboard 5 V source from `VIN_24V`. The AP63205 switch loop and diode-OR path must stay compact and away from analog inputs. The current C64+C65 bank is 44 uF nominal using 2x22 uF 25 V 0805 ceramics, matching the local AP632 reference-table capacitance guard. | Schematic/netlist path is correct and current PCB copper is routed for the custom checks. | Verify switch-loop area, current width, output ripple/transient response, and diode/regulator temperature. |
-| `+5V` | D5/D6 cathode OR output | OPA380s, TLV9001s, AP2112 input, TIA bias branches, local decoupling | Analog/load rail after Schottky OR-ing. D5/D6 cathodes carry board +5 V load; TLV9001/OPA380 supply branches are low-current distribution only. | Netlist membership is correct and current PCB copper plus the checked plane-zone definitions connect the rail for the custom checks; return-path layout signoff is captured for this PCB artifact. | Run native KiCad DRC/parity; verify diode drop, load current, and rail noise during bring-up. |
+| `/POWER_IO/BUCK_5V` | U15 AP63205 buck output through L1/C64/C65 | D6 anode | This is the onboard fixed 5 V source from `VIN_24V`. A downstream Schottky drop leaves no guaranteed AD7606 AVCC margin. The current C64+C65 bank is 44 uF nominal using 2x22 uF 25 V 0805 ceramics, matching the local AP632 reference-table capacitance guard. | Schematic/netlist connectivity is correct, but the assembled first article exposed a system-level voltage-margin defect after D6. | Measure U15 output/ripple under load and the D6 anode-to-cathode drop; approve and implement a post-OR voltage-margin rework. |
+| `+5V` | D5/D6 cathode OR output | OPA380s, TLV9001s, AP2112 input, AD7606 AVCC, TIA bias branches, local decoupling | Analog/load rail after Schottky OR-ing. The first article measured `4.3-4.6 V` at AD7606 AVCC before direct rail injection, below its `4.75 V` minimum. USB also reaches this rail through a Schottky and is not a reliable voltage correction. | PCB connectivity is correct, but voltage compliance is open and ADC operation cannot be credited at the observed native rail voltage. | Keep outputs off while diagnosing. Measure D6 anode/cathode under load, then rework the topology so the loaded post-OR rail stays within all load limits and AD7606 AVCC is `4.75-5.25 V`. |
 | `+3V3` | U11 AP2112K-3.3 | ESP32-S3-WROOM-1, EN/BOOT pulls, local caps | AP2112K is pin-correct and electrically rated for 600 mA, but SOT25 thermal resistance is the real limit from a 5 V source. The accepted bench policy is RF disabled and <=120 mA continuous +3V3 load. | Netlist membership is correct and current PCB copper plus the checked plane-zone definitions connect the rail for the custom checks. | `check_power_thermal_budget.py --policy bench-uart-usb` must pass. Sustained Wi-Fi/BLE requires a buck regulator, larger thermal package, or measured duty-cycle proof. |
 | `LASER_V+` | U16 AP63200 adjustable buck output through L2/C67/C68 | LD1-LD4 common laser anode / monitor-PD cathode rail | The bench rail is set near 9.38 V by R61/R62, not raw 24 V. Actual stress still depends on diode MPNs, forward voltage, per-channel analog command limit, firmware clamp, and duty cycle. The selected-diode 9.3 V common-rail reference passes the selected typical-current, max-current, and per-channel analog-limit cases. The current C67+C68 bank is 44 uF nominal using 2x22 uF 25 V 0805 ceramics, matching the local AP632 reference-table capacitance guard. | Current PCB routes the common rail from U16/L2 to the direct laser footprints and monitor-bias front end with 0.80 mm copper and full-size vias for the custom release gate. | `check_laser_current_budget.py` must pass for each selected diode/supply assumption. Verify AP63200 buck layout, output capacitance/ripple/stability, width/current/temperature rise, duty cycle, and board stackup; keep final review away from TIA summing nodes and MPD_RAW traces. |
 | `GND` | J1/J2 shield/GND, J5 barrel return, J6 RJ45 return pins, IC grounds | Entire board return | Mixed analog, digital, USB ESD, buck-switching, and laser-current returns share this net; layout must control return paths. | Netlist membership is correct, the current PCB has routed GND copper, 101 GND vias, and a filled `In1.Cu` GND reference-plane zone. The 2026-07-04 return-path signoff records local laser-sense and buck-return vias plus sensitive-route spacing. | Run native KiCad DRC/parity; re-open return-path review after any reroute or if bench noise/ripple measurements show coupling. |
@@ -54,7 +78,12 @@ requirements.
   anode-to-source and cathode-to-`+5V` polarity.
 - AP63205 generates the onboard 5 V source from `VIN_24V`; AP63200 generates the
   shared bench `LASER_V+` rail from `VIN_24V`. Raw 24 V is not tied to the laser
-  anodes.
+  anodes. A separate external 5 V source is not intended for normal operation.
+- The AP63205 is a fixed 5 V regulator, but the board calls the rail after D6
+  `+5V`. The 2026-07-26 first-article measurements show that distinction is
+  electrically significant: Schottky loss can put the post-OR rail below the
+  AD7606 minimum. Connecting USB adds the parallel D5 path but does not remove
+  its own forward drop.
 - AP63200/AP63205 datasheet review is encoded in
   `check_buck_input_power_budget.py`. The checker asserts TSOT-23-6 pins
   `FB/EN/IN/GND/SW/BST`, AP63200 feedback math
@@ -102,6 +131,11 @@ Existing connector access is enough for bench bring-up but not ideal for product
 - `+3V3`: U11 pin 5 / C30-C31 / C32.
 - `LASER_V+`: L2 output / C67-C68 / LD1-LD4 anode/common pins.
 - `GND`: J1/J2 shell/GND pins, J5 barrel ground pins, or J6 RJ45 return pins; use a short probe ground for rail-noise measurement.
+
+For the first-article voltage-margin diagnosis, record `/POWER_IO/BUCK_5V` at
+D6 anode and board `+5V` at D6 cathode/U14 pin 1 at the same load state. A
+post-OR reading below `4.75 V` blocks AD7606 qualification even if digital
+readback appears to run.
 
 ## Release Gate
 
