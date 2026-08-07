@@ -145,12 +145,39 @@ static void test_every_fault_is_latched(void)
 static void test_laser_test_protocol(void)
 {
     laser_test_command_t command = {0};
+    assert(!laser_test_can_reconfigure_latched_output(true, true, NULL));
     assert(laser_test_parse_command("STATUS", &command));
     assert(command.type == LASER_TEST_COMMAND_STATUS);
+    assert(!laser_test_can_reconfigure_latched_output(true, true, &command));
     assert(laser_test_parse_command(" OFF \r\n", &command));
     assert(command.type == LASER_TEST_COMMAND_OFF);
     assert(laser_test_parse_command("SENSETEST", &command));
     assert(command.type == LASER_TEST_COMMAND_SENSETEST);
+    assert(laser_test_parse_command("SNAPSHOT", &command));
+    assert(command.type == LASER_TEST_COMMAND_SNAPSHOT);
+    assert(laser_test_parse_command("STREAM 25", &command));
+    assert(command.type == LASER_TEST_COMMAND_STREAM);
+    assert(command.stream_hz == 25);
+    assert(laser_test_parse_command("STREAM 0", &command));
+    assert(command.stream_hz == 0);
+    assert(!laser_test_parse_command("STREAM 3", &command));
+    assert(!laser_test_parse_command("STREAM 51", &command));
+
+    assert(laser_test_parse_command("LEVELS 125 250 0 1000", &command));
+    assert(command.type == LASER_TEST_COMMAND_ON);
+    assert(laser_test_can_reconfigure_latched_output(true, true, &command));
+    assert(!laser_test_can_reconfigure_latched_output(false, true, &command));
+    assert(!laser_test_can_reconfigure_latched_output(true, false, &command));
+    assert(command.channel_mask == ((1U << 0) | (1U << 1) | (1U << 3)));
+    assert(command.duty_permille == 1000);
+    assert(laser_test_command_channel_duty(&command, 0) == 125);
+    assert(laser_test_command_channel_duty(&command, 1) == 250);
+    assert(laser_test_command_channel_duty(&command, 2) == 0);
+    assert(laser_test_command_channel_duty(&command, 3) == 1000);
+    assert(laser_test_parse_command("LEVELS 0 0 0 0", &command));
+    assert(command.type == LASER_TEST_COMMAND_OFF);
+    assert(!laser_test_can_reconfigure_latched_output(true, true, &command));
+    assert(!laser_test_parse_command("LEVELS 0 0 0 1001", &command));
 
     assert(laser_test_parse_command("ON GREEN 1000", &command));
     assert(command.type == LASER_TEST_COMMAND_ON);

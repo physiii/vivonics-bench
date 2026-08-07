@@ -9,7 +9,8 @@ The Pi owns the tight first-loop instrumentation:
 
 - HDMI projector pattern display
 - `IMX477` camera capture through `rpicam` / RTSP frame grabs
-- optional GPIO control for external red / green laser drivers
+- USB-first control and telemetry for the ESP32-S3 four-source laser controller,
+  with automatic Wi-Fi fallback
 - optional `TSL2591` and `AS7341` I2C sensor snapshots
 - later BPW34 photodiode data only after an ESP32/external ADC or TIA path
 
@@ -19,6 +20,8 @@ The Pi owns the tight first-loop instrumentation:
 - `x1_measurement.py`: file-backed CLI smoke-test runner.
 - `capture.py`, `projector.py`, `sensors.py`: hardware adapters.
 - `laser_gpio.py`: Raspberry Pi GPIO outputs for red / green laser switching.
+- `laser_controller_client.py`: persistent USB owner, normalized ADC telemetry,
+  independent four-source control, and Wi-Fi fallback.
 - `photocycle.py`: C1/X1 red-linearity and green-write/red-read protocols.
 - `install.sh`: user systemd service installer for `vivonics-bench`.
 - `scripts/deploy_remote.sh`: workstation-to-Pi deploy helper.
@@ -66,11 +69,13 @@ laser supply ground tied to Pi ground. The Pi pin drives the gate/base; laser
 negative goes to the MOSFET drain / transistor collector; source / emitter goes
 to ground. Keep the laser module's own current limiting or driver in place.
 
-The user service defaults to `VIVONICS_LIGHT_DRIVER=both`, so HDMI frames and
-GPIO laser outputs are updated together. The GPIO path is active-high by default:
+The camera-bench user service defaults to `VIVONICS_LIGHT_DRIVER=controller`.
+It holds `/dev/ttyACM0` open, streams controller telemetry over USB, and falls
+back to `http://192.168.1.179` when USB is stale. The legacy GPIO path remains
+available for older benches. It is active-high by default:
 `Off` drives the pins low; red or green on drives the selected channel high. It
 uses `10 kHz` PWM, mapping protocol levels `0..255` to `0..100%` active duty
-cycle. Override the driver with `hdmi`, `gpio`, or `both`; override pins with
+cycle. Select the legacy path with `VIVONICS_LIGHT_DRIVER=gpio`; override pins with
 `VIVONICS_RED_LASER_GPIO` and `VIVONICS_GREEN_LASER_GPIO`. Set
 `VIVONICS_LASER_ACTIVE_HIGH=0` only for active-low driver hardware.
 

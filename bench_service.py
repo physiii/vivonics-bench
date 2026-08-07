@@ -6,6 +6,7 @@ runs photocycle measurement protocols, and streams metrics via SSE.
 from __future__ import annotations
 
 import asyncio
+import json
 import os
 import subprocess
 import threading
@@ -29,6 +30,7 @@ from photocycle import (
     run_green_write_sweep,
     run_linearity_check,
 )
+from laser_controller_client import LaserControllerClient
 from projector import Projector, ProjectorConfig
 from sensors import SensorSuite
 
@@ -206,14 +208,18 @@ bench_state = BenchState()
 capture: Capture | None = None
 projector: Projector | None = None
 sensors: SensorSuite | None = None
+laser_controller: LaserControllerClient | None = None
 hardware_lock = threading.Lock()
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global capture, projector, sensors
+    global capture, projector, sensors, laser_controller
     capture = Capture(CaptureConfig())
-    projector = Projector(ProjectorConfig())
+    laser_controller = LaserControllerClient()
+    laser_controller.start()
+    laser_controller.wait_until_available(timeout_s=5.0)
+    projector = Projector(ProjectorConfig(), laser_controller)
     sensors = SensorSuite()
     try:
         _force_lasers_off()
@@ -224,6 +230,8 @@ async def lifespan(app: FastAPI):
         sensors.close()
     if projector is not None:
         projector.close()
+    if laser_controller is not None:
+        laser_controller.close()
 
 
 app = FastAPI(title="Vivonics Bench Service", lifespan=lifespan)
@@ -574,8 +582,13 @@ def _light_driver_includes_gpio(value: str) -> bool:
 
 
 def _force_lasers_off() -> None:
-    """Best-effort physical GPIO-off for abort and startup cleanup paths."""
+    """Best-effort output-off for abort and startup cleanup paths."""
     config = projector.config if projector is not None else ProjectorConfig()
+    if config.light_driver.lower() == "controller":
+        if laser_controller is None:
+            raise RuntimeError("Laser controller is not initialized")
+        laser_controller.off()
+        return
     from laser_gpio import LaserGPIOConfig, LaserGPIOController
 
     controller = LaserGPIOController(
@@ -653,6 +666,7 @@ def get_status():
         "pulse_config": bench_state.pulse_config_snapshot(),
         "camera_mode": bench_state.camera_mode,
         "sensors": sensors.availability() if sensors else None,
+        "laser_controller": laser_controller.status() if laser_controller else None,
     }
 
 
@@ -896,6 +910,11 @@ def run_pulse(req: PulseRequest | None = None):
                         raw_measurer = RawPulseMeasurer(
                             red_pin=projector.config.red_laser_gpio,
                             green_pin=projector.config.green_laser_gpio,
+                            light_setter=(
+                                _set_raw_light_levels
+                                if projector.config.light_driver.lower() == "controller"
+                                else None
+                            ),
                         )
                         cal = raw_measurer.start()
                         bench_state.camera_mode = "experiment"
@@ -1251,7 +1270,7 @@ def run_burst_read(n_frames: int = 500, red_level: int = 200):
         try:
             from raw_measure import RawPulseMeasurer
             import numpy as np
-            measurer = RawPulseMeasurer()
+            measurer = RawPulseMeasurer(light_setter=_raw_light_setter_for_projector())
             cal = measurer.start()
             bench_state.camera_mode = "experiment"
             emit({"type": "info", "message": f"Burst read: {cal.mask_pixels} mask px, {cal.fps:.1f} fps"})
@@ -1361,7 +1380,7 @@ def run_turbo_cycle(
             import numpy as np
             from raw_measure import RawPulseMeasurer
 
-            measurer = RawPulseMeasurer()
+            measurer = RawPulseMeasurer(light_setter=_raw_light_setter_for_projector())
             cal = measurer.start()
             bench_state.camera_mode = "experiment"
             emit({"type": "info", "message": f"Turbo: {cal.mask_pixels} px, {cal.fps:.1f} fps, target {n_cycles} cycles"})
@@ -1532,6 +1551,49 @@ def get_frame(name: str):
     return FileResponse(frame_path, media_type="image/png")
 
 
+@app.get("/laser-controller/telemetry")
+def get_laser_controller_telemetry():
+    if laser_controller is None:
+        raise HTTPException(503, "Laser controller not initialized")
+    snapshot = laser_controller.snapshot()
+    if snapshot is None:
+        return {"ok": False, "connection": laser_controller.status()}
+    return snapshot
+
+
+@app.get("/laser-controller/stream")
+async def stream_laser_controller():
+    async def event_generator():
+        last_key: tuple[Any, Any, Any] | None = None
+        last_emit = time.monotonic()
+        while True:
+            if laser_controller is None:
+                yield "data: {\"ok\":false,\"error\":\"controller unavailable\"}\n\n"
+                return
+            snapshot = laser_controller.snapshot()
+            if snapshot is not None:
+                connection = snapshot.get("connection", {})
+                key = (
+                    snapshot.get("transport"),
+                    snapshot.get("sampleIndex"),
+                    connection.get("activeTransport"),
+                )
+                if key != last_key:
+                    last_key = key
+                    last_emit = time.monotonic()
+                    yield f"data: {json.dumps(snapshot, separators=(',', ':'))}\n\n"
+            if time.monotonic() - last_emit >= 15.0:
+                last_emit = time.monotonic()
+                yield ": keepalive\n\n"
+            await asyncio.sleep(0.02)
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
+
+
 @app.get("/events")
 def get_events():
     return {"events": bench_state.events}
@@ -1590,6 +1652,19 @@ def _show_light_levels(
         raise RuntimeError("Projector not initialized")
     projector.show_color(red_level, green_level, blue_level, infrared_level=infrared_level, settle=False)
     bench_state.set_light_levels(red_level, green_level, infrared_level, blue_level)
+
+
+def _set_raw_light_levels(red_level: int, green_level: int) -> None:
+    if laser_controller is None:
+        raise RuntimeError("Laser controller not initialized")
+    laser_controller.set_levels(red=red_level, green=green_level)
+    bench_state.set_light_levels(red_level, green_level, 0, 0)
+
+
+def _raw_light_setter_for_projector():
+    if projector is not None and projector.config.light_driver.lower() == "controller":
+        return _set_raw_light_levels
+    return None
 
 
 def _light_event(

@@ -10,12 +10,39 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Callable
 
 import numpy as np
 
 SENSOR_W = 1332
 SENSOR_H = 990
+
+
+class _CallbackPwmAdapter:
+    """Minimal pigpio-compatible surface backed by a two-channel callback."""
+
+    def __init__(self, red_pin: int, green_pin: int, setter: Callable[[int, int], None]) -> None:
+        self.red_pin = red_pin
+        self.green_pin = green_pin
+        self.setter = setter
+        self.red_level = 0
+        self.green_level = 0
+        self.connected = True
+
+    def set_mode(self, _pin: int, _mode: int) -> None:
+        return None
+
+    def set_PWM_frequency(self, _pin: int, _frequency: int) -> None:
+        return None
+
+    def set_PWM_dutycycle(self, pin: int, level: int) -> None:
+        if pin == self.red_pin:
+            self.red_level = max(0, min(255, int(level)))
+        elif pin == self.green_pin:
+            self.green_level = max(0, min(255, int(level)))
+        else:
+            raise ValueError(f"Unknown light pin {pin}")
+        self.setter(self.red_level, self.green_level)
 
 
 def unpack_10bit_csi2p(packed: np.ndarray) -> np.ndarray:
@@ -182,10 +209,12 @@ class RawPulseMeasurer:
         red_pin: int = 23,
         green_pin: int = 24,
         frame_dur_us: int = 6761,
+        light_setter: Callable[[int, int], None] | None = None,
     ) -> None:
         self.red_pin = red_pin
         self.green_pin = green_pin
         self.frame_dur_us = frame_dur_us
+        self.light_setter = light_setter
         self._cam: Any = None
         self._reader: FastRedReader | None = None
         self._calibration = RawPulseCalibration()
@@ -212,13 +241,18 @@ class RawPulseMeasurer:
         if self._started:
             return self._calibration
 
-        import pigpio
         from dual_stream import start_dual_camera
 
-        if pi_instance is not None:
+        if self.light_setter is not None:
+            import pigpio
+            self._pi = _CallbackPwmAdapter(self.red_pin, self.green_pin, self.light_setter)
+            own_pi = False
+        elif pi_instance is not None:
+            import pigpio
             self._pi = pi_instance
             own_pi = False
         else:
+            import pigpio
             self._pi = pigpio.pi()
             if not self._pi.connected:
                 raise RuntimeError("Cannot connect to pigpiod")
@@ -329,7 +363,13 @@ class RawPulseMeasurer:
         )
 
     def set_light(self, red_level: int = 0, green_level: int = 0) -> None:
-        """Control laser GPIOs directly for pulse timing."""
+        """Control the configured laser transport for pulse timing."""
+        if self.light_setter is not None:
+            self.light_setter(
+                max(0, min(255, int(red_level))),
+                max(0, min(255, int(green_level))),
+            )
+            return
         if self._pi is None:
             raise RuntimeError("RawPulseMeasurer not started")
         if red_level > 0:

@@ -1,0 +1,3 @@
+# Copy this file to the service drop-in directory only for the Wi-Fi failover test.
+[Service]
+Environment=VIVONICS_LASER_CONTROLLER_USB=/dev/vivonics-controller-unavailable

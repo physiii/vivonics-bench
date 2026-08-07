@@ -7,3 +7,4 @@ Pillow>=10.0
 adafruit-blinka>=8.50
 adafruit-circuitpython-tsl2591>=1.4
 adafruit-circuitpython-as7341>=1.2
+pyserial>=3.5

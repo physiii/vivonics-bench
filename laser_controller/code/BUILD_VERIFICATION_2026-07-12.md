@@ -220,3 +220,30 @@ They do **not** prove absolute ADC accuracy or channel order, calibrated optical
 power, Green current/monitor sensing, sustained wireless/regulator thermal
 behavior, brownout behavior, or physical laser fail-shutoff. Those remain
 first-article evidence gates.
+
+## 2026-07-30 gap-free Green-control follow-up
+
+The deployed `0.3.4-dashboard` image adds gap-free reconfiguration for an
+already-active latched output and retains the full force-off/arm sequence for
+the first nonzero command. It also corrects the transition from direct GPIO
+full-duty mode back to LEDC PWM.
+
+```text
+0a16303696063fccba7ebe3f36d10b4ded08fd04415cfe8b4d19aeabab6f1f7a  vivonics_laser_controller.bin
+```
+
+The pinned ESP-IDF `v5.5.4` target build produced a `957,264` byte application.
+OTA booted `0.3.4-dashboard` from `ota_0`, was marked valid, and returned with
+fault mask zero and all duties off.
+
+Live `/bench` exercise of 16 increasing Green commands produced 56 controller
+telemetry samples inside the active interval with no unintended inactive sample
+between nonzero updates. The observed duties were monotonically increasing from
+`4` to `63` permille. Final UI zero was confirmed as controller inactive with
+duties `[0,0,0,0]`.
+
+This firmware evidence does not close the Green hardware defects. Green
+current-sense and source-monitor readings stayed at `0 mV` while the camera
+showed Green emission, and a visible Green spot remained after confirmed
+all-off. The channel is on hold pending the probe and repair sequence in
+`bench/docs/bringup.md`.

@@ -114,6 +114,55 @@ bool laser_test_parse_command(const char *line, laser_test_command_t *command)
         command->type = LASER_TEST_COMMAND_SENSETEST;
         return true;
     }
+    consumed = 0;
+    if (sscanf(line, " SNAPSHOT %n", &consumed) == 0 && consumed > 0 &&
+        only_trailing_space(line, consumed)) {
+        command->type = LASER_TEST_COMMAND_SNAPSHOT;
+        return true;
+    }
+
+    unsigned int stream_hz = 0;
+    consumed = 0;
+    if (sscanf(line, " STREAM %u %n", &stream_hz, &consumed) == 1 &&
+        consumed > 0 && only_trailing_space(line, consumed) && stream_hz <= 50U &&
+        (stream_hz == 0U || stream_hz == 1U || stream_hz == 2U ||
+         stream_hz == 5U || stream_hz == 10U || stream_hz == 25U ||
+         stream_hz == 50U)) {
+        command->type = LASER_TEST_COMMAND_STREAM;
+        command->stream_hz = (uint8_t)stream_hz;
+        return true;
+    }
+
+    unsigned int levels[LASER_TEST_CHANNEL_COUNT] = {0};
+    consumed = 0;
+    if (sscanf(
+            line,
+            " LEVELS %u %u %u %u %n",
+            &levels[0],
+            &levels[1],
+            &levels[2],
+            &levels[3],
+            &consumed
+        ) == LASER_TEST_CHANNEL_COUNT && consumed > 0 &&
+        only_trailing_space(line, consumed)) {
+        uint16_t maximum = 0U;
+        for (uint8_t channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
+            if (levels[channel] > LASER_TEST_MAX_DUTY_PERMILLE) {
+                return false;
+            }
+            command->channel_duty_permille[channel] = (uint16_t)levels[channel];
+            if (levels[channel] > 0U) {
+                command->channel_mask |= (uint8_t)(1U << channel);
+            }
+            if (levels[channel] > maximum) {
+                maximum = (uint16_t)levels[channel];
+            }
+        }
+        command->type = command->channel_mask == 0U ?
+            LASER_TEST_COMMAND_OFF : LASER_TEST_COMMAND_ON;
+        command->duty_permille = maximum;
+        return true;
+    }
 
     char channel_name[24] = {0};
     unsigned int duty_permille = 0;
@@ -163,4 +212,15 @@ bool laser_test_parse_command(const char *line, laser_test_command_t *command)
     set_shared_duty(command, channel_mask, (uint16_t)duty_permille);
     command->duration_ms = (uint16_t)duration_ms;
     return true;
+}
+
+bool laser_test_can_reconfigure_latched_output(
+    bool output_active,
+    bool output_latched,
+    const laser_test_command_t *command
+)
+{
+    return output_active && output_latched && command != NULL &&
+        command->type == LASER_TEST_COMMAND_ON &&
+        command->channel_mask != 0U;
 }

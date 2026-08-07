@@ -2,10 +2,13 @@
 from __future__ import annotations
 
 import os
-import time
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 from laser_gpio import LaserGPIOConfig, LaserGPIOController
+
+if TYPE_CHECKING:
+    from laser_controller_client import LaserControllerClient
 
 
 def _opt_int_env(name: str) -> int | None:
@@ -22,16 +25,28 @@ class ProjectorConfig:
     blue_laser_gpio: int | None = _opt_int_env("VIVONICS_BLUE_LASER_GPIO")
     laser_active_high: bool = os.environ.get("VIVONICS_LASER_ACTIVE_HIGH", "1") == "1"
     laser_pwm_hz: int = int(os.environ.get("VIVONICS_LASER_PWM_HZ", "10000"))
-    light_driver: str = "gpio"
+    light_driver: str = os.environ.get("VIVONICS_LIGHT_DRIVER", "gpio")
 
 
 class Projector:
-    def __init__(self, config: ProjectorConfig | None = None) -> None:
+    def __init__(
+        self,
+        config: ProjectorConfig | None = None,
+        controller: LaserControllerClient | None = None,
+    ) -> None:
         self.config = config or ProjectorConfig()
+        self._controller = controller
+        self._controller_open = False
         self._laser: LaserGPIOController | None = None
 
     def open(self) -> None:
         if self.is_open:
+            return
+        if self.config.light_driver.lower() == "controller":
+            if self._controller is None:
+                raise RuntimeError("Laser controller driver selected but no controller client is available")
+            self._controller_open = True
+            self.off()
             return
         laser = LaserGPIOController(
             LaserGPIOConfig(
@@ -48,6 +63,9 @@ class Projector:
         self.off()
 
     def show_color(self, r: int, g: int, b: int, *, infrared_level: int = 0, settle: bool = True) -> None:
+        if self._controller_open and self._controller is not None:
+            self._controller.set_levels(red=r, green=g, infrared=infrared_level, blue=b)
+            return
         if self._laser is None:
             raise RuntimeError("Projector not opened — call open() first")
         self._laser.show(red_level=r, green_level=g, infrared_level=infrared_level, blue_level=b)
@@ -68,16 +86,21 @@ class Projector:
         self.show_color(0, 0, 0, settle=False)
 
     def close(self) -> None:
+        if self._controller_open and self._controller is not None:
+            self._controller.off()
+            self._controller_open = False
         if self._laser is not None:
             self._laser.close()
             self._laser = None
 
     @property
     def driver_name(self) -> str:
+        if self._controller_open:
+            return "laser-controller"
         if self._laser is not None:
             return self._laser.driver_name
         return "none"
 
     @property
     def is_open(self) -> bool:
-        return self._laser is not None
+        return self._controller_open or self._laser is not None

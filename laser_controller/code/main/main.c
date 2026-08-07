@@ -66,6 +66,7 @@ static void IRAM_ATTR adc_busy_rise_isr(void *argument)
 enum {
     TELEMETRY_CHANNEL_COUNT = 8,
     UART_LINE_CAPACITY = 128,
+    USB_TELEMETRY_CAPACITY = 768,
     LASER_PWM_FREQUENCY_HZ = 10000,
     LASER_PWM_MAX_DUTY = 1023,
 };
@@ -141,6 +142,8 @@ static adc_cali_handle_t telemetry_cali[TELEMETRY_CHANNEL_COUNT];
 static laser_pulse_t pulse;
 static char uart_line[UART_LINE_CAPACITY];
 static size_t uart_line_length;
+static uint8_t usb_stream_hz;
+static bool usb_snapshot_requested;
 #endif
 
 static void force_all_lasers_off(void)
@@ -580,6 +583,10 @@ static esp_err_t set_laser_duty(uint8_t channel, uint16_t duty_permille)
         return ESP_OK;
     }
 
+    if ((laser_direct_gpio_mask & (1U << channel)) != 0U) {
+        gpio_set_level(gpio, 0);
+        laser_direct_gpio_mask &= (uint8_t)~(1U << channel);
+    }
     esp_err_t error = configure_laser_pwm_channel(channel);
     if (error != ESP_OK) {
         return error;
@@ -628,14 +635,16 @@ static esp_err_t set_laser_duty(uint8_t channel, uint16_t duty_permille)
     return ESP_OK;
 }
 
-static esp_err_t set_laser_targets(const laser_test_command_t *command)
+static esp_err_t set_laser_targets(
+    const laser_test_command_t *command,
+    bool force_off_before_apply
+)
 {
     const uint8_t valid_mask = (1U << LASER_TEST_CHANNEL_COUNT) - 1U;
     if (command == NULL || command->channel_mask == 0U ||
         (command->channel_mask & (uint8_t)~valid_mask) != 0U) {
         return ESP_ERR_INVALID_ARG;
     }
-    force_all_lasers_off();
     for (uint8_t channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
         if ((command->channel_mask & (1U << channel)) == 0U) {
             continue;
@@ -644,9 +653,35 @@ static esp_err_t set_laser_targets(const laser_test_command_t *command)
             laser_test_command_channel_duty(command, channel);
         if (duty_permille == 0U ||
             duty_permille > LASER_TEST_MAX_DUTY_PERMILLE) {
-            force_all_lasers_off();
             return ESP_ERR_INVALID_ARG;
         }
+    }
+
+    if (force_off_before_apply) {
+        force_all_lasers_off();
+    } else {
+        /*
+         * Turn off channels removed by a live LEVELS update, but preserve
+         * channels that remain active so their RC command filters do not
+         * discharge between adjacent slider values.
+         */
+        for (uint8_t channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
+            if ((command->channel_mask & (1U << channel)) == 0U) {
+                const esp_err_t error = set_laser_duty(channel, 0U);
+                if (error != ESP_OK) {
+                    force_all_lasers_off();
+                    return error;
+                }
+            }
+        }
+    }
+
+    for (uint8_t channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
+        if ((command->channel_mask & (1U << channel)) == 0U) {
+            continue;
+        }
+        const uint16_t duty_permille =
+            laser_test_command_channel_duty(command, channel);
         const esp_err_t error = set_laser_duty(channel, duty_permille);
         if (error != ESP_OK) {
             force_all_lasers_off();
@@ -700,8 +735,63 @@ static void apply_test_command(const laser_test_command_t *command)
         log_test_status();
         return;
     }
+    if (command->type == LASER_TEST_COMMAND_STREAM) {
+        usb_stream_hz = command->stream_hz;
+        usb_snapshot_requested = true;
+        ESP_LOGI(TAG, "USB_STREAM rate_hz=%u", usb_stream_hz);
+        return;
+    }
+    if (command->type == LASER_TEST_COMMAND_SNAPSHOT) {
+        usb_snapshot_requested = true;
+        return;
+    }
     if (command->type == LASER_TEST_COMMAND_OFF) {
         stop_output("command");
+        return;
+    }
+    const bool live_reconfigure = laser_test_can_reconfigure_latched_output(
+        pulse.active,
+        pulse.latched,
+        command
+    );
+    if (live_reconfigure) {
+        if (safety.state != LASER_STATE_RUN || safety.fault_mask != 0U) {
+            stop_output("unsafe-reconfigure");
+            ESP_LOGE(
+                TAG,
+                "OUTPUT_UPDATE_REJECTED state=%d faults=0x%08" PRIx32,
+                (int)safety.state,
+                safety.fault_mask
+            );
+            return;
+        }
+        const esp_err_t pwm_error = set_laser_targets(command, false);
+        if (pwm_error != ESP_OK) {
+            stop_output("reconfigure-failed");
+            laser_safety_latch_fault(&safety, LASER_FAULT_PWM_OUTPUT);
+            ESP_LOGE(
+                TAG,
+                "OUTPUT_UPDATE_REJECTED PWM apply failed: %s",
+                esp_err_to_name(pwm_error)
+            );
+            return;
+        }
+        pulse.channel_mask = command->channel_mask;
+        pulse.duty_permille = command->duty_permille;
+        for (uint8_t channel = 0; channel < LASER_TEST_CHANNEL_COUNT; ++channel) {
+            pulse.channel_duty_permille[channel] =
+                laser_test_command_channel_duty(command, channel);
+        }
+        ESP_LOGI(
+            TAG,
+            "OUTPUT_UPDATE target=%s duty_permille=%u duties=%u,%u,%u,%u",
+            laser_test_target_name(command->channel_mask),
+            command->duty_permille,
+            pulse.channel_duty_permille[0],
+            pulse.channel_duty_permille[1],
+            pulse.channel_duty_permille[2],
+            pulse.channel_duty_permille[3]
+        );
         return;
     }
     if (pulse.active && command->type == LASER_TEST_COMMAND_ON) {
@@ -736,7 +826,7 @@ static void apply_test_command(const laser_test_command_t *command)
     pulse.latched = command->type == LASER_TEST_COMMAND_ON;
     pulse.deadline_us = pulse.latched ? 0 :
         esp_timer_get_time() + (int64_t)command->duration_ms * 1000;
-    const esp_err_t pwm_error = set_laser_targets(command);
+    const esp_err_t pwm_error = set_laser_targets(command, true);
     if (pwm_error != ESP_OK) {
         force_all_lasers_off();
         pulse.active = false;
@@ -787,6 +877,8 @@ static void handle_test_command(const char *line)
         ESP_LOGE(
             TAG,
             "COMMAND_REJECTED syntax; use STATUS, OFF, SENSETEST, "
+            "STREAM <0|1|2|5|10|25|50>, SNAPSHOT, "
+            "LEVELS <ir> <red> <green> <blue>, "
             "ON <canonical channel combination|ALL> <1..1000>, or "
             "PULSE <canonical channel combination|ALL> <1..1000> <20..900>"
         );
@@ -814,6 +906,66 @@ static bool handle_wifi_provision_command(const char *line)
         ESP_LOGE(TAG, "WIFI_REJECTED error=%s", esp_err_to_name(error));
     }
     return true;
+}
+
+static void publish_usb_snapshot(
+    const ad7606_sample_t *sample,
+    const laser_telemetry_t *telemetry
+)
+{
+    char line[USB_TELEMETRY_CAPACITY];
+    const int length = snprintf(
+        line,
+        sizeof(line),
+        "VLC1 {\"type\":\"telemetry\",\"sampleIndex\":%" PRIu64
+        ",\"sampledAtUs\":%" PRId64 ",\"sampleRateHz\":%d"
+        ",\"timingOverruns\":%" PRIu64 ",\"safetyState\":%d"
+        ",\"faultMask\":%" PRIu32 ",\"output\":{\"active\":%s"
+        ",\"latched\":%s,\"channelMask\":%u,\"dutyPermille\":%u"
+        ",\"dutiesPermille\":[%u,%u,%u,%u]}"
+        ",\"photodiodeCounts\":[%d,%d,%d,%d]"
+        ",\"currentSenseRaw\":[%d,%d,%d,%d]"
+        ",\"currentSenseMillivolts\":[%d,%d,%d,%d]"
+        ",\"sourceMonitorRaw\":[%d,%d,%d,%d]"
+        ",\"sourceMonitorMillivolts\":[%d,%d,%d,%d]}\n",
+        conversion_count,
+        esp_timer_get_time(),
+        CONFIG_LC_AD7606_SAMPLE_RATE_HZ,
+        timing_overrun_count,
+        (int)safety.state,
+        safety.fault_mask,
+        pulse.active ? "true" : "false",
+        pulse.latched ? "true" : "false",
+        pulse.active ? pulse.channel_mask : 0U,
+        pulse.active ? pulse.duty_permille : 0U,
+        pulse.active ? pulse.channel_duty_permille[0] : 0U,
+        pulse.active ? pulse.channel_duty_permille[1] : 0U,
+        pulse.active ? pulse.channel_duty_permille[2] : 0U,
+        pulse.active ? pulse.channel_duty_permille[3] : 0U,
+        sample->counts[0], sample->counts[1], sample->counts[2], sample->counts[3],
+        telemetry->raw[0], telemetry->raw[1], telemetry->raw[2], telemetry->raw[3],
+        telemetry->millivolts[0], telemetry->millivolts[1],
+        telemetry->millivolts[2], telemetry->millivolts[3],
+        telemetry->raw[4], telemetry->raw[5], telemetry->raw[6], telemetry->raw[7],
+        telemetry->millivolts[4], telemetry->millivolts[5],
+        telemetry->millivolts[6], telemetry->millivolts[7]
+    );
+    if (length > 0 && (size_t)length < sizeof(line)) {
+        size_t written = 0U;
+        while (written < (size_t)length) {
+            const size_t remaining = (size_t)length - written;
+            const size_t chunk = remaining > 192U ? 192U : remaining;
+            const int count = usb_serial_jtag_write_bytes(
+                line + written,
+                chunk,
+                pdMS_TO_TICKS(5)
+            );
+            if (count <= 0) {
+                break;
+            }
+            written += (size_t)count;
+        }
+    }
 }
 #endif
 
@@ -1247,6 +1399,14 @@ void app_main(void)
         ++conversion_count;
 #if CONFIG_LC_ENABLE_WEB_DASHBOARD
         publish_web_snapshot(&sample, &telemetry);
+#endif
+#if CONFIG_LC_ENABLE_LASER_PULSE_TEST
+        const bool usb_stream_due = usb_stream_hz > 0U &&
+            (conversion_count % (CONFIG_LC_AD7606_SAMPLE_RATE_HZ / usb_stream_hz)) == 0U;
+        if (usb_snapshot_requested || usb_stream_due) {
+            usb_snapshot_requested = false;
+            publish_usb_snapshot(&sample, &telemetry);
+        }
 #endif
 #if CONFIG_LC_AD7606_LOG_EVERY_N > 0
         if ((conversion_count % CONFIG_LC_AD7606_LOG_EVERY_N) == 0U) {
