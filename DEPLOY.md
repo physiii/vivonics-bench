@@ -61,7 +61,8 @@ when the Pi wiring is in a known state.
 
 ## Claim boundary
 
-This repo only owns C1/X1 bench instrumentation: HDMI projector frames, IMX477
-capture, auxiliary I2C sensor snapshots, and smoke-test measurement scripts.
+This repo only owns shared-optical-metrology and operator-screen bench
+instrumentation: HDMI projector frames, IMX477 capture, auxiliary I2C sensor
+snapshots, and smoke-test measurement scripts.
 It does not make evidence-grade bacteriorhodopsin, purple-membrane, or
 weight-plane claims by itself.

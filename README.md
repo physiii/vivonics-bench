@@ -1,7 +1,8 @@
 # Vivonics Bench
 
-Standalone hardware-bench repository for Vivonics C1/X1 work. The parent
-Vivonics repo consumes this repository as its `bench/` Git submodule. It owns
+Standalone hardware-bench repository for Vivonics shared-optical-metrology and
+operator-material-screen work. The parent Vivonics repo consumes this
+repository as its `bench/` Git submodule. It owns
 both the Raspberry Pi measurement service and the ESP32-S3 laser-controller
 firmware/circuit package.
 
@@ -22,7 +23,7 @@ The Pi owns the tight first-loop instrumentation:
 - `laser_gpio.py`: Raspberry Pi GPIO outputs for red / green laser switching.
 - `laser_controller_client.py`: persistent USB owner, normalized ADC telemetry,
   independent four-source control, and Wi-Fi fallback.
-- `photocycle.py`: C1/X1 red-linearity and green-write/red-read protocols.
+- `photocycle.py`: metrology and operator-screen red-linearity and green-write/red-read protocols.
 - `install.sh`: user systemd service installer for `vivonics-bench`.
 - `scripts/deploy_remote.sh`: workstation-to-Pi deploy helper.
 - `laser_controller/`: authoritative ESP32-S3 firmware, KiCad design, review
@@ -291,6 +292,6 @@ Deploy from the workstation:
 scripts/deploy_remote.sh andy@192.168.1.174 /home/andy/vivonics/pi
 ```
 
-Claim boundary: these scripts are instrumentation for C1/X1 smoke tests. They
-do not promote Carolina `NRC-1` material to evidence-grade bR or purified
+Claim boundary: these scripts are instrumentation for shared-optical-metrology
+and operator-screen smoke tests. They do not promote Carolina `NRC-1` material to evidence-grade bR or purified
 purple-membrane claims.
