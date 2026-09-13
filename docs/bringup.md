@@ -3,11 +3,12 @@
 **Last updated:** 2026-07-30  
 **Board:** assembled ESP32-S3 laser controller `ac:27:6e:ca:0c:e4`  
 **Firmware:** `0.3.4-dashboard`, running from `ota_0`  
-**Green disposition:** **HOLD — do not use for an experiment or safety claim**
+**Green disposition:** **HOLD LIFTED 2026-08-07** — the hold recorded below was reviewed and refuted in `docs/program/GREEN_CHANNEL_HOLD_REVIEW_2026-08-07.md` (main repository); August–September campaigns ran green from the second controller board at `192.168.1.179`. The first-article loop measurements below remain a dated record; the AVCC rail margin, the covered dark test, and two unexplained latch-on events are still open (`docs/program/LASER_CONTROLLER.md`).
 
 This note is the bench-side electrical bring-up record. Optical geometry,
 printed-mask tolerances, and diffraction metrics are owned by
-`vivonics/docs/program/PROOF_BENCH_GRATING_RUNBOOK_2026-07-29.md`.
+`vivonics/docs/program/BENCH_RUNBOOK.md`; pass thresholds are owned by
+`vivonics/docs/ARCHITECTURE.md` §8.
 
 ## Immediate safety state
 

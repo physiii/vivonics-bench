@@ -70,7 +70,7 @@ in reset or is still in ROM/bootloader execution.
   production security provisioning.
 
 The board-level acceptance procedure remains in the parent repo's
-[`ESP32_AD7606_FIRMWARE_BRINGUP_2026-07-12.md`](https://github.com/physiii/vivonics/blob/main/docs/program/ESP32_AD7606_FIRMWARE_BRINGUP_2026-07-12.md).
+[`LASER_CONTROLLER.md`](https://github.com/physiii/vivonics/blob/main/docs/program/LASER_CONTROLLER.md).
 
 ## Host tests
 

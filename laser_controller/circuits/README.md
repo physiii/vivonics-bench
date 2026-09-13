@@ -20,9 +20,10 @@ interferometer is also a single-PD intensity read — so one broadband PD per be
 faithful, JLCPCB-assemblable proxy. Beam-deflection/centroid sensing (the quad-PD's only
 unique capability) is a fallback the production engine deliberately engineers out. The
 program rationale lives in the parent Vivonics repository:
-[`DUAL_PINHOLE_PHASE_READ_EXPERIMENT_DESIGN_2026-06-22.md`](https://github.com/physiii/vivonics/blob/main/docs/program/DUAL_PINHOLE_PHASE_READ_EXPERIMENT_DESIGN_2026-06-22.md),
-`SZEGED_BR_SWITCHING_LINEAGE_AND_INDEX_READ_FINDINGS_2026-06-22.md`, and
-`INDEX_READ_PRODUCTION_ARCHITECTURE_2026-06-02.md`.
+[`ARCHITECTURE.md`](https://github.com/physiii/vivonics/blob/main/docs/ARCHITECTURE.md),
+[`SZEGED_BR_SWITCHING_LINEAGE_AND_INDEX_READ_FINDINGS_2026-06-22.md`](https://github.com/physiii/vivonics/blob/main/docs/program/SZEGED_BR_SWITCHING_LINEAGE_AND_INDEX_READ_FINDINGS_2026-06-22.md),
+and the closed dual-pinhole branch in
+[`LITERATURE_SATURATION_LEDGER.md`](https://github.com/physiii/vivonics/blob/main/docs/program/LITERATURE_SATURATION_LEDGER.md).
 
 ## Files
 
