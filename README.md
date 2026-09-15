@@ -72,13 +72,27 @@ to ground. Keep the laser module's own current limiting or driver in place.
 
 The camera-bench user service defaults to `VIVONICS_LIGHT_DRIVER=controller`.
 It holds `/dev/ttyACM0` open, streams controller telemetry over USB, and falls
-back to `http://192.168.1.179` when USB is stale. The legacy GPIO path remains
+back to the current controller address at `http://192.168.1.110` when USB is
+stale. The legacy GPIO path remains
 available for older benches. It is active-high by default:
 `Off` drives the pins low; red or green on drives the selected channel high. It
 uses `10 kHz` PWM, mapping protocol levels `0..255` to `0..100%` active duty
 cycle. Select the legacy path with `VIVONICS_LIGHT_DRIVER=gpio`; override pins with
 `VIVONICS_RED_LASER_GPIO` and `VIVONICS_GREEN_LASER_GPIO`. Set
 `VIVONICS_LASER_ACTIVE_HIGH=0` only for active-low driver hardware.
+
+The current IR-capable USB operator camera needs explicit low-light preview
+controls for the enclosed bench. Install
+`systemd/50-usb-camera-demo-controls.conf` as a drop-in for
+`c1-camera-rtsp.service`; it raises preview exposure and gain while keeping the
+30 fps exposure envelope. This setting affects the USB RTSP/WebRTC operator
+view only. It does not change direct IMX477 measurement capture.
+
+Install `systemd/45-usb-camera-high-quality.conf` on the same service to
+publish the camera's highest native real-time mode, `1920x1080 @ 30 fps`, at a
+`20 Mbit/s` H.264 target. MediaMTX relays that stream to WebRTC without another
+encode. The earlier `1280x720 @ 3 Mbit/s` publisher setting is not suitable for
+the entropy of the low-light bench image and produces visible macroblocking.
 
 ## Reactor AD7606 Wiring and Bring-Up Notes
 
